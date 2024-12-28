@@ -4,6 +4,8 @@
 
 import UIKit
 
+import RIBs
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
