@@ -16,16 +16,20 @@ extension InfoPlist {
         ],
         "UILaunchStoryboardName": "LaunchScreen.storyboard",
         "CFBundleDisplayName" : "$(BUNDLE_DISPLAY_NAME)",
-        "UIApplicationSceneManifest": [
-            "UIApplicationSupportsMultipleScenes": false,
-            "UISceneConfigurations": [
-                "UIWindowSceneSessionRoleApplication": [
-                    [
-                        "UISceneConfigurationName": "Default Configuration"
-                    ]
-                ]
-            ]
-        ],
+        
+        
+        // ※ SceneDelegate 사용시 아래 코드 활성화
+        
+//        "UIApplicationSceneManifest": [
+//            "UIApplicationSupportsMultipleScenes": false,
+//            "UISceneConfigurations": [
+//                "UIWindowSceneSessionRoleApplication": [
+//                    [
+//                        "UISceneConfigurationName": "Default Configuration"
+//                    ]
+//                ]
+//            ]
+//        ],
     ]
     
     public static func app_plist(with: [String: ProjectDescription.Plist.Value]) -> InfoPlist {

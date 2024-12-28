@@ -15,6 +15,10 @@ let project = Project(
             resources: ["Resources/**"],
             dependencies: [
                 
+                // Feature
+                .feature(implements: .Root),
+                
+                
                 // Third party
                 .thirdParty(library: .RIBs)
             ]
