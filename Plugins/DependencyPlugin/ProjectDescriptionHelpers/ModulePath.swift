@@ -32,6 +32,7 @@ public extension ModulePath {
     enum Feature: String, CaseIterable {
         
         case Root
+        case Alarm
         
         public static let categoryName: String = "Feature"
 
