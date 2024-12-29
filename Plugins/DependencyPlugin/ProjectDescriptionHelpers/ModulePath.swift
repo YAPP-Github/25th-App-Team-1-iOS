@@ -33,6 +33,7 @@ public extension ModulePath {
         
         case Root
         case Alarm
+        case DesignSystem
         
         public static let categoryName: String = "Feature"
 
@@ -48,6 +49,8 @@ public extension ModulePath {
     enum ThirdParty: String, CaseIterable {
         
         case RIBs
+        case Then
+        case SnapKit
         
         public static let categoryName: String = "ThirdParty"
     }
