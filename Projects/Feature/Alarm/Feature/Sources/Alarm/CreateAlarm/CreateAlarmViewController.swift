@@ -23,6 +23,7 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
         
     override func loadView() {
         view = mainView
+        mainView.listener = self
     }
     
     override func viewDidLoad() {

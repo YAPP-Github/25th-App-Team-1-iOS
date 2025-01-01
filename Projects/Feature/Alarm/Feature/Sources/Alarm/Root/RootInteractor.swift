@@ -12,6 +12,7 @@ enum RootRouterRequest {
     case cleanupViews
     case routeToAlarmList
     case routeToCreateAlarm
+    case detachCreateAlarm
 }
 
 protocol RootRouting: Routing {
@@ -29,7 +30,9 @@ final class RootInteractor: Interactor, RootInteractable {
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init() {}
+    init(service: RootServiceable) {
+        self.service = service
+    }
 
     override func didBecomeActive() {
         super.didBecomeActive()
@@ -43,6 +46,8 @@ final class RootInteractor: Interactor, RootInteractable {
         // TODO: Pause any business logic.
     }
     
+    private var service: RootServiceable
+    
     private func start() {
         router?.request(.routeToAlarmList)
     }
@@ -53,6 +58,16 @@ extension RootInteractor {
         switch request {
         case .addAlarm:
             router?.request(.routeToCreateAlarm)
+        }
+    }
+}
+
+extension RootInteractor {
+    func request(_ request: CreateAlarmListenerRequest) {
+        switch request {
+        case let .done(alarm):
+            router?.request(.detachCreateAlarm)
+            service.createAlarm(alarm)
         }
     }
 }

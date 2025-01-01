@@ -43,6 +43,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToAlarmList()
         case .routeToCreateAlarm:
             routeToCreateAlarm()
+        case .detachCreateAlarm:
+            detachCreateAlarm()
         }
     }
     
@@ -81,5 +83,12 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         attachChild(router)
         let createAlarmViewController = router.viewControllable.uiviewController
         navigationController.pushViewController(createAlarmViewController, animated: true)
+    }
+    
+    func detachCreateAlarm() {
+        guard let router = createAlarmRouter else { return }
+        createAlarmRouter = nil
+        detachChild(router)
+        navigationController.popViewController(animated: true)
     }
 }

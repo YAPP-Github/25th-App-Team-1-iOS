@@ -17,22 +17,26 @@ protocol CreateAlarmPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
+enum CreateAlarmListenerRequest {
+    case done(Alarm)
+}
+
 protocol CreateAlarmListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: CreateAlarmListenerRequest)
 }
 
 final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>, CreateAlarmInteractable, CreateAlarmPresentableListener {
 
     weak var router: CreateAlarmRouting?
     weak var listener: CreateAlarmListener?
-
-    // TODO: Add additional dependencies to constructor. Do not perform any logic
-    // in constructor.
+    
     override init(presenter: CreateAlarmPresentable) {
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
+    private var alarm: Alarm = .default
+    
     func request(_ request: CreateAlarmPresentableListenerRequest) {
         switch request {
         case .done:
@@ -41,6 +45,6 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
     }
     
     private func createAlarm() {
-        
+        listener?.request(.done(alarm))
     }
 }

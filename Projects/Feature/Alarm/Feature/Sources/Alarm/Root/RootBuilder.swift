@@ -15,13 +15,16 @@ protocol RootDependency: Dependency {
 }
 
 final class RootComponent: Component<RootDependency> {
-
-    // TODO: Make sure to convert the variable into lower-camelcase.
     fileprivate var RootViewController: RootViewControllable {
         return dependency.RootViewController
     }
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate var service: RootServiceable
+    init(dependency: any RootDependency,
+         service: RootServiceable = RootService()
+    ) {
+        self.service = service
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
@@ -38,7 +41,7 @@ final class RootBuilder: Builder<RootDependency>, RootBuildable {
 
     func build(withListener listener: RootListener) -> RootRouting {
         let component = RootComponent(dependency: dependency)
-        let interactor = RootInteractor()
+        let interactor = RootInteractor(service: component.service)
         interactor.listener = listener
         let alarmListBuilder = AlarmListBuilder(dependency: component)
         let createAlarmBuilder = CreateAlarmBuilder(dependency: component)

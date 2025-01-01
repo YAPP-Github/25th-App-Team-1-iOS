@@ -38,6 +38,7 @@ final class CreateAlarmView: UIView {
     }
     
     private let doneButton = UIButton(type: .system)
+    
     weak var listener: CreateAlarmViewListener?
     
     @objc
@@ -51,14 +52,17 @@ private extension CreateAlarmView {
         backgroundColor = .white
         doneButton.do {
             $0.setTitle("완료", for: .normal)
-            $0.setTitleColor(.white, for: .normal)
+            $0.setTitleColor(.black, for: .normal)
             $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
             $0.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         }
+        addSubview(doneButton)
     }
     
     func layout() {
-        
+        doneButton.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
     }
 }
 
