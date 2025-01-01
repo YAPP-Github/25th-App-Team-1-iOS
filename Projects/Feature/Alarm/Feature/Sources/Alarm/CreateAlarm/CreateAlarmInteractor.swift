@@ -39,6 +39,12 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
     
     func request(_ request: CreateAlarmPresentableListenerRequest) {
         switch request {
+        case let .meridiemChanged(meridiem):
+            alarm.meridiem = meridiem
+        case let .hourChanged(hour):
+            alarm.hour = hour
+        case let .minuteChanged(minute):
+            alarm.minute = minute
         case .done:
             createAlarm()
         }

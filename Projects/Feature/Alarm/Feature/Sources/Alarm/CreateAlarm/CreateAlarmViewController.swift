@@ -10,6 +10,9 @@ import RxSwift
 import UIKit
 
 enum CreateAlarmPresentableListenerRequest {
+    case meridiemChanged(Meridiem)
+    case hourChanged(Int)
+    case minuteChanged(Int)
     case done
 }
 
@@ -41,6 +44,12 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
 extension CreateAlarmViewController: CreateAlarmViewListener {
     func action(_ action: CreateAlarmView.Action) {
         switch action {
+        case let .meridiemChanged(meridiem):
+            listener?.request(.meridiemChanged(meridiem))
+        case let .hourChanged(hour):
+            listener?.request(.hourChanged(hour))
+        case let .minuteChanged(minute):
+            listener?.request(.minuteChanged(minute))
         case .doneButtonTapped:
             listener?.request(.done)
         }
