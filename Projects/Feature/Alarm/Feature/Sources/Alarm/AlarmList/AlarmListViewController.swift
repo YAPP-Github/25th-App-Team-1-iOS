@@ -9,10 +9,12 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum AlarmListPresentableListenerRequest {
+    case addAlarm
+}
+
 protocol AlarmListPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    func request(_ request: AlarmListPresentableListenerRequest)
 }
 
 final class AlarmListViewController: UIViewController, AlarmListPresentable, AlarmListViewControllable {
@@ -21,6 +23,7 @@ final class AlarmListViewController: UIViewController, AlarmListPresentable, Ala
     
     override func loadView() {
         view = mainView
+        mainView.listener = self
     }
     
     private let mainView = AlarmListView()
@@ -28,6 +31,9 @@ final class AlarmListViewController: UIViewController, AlarmListPresentable, Ala
 
 extension AlarmListViewController: AlarmListViewListener {
     func action(_ action: AlarmListView.Action) {
-        switch action {}
+        switch action {
+        case .addButtonTapped:
+            listener?.request(.addAlarm)
+        }
     }
 }

@@ -17,8 +17,12 @@ protocol AlarmListPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
+enum AlarmListListenerRequest {
+    case addAlarm
+}
+
 protocol AlarmListListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: AlarmListListenerRequest)
 }
 
 final class AlarmListInteractor: PresentableInteractor<AlarmListPresentable>, AlarmListInteractable, AlarmListPresentableListener {
@@ -41,5 +45,12 @@ final class AlarmListInteractor: PresentableInteractor<AlarmListPresentable>, Al
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+    
+    func request(_ request: AlarmListPresentableListenerRequest) {
+        switch request {
+        case .addAlarm:
+            listener?.request(.addAlarm)
+        }
     }
 }

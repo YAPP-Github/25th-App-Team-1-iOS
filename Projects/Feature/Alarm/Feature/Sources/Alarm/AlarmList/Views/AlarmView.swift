@@ -18,6 +18,7 @@ final class AlarmListView: UIView {
     enum Action {
         case addButtonTapped
     }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -28,7 +29,13 @@ final class AlarmListView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    weak var listener: AlarmListViewListener?
+    
     private let addButton = UIButton(type: .system)
+    @objc
+    private func addButtonTapped() {
+        listener?.action(.addButtonTapped)
+    }
 }
 
 private extension AlarmListView {
@@ -39,6 +46,7 @@ private extension AlarmListView {
             $0.backgroundColor = .black
             $0.layer.cornerRadius = 30
             $0.layer.masksToBounds = true
+            $0.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         }
         
         addSubview(addButton)

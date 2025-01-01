@@ -44,14 +44,13 @@ final class RootViewController: UIViewController {
         ])
     }
     
-    var alarmListRouter: ViewableRouting?
+    var alarmRootRouter: Routing?
     
     private func showAlarmList() {
-        let builder = AlarmListBuilder(dependency: EmptyComponent())
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
         let router = builder.build(withListener: self)
         router.interactable.activate()
-        alarmListRouter = router
-        navigationController?.pushViewController(router.viewControllable.uiviewController, animated: true)
+        alarmRootRouter = router
     }
     
     private func showAlarmSetting() {
@@ -59,12 +58,14 @@ final class RootViewController: UIViewController {
     }
 }
 
-extension RootViewController: AlarmListListener {
+extension RootViewController: RootListener, RootViewControllable {
     
 }
 
-extension EmptyComponent: AlarmListDependency {
-    
+extension ExampleComponent: RootDependency {
+    var RootViewController: RootViewControllable {
+        viewController
+    }
 }
 
 
@@ -89,5 +90,13 @@ extension RootViewController: UITableViewDelegate {
         case .alarmSetting:
             showAlarmSetting()
         }
+    }
+}
+
+class ExampleComponent: Component<EmptyDependency> {
+    let viewController: RootViewControllable
+    init(viewController: RootViewControllable) {
+        self.viewController = viewController
+        super.init(dependency: EmptyComponent())
     }
 }
