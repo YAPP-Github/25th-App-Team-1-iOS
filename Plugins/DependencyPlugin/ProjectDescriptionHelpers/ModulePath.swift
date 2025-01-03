@@ -33,7 +33,7 @@ public extension ModulePath {
         
         case Root
         case Alarm
-        case DesignSystem
+        case Resources
         
         public static let categoryName: String = "Feature"
 
