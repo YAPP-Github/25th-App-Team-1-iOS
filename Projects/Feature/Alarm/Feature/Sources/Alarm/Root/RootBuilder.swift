@@ -19,6 +19,11 @@ final class RootComponent: Component<RootDependency> {
         return dependency.RootViewController
     }
     fileprivate var service: RootServiceable
+    
+    var mutableStream: AlarmListMutableStream {
+        return shared { MutableAlarmListStreamImpl() }
+    }
+    
     init(dependency: any RootDependency,
          service: RootServiceable = RootService()
     ) {
@@ -41,7 +46,10 @@ final class RootBuilder: Builder<RootDependency>, RootBuildable {
 
     func build(withListener listener: RootListener) -> RootRouting {
         let component = RootComponent(dependency: dependency)
-        let interactor = RootInteractor(service: component.service)
+        let interactor = RootInteractor(
+            service: component.service,
+            stream: component.mutableStream
+        )
         interactor.listener = listener
         let alarmListBuilder = AlarmListBuilder(dependency: component)
         let createAlarmBuilder = CreateAlarmBuilder(dependency: component)

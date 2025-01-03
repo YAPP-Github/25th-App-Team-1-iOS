@@ -30,8 +30,12 @@ final class RootInteractor: Interactor, RootInteractable {
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(service: RootServiceable) {
+    init(
+        service: RootServiceable,
+        stream: AlarmListMutableStream
+    ) {
         self.service = service
+        self.stream = stream
     }
 
     override func didBecomeActive() {
@@ -46,7 +50,8 @@ final class RootInteractor: Interactor, RootInteractable {
         // TODO: Pause any business logic.
     }
     
-    private var service: RootServiceable
+    private let service: RootServiceable
+    private let stream: AlarmListMutableStream
     
     private func start() {
         router?.request(.routeToAlarmList)

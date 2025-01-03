@@ -8,5 +8,8 @@
 import Foundation
 
 extension RootComponent: AlarmListDependency {
+    var stream: AlarmListStream {
+        return mutableStream
+    }
     
 }
