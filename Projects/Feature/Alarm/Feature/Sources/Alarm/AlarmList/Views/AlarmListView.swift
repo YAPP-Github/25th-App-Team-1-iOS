@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import Then
-import FeatureDesignSystem
+import FeatureResources
 
 protocol AlarmListViewListener: AnyObject {
     func action(_ action: AlarmListView.Action)

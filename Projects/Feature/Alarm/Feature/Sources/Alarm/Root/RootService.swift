@@ -6,7 +6,7 @@
 //
 
 import UserNotifications
-import FeatureDesignSystem
+import FeatureResources
 
 protocol RootServiceable {
     func createAlarm(_ alarm: Alarm)
