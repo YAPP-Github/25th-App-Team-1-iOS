@@ -23,7 +23,6 @@ let project = Project(
             resources: ["Example/Resources/**"],
             dependencies: [
                 .feature(implements: .{{ name }}),
-                .feature(testing: .{{ name }}),
             ]
         ),
 
@@ -38,7 +37,6 @@ let project = Project(
             sources: ["Tests/**"],
             dependencies: [
                 .feature(implements: .{{ name }}),
-                .feature(testing: .{{ name }}),
             ]
         ),
 
