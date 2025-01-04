@@ -14,13 +14,13 @@ let project = Project(
             sources: ["Sources/**"],
             resources: ["Resources/**"],
             dependencies: [
-                
                 // Feature
-                .feature(implements: .Root),
-                
-                
+                .feature(implements: .Onboarding),
+                .feature(implements: .Alarm),
                 // Third party
-                .thirdParty(library: .RIBs)
+                .thirdParty(library: .RIBs),
+                .thirdParty(library: .SnapKit),
+                .thirdParty(library: .Then)
             ]
         ),
     ]
