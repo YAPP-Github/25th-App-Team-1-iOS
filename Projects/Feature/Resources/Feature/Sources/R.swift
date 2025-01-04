@@ -272,7 +272,7 @@ public class R {
             }
         }
         
-        func toUIFont() -> UIFont? {
+        public func toUIFont() -> UIFont? {
             switch self {
             case .displaySemiBold:
                 return FeatureResourcesFontFamily.Pretendard.semiBold.font(size: size)
