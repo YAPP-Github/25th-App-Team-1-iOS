@@ -32,6 +32,7 @@ public extension ModulePath {
     enum Feature: String, CaseIterable {
         
         case Root
+        case Onboarding
         case Alarm
         case Resources
         
