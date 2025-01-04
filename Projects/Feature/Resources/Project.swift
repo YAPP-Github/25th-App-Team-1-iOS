@@ -11,6 +11,7 @@ let project = Project(
             product: .framework,
             bundleId: Project.Environment.bundleId(suffix: "feature.resources"),
             deploymentTargets: Project.Environment.deploymentTarget,
+            infoPlist: .resources,
             sources: ["Feature/Sources/**"],
             resources: ["Feature/Resources/**"],
             dependencies: []

@@ -5,6 +5,20 @@ public extension InfoPlist {
     static let app: InfoPlist = .app_plist(with: [:])
     
     static let example_app: InfoPlist = .app_plist(with: [:])
+    
+    static let resources: InfoPlist = .app_plist(with: [
+        "UIAppFonts": .array([
+            "Pretendard-Black.otf",
+            "Pretendard-Bold.otf",
+            "Pretendard-ExtraBold.otf",
+            "Pretendard-ExtraLight.otf",
+            "Pretendard-Light.otf",
+            "Pretendard-Medium.otf",
+            "Pretendard-Regular.otf",
+            "Pretendard-SemiBold.otf",
+            "Pretendard-Thin.otf",
+        ])
+    ])
 }
 
 extension InfoPlist {
