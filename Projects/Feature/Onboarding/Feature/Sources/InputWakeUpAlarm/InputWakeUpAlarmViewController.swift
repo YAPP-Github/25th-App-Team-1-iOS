@@ -18,4 +18,26 @@ protocol InputWakeUpAlarmPresentableListener: AnyObject {
 final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPresentable, InputWakeUpAlarmViewControllable {
 
     weak var listener: InputWakeUpAlarmPresentableListener?
+    
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) { nil
+    }
+    
+    private let mainView = InputWakeUpAlarmView()
+    
+    override func loadView() {
+        
+        self.view = mainView
+        
+    }
+}
+
+
+// MARK: Preview
+#Preview {
+    
+    InputWakeUpAlarmViewController()
 }
