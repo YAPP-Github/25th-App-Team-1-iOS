@@ -11,11 +11,11 @@ CURRENT_DATE = $(shell pipenv run python Scripts/current_date.py)
 #	--current-date "$(CURRENT_DATE)";
 #	@rm Pipfile >/dev/null 2>&1;
 #	@tuist edit
-	
-NOAPP_FLAG := $(filter -noapp,$(MAKEFLAGS))
-	
+
+noapp ?= false
+
 Feature:
-ifeq ($(NOAPP_FLAG), -noapp)
+ifeq ($(noapp), true)
 	@mkdir -p Projects/Feature/${name};
 	@tuist scaffold FeatureWithoutExample \
 	--name ${name} \

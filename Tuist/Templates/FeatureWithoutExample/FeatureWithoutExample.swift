@@ -13,7 +13,7 @@ private let currentDate: Template.Attribute = .required("currentDate")
 let projectPath = "Projects/Feature/\(name)"
 
 let featureTemplate = Template(
-    description: "A template for a new feature module",
+    description: "A template for a new feature module without example",
     attributes: [
         name,
         author,
@@ -23,19 +23,19 @@ let featureTemplate = Template(
         
         // MARK: Tests target
         
-        .item(path: "\(projectPath)/Tests/Tests.swift", contents: .file(.relativeToRoot("Tuist/Scaffold/Feature/Tests/Tests.swift"))),
+        .item(path: "\(projectPath)/Tests/Tests.swift", contents: .file(.relativeToRoot("Tuist/Scaffold/FeatureWithoutExample/Tests/Tests.swift"))),
         
         
         // MARK: Feature target
         
-        .item(path: "\(projectPath)/Feature", contents: .directory(.relativeToRoot("Tuist/Scaffold/Feature/Feature/Sources"))),
+        .item(path: "\(projectPath)/Feature", contents: .directory(.relativeToRoot("Tuist/Scaffold/FeatureWithoutExample/Feature/Sources"))),
             
     
         // MARK: Project.swift
         
         .file(
             path: "\(projectPath)/Project.swift",
-            templatePath: .relativeToRoot("Tuist/Scaffold/Feature/Project.stencil")
+            templatePath: .relativeToRoot("Tuist/Scaffold/FeatureWithoutExample/Project.stencil")
         ),
     ]
 )
