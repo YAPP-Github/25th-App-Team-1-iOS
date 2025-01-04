@@ -16,16 +16,14 @@ NOAPP_FLAG := $(filter -noapp,$(MAKEFLAGS))
 	
 Feature:
 ifeq ($(NOAPP_FLAG), -noapp)
-	@echo "feature project without example app"
 	@mkdir -p Projects/Feature/${name};
-	@tuist scaffold Feature \
+	@tuist scaffold FeatureWithoutExample \
 	--name ${name} \
 	--author "$(USER_NAME)" \
 	--current-date "$(CURRENT_DATE)";
 else
-	@echo "feature project with example app"
 	@mkdir -p Projects/Feature/${name};
-	@tuist scaffold FeatureWithoutApp \
+	@tuist scaffold Feature \
 	--name ${name} \
 	--author "$(USER_NAME)" \
 	--current-date "$(CURRENT_DATE)";
