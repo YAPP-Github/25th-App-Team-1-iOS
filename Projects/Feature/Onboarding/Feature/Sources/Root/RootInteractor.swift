@@ -12,6 +12,7 @@ public enum RootRouterRequest {
     case cleanUpViews
     case routeToIntro
     case routeToInputName
+    case routeToInputBornTime
 }
 
 public protocol RootRouting: Routing {
@@ -40,6 +41,8 @@ final class RootInteractor: Interactor, RootInteractable {
             router?.request(.routeToIntro)
         case .inputName:
             router?.request(.routeToInputName)
+        case .inputBornTime:
+            router?.request(.routeToInputBornTime)
         }
     }
 

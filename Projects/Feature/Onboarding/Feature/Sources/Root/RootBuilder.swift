@@ -10,6 +10,7 @@ import RIBs
 public enum EntryPoint {
     case intro
     case inputName
+    case inputBornTime
 }
 
 public protocol RootDependency: Dependency {
@@ -47,11 +48,13 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         interactor.listener = listener
         let introBuilder = IntroBuilder(dependency: component)
         let inputNameBuilder = InputNameBuilder(dependency: component)
+        let inputBornTimeBuilder = InputBornTimeBuilder(dependency: component)
         return RootRouter(
             interactor: interactor,
             viewController: component.rootViewController,
             introBuilder: introBuilder,
-            inputNameBuilder: inputNameBuilder
+            inputNameBuilder: inputNameBuilder,
+            inputBornTimeBuilder: inputBornTimeBuilder
         )
     }
 }

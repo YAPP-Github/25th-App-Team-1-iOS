@@ -13,11 +13,13 @@ final class RootViewController: UIViewController {
     enum Scene: CaseIterable {
         case intro
         case inputName
+        case inputBornTime
         
         var title: String {
             switch self {
             case .intro: return "소개페이지"
             case .inputName: return "이름 입력 화면"
+            case .inputBornTime: return "태어난 시간 입력 화면"
             }
         }
     }
@@ -58,6 +60,13 @@ final class RootViewController: UIViewController {
         router.interactable.activate()
         rootRouter = router
     }
+    
+    private func showInputBornTIme() {
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
+        let router = builder.build(withListener: self, entryPoint: .inputBornTime)
+        router.interactable.activate()
+        rootRouter = router
+    }
 }
 
 extension RootViewController: RootListener, RootViewControllable {
@@ -78,7 +87,7 @@ extension RootViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let scene = Scene.allCases[indexPath.section]
+        let scene = Scene.allCases[indexPath.row]
         cell.textLabel?.text = scene.title
         return cell
     }
@@ -91,6 +100,8 @@ extension RootViewController: UITableViewDelegate {
             showIntro()
         case .inputName:
             showInputName()
+        case .inputBornTime:
+            showInputBornTIme()
         }
     }
 }
