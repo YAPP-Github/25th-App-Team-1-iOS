@@ -8,25 +8,33 @@
 import UIKit
 
 public extension String {
-    func displayText(font: R.Font) -> NSAttributedString {
-        attributedString(font: font)
+    func displayText(font: R.Font, color: UIColor? = nil) -> NSAttributedString {
+        attributedString(font: font, color: color)
     }
     
-    private func toParagraphStyle(font: R.Font) -> NSMutableParagraphStyle {
+    private func toParagraphStyle(lineHeight: CGFloat) -> NSMutableParagraphStyle {
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = font.lineSpacing - font.size // 추가 간격 계산
-        paragraphStyle.minimumLineHeight = font.lineSpacing
-        paragraphStyle.maximumLineHeight = font.lineSpacing
+        paragraphStyle.minimumLineHeight = lineHeight
+        paragraphStyle.maximumLineHeight = lineHeight
         return paragraphStyle
     }
     
     /// LetterSpacing 포함 NSAttributedString 생성
-    private  func attributedString(font: R.Font) -> NSAttributedString {
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: font.toUIFont() ?? UIFont.systemFont(ofSize: font.size),
-            .kern: font.letterSpacing, // 글자 간격
-            .paragraphStyle: toParagraphStyle(font: font)
+    private  func attributedString(font: R.Font, color: UIColor?) -> NSAttributedString {
+        let adjustedLetterSpacing = font.size * (font.letterSpacing / 100)
+        let adjustedLineHeight = font.size * font.lineHeight
+        let uiFont = font.toUIFont() ?? UIFont.systemFont(ofSize: font.size)
+//        let wordMinHeight = uiFont.ascender + abs(uiFont.descender)
+//        let baseLineOffset = (font.lineHeight-wordMinHeight)/2
+        var attributes: [NSAttributedString.Key: Any] = [
+            .font: uiFont,
+            .kern: adjustedLetterSpacing, // 글자 간격
+            .paragraphStyle: toParagraphStyle(lineHeight: adjustedLineHeight),
         ]
+        if let color {
+            attributes[.foregroundColor] = color
+        }
+        
         return NSAttributedString(string: self, attributes: attributes)
     }
 }

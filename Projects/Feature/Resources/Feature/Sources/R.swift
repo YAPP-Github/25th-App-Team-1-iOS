@@ -10,81 +10,81 @@ public class R {
     }
     
     public struct Color {
-        static let main100 = UIColor(hex: "#FEFF65")
-        static let main90 = main100.withAlphaComponent(90)
-        static let main80 = main100.withAlphaComponent(80)
-        static let main70 = main100.withAlphaComponent(70)
-        static let main60 = main100.withAlphaComponent(60)
-        static let main50 = main100.withAlphaComponent(50)
-        static let main40 = main100.withAlphaComponent(40)
-        static let main30 = main100.withAlphaComponent(30)
-        static let main20 = main100.withAlphaComponent(20)
-        static let main10 = main100.withAlphaComponent(10)
+        public static let main100 = UIColor(hex: "#FEFF65")
+        public static let main90 = main100.withAlphaComponent(90)
+        public static let main80 = main100.withAlphaComponent(80)
+        public static let main70 = main100.withAlphaComponent(70)
+        public static let main60 = main100.withAlphaComponent(60)
+        public static let main50 = main100.withAlphaComponent(50)
+        public static let main40 = main100.withAlphaComponent(40)
+        public static let main30 = main100.withAlphaComponent(30)
+        public static let main20 = main100.withAlphaComponent(20)
+        public static let main10 = main100.withAlphaComponent(10)
         
-        static let white100 = UIColor(hex: "#FFFFFF")
-        static let white90 = white100.withAlphaComponent(90)
-        static let white80 = white100.withAlphaComponent(80)
-        static let white70 = white100.withAlphaComponent(70)
-        static let white60 = white100.withAlphaComponent(60)
-        static let white50 = white100.withAlphaComponent(50)
-        static let white40 = white100.withAlphaComponent(40)
-        static let white30 = white100.withAlphaComponent(30)
-        static let white20 = white100.withAlphaComponent(20)
-        static let white10 = white100.withAlphaComponent(10)
-        static let white5 = white100.withAlphaComponent(5)
+        public static let white100 = UIColor(hex: "#FFFFFF")
+        public static let white90 = white100.withAlphaComponent(90)
+        public static let white80 = white100.withAlphaComponent(80)
+        public static let white70 = white100.withAlphaComponent(70)
+        public static let white60 = white100.withAlphaComponent(60)
+        public static let white50 = white100.withAlphaComponent(50)
+        public static let white40 = white100.withAlphaComponent(40)
+        public static let white30 = white100.withAlphaComponent(30)
+        public static let white20 = white100.withAlphaComponent(20)
+        public static let white10 = white100.withAlphaComponent(10)
+        public static let white5 = white100.withAlphaComponent(5)
         
-        static let gray50 = UIColor(hex: "#E6EDF8")
-        static let gray100 = UIColor(hex: "#D7E1EE")
-        static let gray200 = UIColor(hex: "#C8D3E3")
-        static let gray300 = UIColor(hex: "#A5B2C5")
-        static let gray400 = UIColor(hex: "#7B8696")
-        static let gray500 = UIColor(hex: "#5D6470")
-        static let gray600 = UIColor(hex: "#3D424B")
-        static let gray700 = UIColor(hex: "#2A2F38")
-        static let gray800 = UIColor(hex: "#1F2127")
-        static let gray900 = UIColor(hex: "#17191F")
+        public static let gray50 = UIColor(hex: "#E6EDF8")
+        public static let gray100 = UIColor(hex: "#D7E1EE")
+        public static let gray200 = UIColor(hex: "#C8D3E3")
+        public static let gray300 = UIColor(hex: "#A5B2C5")
+        public static let gray400 = UIColor(hex: "#7B8696")
+        public static let gray500 = UIColor(hex: "#5D6470")
+        public static let gray600 = UIColor(hex: "#3D424B")
+        public static let gray700 = UIColor(hex: "#2A2F38")
+        public static let gray800 = UIColor(hex: "#1F2127")
+        public static let gray900 = UIColor(hex: "#17191F")
         
         // Status
-        static let statusAlert = UIColor(hex: "#F2544A")
-        static let statusAlertPressed = UIColor(hex: "#E53D33")
-        static let statusAlert50 = statusAlert.withAlphaComponent(50)
-        static let statusAlert20 = statusAlert.withAlphaComponent(20)
+        public static let statusAlert = UIColor(hex: "#F2544A")
+        public static let statusAlertPressed = UIColor(hex: "#E53D33")
+        public static let statusAlert50 = statusAlert.withAlphaComponent(50)
+        public static let statusAlert20 = statusAlert.withAlphaComponent(20)
         
-        static let statusSuccess = UIColor(hex: "#22C55E")
-        static let statusSuccess50 = statusSuccess.withAlphaComponent(50)
+        public static let statusSuccess = UIColor(hex: "#22C55E")
+        public static let statusSuccess50 = statusSuccess.withAlphaComponent(50)
         
         // TXT
-        static let textPrimary = UIColor(hex: "#FFFFFF")
-        static let textPrimaryInvert = UIColor(hex: "#17191F")
-        static let textSecondary = UIColor(hex: "#E6EDF8")
-        static let textTertiary = UIColor(hex: "#A5B2C5")
+        public static let textPrimary = UIColor(hex: "#FFFFFF")
+        public static let textPrimaryInvert = UIColor(hex: "#17191F")
+        public static let textSecondary = UIColor(hex: "#E6EDF8")
+        public static let textTertiary = UIColor(hex: "#A5B2C5")
         // disabled는 문의 후 추가 예정
         
         // Ico
-        static let icoPrimary = UIColor(hex: "#FFFFFF")
-        static let icoPrimaryInvert = UIColor(hex: "#17191F")
-        static let icoSecondary = UIColor(hex: "#A5B2C5")
-        static let icoTertiary = UIColor(hex: "#7B8696")
-        static let icoPlaceholder = UIColor(hex: "#5D6470")
-        static let icoDisabled = UIColor(hex: "#2A2F38")
+        public static let icoPrimary = UIColor(hex: "#FFFFFF")
+        public static let icoPrimaryInvert = UIColor(hex: "#17191F")
+        public static let icoSecondary = UIColor(hex: "#A5B2C5")
+        public static let icoTertiary = UIColor(hex: "#7B8696")
+        public static let icoPlaceholder = UIColor(hex: "#5D6470")
+        public static let icoDisabled = UIColor(hex: "#2A2F38")
         
         // BG
-        static let bg = UIColor(hex: "#17191F")
-        static let bgLight = UIColor(hex: "#E6EDF8")
-        static let bgBottomSheet = UIColor(hex: "#17191F")
-        static let bgModal = UIColor(hex: "#1F2127")
-        static let bgToast = UIColor(hex: "#3D424B")
+        public static let bg = UIColor(hex: "#17191F")
+        public static let bgLight = UIColor(hex: "#E6EDF8")
+        public static let bgBottomSheet = UIColor(hex: "#17191F")
+        public static let bgModal = UIColor(hex: "#1F2127")
+        public static let bgToast = UIColor(hex: "#3D424B")
         
         // Btn
-        static let btnPrimary = UIColor(hex: "#FEFF65")
-        static let btnSecondary = UIColor(hex: "#3D424B")
-        static let btnDisabled = UIColor(hex: "#2A2F38")
+        public static let btnPrimary = UIColor(hex: "#FEFF65")
+        public static let btnSecondary = UIColor(hex: "#3D424B")
+        public static let btnDisabled = UIColor(hex: "#2A2F38")
         
         // Line
-        static let line = UIColor(hex: "#2A2F38")
+        public static let line = UIColor(hex: "#2A2F38")
     }
     
-    public enum Font {
+    public enum Font: String, CaseIterable {
         case displaySemiBold
         case displayBold
         case title1Bold
@@ -166,56 +166,56 @@ public class R {
             }
         }
         
-        var lineSpacing: CGFloat {
+        var lineHeight: CGFloat {
             switch self {
             case .displaySemiBold:
-                return 72
+                return 1.286
             case .displayBold:
-                return 52
+                return 1.3
             case .title1Bold:
-                return 48
+                return 1.334
             case .title1Medium:
-                return 48
+                return 1.334
             case .title2Bold:
-                return 38
+                return 1.358
             case .title2SemiBold:
-                return 38
+                return 1.358
             case .title2Medium:
-                return 38
+                return 1.358
             case .title3SemiBold:
-                return 32
+                return 1.334
             case .heading1SemiBold:
-                return 30
+                return 1.364
             case .heading2SemiBold:
-                return 28
+                return 1.4
             case .headline1SemiBold:
-                return 26
+                return 1.445
             case .headline2SemiBold:
-                return 24
+                return 1.412
             case .headline2Medium:
-                return 24
+                return 1.412
             case .body1SemiBold:
-                return 26
+                return 1.625
             case .body1Medium:
-                return 24
+                return 1.5
             case .body1Regular:
-                return 24
+                return 1.5
             case .body2Medium:
-                return 22
+                return 1.429
             case .body2Regular:
-                return 24
+                return 1.6
             case .label1SemiBold:
-                return 20
+                return 1.429
             case .label1Medium:
-                return 22
+                return 1.571
             case .label2SemiBold:
-                return 18
+                return 1.385
             case .label2regular:
-                return 18
+                return 1.385
             case .caption1Regular:
-                return 16
+                return 1.334
             case .caption2Regular:
-                return 14
+                return 1.273
             }
         }
         
