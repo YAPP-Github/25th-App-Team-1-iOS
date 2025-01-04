@@ -7,6 +7,11 @@
 
 import RIBs
 
+public enum EntryPoint {
+    case intro
+    case inputName
+}
+
 public protocol RootDependency: Dependency {
     // TODO: Make sure to convert the variable into lower-camelcase.
     var rootViewController: RootViewControllable { get }
@@ -27,7 +32,7 @@ final class RootComponent: Component<RootDependency> {
 // MARK: - Builder
 
 public protocol RootBuildable: Buildable {
-    func build(withListener listener: RootListener) -> RootRouting
+    func build(withListener listener: RootListener, entryPoint: EntryPoint) -> RootRouting
 }
 
 public final class RootBuilder: Builder<RootDependency>, RootBuildable {
@@ -36,10 +41,17 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: RootListener) -> RootRouting {
+    public func build(withListener listener: RootListener, entryPoint: EntryPoint) -> RootRouting {
         let component = RootComponent(dependency: dependency)
-        let interactor = RootInteractor()
+        let interactor = RootInteractor(entryPoint: entryPoint)
         interactor.listener = listener
-        return RootRouter(interactor: interactor, viewController: component.rootViewController)
+        let introBuilder = IntroBuilder(dependency: component)
+        let inputNameBuilder = InputNameBuilder(dependency: component)
+        return RootRouter(
+            interactor: interactor,
+            viewController: component.rootViewController,
+            introBuilder: introBuilder,
+            inputNameBuilder: inputNameBuilder
+        )
     }
 }

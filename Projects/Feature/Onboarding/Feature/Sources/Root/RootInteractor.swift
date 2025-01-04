@@ -8,9 +8,14 @@
 import RIBs
 import RxSwift
 
+public enum RootRouterRequest {
+    case cleanUpViews
+    case routeToIntro
+    case routeToInputName
+}
+
 public protocol RootRouting: Routing {
-    func cleanupViews()
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func request(_ request: RootRouterRequest)
 }
 
 public protocol RootListener: AnyObject {
@@ -24,17 +29,26 @@ final class RootInteractor: Interactor, RootInteractable {
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init() {}
+    init(entryPoint: EntryPoint) {
+        self.entryPoint = entryPoint
+    }
 
     override func didBecomeActive() {
         super.didBecomeActive()
-        // TODO: Implement business logic here.
+        switch entryPoint {
+        case .intro:
+            router?.request(.routeToIntro)
+        case .inputName:
+            router?.request(.routeToInputName)
+        }
     }
 
     override func willResignActive() {
         super.willResignActive()
 
-        router?.cleanupViews()
+        router?.request(.cleanUpViews)
         // TODO: Pause any business logic.
     }
+    
+    private let entryPoint: EntryPoint
 }

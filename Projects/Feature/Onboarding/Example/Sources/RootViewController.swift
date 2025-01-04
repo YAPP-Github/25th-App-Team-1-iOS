@@ -47,13 +47,16 @@ final class RootViewController: UIViewController {
     
     private func showIntro() {
         let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
-        let router = builder.build(withListener: self)
+        let router = builder.build(withListener: self, entryPoint: .intro)
         router.interactable.activate()
         rootRouter = router
     }
     
     private func showInputName() {
-        
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
+        let router = builder.build(withListener: self, entryPoint: .inputName)
+        router.interactable.activate()
+        rootRouter = router
     }
 }
 
