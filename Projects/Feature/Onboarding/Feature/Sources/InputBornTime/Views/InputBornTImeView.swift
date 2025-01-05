@@ -42,8 +42,29 @@ final class InputBornTImeView: UIView {
     
     @objc
     private func timeChanged(_ textField: UITextField) {
-        let text = textField.text ?? ""
-        listener?.action(.timeChanged(text))
+        guard let text = textField.text?.replacingOccurrences(of: ":", with: "") else { return }
+        var formattedText = ""
+        if text.count > 4 {
+            // 최대 4자리까지만 입력 허용
+            let timeText = text.prefix(4)
+            let hour = timeText.prefix(2)
+            let minutes = timeText.suffix(2)
+            formattedText = [hour, minutes].map { String($0) }.joined(separator: ":")
+            textField.text = formattedText
+            listener?.action(.timeChanged(formattedText))
+            return
+        }
+        
+        if text.count > 2 {
+            let hours = text.prefix(2)
+            let minutes = text.suffix(from: text.index(text.startIndex, offsetBy: 2))
+            formattedText = "\(hours):\(minutes)"
+        } else {
+            formattedText = text
+        }
+        textField.text = formattedText
+        
+        listener?.action(.timeChanged(formattedText))
     }
 }
 
@@ -66,6 +87,7 @@ private extension InputBornTImeView {
         }
         termLabel.do {
             $0.displayText = "서비스 시작 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.".displayText(font: .caption1Regular, color: R.Color.gray500)
+            $0.textAlignment = .center
             $0.numberOfLines = 0
         }
         nextButton.do {
@@ -109,7 +131,6 @@ private extension InputBornTImeView {
             $0.height.equalTo(54)
         }
     }
-    
 }
 
 private extension InputBornTImeView {
