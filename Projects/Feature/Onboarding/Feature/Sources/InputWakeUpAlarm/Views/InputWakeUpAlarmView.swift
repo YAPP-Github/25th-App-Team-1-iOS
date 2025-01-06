@@ -104,7 +104,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         
         addSubview(labelStackView)
         labelStackView.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(safeAreaLayoutGuide.snp.horizontalEdges)
+            make.horizontalEdges.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom).inset(-40)
         }
         
