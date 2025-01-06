@@ -37,11 +37,23 @@ public class DSTextField: UIView {
     
     public var editingChanged: ((UITextField) -> Void)?
     
+    public func update(state: State) {
+        self.state = state
+        update()
+    }
+    
     private func update() {
         if hasError {
             layer.borderColor = R.Color.statusAlert.cgColor
         } else {
             layer.borderColor = state.borderColor
+        }
+        
+        if case .disabled = state {
+            textField.isEnabled = false
+            textField.text = nil
+        } else {
+            textField.isEnabled = true
         }
     }
     
@@ -131,5 +143,19 @@ private extension DSTextField {
             $0.leading.equalTo(16)
             $0.trailing.equalTo(-16)
         }
+    }
+}
+
+public extension DSTextField {
+    override var isFirstResponder: Bool {
+        return textField.isFirstResponder
+    }
+    
+    override func becomeFirstResponder() -> Bool {
+        textField.becomeFirstResponder()
+    }
+    
+    override func resignFirstResponder() -> Bool {
+        textField.resignFirstResponder()
     }
 }

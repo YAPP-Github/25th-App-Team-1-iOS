@@ -51,6 +51,10 @@ public final class DSTextFieldWithTitleWithMessage: UIView {
         update()
     }
     
+    public func update(textFieldState state: DSTextField.State) {
+        textField.update(state: state)
+    }
+    
     private func update() {
         switch titleState {
         case .none:
@@ -121,5 +125,19 @@ private extension DSTextFieldWithTitleWithMessage {
         stackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+}
+
+public extension DSTextFieldWithTitleWithMessage {
+    override var isFirstResponder: Bool {
+        return textField.isFirstResponder
+    }
+    
+    override func becomeFirstResponder() -> Bool {
+        textField.becomeFirstResponder()
+    }
+    
+    override func resignFirstResponder() -> Bool {
+        textField.resignFirstResponder()
     }
 }
