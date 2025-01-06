@@ -85,8 +85,8 @@ final class DefaultCTAButton: UIView {
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.left.greaterThanOrEqualToSuperview()
-            make.right.lessThanOrEqualToSuperview()
+            make.leading.greaterThanOrEqualToSuperview()
+            make.trailing.lessThanOrEqualToSuperview()
         }
         
         
