@@ -44,7 +44,7 @@ class AlarmPickerItemView: UIView {
     
     private func setupUI() {
         
-        self.backgroundColor = .brown
+        self.backgroundColor = .clear
     }
     
     

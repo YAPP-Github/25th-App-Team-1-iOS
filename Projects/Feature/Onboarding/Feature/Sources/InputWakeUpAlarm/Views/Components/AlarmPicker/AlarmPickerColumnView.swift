@@ -158,8 +158,6 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
             closure(itemView)
         }
     }
-    
-    var asd: Bool = true
 }
 
 

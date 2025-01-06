@@ -13,7 +13,7 @@ import SnapKit
 
 class AlarmPicker: UIView {
     
-    
+    // Sub view
     private let meridiemColumn: AlarmPickerColumnView = {
         
         let selectionItemViewSize: CGSize = .init(width: 48, height: 38)
@@ -41,8 +41,6 @@ class AlarmPicker: UIView {
         
         return columnView
     }()
-    
-    
     private let hourColumn: AlarmPickerColumnView = {
         
         let selectionItemViewSize: CGSize = .init(width: 48, height: 48)
@@ -70,8 +68,6 @@ class AlarmPicker: UIView {
         
         return columnView
     }()
-    
-    
     private let minuteColumn: AlarmPickerColumnView = {
         
         let selectionItemViewSize: CGSize = .init(width: 48, height: 48)
@@ -107,6 +103,8 @@ class AlarmPicker: UIView {
         return columnView
     }()
     
+    private let inBoundDisplayView: UIView = .init()
+    
     
     init() {
         super.init(frame: .zero)
@@ -119,12 +117,28 @@ class AlarmPicker: UIView {
     
     private func setupUI() {
         
-        self.backgroundColor = .blue
+        // self
+        self.backgroundColor = .clear
+        
+        
+        // inBoundDisplayView
+        inBoundDisplayView.backgroundColor = R.Color.gray700
+        inBoundDisplayView.layer.cornerRadius = 12
     }
     
     
     private func setupLayout() {
         
+        // inBoundDisplayView
+        addSubview(inBoundDisplayView)
+        inBoundDisplayView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.height.equalTo(50)
+        }
+        
+        
+        // columnStackView
         let columnStackView: UIStackView = .init(arrangedSubviews: [
             meridiemColumn,
             UIStackView.Spacer(contentSize: .init(width: 40, height: 0)),
@@ -136,37 +150,11 @@ class AlarmPicker: UIView {
         columnStackView.distribution = .fill
         columnStackView.alignment = .center
         
-        columnStackView.backgroundColor = .red
-        
         addSubview(columnStackView)
         columnStackView.snp.makeConstraints { make in
             
-            make.center.equalToSuperview()
-        }
-    }
-}
-
-enum MeridiemItem: CaseIterable {
-    
-    case ante
-    case post
-    
-    var content: String {
-        
-        switch self {
-        case .ante:
-            "AM"
-        case .post:
-            "PM"
-        }
-    }
-    
-    var displayingText: String {
-        switch self {
-        case .ante:
-            "오전"
-        case .post:
-            "오후"
+            make.verticalEdges.equalToSuperview()
+            make.centerX.equalToSuperview()
         }
     }
 }
