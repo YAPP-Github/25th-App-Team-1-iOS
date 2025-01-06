@@ -48,9 +48,7 @@ final class DefaultCTAButton: UIView {
     
     override var intrinsicContentSize: CGSize {
         
-        .init(
-            width: super.intrinsicContentSize.width,
-            height: 54)
+        .init(width: UIView.noIntrinsicMetric, height: 54)
     }
     
     
