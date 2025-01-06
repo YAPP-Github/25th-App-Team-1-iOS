@@ -85,6 +85,12 @@ public extension DSTextFieldWithTitleWithMessage {
         public let textFieldConfig: DSTextField.Config
         public let titleState: TitleState
         public let messageState: MessageState
+        
+        public init(textFieldConfig: DSTextField.Config, titleState: TitleState, messageState: MessageState) {
+            self.textFieldConfig = textFieldConfig
+            self.titleState = titleState
+            self.messageState = messageState
+        }
     }
     
     enum TitleState {

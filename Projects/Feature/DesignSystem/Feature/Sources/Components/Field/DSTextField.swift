@@ -96,6 +96,11 @@ public extension DSTextField {
     struct Config {
         let placeholder: String
         let alignment: NSTextAlignment
+        
+        public init(placeholder: String, alignment: NSTextAlignment) {
+            self.placeholder = placeholder
+            self.alignment = alignment
+        }
     }
 }
 
