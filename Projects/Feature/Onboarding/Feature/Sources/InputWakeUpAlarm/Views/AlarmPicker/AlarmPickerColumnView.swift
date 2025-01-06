@@ -210,17 +210,9 @@ final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
             closure(itemView)
         }
     }
-}
-
-
-// MARK: UIScrollViewDelegate
-extension AlarmPickerColumnView {
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
-        let prevAdjacentView = mostAdjacentView
-        
-        // 중심과 가장 가까운 뷰를 색출
+    
+    private func findMostAdjacentViewFromCenter() -> AlarmPickerItemView {
         
         var minDistance: CGFloat = .infinity
         var currentAdjacentView: AlarmPickerItemView!
@@ -239,15 +231,29 @@ extension AlarmPickerColumnView {
             }
         }
         
-        // 상태 업데이트
+        return currentAdjacentView
+    }
+}
+
+
+// MARK: UIScrollViewDelegate
+extension AlarmPickerColumnView {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        // #1. 중심과 가장 가까운 뷰를 색출
+        let currentAdjacentView = findMostAdjacentViewFromCenter()
+        
+        
+        // #2. 가장가까운 뷰가 변경되었는지 확인
+        let prevAdjacentView = mostAdjacentView
+        
         if currentAdjacentView !== prevAdjacentView {
             
-            // 현재 가장 가까운 뷰가 이전에 가장 가까운 뷰가 아닌 경우
+            // 중심에 가장 인접한 뷰가 변경된 경우
+            
             let currentItem = currentAdjacentView.selectionItem
             self.currentSelectedItem.accept(currentItem)
-            
-            
-            // 상태를 업데이트
             self.mostAdjacentView = currentAdjacentView
             
             
