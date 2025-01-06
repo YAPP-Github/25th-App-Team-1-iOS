@@ -14,13 +14,13 @@ public class DSTextField: UIView {
     private var state: State = .normal
     private let config: Config
     
-    var error: String? {
+    public var hasError: Bool = false {
         didSet {
             update()
         }
     }
     
-    init(config: Config) {
+    public init(config: Config) {
         self.config = config
         super.init(frame: .zero)
         setupUI()
@@ -35,10 +35,10 @@ public class DSTextField: UIView {
         return .init(width: UIView.noIntrinsicMetric, height: 54)
     }
     
-    var editingChanged: ((UITextField) -> Void)?
+    public var editingChanged: ((UITextField) -> Void)?
     
     private func update() {
-        if error != nil {
+        if hasError {
             layer.borderColor = R.Color.statusAlert.cgColor
         } else {
             layer.borderColor = state.borderColor
@@ -74,7 +74,7 @@ public extension DSTextField {
         case normal
         case focused
         case completed
-        case error(message: String)
+        case error
         case disabled
         
         var borderColor: CGColor {
