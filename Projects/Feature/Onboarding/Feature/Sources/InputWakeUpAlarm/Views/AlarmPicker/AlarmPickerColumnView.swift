@@ -8,14 +8,8 @@
 import UIKit
 
 import SnapKit
-
-protocol SelectionItemRepresentable: UIView {
-    
-    init()
-    
-    func update(selectionItem: SelectionItem)
-}
-
+import RxSwift
+import RxRelay
 
 class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
@@ -30,6 +24,11 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     // View data
     private let itemSpacing: CGFloat
     private var viewSize: CGSize?
+    private var mostAdjacentView: UIView?
+    
+    
+    // Observable
+    fileprivate let currentSelectedItem: BehaviorRelay<SelectionItem?> = .init(value: nil)
     
     
     override var intrinsicContentSize: CGSize {
@@ -55,6 +54,7 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
     private func setupUI() {
         
+        self.backgroundColor = .clear
     }
     
     
@@ -164,6 +164,42 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
 // MARK: UIScrollViewDelegate
 extension AlarmPickerColumnView {
     
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        var prevAdjacentView = mostAdjacentView
+        
+        // #1. 중심과 가장 가까운 뷰를 색출
+        
+        var minDistance: CGFloat = .infinity
+        var currentAdjacentView: AlarmPickerItemView!
+        
+        for itemView in itemViews {
+            
+            let itemViewFrameOnSelf = itemView.convert(itemView.bounds, to: self)
+            let inset = (bounds.height - itemView.bounds.height) / 2
+            let distance = abs(itemViewFrameOnSelf.minY-inset)
+            
+            if minDistance > distance {
+                
+                // 현재 가장 가까운 뷰를 도출
+                minDistance = distance
+                currentAdjacentView = itemView
+            }
+        }
+        
+        // #2. 상태 퍼블리싱
+        if currentAdjacentView !== prevAdjacentView {
+            
+            // 현재 가장 가까운 뷰가 이전에 가장 가까운 뷰가 아닌 경우
+            let currentItem = currentAdjacentView.selectionItem
+            self.currentSelectedItem.accept(currentItem)
+            
+            // 상태를 업데이트
+            self.mostAdjacentView = currentAdjacentView
+        }
+    }
+    
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
         scrollToAdjacentItem(scrollView)
@@ -178,23 +214,9 @@ extension AlarmPickerColumnView {
     
     func scrollToAdjacentItem(_ scrollView: UIScrollView) {
         
-        var adjacentView: UIView!
-        var minDistance: CGFloat = .infinity
+        guard let mostAdjacentView else { return }
         
-        for itemView in itemViews {
-            
-            let itemViewFrameOnSelf = itemView.convert(itemView.bounds, to: self)
-            let inset = (bounds.height - itemView.bounds.height) / 2
-            let distance = abs(itemViewFrameOnSelf.minY-inset)
-            
-            if minDistance > distance {
-                
-                minDistance = distance
-                adjacentView = itemView
-            }
-        }
-        
-        let itemViewYPos = adjacentView.frame.minY
+        let itemViewYPos = mostAdjacentView.frame.minY
         
         var emptySpaceHeight: CGFloat = 0
         if items.count == 2 {
@@ -207,7 +229,7 @@ extension AlarmPickerColumnView {
             fatalError("아이템은 2개이상이 필요합니다.")
         }
         
-        let inset = (bounds.height - adjacentView.bounds.height)/2
+        let inset = (bounds.height - mostAdjacentView.bounds.height)/2
         let willMoveScrollAmount = (itemViewYPos - inset) + emptySpaceHeight
         
         UIView.animate(withDuration: 0.2) {
@@ -216,6 +238,14 @@ extension AlarmPickerColumnView {
                 animated: false
             )
         }
+    }
+}
+
+
+extension Reactive where Base == AlarmPickerColumnView {
+    
+    var selectedItem: Observable<SelectionItem> {
+        base.currentSelectedItem.compactMap({ $0 })
     }
 }
 

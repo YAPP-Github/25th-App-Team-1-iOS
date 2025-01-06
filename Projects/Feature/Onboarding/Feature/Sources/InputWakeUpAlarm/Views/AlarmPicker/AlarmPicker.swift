@@ -10,6 +10,12 @@ import UIKit
 import FeatureResources
 
 import SnapKit
+import RxSwift
+
+protocol AlarmPickerListener: AnyObject {
+    
+    func latestSelection(meridiem: String, hour: Int, minute: Int)
+}
 
 class AlarmPicker: UIView {
     
@@ -102,17 +108,24 @@ class AlarmPicker: UIView {
         
         return columnView
     }()
-    
     private let inBoundDisplayView: UIView = .init()
-    
-    
     private var gradientLayer: CALayer?
+    
+    
+    // Listener
+    weak var listener: AlarmPickerListener?
+    
+    
+    // Rx
+    private let disposeBag: DisposeBag = .init()
+    
     
     init() {
         super.init(frame: .zero)
         
         setupUI()
         setupLayout()
+        setReactive()
     }
     required init?(coder: NSCoder) { nil }
     
@@ -168,6 +181,25 @@ class AlarmPicker: UIView {
             make.verticalEdges.equalToSuperview()
             make.centerX.equalToSuperview()
         }
+    }
+    
+    
+    private func setReactive() {
+        
+        Observable.combineLatest(
+            meridiemColumn.rx.selectedItem,
+            hourColumn.rx.selectedItem,
+            minuteColumn.rx.selectedItem
+        ).subscribe(onNext: { [weak self] meridiem, hour, minute in
+            guard let self else { return }
+            
+            listener?.latestSelection(
+                meridiem: meridiem.content,
+                hour: Int(hour.content)!,
+                minute: Int(minute.content)!
+            )
+        })
+        .disposed(by: disposeBag)
     }
 }
 

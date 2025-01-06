@@ -15,7 +15,7 @@ protocol InputWakeUpAlarmViewListener: AnyObject {
 }
 
 
-class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener {
+class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener {
     
     // View action
     enum Action {
@@ -69,6 +69,9 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener {
                 color: R.Color.gray100
             )
         
+        
+        // alarmPicker
+        alarmPicker.listener = self
     }
     
     
@@ -117,6 +120,16 @@ extension InputWakeUpAlarmView {
         case .backButtonClicked:
             listener?.action(.backButtonClicked)
         }
+    }
+}
+
+
+// MARK: AlarmPickerListener
+extension InputWakeUpAlarmView {
+    
+    func latestSelection(meridiem: String, hour: Int, minute: Int) {
+        
+        print(meridiem, hour, minute)
     }
 }
 
