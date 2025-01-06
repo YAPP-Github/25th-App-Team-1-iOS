@@ -229,6 +229,23 @@ extension AlarmPicker {
             minuteColumn.rx.setContent.accept(content)
         }
     }
+    
+    
+    func updateToNow() {
+        
+        let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: .now)
+        
+        guard var hour = dateComponents.hour, let minute = dateComponents.minute else { return }
+        
+        var meridiem: MeridiemItem = .ante
+        
+        if hour >= 12 {
+            meridiem = .post
+            hour -= 12
+        }
+        
+        self.update(meridiem: meridiem, hour: hour, minute: minute)
+    }
 }
 
 

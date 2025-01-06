@@ -72,7 +72,7 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerLis
         
         // alarmPicker
         alarmPicker.listener = self
-        alarmPicker.update(meridiem: .ante, hour: 4, minute: 30)
+        alarmPicker.updateToNow()
     }
     
     
