@@ -106,6 +106,8 @@ class AlarmPicker: UIView {
     private let inBoundDisplayView: UIView = .init()
     
     
+    private var gradientLayer: CALayer?
+    
     init() {
         super.init(frame: .zero)
         
@@ -118,12 +120,22 @@ class AlarmPicker: UIView {
     private func setupUI() {
         
         // self
-        self.backgroundColor = .clear
+        self.backgroundColor = R.Color.gray900
         
         
         // inBoundDisplayView
         inBoundDisplayView.backgroundColor = R.Color.gray700
         inBoundDisplayView.layer.cornerRadius = 12
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if let gradientLayer {
+            gradientLayer.frame = self.bounds
+        } else {
+            createGradientLayer()
+        }
     }
     
     
@@ -160,8 +172,37 @@ class AlarmPicker: UIView {
 }
 
 
+// MARK: Gradient
+private extension AlarmPicker {
+    
+    func createGradientLayer() {
+        
+        guard let backgroundColor else { return }
+        
+        // CAGradientLayer 생성
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = self.bounds
+        
+        // 그라디언트 색상 배열 설정
+        gradientLayer.colors = [
+            backgroundColor.cgColor,
+            backgroundColor.withAlphaComponent(0.0).cgColor,
+            backgroundColor.withAlphaComponent(0.0).cgColor,
+            backgroundColor.cgColor,
+        ]
+        
+        // 그라디언트 방향 설정 (상단에서 하단으로)
+        gradientLayer.locations = [0, 0.3, 0.6, 1]
+        
+        // 레이어 추가
+        self.layer.addSublayer(gradientLayer)
+        self.gradientLayer = gradientLayer
+    }
+}
+
+
 // MARK: UIStackView+Spacer
-extension UIStackView {
+fileprivate extension UIStackView {
         
     class Spacer: UIView {
         

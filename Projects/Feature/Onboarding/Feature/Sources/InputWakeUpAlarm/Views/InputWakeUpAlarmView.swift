@@ -28,6 +28,7 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener {
     private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel: UILabel = .init()
     private let subTitleLabel: UILabel = .init()
+    private let alarmPicker: AlarmPicker = .init()
     
     
     // Listener
@@ -67,6 +68,7 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener {
                 font: .body2Regular,
                 color: R.Color.gray100
             )
+        
     }
     
     
@@ -81,18 +83,26 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener {
         
         
         // label stack
-        let labelView: UIStackView = .init(arrangedSubviews: [
+        let labelStackView: UIStackView = .init(arrangedSubviews: [
             titleLabel, subTitleLabel
         ])
-        labelView.axis = .vertical
-        labelView.spacing = 4
-        labelView.alignment = .center
+        labelStackView.axis = .vertical
+        labelStackView.spacing = 4
+        labelStackView.alignment = .center
         
-        addSubview(labelView)
-        labelView.snp.makeConstraints { make in
-            
+        addSubview(labelStackView)
+        labelStackView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(safeAreaLayoutGuide.snp.horizontalEdges)
             make.top.equalTo(navigationBar.snp.bottom).inset(-40)
+        }
+        
+        
+        // alarmPicker
+        addSubview(alarmPicker)
+        alarmPicker.snp.makeConstraints { make in
+            make.top.equalTo(labelStackView.snp.bottom).inset(-89)
+            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
+                .inset(20)
         }
     }
 }
@@ -108,4 +118,10 @@ extension InputWakeUpAlarmView {
             listener?.action(.backButtonClicked)
         }
     }
+}
+
+
+#Preview {
+    
+    InputWakeUpAlarmView()
 }
