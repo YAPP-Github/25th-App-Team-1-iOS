@@ -15,7 +15,7 @@ protocol InputWakeUpAlarmViewListener: AnyObject {
 }
 
 
-class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener, DefaultCTAButtonListener {
+final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener, DefaultCTAButtonListener {
     
     // View action
     enum Action {

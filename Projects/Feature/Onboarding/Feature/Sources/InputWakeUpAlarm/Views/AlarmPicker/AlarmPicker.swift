@@ -17,7 +17,7 @@ protocol AlarmPickerListener: AnyObject {
     func latestSelection(meridiem: String, hour: Int, minute: Int)
 }
 
-class AlarmPicker: UIView {
+final class AlarmPicker: UIView {
     
     // Sub view
     private let meridiemColumn: AlarmPickerColumnView = {

@@ -9,7 +9,7 @@ import FeatureResources
 
 import UIKit
 
-class StageIndexView: UIView {
+final class StageIndexView: UIView {
     
     private let indexLabel: UILabel = .init()
     

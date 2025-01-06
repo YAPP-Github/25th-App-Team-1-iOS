@@ -11,7 +11,7 @@ import FeatureResources
 
 import SnapKit
 
-class AlarmPickerItemView: UIView {
+final class AlarmPickerItemView: UIView {
     
     // Sub view
     private let label: UILabel = .init()

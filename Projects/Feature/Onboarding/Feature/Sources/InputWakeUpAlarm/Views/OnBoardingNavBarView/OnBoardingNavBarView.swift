@@ -18,7 +18,7 @@ protocol OnBoardingNavBarViewListener: AnyObject {
 }
 
 
-class OnBoardingNavBarView: UIView {
+final class OnBoardingNavBarView: UIView {
     
     // View actions
     enum Action {

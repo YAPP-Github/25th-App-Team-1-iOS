@@ -16,7 +16,7 @@ protocol DefaultCTAButtonListener: AnyObject {
     func action(_ action: DefaultCTAButton.Action)
 }
 
-class DefaultCTAButton: UIView {
+final class DefaultCTAButton: UIView {
     
     // Action
     enum Action {

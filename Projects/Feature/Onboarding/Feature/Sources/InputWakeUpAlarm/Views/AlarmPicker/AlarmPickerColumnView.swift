@@ -11,7 +11,7 @@ import SnapKit
 import RxSwift
 import RxRelay
 
-class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
+final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
     typealias Content = String
     
