@@ -15,6 +15,7 @@ protocol InputBornTimeRouting: ViewableRouting {
 enum InputBornTimePresentableRequest {
     case showShortLenghError
     case showInvalidBornTimeError
+    case updateButton(Bool)
 }
 
 protocol InputBornTimePresentable: Presentable {
@@ -22,8 +23,13 @@ protocol InputBornTimePresentable: Presentable {
     func request(_ request: InputBornTimePresentableRequest)
 }
 
+enum InputBornTimeListenerRequest {
+    case done(hour: Int, minute: Int)
+    case skip
+}
+
 protocol InputBornTimeListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: InputBornTimeListenerRequest)
 }
 
 final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresentable>, InputBornTimeInteractable, InputBornTimePresentableListener {
@@ -51,38 +57,75 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
     func request(_ request: InputBornTimePresentableListenerRequest) {
         switch request {
         case let .timeChanged(time):
-            self.time = time
+            resetTime()
+            presenter.request(.updateButton(canGoNext))
+            
             guard checkTimeLength(time) else {
                 presenter.request(.showShortLenghError)
                 return
             }
             
-            guard validateHour(time), validateMinute(time) else {
+            guard let hour = validateHour(time),
+                  let minute = validateMinute(time) else {
                 presenter.request(.showInvalidBornTimeError)
                 return
             }
+            self.hour = hour
+            self.minute = minute
+            
+            isValidTime = true
+            
+            presenter.request(.updateButton(canGoNext))
         case .iDontKnowButtonTapped:
+            resetTime()
             shouldSkip.toggle()
+            presenter.request(.updateButton(canGoNext))
+        case .next:
+            guard !shouldSkip else {
+                listener?.request(.skip)
+                return
+            }
+            guard let hour, let minute else {
+                return
+            }
+            listener?.request(.done(hour: hour, minute: minute))
         }
     }
     
-    var time: String = ""
+    private func resetTime() {
+        self.hour = nil
+        self.minute = nil
+        self.isValidTime = false
+    }
+    
+    var hour: Int?
+    var minute: Int?
     var shouldSkip: Bool = false
+    var isValidTime: Bool = false
+    var canGoNext: Bool {
+        isValidTime || shouldSkip
+    }
     
     func checkTimeLength(_ time: String) -> Bool {
         let text = time.replacingOccurrences(of: ":", with: "")
         return text.count == 4
     }
     
-    func validateHour(_ time: String) -> Bool {
+    func validateHour(_ time: String) -> Int? {
         let hour = time.prefix(2)
-        guard let hourInt = Int(hour) else { return false }
-        return hourInt >= 0 && hourInt <= 23
+        guard let hourInt = Int(hour) else { return nil }
+        if hourInt >= 0 && hourInt <= 23 {
+            return hourInt
+        }
+        return nil
     }
     
-    func validateMinute(_ time: String) -> Bool {
+    func validateMinute(_ time: String) -> Int? {
         let minute = time.suffix(2)
-        guard let minuteInt = Int(minute) else { return false }
-        return minuteInt >= 0 && minuteInt <= 59
+        guard let minuteInt = Int(minute) else { return nil }
+        if minuteInt >= 0 && minuteInt <= 59 {
+            return minuteInt
+        }
+        return nil
     }
 }

@@ -12,6 +12,7 @@ import UIKit
 enum InputBornTimePresentableListenerRequest {
     case timeChanged(String)
     case iDontKnowButtonTapped
+    case next
 }
 
 protocol InputBornTimePresentableListener: AnyObject {
@@ -33,6 +34,8 @@ final class InputBornTimeViewController: UIViewController, InputBornTimePresenta
             mainView.update(.shortBornTimeLength)
         case .showInvalidBornTimeError:
             mainView.update(.invalidBornTime)
+        case let .updateButton(isEnabled):
+            mainView.update(.buttonEnabled(isEnabled))
         }
     }
     
@@ -46,6 +49,8 @@ extension InputBornTimeViewController: InputBornTImeViewListener {
             listener?.request(.timeChanged(time))
         case .iDontKnowButtonTapped:
             listener?.request(.iDontKnowButtonTapped)
+        case .nextButtonTapped:
+            listener?.request(.next)
         }
     }
 }

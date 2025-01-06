@@ -46,6 +46,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToInputName()
         case .routeToInputBornTime:
             routeToInputBornTime()
+        case .detachInputBornTime:
+            detachInputBornTime()
         }
     }
     
@@ -88,5 +90,12 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         inputBornTimeRouter = router
         attachChild(router)
         viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    private func detachInputBornTime() {
+        guard let router = inputBornTimeRouter else { return }
+        inputBornTimeRouter = nil
+        detachChild(router)
+        viewController.uiviewController.dismiss(animated: true)
     }
 }

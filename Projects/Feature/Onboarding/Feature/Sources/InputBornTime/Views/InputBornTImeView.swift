@@ -19,6 +19,7 @@ final class InputBornTImeView: UIView {
     enum Action {
         case timeChanged(String)
         case iDontKnowButtonTapped
+        case nextButtonTapped
     }
     
     enum State {
@@ -36,6 +37,10 @@ final class InputBornTImeView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        endEditing(true)
     }
     
     weak var listener: InputBornTImeViewListener?
@@ -113,7 +118,21 @@ final class InputBornTImeView: UIView {
     @objc
     private func iDontKnowButtonTapped() {
         iDontKnowButton.isSelected.toggle()
+        
+        timeField.update(messageState: .none)
+        
+        if iDontKnowButton.isSelected {
+            endEditing(true)
+            timeField.update(textFieldState: .disabled)
+        } else {
+            timeField.update(textFieldState: .normal)
+        }
         listener?.action(.iDontKnowButtonTapped)
+    }
+    
+    @objc
+    private func nextButtonTapped() {
+        listener?.action(.nextButtonTapped)
     }
 }
 
@@ -143,6 +162,7 @@ private extension InputBornTImeView {
             $0.disabledBackgroundColor = R.Color.gray700
             $0.isEnabled = false
             $0.layer.cornerRadius = 16
+            $0.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         }
         
         iDontKnowButton.do {
