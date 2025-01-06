@@ -13,8 +13,12 @@ import RxRelay
 
 class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
+    typealias Content = String
+    
     // Sub view
-    private var itemViews: [AlarmPickerItemView] = []
+    private var scrollView: UIScrollView!
+    private var itemViews: [Content: AlarmPickerItemView] = [:]
+    private var orderedItemViews: [AlarmPickerItemView] = []
     
     
     // Model
@@ -28,8 +32,10 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
     
     // Observable
+    fileprivate let changeContent: BehaviorRelay<Content?> = .init(value: nil)
     fileprivate let currentSelectedItem: BehaviorRelay<SelectionItem?> = .init(value: nil)
-    
+    private let layoutSubViews: BehaviorSubject<Void?> = .init(value: nil)
+    private let disposeBag = DisposeBag()
     
     override var intrinsicContentSize: CGSize {
         viewSize ?? super.intrinsicContentSize
@@ -47,9 +53,17 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
         
         setupUI()
         setupLayout()
+        setReactive()
     }
     
     required init?(coder: NSCoder) { nil }
+    
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        layoutSubViews.onNext(())
+    }
     
     
     private func setupUI() {
@@ -62,10 +76,13 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
         
         let itemViews = self.items.map { selectionItem in
             
-            AlarmPickerItemView(item: selectionItem)
+            let itemView = AlarmPickerItemView(item: selectionItem)
+            self.itemViews[selectionItem.content] = itemView
+            
+            return itemView
         }
         
-        self.itemViews = itemViews
+        self.orderedItemViews = itemViews
     }
     
     
@@ -98,7 +115,7 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
         
         
         // Scroll view
-        let stackView: UIStackView = .init(arrangedSubviews: itemViews)
+        let stackView: UIStackView = .init(arrangedSubviews: orderedItemViews)
         stackView.axis = .vertical
         stackView.spacing = self.itemSpacing
         stackView.distribution = .fill
@@ -138,6 +155,35 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
             
             make.edges.equalToSuperview()
         }
+        
+        self.scrollView = scrollView
+    }
+    
+    
+    private func setReactive() {
+        
+        // changeContent
+        Observable
+            .combineLatest(
+                changeContent.compactMap({ $0 }),
+                layoutSubViews.take(1)
+            )
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] content, _ in
+                guard let self else { return }
+                    
+                scrollView.isScrollEnabled = false
+                defer {
+                    scrollView.isScrollEnabled = true
+                }
+                mostAdjacentView = self.itemViews[content]!
+                scrollToAdjacentItem(scrollView, animated: false)
+                
+                // publish state
+                let itemView = itemViews[content]!
+                currentSelectedItem.accept(itemView.selectionItem)
+            })
+            .disposed(by: disposeBag)
     }
     
     
@@ -153,7 +199,7 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
     public func updateCellUI(_ closure: @escaping (AlarmPickerItemView) -> ()) {
         
-        itemViews.forEach { itemView in
+        self.orderedItemViews.forEach { itemView in
             
             closure(itemView)
         }
@@ -166,14 +212,14 @@ extension AlarmPickerColumnView {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        var prevAdjacentView = mostAdjacentView
+        let prevAdjacentView = mostAdjacentView
         
         // #1. 중심과 가장 가까운 뷰를 색출
         
         var minDistance: CGFloat = .infinity
         var currentAdjacentView: AlarmPickerItemView!
         
-        for itemView in itemViews {
+        for itemView in orderedItemViews {
             
             let itemViewFrameOnSelf = itemView.convert(itemView.bounds, to: self)
             let inset = (bounds.height - itemView.bounds.height) / 2
@@ -187,7 +233,7 @@ extension AlarmPickerColumnView {
             }
         }
         
-        // #2. 상태 퍼블리싱
+        // #2. 상태 업데이트
         if currentAdjacentView !== prevAdjacentView {
             
             // 현재 가장 가까운 뷰가 이전에 가장 가까운 뷰가 아닌 경우
@@ -212,7 +258,7 @@ extension AlarmPickerColumnView {
     }
     
     
-    func scrollToAdjacentItem(_ scrollView: UIScrollView) {
+    func scrollToAdjacentItem(_ scrollView: UIScrollView, animated: Bool = true) {
         
         guard let mostAdjacentView else { return }
         
@@ -232,7 +278,7 @@ extension AlarmPickerColumnView {
         let inset = (bounds.height - mostAdjacentView.bounds.height)/2
         let willMoveScrollAmount = (itemViewYPos - inset) + emptySpaceHeight
         
-        UIView.animate(withDuration: 0.2) {
+        UIView.animate(withDuration: animated ? 0.2 : 0.0) {
             scrollView.setContentOffset(
                 .init(x: 0, y: willMoveScrollAmount),
                 animated: false
@@ -242,10 +288,15 @@ extension AlarmPickerColumnView {
 }
 
 
+// MARK: Reactive
 extension Reactive where Base == AlarmPickerColumnView {
     
     var selectedItem: Observable<SelectionItem> {
         base.currentSelectedItem.compactMap({ $0 })
+    }
+    
+    var setContent: BehaviorRelay<String?> {
+        base.changeContent
     }
 }
 

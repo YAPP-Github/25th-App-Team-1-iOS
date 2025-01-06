@@ -204,6 +204,34 @@ class AlarmPicker: UIView {
 }
 
 
+// MARK: Public interface
+extension AlarmPicker {
+    
+    func update(meridiem: MeridiemItem? = nil, hour: Int? = nil, minute: Int? = nil) {
+        
+        if let meridiem {
+            
+            let content = meridiem.content
+            meridiemColumn.rx.setContent.accept(content)
+        }
+        
+        
+        if let hour, (1...12).contains(hour) {
+            
+            let content = String(hour)
+            hourColumn.rx.setContent.accept(content)
+        }
+        
+        
+        if let minute, (0...60).contains(minute) {
+            
+            let content = String(minute)
+            minuteColumn.rx.setContent.accept(content)
+        }
+    }
+}
+
+
 // MARK: Gradient
 private extension AlarmPicker {
     
