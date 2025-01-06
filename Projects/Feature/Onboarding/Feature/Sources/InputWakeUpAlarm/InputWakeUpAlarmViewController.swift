@@ -9,14 +9,21 @@ import RIBs
 import RxSwift
 import UIKit
 
-protocol InputWakeUpAlarmPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+enum InputWakeUpAlarmPresenterRequest {
+    
+    case exitPage
+    case confirmUserInputAndExit
+    case updateCurrentAlarmData(AlarmData)
 }
 
-final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPresentable, InputWakeUpAlarmViewControllable {
+protocol InputWakeUpAlarmPresentableListener: AnyObject {
+    
+    func request(_ request: InputWakeUpAlarmPresenterRequest)
+}
 
+final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPresentable, InputWakeUpAlarmViewControllable, InputWakeUpAlarmViewListener {
+
+    
     weak var listener: InputWakeUpAlarmPresentableListener?
     
     
@@ -31,6 +38,23 @@ final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPr
     override func loadView() {
         
         self.view = mainView
+    }
+}
+
+
+// MARK: InputWakeUpAlarmViewListener
+extension InputWakeUpAlarmViewController {
+    
+    func action(_ action: InputWakeUpAlarmView.Action) {
+        
+        switch action {
+        case .backButtonClicked:
+            listener?.request(.exitPage)
+        case .alarmPicker(let alarmData):
+            listener?.request(.updateCurrentAlarmData(alarmData))
+        case .ctaButtonClicked:
+            listener?.request(.confirmUserInputAndExit)
+        }
     }
 }
 

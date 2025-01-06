@@ -43,3 +43,20 @@ final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPr
         // TODO: Pause any business logic.
     }
 }
+
+
+// MARK: InputWakeUpAlarmPresentableListener
+extension InputWakeUpAlarmInteractor {
+    
+    func request(_ request: InputWakeUpAlarmPresenterRequest) {
+        
+        switch request {
+        case .exitPage:
+            print("알람 설정 페이지 이탈")
+        case .confirmUserInputAndExit:
+            print("알람데이터 확정")
+        case .updateCurrentAlarmData(let alarmData):
+            print("현재 알람 데이터 업데이트 \(alarmData)")
+        }
+    }
+}
