@@ -38,6 +38,7 @@ final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPr
     override func loadView() {
         
         self.view = mainView
+        mainView.listener = self
     }
 }
 
