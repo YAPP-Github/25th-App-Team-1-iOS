@@ -240,8 +240,22 @@ extension AlarmPicker {
         var meridiem: MeridiemItem = .ante
         
         if hour >= 12 {
+            
+            // 12시 이상 = 오후
+            
             meridiem = .post
-            hour -= 12
+            
+            if hour != 12 {
+                
+                // 오후 0시는 오후 12시로 표현
+                hour -= 12
+            }
+        }
+        
+        if hour == 0 {
+            
+            // 오전 0시시는 오전 12시로 표현
+            hour = 12
         }
         
         self.update(meridiem: meridiem, hour: hour, minute: minute)
