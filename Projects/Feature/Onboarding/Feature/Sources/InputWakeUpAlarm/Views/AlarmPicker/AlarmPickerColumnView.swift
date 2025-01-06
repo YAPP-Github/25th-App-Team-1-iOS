@@ -25,6 +25,10 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     private let items: [SelectionItem]
     
     
+    // Feedback generator
+    private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+    
+    
     // View data
     private let itemSpacing: CGFloat
     private var viewSize: CGSize?
@@ -54,6 +58,8 @@ class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
         setupUI()
         setupLayout()
         setReactive()
+        
+        self.selectionFeedbackGenerator.prepare()
     }
     
     required init?(coder: NSCoder) { nil }
@@ -214,7 +220,7 @@ extension AlarmPickerColumnView {
         
         let prevAdjacentView = mostAdjacentView
         
-        // #1. 중심과 가장 가까운 뷰를 색출
+        // 중심과 가장 가까운 뷰를 색출
         
         var minDistance: CGFloat = .infinity
         var currentAdjacentView: AlarmPickerItemView!
@@ -233,15 +239,33 @@ extension AlarmPickerColumnView {
             }
         }
         
-        // #2. 상태 업데이트
+        // 상태 업데이트
         if currentAdjacentView !== prevAdjacentView {
             
             // 현재 가장 가까운 뷰가 이전에 가장 가까운 뷰가 아닌 경우
             let currentItem = currentAdjacentView.selectionItem
             self.currentSelectedItem.accept(currentItem)
             
+            
             // 상태를 업데이트
             self.mostAdjacentView = currentAdjacentView
+            
+            
+            // 피드백 전송
+            self.selectionFeedbackGenerator.selectionChanged()
+            
+            
+            /*
+            if #available(iOS 17.5, *) {
+                let centerOfView: CGPoint = .init(
+                    x: self.bounds.width/2,
+                    y: self.bounds.height/2
+                )
+                self.selectionFeedbackGenerator.selectionChanged(at: centerOfView)
+            } else {
+                self.selectionFeedbackGenerator.selectionChanged()
+            }
+             */
         }
     }
     
