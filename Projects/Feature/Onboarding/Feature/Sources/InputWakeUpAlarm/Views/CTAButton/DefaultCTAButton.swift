@@ -13,10 +13,16 @@ import SnapKit
 
 protocol DefaultCTAButtonListener: AnyObject {
     
-    func buttonIsTapped()
+    func action(_ action: DefaultCTAButton.Action)
 }
 
 class DefaultCTAButton: UIView {
+    
+    // Action
+    enum Action {
+        case buttonIsTapped
+    }
+    
     
     // Sub view
     private let titleLabel: UILabel = .init()
@@ -103,7 +109,7 @@ class DefaultCTAButton: UIView {
     @objc
     private func onTap(_ gesture: UIGestureRecognizer) {
         
-        listener?.buttonIsTapped()
+        listener?.action(.buttonIsTapped)
         
         // tap anim
         fadeView.alpha = 1

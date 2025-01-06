@@ -15,12 +15,14 @@ protocol InputWakeUpAlarmViewListener: AnyObject {
 }
 
 
-class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener {
+class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener, DefaultCTAButtonListener {
     
     // View action
     enum Action {
         
         case backButtonClicked
+        case alarmPicker(AlarmData)
+        case ctaButtonClicked
     }
     
     
@@ -29,6 +31,7 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerLis
     private let titleLabel: UILabel = .init()
     private let subTitleLabel: UILabel = .init()
     private let alarmPicker: AlarmPicker = .init()
+    private let ctaButton: DefaultCTAButton = .init(initialState: .active)
     
     
     // Listener
@@ -73,6 +76,11 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerLis
         // alarmPicker
         alarmPicker.listener = self
         alarmPicker.updateToNow()
+        
+        
+        // ctaButton
+        ctaButton.listener = self
+        ctaButton.update("만들기")
     }
     
     
@@ -108,6 +116,16 @@ class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerLis
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
                 .inset(20)
         }
+        
+        
+        // ctaButton
+        addSubview(ctaButton)
+        ctaButton.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
+                .inset(20)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
+                .inset(20.42)
+        }
     }
 }
 
@@ -130,7 +148,25 @@ extension InputWakeUpAlarmView {
     
     func latestSelection(meridiem: String, hour: Int, minute: Int) {
         
-        print(meridiem, hour, minute)
+        let alarmData = AlarmData(
+            meridiem: meridiem,
+            hour: hour,
+            minute: minute
+        )
+        
+        listener?.action(.alarmPicker(alarmData))
+    }
+}
+
+
+// MARK: DefaultCTAButtonListener
+extension InputWakeUpAlarmView {
+    
+    func action(_ action: DefaultCTAButton.Action) {
+        switch action {
+        case .buttonIsTapped:
+            listener?.action(.ctaButtonClicked)
+        }
     }
 }
 
