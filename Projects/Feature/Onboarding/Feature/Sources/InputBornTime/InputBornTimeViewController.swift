@@ -26,6 +26,15 @@ final class InputBornTimeViewController: UIViewController, InputBornTimePresenta
         view = mainView
         mainView.listener = self
     }
+ 
+    func request(_ request: InputBornTimePresentableRequest) {
+        switch request {
+        case .showShortLenghError:
+            mainView.update(.shortBornTimeLength)
+        case .showInvalidBornTimeError:
+            mainView.update(.invalidBornTime)
+        }
+    }
     
     private let mainView = InputBornTImeView()
 }

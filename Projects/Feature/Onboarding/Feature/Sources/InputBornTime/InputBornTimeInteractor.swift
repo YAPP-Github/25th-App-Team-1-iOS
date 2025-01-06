@@ -12,9 +12,14 @@ protocol InputBornTimeRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum InputBornTimePresentableRequest {
+    case showShortLenghError
+    case showInvalidBornTimeError
+}
+
 protocol InputBornTimePresentable: Presentable {
     var listener: InputBornTimePresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: InputBornTimePresentableRequest)
 }
 
 protocol InputBornTimeListener: AnyObject {
@@ -47,6 +52,15 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
         switch request {
         case let .timeChanged(time):
             self.time = time
+            guard checkTimeLength(time) else {
+                presenter.request(.showShortLenghError)
+                return
+            }
+            
+            guard validateHour(time), validateMinute(time) else {
+                presenter.request(.showInvalidBornTimeError)
+                return
+            }
         case .iDontKnowButtonTapped:
             shouldSkip.toggle()
         }
@@ -54,4 +68,21 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
     
     var time: String = ""
     var shouldSkip: Bool = false
+    
+    func checkTimeLength(_ time: String) -> Bool {
+        let text = time.replacingOccurrences(of: ":", with: "")
+        return text.count == 4
+    }
+    
+    func validateHour(_ time: String) -> Bool {
+        let hour = time.prefix(2)
+        guard let hourInt = Int(hour) else { return false }
+        return hourInt >= 0 && hourInt <= 23
+    }
+    
+    func validateMinute(_ time: String) -> Bool {
+        let minute = time.suffix(2)
+        guard let minuteInt = Int(minute) else { return false }
+        return minuteInt >= 0 && minuteInt <= 59
+    }
 }
