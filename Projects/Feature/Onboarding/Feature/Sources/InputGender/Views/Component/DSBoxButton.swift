@@ -14,7 +14,7 @@ import SnapKit
 
 public protocol DSBoxButtonListener: AnyObject {
     
-    func action(_ action: DSBoxButton.Action)
+    func action(sender button: DSBoxButton, action: DSBoxButton.Action)
 }
 
 final public class DSBoxButton: UIView {
@@ -105,7 +105,7 @@ public extension DSBoxButton {
         }
         
         // publish event
-        listener?.action(.stateChanged(newState))
+        listener?.action(sender: self, action: .stateChanged(newState))
         
         return self
     }
@@ -216,6 +216,8 @@ private extension DSBoxButton {
         // title view
         titleLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
+            make.leading.greaterThanOrEqualToSuperview()
+            make.trailing.lessThanOrEqualToSuperview()
         }
     }
     
