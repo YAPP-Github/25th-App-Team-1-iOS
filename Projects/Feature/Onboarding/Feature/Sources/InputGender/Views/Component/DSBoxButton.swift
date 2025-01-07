@@ -22,6 +22,10 @@ final public class DSBoxButton: UIView {
     private var buttonState: ButtonState
     
     
+    // gesture
+    private let longPressGestureRecognizer: UILongPressGestureRecognizer = .init()
+    
+    
     public override var intrinsicContentSize: CGSize {
         .init(width: UIView.noIntrinsicMetric, height: 148)
     }
@@ -35,6 +39,7 @@ final public class DSBoxButton: UIView {
         
         setupUI()
         setupLayout()
+        setGestureRecognizer()
     }
     public required init?(coder: NSCoder) { nil }
     
@@ -51,26 +56,17 @@ final public class DSBoxButton: UIView {
             titleText = string
         }
         
-        switch buttonState {
-        case .idle:
-            
-            titleLabel.do {
-                $0.displayText = titleText.displayText(
-                    font: .heading2SemiBold,
-                    color: R.Color.white100
-                )
-            }
-            
-        case .selected:
-            
-            titleLabel.do {
-                $0.displayText = titleText.displayText(
-                    font: .heading2SemiBold,
-                    color: R.Color.submain
-                )
-            }
+        titleLabel.do {
+            $0.displayText = titleText.displayText(font: .heading2SemiBold)
         }
         
+        switch buttonState {
+        case .idle:
+            updateAppearance(.default)
+        case .selected:
+            updateAppearance(.selected)
+        }
+    
         return self
     }
     
@@ -80,10 +76,47 @@ final public class DSBoxButton: UIView {
         
         self.buttonState = state
         
-        let currentTitleText = titleLabel.displayText?.string
-        
         switch buttonState {
         case .idle:
+            updateAppearance(.default)
+        case .selected:
+            updateAppearance(.selected)
+        }
+        
+        // publish event
+        
+        return self
+    }
+}
+
+
+// MARK: View states & appearance
+public extension DSBoxButton {
+    
+    enum ButtonState {
+        case idle
+        case selected
+    }
+    
+    
+    enum TitleState {
+        case none
+        case normal(String)
+    }
+    
+    
+    private enum ButtonAppearance {
+        case `default`
+        case pressed
+        case selected
+    }
+    
+    private func updateAppearance(_ appearance: ButtonAppearance) {
+        
+        let currentTitleText = titleLabel.displayText?.string
+        
+        switch appearance {
+        case .default:
             
             // background
             self.backgroundColor = R.Color.gray800
@@ -91,6 +124,22 @@ final public class DSBoxButton: UIView {
             self.layer.borderColor = R.Color.gray600.cgColor
             
             // text
+            if let currentTitleText {
+                
+                titleLabel.do {
+                    $0.displayText = currentTitleText.displayText(
+                        font: .heading2SemiBold,
+                        color: R.Color.white100
+                    )
+                }
+            }
+            
+        case .pressed:
+            
+            // background
+            self.backgroundColor = R.Color.gray700
+            self.layer.borderWidth = 0
+            
             if let currentTitleText {
                 
                 titleLabel.do {
@@ -118,24 +167,6 @@ final public class DSBoxButton: UIView {
                 }
             }
         }
-        
-        return self
-    }
-}
-
-
-// MARK: View configuration
-public extension DSBoxButton {
-    
-    enum ButtonState {
-        case idle
-        case selected
-    }
-    
-    
-    enum TitleState {
-        case none
-        case normal(String)
     }
 }
 
@@ -143,7 +174,7 @@ public extension DSBoxButton {
 // MARK: Set up view
 private extension DSBoxButton {
     
-    private func setupUI() {
+    func setupUI() {
         
         // self
         self.layer.cornerRadius = 16
@@ -154,11 +185,46 @@ private extension DSBoxButton {
     }
     
     
-    private func setupLayout() {
+    func setupLayout() {
         
         // title view
         titleLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
+        }
+    }
+    
+    
+    func setGestureRecognizer() {
+        
+        longPressGestureRecognizer.minimumPressDuration = 0
+        
+        addGestureRecognizer(longPressGestureRecognizer)
+        longPressGestureRecognizer.addTarget(self, action: #selector(onPress(_:)))
+    }
+    
+    @objc func onPress(_ recognizer: UILongPressGestureRecognizer) {
+        
+        switch buttonState {
+        case .idle:
+            UIView.animate(withDuration: 0.2) {
+                switch recognizer.state {
+                case .began:
+                    self.updateAppearance(.pressed)
+                case .ended, .cancelled:
+                    self.update(state: .selected)
+                default:
+                    break
+                }
+            }
+        case .selected:
+            UIView.animate(withDuration: 0.2) {
+                switch recognizer.state {
+                case .ended, .cancelled:
+                    self.update(state: .idle)
+                default:
+                    break
+                }
+            }
         }
     }
 }
