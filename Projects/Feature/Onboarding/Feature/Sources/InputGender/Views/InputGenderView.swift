@@ -11,14 +11,16 @@ import FeatureResources
 
 protocol InputGenderViewListener: AnyObject {
     
-    func action(_ action: InputGenderView.Request)
+    func action(_ action: InputGenderView.Action)
 }
 
 final class InputGenderView: UIView, DSBoxButtonListener, DefaultCTAButtonListener, OnBoardingNavBarViewListener {
     
     // View action
-    enum Request {
+    enum Action {
         case selectedGender(Gender)
+        case confirmButtonClicked
+        case backButtonClicked
     }
     
     
@@ -181,7 +183,7 @@ extension InputGenderView {
     
     func action(_ action: DefaultCTAButton.Action) {
         
-        //
+        listener?.action(.confirmButtonClicked)
     }
 }
 
@@ -191,6 +193,6 @@ extension InputGenderView {
     
     func action(_ action: OnBoardingNavBarView.Action) {
         
-        //
+        listener?.action(.backButtonClicked)
     }
 }

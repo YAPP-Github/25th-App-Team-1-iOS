@@ -9,10 +9,17 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum InputGenderPresenterRequest {
+    
+    case updateSelectedGender(Gender)
+    case confirmCurrentGender
+    case exitPage
+}
+
+
 protocol InputGenderPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    
+    func request(_ request: InputGenderPresenterRequest)
 }
 
 final class InputGenderViewController: UIViewController, InputGenderPresentable, InputGenderViewControllable, InputGenderViewListener {
@@ -31,9 +38,19 @@ final class InputGenderViewController: UIViewController, InputGenderPresentable,
 // MARK: InputGenderViewListener
 extension InputGenderViewController {
     
-    func action(_ action: InputGenderView.Request) {
+    func action(_ action: InputGenderView.Action) {
         
-        //
+        switch action {
+            
+        case .selectedGender(let gender):
+            listener?.request(.updateSelectedGender(gender))
+            
+        case .backButtonClicked:
+            listener?.request(.exitPage)
+            
+        case .confirmButtonClicked:
+            listener?.request(.confirmCurrentGender)
+        }
     }
 }
 
