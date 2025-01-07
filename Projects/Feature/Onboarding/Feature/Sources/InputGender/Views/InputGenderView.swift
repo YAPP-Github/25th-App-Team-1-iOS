@@ -18,37 +18,37 @@ final class InputGenderView: UIView, DSBoxButtonListener, DefaultCTAButtonListen
     
     // View action
     enum Action {
-        case selectedGender(Gender)
+        case selectedGender(Gender?)
         case confirmButtonClicked
         case backButtonClicked
     }
     
     
     // Sub view
-    private let navigationBar = OnBoardingNavBarView()
-    private let titleLabel: UILabel = .init().then {
+    let navigationBar = OnBoardingNavBarView()
+    let titleLabel: UILabel = .init().then {
         $0.displayText = "성별을 알려주세요".displayText(
             font: .heading1SemiBold,
             color: R.Color.white100
         )
     }
-    private let maleButton = DSBoxButton()
+    let maleButton = DSBoxButton()
         .update(state: .idle)
         .update(title: .normal(Gender.male.displayingName))
-    private let femaleButton = DSBoxButton()
+    let femaleButton = DSBoxButton()
         .update(state: .idle)
         .update(title: .normal(Gender.female.displayingName))
-    private let genderButtonStack: UIStackView = .init().then {
+    let genderButtonStack: UIStackView = .init().then {
             $0.axis = .horizontal
             $0.distribution = .fillEqually
             $0.spacing = 16
         }
-    private let ctaButton: DefaultCTAButton = .init(initialState: .active).then {
+    let ctaButton: DefaultCTAButton = .init(initialState: .active).then {
         $0.update("다음")
         $0.update(state: .inactive)
     }
-    private let policyAgreementLabel = PolicyAgreementLabel()
-    private let buttonAndTextStack: UIStackView = .init().then {
+    let policyAgreementLabel = PolicyAgreementLabel()
+    let buttonAndTextStack: UIStackView = .init().then {
             $0.axis = .vertical
             $0.distribution = .fill
             $0.alignment = .fill
@@ -139,6 +139,15 @@ private extension InputGenderView {
     }
 }
 
+// MARK: public interface
+extension InputGenderView {
+    
+    func updateCtaButton(isEnabled: Bool) {
+        
+        ctaButton.update(state: isEnabled ? .active : .inactive)
+    }
+}
+
 
 // MARK: DSBoxButtonListener
 extension InputGenderView {
@@ -150,6 +159,10 @@ extension InputGenderView {
             
             switch buttonState {
             case .idle:
+                
+                // publish event
+                listener?.action(.selectedGender(nil))
+                
                 break
             case .selected:
                 switch button {

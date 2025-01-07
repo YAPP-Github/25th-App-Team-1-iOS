@@ -11,7 +11,7 @@ import UIKit
 
 enum InputGenderPresenterRequest {
     
-    case updateSelectedGender(Gender)
+    case updateSelectedGender(Gender?)
     case confirmCurrentGender
     case exitPage
 }
@@ -26,9 +26,12 @@ final class InputGenderViewController: UIViewController, InputGenderPresentable,
 
     weak var listener: InputGenderPresentableListener?
     
+    private(set) var mainView: InputGenderView!
+    
     override func loadView() {
         
         let mainView = InputGenderView()
+        self.mainView = mainView
         self.view = mainView
         mainView.listener = self
     }
@@ -50,6 +53,20 @@ extension InputGenderViewController {
             
         case .confirmButtonClicked:
             listener?.request(.confirmCurrentGender)
+        }
+    }
+}
+
+
+// MARK: InputGenderPresentable, 인터렉터가 전달하는 액션
+extension InputGenderViewController {
+    
+    func action(_ action: InputGenderInteractorAction) {
+        
+        switch action {
+        case .updateButtonState(let isEnabled):
+            
+            mainView.updateCtaButton(isEnabled: isEnabled)
         }
     }
 }
