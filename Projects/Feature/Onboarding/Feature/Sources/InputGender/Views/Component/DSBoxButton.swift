@@ -30,7 +30,11 @@ final public class DSBoxButton: UIView {
     
     
     // State
-    private var buttonState: ButtonState
+    private var buttonState: ButtonState {
+        didSet {
+            debugPrint(buttonState)
+        }
+    }
     
     
     // Listener
@@ -91,21 +95,21 @@ public extension DSBoxButton {
     }
     
     
-    /// 해당매서드로 상태변경시 Listener에게 이벤트가 퍼블리싱 됩니다.
     @discardableResult
-    func update(state newState: ButtonState) -> Self {
+    func update(state newState: ButtonState, animated: Bool = false) -> Self {
         
         self.buttonState = newState
         
-        switch buttonState {
-        case .idle:
-            updateAppearance(.default)
-        case .selected:
-            updateAppearance(.selected)
+        UIView.animate(withDuration: animated ? 0.2 : 0.0) {
+            
+            switch newState {
+            case .idle:
+                self.updateAppearance(.default)
+            case .selected:
+                self.updateAppearance(.selected)
+            }
         }
         
-        // publish event
-        listener?.action(sender: self, action: .stateChanged(newState))
         
         return self
     }
@@ -232,27 +236,37 @@ private extension DSBoxButton {
     
     @objc func onPress(_ recognizer: UILongPressGestureRecognizer) {
         
-        switch buttonState {
-        case .idle:
+        switch recognizer.state {
+        case .began:
+            
+            // anim
             UIView.animate(withDuration: 0.2) {
-                switch recognizer.state {
-                case .began:
-                    self.updateAppearance(.pressed)
-                case .ended, .cancelled:
-                    self.update(state: .selected)
-                default:
-                    break
+                self.updateAppearance(.pressed)
+            }
+            
+        case .ended, .cancelled:
+            
+            // update state
+            let newState: ButtonState = buttonState == .idle ? .selected : .idle
+            self.buttonState = newState
+            
+            // publish event
+            self.listener?.action(
+                sender: self,
+                action: .stateChanged(newState)
+            )
+            
+            UIView.animate(withDuration: 0.2) {
+                switch self.buttonState {
+                case .idle:
+                    self.updateAppearance(.default)
+                case .selected:
+                    self.updateAppearance(.selected)
                 }
             }
-        case .selected:
-            UIView.animate(withDuration: 0.2) {
-                switch recognizer.state {
-                case .ended, .cancelled:
-                    self.update(state: .idle)
-                default:
-                    break
-                }
-            }
+            
+        default:
+            break
         }
     }
 }

@@ -14,7 +14,7 @@ protocol InputGenderViewListener: AnyObject {
     func action(_ action: InputGenderView.Request)
 }
 
-final class InputGenderView: UIView, DSBoxButtonListener, DefaultCTAButtonListener {
+final class InputGenderView: UIView, DSBoxButtonListener, DefaultCTAButtonListener, OnBoardingNavBarViewListener {
     
     // View action
     enum Request {
@@ -79,6 +79,7 @@ private extension InputGenderView {
         
         // navigationBarView
         addSubview(navigationBar)
+        navigationBar.listener = self
         
         
         // title label
@@ -89,6 +90,8 @@ private extension InputGenderView {
         [maleButton, femaleButton].forEach {
             genderButtonStack.addArrangedSubview($0)
         }
+        maleButton.listener = self
+        femaleButton.listener = self
         addSubview(genderButtonStack)
         
         
@@ -96,6 +99,7 @@ private extension InputGenderView {
         [ctaButton, policyAgreementLabel].forEach {
             buttonAndTextStack.addArrangedSubview($0)
         }
+        ctaButton.listener = self
         addSubview(buttonAndTextStack)
     }
     
@@ -139,7 +143,35 @@ extension InputGenderView {
     
     func action(sender button: DSBoxButton, action: DSBoxButton.Action) {
         
-        //
+        switch action {
+        case .stateChanged(let buttonState):
+            
+            switch buttonState {
+            case .idle:
+                break
+            case .selected:
+                switch button {
+                case maleButton:
+                    
+                    // publish event
+                    listener?.action(.selectedGender(.male))
+                    
+                    // apply radio ui
+                    femaleButton.update(state: .idle, animated: true)
+                    
+                case femaleButton:
+                    
+                    // publish event
+                    listener?.action(.selectedGender(.female))
+                    
+                    // apply radio ui
+                    maleButton.update(state: .idle, animated: true)
+                    
+                default:
+                    fatalError()
+                }
+            }
+        }
     }
 }
 
@@ -148,6 +180,16 @@ extension InputGenderView {
 extension InputGenderView {
     
     func action(_ action: DefaultCTAButton.Action) {
+        
+        //
+    }
+}
+
+
+// MARK: OnBoardingNavBarViewListener
+extension InputGenderView {
+    
+    func action(_ action: OnBoardingNavBarView.Action) {
         
         //
     }
