@@ -15,7 +15,29 @@ protocol InputGenderPresentableListener: AnyObject {
     // interactor class.
 }
 
-final class InputGenderViewController: UIViewController, InputGenderPresentable, InputGenderViewControllable {
+final class InputGenderViewController: UIViewController, InputGenderPresentable, InputGenderViewControllable, InputGenderViewListener {
 
     weak var listener: InputGenderPresentableListener?
+    
+    override func loadView() {
+        
+        let mainView = InputGenderView()
+        self.view = mainView
+        mainView.listener = self
+    }
+}
+
+
+// MARK: InputGenderViewListener
+extension InputGenderViewController {
+    
+    func action(_ action: InputGenderView.Request) {
+        
+        //
+    }
+}
+
+
+#Preview {
+    InputGenderViewController()
 }
