@@ -1,19 +1,19 @@
 //
 //  Project.swift
 //
-//  Created by 손병근 on 2025/01/04
+//  Created by ever on 2025/01/07
 //
 
 import ProjectDescription
 import DependencyPlugin
 
 let project = Project(
-    name: "FeatureOnboarding",
+    name: "DesignSystem",
     targets: [
         
         // Example
         .target(
-            name: "FeatureOnboardingExample",
+            name: "FeatureDesignSystemExample",
             destinations: .iOS,
             product: .app,
             bundleId: Project.Environment.bundleId(suffix: "feature.example"),
@@ -22,38 +22,35 @@ let project = Project(
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
-                .feature(implements: .Onboarding),
-                .thirdParty(library: .RIBs)
+                .feature(implements: .DesignSystem),
             ]
         ),
 
 
         // Tests
         .target(
-            name: "FeatureOnboardingTests",
+            name: "FeatureDesignSystemTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: Project.Environment.bundleId(suffix: "feature.nboarding.tests"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.DesignSystem.tests"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Tests/**"],
             dependencies: [
-                .feature(implements: .Onboarding),
+                .feature(implements: .DesignSystem),
             ]
         ),
 
 
         // Feature
         .target(
-            name: "FeatureOnboarding",
+            name: "FeatureDesignSystem",
             destinations: .iOS,
-            product: .staticFramework,
-            bundleId: Project.Environment.bundleId(suffix: "feature.FeatureOnboarding"),
+            product: .framework,
+            bundleId: Project.Environment.bundleId(suffix: "feature.DesignSystem"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
                 .feature(implements: .Resources),
-                .feature(implements: .DesignSystem),
-                .thirdParty(library: .RIBs),
                 .thirdParty(library: .SnapKit),
                 .thirdParty(library: .Then)
             ]

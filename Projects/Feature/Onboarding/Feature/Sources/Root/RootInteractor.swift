@@ -12,6 +12,8 @@ public enum RootRouterRequest {
     case cleanUpViews
     case routeToIntro
     case routeToInputName
+    case routeToInputBornTime
+    case detachInputBornTime
 }
 
 public protocol RootRouting: Routing {
@@ -40,6 +42,8 @@ final class RootInteractor: Interactor, RootInteractable {
             router?.request(.routeToIntro)
         case .inputName:
             router?.request(.routeToInputName)
+        case .inputBornTime:
+            router?.request(.routeToInputBornTime)
         }
     }
 
@@ -51,4 +55,18 @@ final class RootInteractor: Interactor, RootInteractable {
     }
     
     private let entryPoint: EntryPoint
+}
+
+// MARK: InputBornTimeListenerRequest
+extension RootInteractor {
+    func request(_ request: InputBornTimeListenerRequest) {
+        router?.request(.detachInputBornTime)
+        switch request {
+        case .skip:
+            print("born time skip")
+        case let .done(hour, minute):
+            print("born hour: \(hour), minute: \(minute)")
+        }
+    }
+    
 }
