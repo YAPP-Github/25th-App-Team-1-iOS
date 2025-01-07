@@ -108,10 +108,12 @@ public extension DSTextField {
     struct Config {
         let placeholder: String
         let alignment: NSTextAlignment
+        let keyboardType: UIKeyboardType
         
-        public init(placeholder: String, alignment: NSTextAlignment) {
+        public init(placeholder: String, alignment: NSTextAlignment, keyboardType: UIKeyboardType) {
             self.placeholder = placeholder
             self.alignment = alignment
+            self.keyboardType = keyboardType
         }
     }
 }

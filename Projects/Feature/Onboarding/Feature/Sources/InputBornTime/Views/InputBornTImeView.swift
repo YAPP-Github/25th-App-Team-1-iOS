@@ -62,7 +62,8 @@ final class InputBornTImeView: UIView {
         config: .init(
             textFieldConfig: .init(
                 placeholder: "23:59",
-                alignment: .center
+                alignment: .center,
+                keyboardType: .asciiCapableNumberPad
             ),
             titleState: .none,
             messageState: .none
