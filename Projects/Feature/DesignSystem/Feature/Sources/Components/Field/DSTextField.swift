@@ -131,6 +131,7 @@ private extension DSTextField {
             $0.font = R.Font.body1Regular.toUIFont()
             $0.textAlignment = config.alignment
             $0.textColor = R.Color.white100
+            $0.keyboardType = config.keyboardType
             $0.tintColor = .white
             $0.addTarget(self, action: #selector(editingDidBegin), for: .editingDidBegin)
             $0.addTarget(self, action: #selector(editingDidEnd), for: .editingDidEnd)
