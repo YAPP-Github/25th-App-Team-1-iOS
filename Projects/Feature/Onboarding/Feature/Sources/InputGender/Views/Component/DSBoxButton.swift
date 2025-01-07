@@ -12,7 +12,18 @@ import FeatureResources
 import Then
 import SnapKit
 
+public protocol DSBoxButtonListener: AnyObject {
+    
+    func action(_ action: DSBoxButton.Action)
+}
+
 final public class DSBoxButton: UIView {
+    
+    // View action
+    public enum Action {
+        case stateChanged(ButtonState)
+    }
+    
     
     // Sub view
     private let titleLabel: UILabel = .init()
@@ -20,6 +31,10 @@ final public class DSBoxButton: UIView {
     
     // State
     private var buttonState: ButtonState
+    
+    
+    // Listener
+    public weak var listener: DSBoxButtonListener?
     
     
     // gesture
@@ -43,9 +58,14 @@ final public class DSBoxButton: UIView {
     }
     public required init?(coder: NSCoder) { nil }
     
+}
+
+
+// MARK: Public interface
+public extension DSBoxButton {
     
     @discardableResult
-    public func update(title: TitleState) -> Self {
+    func update(title: TitleState) -> Self {
         
         var titleText: String = ""
         
@@ -71,10 +91,11 @@ final public class DSBoxButton: UIView {
     }
     
     
+    /// 해당매서드로 상태변경시 Listener에게 이벤트가 퍼블리싱 됩니다.
     @discardableResult
-    public func update(state: ButtonState) -> Self {
+    func update(state newState: ButtonState) -> Self {
         
-        self.buttonState = state
+        self.buttonState = newState
         
         switch buttonState {
         case .idle:
@@ -84,6 +105,7 @@ final public class DSBoxButton: UIView {
         }
         
         // publish event
+        listener?.action(.stateChanged(newState))
         
         return self
     }
@@ -103,7 +125,11 @@ public extension DSBoxButton {
         case none
         case normal(String)
     }
-    
+}
+
+
+// MARK: Button appearance
+private extension DSBoxButton {
     
     private enum ButtonAppearance {
         case `default`
