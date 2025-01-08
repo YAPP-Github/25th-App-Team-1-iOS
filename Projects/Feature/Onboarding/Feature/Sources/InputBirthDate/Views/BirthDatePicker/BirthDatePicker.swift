@@ -152,66 +152,77 @@ final class BirthDatePicker: UIView {
     
     private func setReactive() {
         
-        // 달력타입, 연, 달 기반 일 업데이트
-        Observable.combineLatest(
-            calendarColumn.rx.selectedContent,
-            yearColumn.rx.selectedContent,
-            monthColumn.rx.selectedContent
+        // 일(day)수를 변경시키는 옵저버블
+        let calYearMonthChangeObservable = Observable.combineLatest(
+            calendarColumn.rx.selectedContent.distinctUntilChanged(),
+            yearColumn.rx.selectedContent.distinctUntilChanged(),
+            monthColumn.rx.selectedContent.distinctUntilChanged()
         )
-        .observe(on: MainScheduler.instance)
-        .subscribe(onNext: { [weak self] calendar, year, month in
-            
-            guard let self else { return }
-            
-            var calendarType: CalendarType!
-            
-            switch calendar {
-            case CalendarType.lunar.content:
-                calendarType = .lunar
-            case CalendarType.gregorian.content:
-                calendarType = .gregorian
-            default:
-                fatalError()
-            }
-            
-            guard let yearInt = Int(year), let monthInt = Int(month) else {
-                fatalError()
-            }
-            
-            updateDay(calendarType: calendarType, year: yearInt, month: monthInt)
-        })
-        .disposed(by: disposeBag)
         
         
-        // 현재 상태를 퍼블리싱
-        Observable.combineLatest(
-            calendarColumn.rx.selectedContent,
-            yearColumn.rx.selectedContent,
-            monthColumn.rx.selectedContent,
-            dayColumn.rx.selectedContent
-        )
-        .subscribe(onNext: { [weak self] calendar, year, month, day in
-            
-            guard let self else { return }
-            
-            var calendarType: CalendarType!
-            
-            switch calendar {
-            case CalendarType.lunar.content:
-                calendarType = .lunar
-            case CalendarType.gregorian.content:
-                calendarType = .gregorian
-            default:
-                fatalError()
-            }
-            
-            guard let yearInt = Int(year), let monthInt = Int(month), let dayInt = Int(day) else {
-                fatalError()
-            }
-            
-            listener?.latestDate(calendar: calendarType, year: yearInt, month: monthInt, day: dayInt)
-        })
-        .disposed(by: disposeBag)
+        // 일수가 업데이트됨
+        let dateIsUpdated = calYearMonthChangeObservable
+            .withUnretained(self)
+            .map({ view, bundle in
+                
+                let (calendar, year, month) = bundle
+                
+                var calendarType: CalendarType!
+                
+                switch calendar {
+                case CalendarType.lunar.content:
+                    calendarType = .lunar
+                case CalendarType.gregorian.content:
+                    calendarType = .gregorian
+                default:
+                    fatalError()
+                }
+                
+                guard let yearInt = Int(year), let monthInt = Int(month) else {
+                    fatalError()
+                }
+                
+                let newDayRange = view.updateDay(calendarType: calendarType, year: yearInt, month: monthInt)
+                
+                return (calendar, year, month, newDayRange)
+            })
+        
+        
+        // 일의 변화를 관찰
+        let dayChangeObservable = dayColumn.rx.selectedContent.distinctUntilChanged()
+        
+        Observable
+            .combineLatest(dateIsUpdated, dayChangeObservable)
+            .subscribe(onNext: { [weak self] bundle, day in
+                
+                let (calendar, year, month, newDayRange) = bundle
+                
+                guard let self else { return }
+                
+                var calendarType: CalendarType!
+                
+                switch calendar {
+                case CalendarType.lunar.content:
+                    calendarType = .lunar
+                case CalendarType.gregorian.content:
+                    calendarType = .gregorian
+                default:
+                    fatalError()
+                }
+                
+                guard let yearInt = Int(year), let monthInt = Int(month), let dayInt = Int(day) else {
+                    fatalError()
+                }
+                
+                // 업데이트된 일수를 적용하여 현재 방출된 Day값이 유효한지 확인
+                if newDayRange.contains(dayInt) {
+                    
+                    // 현재 방출된 일 값이 유효함
+                    
+                    listener?.latestDate(calendar: calendarType, year: yearInt, month: monthInt, day: dayInt)
+                }
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -249,7 +260,9 @@ extension BirthDatePicker {
     }
     
     
-    func updateDay(calendarType: CalendarType, year: Int, month: Int) {
+    /// 새롭게 업데이트되는 일수를 반환
+    @discardableResult
+    func updateDay(calendarType: CalendarType, year: Int, month: Int) -> Range<Int> {
         
         let calendar = Calendar(identifier: calendarType.calendarIdentifier)
         
@@ -279,6 +292,8 @@ extension BirthDatePicker {
         }
         
         dayColumn.update(items: updatedItems)
+        
+        return range
     }
 }
 
