@@ -11,15 +11,15 @@ import FeatureResources
 
 import SnapKit
 
-protocol DefaultCTAButtonListener: AnyObject {
+public protocol DefaultCTAButtonListener: AnyObject {
     
     func action(_ action: DefaultCTAButton.Action)
 }
 
-final class DefaultCTAButton: UIView {
+public final class DefaultCTAButton: UIView {
     
     // Action
-    enum Action {
+    public enum Action {
         case buttonIsTapped
     }
     
@@ -30,12 +30,12 @@ final class DefaultCTAButton: UIView {
     
     
     // Listener
-    weak var listener: DefaultCTAButtonListener?
+    public weak var listener: DefaultCTAButtonListener?
     
 
     // State
     private var state: State = .active
-    private var isEnabled: Bool { state == .active }
+    public var isEnabled: Bool { state == .active }
     
     
     // Gesture
@@ -46,13 +46,13 @@ final class DefaultCTAButton: UIView {
     private let baseFont: R.Font = .body1SemiBold
     
     
-    override var intrinsicContentSize: CGSize {
+    public override var intrinsicContentSize: CGSize {
         
         .init(width: UIView.noIntrinsicMetric, height: 54)
     }
     
     
-    init(initialState: State = .active) {
+    public init(initialState: State = .active) {
     
         super.init(frame: .zero)
         
@@ -62,7 +62,7 @@ final class DefaultCTAButton: UIView {
         setupLayout()
         setupTapGesture()
     }
-    required init?(coder: NSCoder) { nil }
+    public required init?(coder: NSCoder) { nil }
     
     
     private func setupUI() {
@@ -119,7 +119,7 @@ final class DefaultCTAButton: UIView {
 
 
 // MARK: Public interface
-extension DefaultCTAButton {
+public extension DefaultCTAButton {
     
     func update(_ text: String) {
         updateAppearance(text: text, state: self.state)
@@ -145,7 +145,7 @@ extension DefaultCTAButton {
 // MARK: State
 extension DefaultCTAButton {
     
-    enum State {
+    public enum State {
         case active
         case inactive
     }

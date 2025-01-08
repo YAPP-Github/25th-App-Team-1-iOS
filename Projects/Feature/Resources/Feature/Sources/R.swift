@@ -10,6 +10,7 @@ public class R {
     }
     
     public struct Color {
+        public static let submain = UIColor(hex: "#FDFE96")
         public static let main100 = UIColor(hex: "#FEFF65")
         public static let main90 = main100.withAlphaComponent(90)
         public static let main80 = main100.withAlphaComponent(80)
