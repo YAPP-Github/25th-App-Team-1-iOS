@@ -30,11 +30,7 @@ final public class DSBoxButton: UIView {
     
     
     // State
-    private var buttonState: ButtonState {
-        didSet {
-            debugPrint(buttonState)
-        }
-    }
+    private var buttonState: ButtonState
     
     
     // Listener
