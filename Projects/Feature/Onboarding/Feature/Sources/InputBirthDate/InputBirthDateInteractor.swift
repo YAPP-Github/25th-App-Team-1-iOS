@@ -1,5 +1,5 @@
 //
-//  InputBirthDayInteractor.swift
+//  InputBirthDateInteractor.swift
 //  FeatureOnboarding
 //
 //  Created by choijunios on 1/8/25.
@@ -8,27 +8,27 @@
 import RIBs
 import RxSwift
 
-protocol InputBirthDayRouting: ViewableRouting {
+protocol InputBirthDateRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
-protocol InputBirthDayPresentable: Presentable {
-    var listener: InputBirthDayPresentableListener? { get set }
+protocol InputBirthDatePresentable: Presentable {
+    var listener: InputBirthDatePresentableListener? { get set }
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
-protocol InputBirthDayListener: AnyObject {
+protocol InputBirthDateListener: AnyObject {
     // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
 }
 
-final class InputBirthDayInteractor: PresentableInteractor<InputBirthDayPresentable>, InputBirthDayInteractable, InputBirthDayPresentableListener {
+final class InputBirthDateInteractor: PresentableInteractor<InputBirthDatePresentable>, InputBirthDateInteractable, InputBirthDatePresentableListener {
 
-    weak var router: InputBirthDayRouting?
-    weak var listener: InputBirthDayListener?
+    weak var router: InputBirthDateRouting?
+    weak var listener: InputBirthDateListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputBirthDayPresentable) {
+    override init(presenter: InputBirthDatePresentable) {
         super.init(presenter: presenter)
         presenter.listener = self
     }

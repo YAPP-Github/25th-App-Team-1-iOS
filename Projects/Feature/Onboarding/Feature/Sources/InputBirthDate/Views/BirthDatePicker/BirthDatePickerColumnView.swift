@@ -7,22 +7,30 @@
 
 import UIKit
 
+import FeatureResources
+
+import Then
 import SnapKit
 import RxSwift
 import RxRelay
 
-final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
+final class BirthDatePickerColumnView: UIView, UIScrollViewDelegate {
     
     typealias Content = String
     
     // Sub view
     private var scrollView: UIScrollView!
-    private var itemViews: [Content: BirthDayPickerItemView] = [:]
-    private var orderedItemViews: [BirthDayPickerItemView] = []
+    private var itemViews: [Content: BirthDatePickerItemView] = [:]
+    private var orderedItemViews: [BirthDatePickerItemView] = []
+    private lazy var itemStackView: UIStackView = .init().then {
+        $0.axis = .vertical
+        $0.spacing = self.itemSpacing
+        $0.distribution = .fill
+    }
     
     
     // Model
-    private let items: [BirthDaySelectionItem]
+    private var items: [BirthDaySelectionItem]
     
     
     // Feedback generator
@@ -37,7 +45,7 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
     
     // Observable
     fileprivate let changeContent: BehaviorRelay<Content?> = .init(value: nil)
-    fileprivate let currentSelectedItem: BehaviorRelay<BirthDaySelectionItem?> = .init(value: nil)
+    fileprivate let currentSelectedContent: BehaviorRelay<Content?> = .init(value: nil)
     private let layoutSubViews: BehaviorSubject<Void?> = .init(value: nil)
     private let disposeBag = DisposeBag()
     
@@ -82,13 +90,31 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
         
         let itemViews = self.items.map { selectionItem in
             
-            let itemView = BirthDayPickerItemView(item: selectionItem)
+            let itemView = createItemView(item: selectionItem)
             self.itemViews[selectionItem.content] = itemView
             
             return itemView
         }
         
         self.orderedItemViews = itemViews
+        
+        orderedItemViews.forEach {
+            itemStackView.addArrangedSubview($0)
+        }
+    }
+    
+    
+    private func createItemView(item: BirthDaySelectionItem) -> BirthDatePickerItemView {
+        
+        BirthDatePickerItemView(
+            content: item.content,
+            viewSize: item.contentSize
+        )
+        .update(titleLabelText: item.displayingText)
+        .update(titleLabelConfig: .init(
+            font: .title2SemiBold,
+            textColor: R.Color.white100
+        ))
     }
     
     
@@ -121,14 +147,8 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
         
         
         // Scroll view
-        let stackView: UIStackView = .init(arrangedSubviews: orderedItemViews)
-        stackView.axis = .vertical
-        stackView.spacing = self.itemSpacing
-        stackView.distribution = .fill
-        
-        
         let scrollView = createScrollView()
-        scrollView.addSubview(stackView)
+        scrollView.addSubview(itemStackView)
         
         let contentGuide = scrollView.contentLayoutGuide.snp
         let frameGuide = scrollView.frameLayoutGuide.snp
@@ -148,7 +168,7 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
         }
         
         
-        stackView.snp.makeConstraints { make in
+        itemStackView.snp.makeConstraints { make in
             
             make.verticalEdges.equalTo(contentGuide.verticalEdges).inset(verticalInset)
             make.horizontalEdges.equalTo(contentGuide.horizontalEdges)
@@ -182,12 +202,23 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
                 defer {
                     scrollView.isScrollEnabled = true
                 }
-                mostAdjacentView = self.itemViews[content]!
+                
+                
+                // 지정한 아이템이 없는 경우 가장 마지막 아이템으로 이동
+                if let selectedView = self.itemViews[content] {
+                    
+                    self.mostAdjacentView = selectedView
+                    
+                } else {
+                    
+                    self.mostAdjacentView = self.orderedItemViews.last!
+                }
+                
                 scrollToAdjacentItem(scrollView, animated: false)
                 
                 // publish state
                 let itemView = itemViews[content]!
-                currentSelectedItem.accept(itemView.selectionItem)
+                currentSelectedContent.accept(itemView.content)
             })
             .disposed(by: disposeBag)
     }
@@ -203,7 +234,7 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
     }
     
     
-    public func updateCellUI(_ closure: @escaping (BirthDayPickerItemView) -> ()) {
+    public func updateCellUI(_ closure: @escaping (BirthDatePickerItemView) -> ()) {
         
         self.orderedItemViews.forEach { itemView in
             
@@ -212,10 +243,10 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
     }
     
     
-    private func findMostAdjacentViewFromCenter() -> BirthDayPickerItemView {
+    private func findMostAdjacentViewFromCenter() -> BirthDatePickerItemView {
         
         var minDistance: CGFloat = .infinity
-        var currentAdjacentView: BirthDayPickerItemView!
+        var currentAdjacentView: BirthDatePickerItemView!
         
         for itemView in orderedItemViews {
             
@@ -236,8 +267,111 @@ final class BirthDayPickerColumnView: UIView, UIScrollViewDelegate {
 }
 
 
+// MARK: Public interface
+extension BirthDatePickerColumnView {
+    
+    func update(items updatedItems: [BirthDaySelectionItem]) {
+        
+        // self
+        if updatedItems.count == 2 {
+            
+            let cellSize = updatedItems.first!.contentSize
+            let height = (cellSize.height * 3) + (itemSpacing * 2)
+            
+            viewSize = .init(
+                width: cellSize.width,
+                height: height
+            )
+            self.invalidateIntrinsicContentSize()
+            
+        } else if updatedItems.count >= 3 {
+            
+            let cellSize = updatedItems.first!.contentSize
+            let height = (cellSize.height * 5) + (itemSpacing * 4)
+            
+            viewSize = .init(
+                width: cellSize.width,
+                height: height
+            )
+            self.invalidateIntrinsicContentSize()
+            
+        } else {
+            fatalError("아이템은 2개이상이 필요합니다.")
+        }
+        
+        let currentItemArrSize = self.items.count
+        let newItemArrSize = updatedItems.count
+        var newItemViewDictionary: [Content: BirthDatePickerItemView] = [:]
+        
+        if currentItemArrSize <= newItemArrSize {
+            
+            // 기존뷰가 업데이트 하려는 뷰의 수와 같거나 다를 때
+            
+            // #1. 기존의 아이템 업데이트
+            for index in 0..<currentItemArrSize {
+                
+                let newItem = updatedItems[index]
+                
+                let updatedView = self.orderedItemViews[index]
+                    .update(content: newItem.content)
+                    .update(viewSize: newItem.contentSize)
+                    .update(titleLabelText: newItem.displayingText)
+                
+                newItemViewDictionary[newItem.content] = updatedView
+            }
+            
+            // #2. 새로운 뷰 추가(기존 뷰가 적은 경우)
+            for index in currentItemArrSize..<newItemArrSize {
+                
+                let newItem = updatedItems[index]
+                
+                let newItemView = createItemView(item: newItem)
+                
+                itemStackView.addArrangedSubview(newItemView)
+                orderedItemViews
+                    .append(newItemView)
+                
+                newItemViewDictionary[newItem.content] = newItemView
+            }
+            
+        } else {
+            
+            // 기존 뷰가 업데이트 하려는 뷰보다 수가 많아 삭제가 필요
+            
+            // #1. 기존의 아이템 업데이트
+            for index in 0..<newItemArrSize {
+                
+                let newItem = updatedItems[index]
+                
+                let updatedView = self.orderedItemViews[index]
+                    .update(content: newItem.content)
+                    .update(viewSize: newItem.contentSize)
+                    .update(titleLabelText: newItem.displayingText)
+                
+                newItemViewDictionary[newItem.content] = updatedView
+            }
+            
+            // #1. 불필요 아이템 삭제
+            for index in newItemArrSize..<currentItemArrSize {
+                
+                let needToRemoveItem = self.orderedItemViews[index]
+                needToRemoveItem.removeFromSuperview()
+            }
+            let removeIndexSet = IndexSet(newItemArrSize..<currentItemArrSize)
+            self.orderedItemViews.remove(atOffsets: removeIndexSet)
+            
+            
+        }
+        
+        self.items = updatedItems
+        self.itemViews = newItemViewDictionary
+        self.setNeedsLayout()
+    }
+}
+
+
 // MARK: UIScrollViewDelegate
-extension BirthDayPickerColumnView {
+extension BirthDatePickerColumnView {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
@@ -252,8 +386,8 @@ extension BirthDayPickerColumnView {
             
             // 중심에 가장 인접한 뷰가 변경된 경우
             
-            let currentItem = currentAdjacentView.selectionItem
-            self.currentSelectedItem.accept(currentItem)
+            let currentItemContent = currentAdjacentView.content
+            self.currentSelectedContent.accept(currentItemContent)
             self.mostAdjacentView = currentAdjacentView
             
             
@@ -319,10 +453,10 @@ extension BirthDayPickerColumnView {
 
 
 // MARK: Reactive
-extension Reactive where Base == BirthDayPickerColumnView {
+extension Reactive where Base == BirthDatePickerColumnView {
     
-    var selectedItem: Observable<BirthDaySelectionItem> {
-        base.currentSelectedItem.compactMap({ $0 })
+    var selectedContent: Observable<String> {
+        base.currentSelectedContent.compactMap({ $0 })
     }
     
     var setContent: BehaviorRelay<String?> {
@@ -333,7 +467,7 @@ extension Reactive where Base == BirthDayPickerColumnView {
 
 #Preview {
     
-    let view = BirthDayPickerColumnView(
+    let view = BirthDatePickerColumnView(
         itemSpacing: 18,
         items: [
             BirthDaySelectionItem(

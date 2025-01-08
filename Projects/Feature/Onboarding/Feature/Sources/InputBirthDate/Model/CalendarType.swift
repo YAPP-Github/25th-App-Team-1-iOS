@@ -33,4 +33,13 @@ enum CalendarType {
             "lunar"
         }
     }
+    
+    var calendarIdentifier: Calendar.Identifier {
+        switch self {
+        case .gregorian:
+            .gregorian
+        case .lunar:
+            .chinese
+        }
+    }
 }
