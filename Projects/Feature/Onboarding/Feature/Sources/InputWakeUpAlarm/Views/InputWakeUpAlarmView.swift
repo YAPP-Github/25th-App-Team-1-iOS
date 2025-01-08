@@ -8,6 +8,7 @@
 import UIKit
 
 import FeatureResources
+import FeatureDesignSystem
 
 protocol InputWakeUpAlarmViewListener: AnyObject {
     
@@ -15,7 +16,7 @@ protocol InputWakeUpAlarmViewListener: AnyObject {
 }
 
 
-final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener, DefaultCTAButtonListener {
+final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener, DSDefaultCTAButtonListener {
     
     // View action
     enum Action {
@@ -31,7 +32,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
     private let titleLabel: UILabel = .init()
     private let subTitleLabel: UILabel = .init()
     private let alarmPicker: AlarmPicker = .init()
-    private let ctaButton: DefaultCTAButton = .init(initialState: .active)
+    private let ctaButton: DSDefaultCTAButton = .init(initialState: .active)
     
     
     // Listener
@@ -159,10 +160,10 @@ extension InputWakeUpAlarmView {
 }
 
 
-// MARK: DefaultCTAButtonListener
+// MARK: DSDefaultCTAButtonListener
 extension InputWakeUpAlarmView {
     
-    func action(_ action: DefaultCTAButton.Action) {
+    func action(_ action: DSDefaultCTAButton.Action) {
         switch action {
         case .buttonIsTapped:
             listener?.action(.ctaButtonClicked)

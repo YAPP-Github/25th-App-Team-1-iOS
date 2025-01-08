@@ -12,23 +12,23 @@ import FeatureResources
 import SnapKit
 import Then
 
-protocol OnBoardingNavBarViewListener: AnyObject {
+public protocol OnBoardingNavBarViewListener: AnyObject {
     
     func action(_ action: OnBoardingNavBarView.Action)
 }
 
 
-final class OnBoardingNavBarView: UIView {
+public final class OnBoardingNavBarView: UIView {
     
     // View actions
-    enum Action {
+    public enum Action {
         
         case backButtonClicked
     }
     
     
     // Listener
-    weak var listener: OnBoardingNavBarViewListener?
+    public weak var listener: OnBoardingNavBarViewListener?
     
     
     // Sub view
@@ -39,7 +39,7 @@ final class OnBoardingNavBarView: UIView {
     fileprivate let stageIndexView: StageIndexView = .init()
         
          
-    init() {
+    public init() {
         super.init(frame: .zero)
         
         setupUI()
