@@ -46,8 +46,6 @@ final class InputGenderInteractor: PresentableInteractor<InputGenderPresentable>
     override func didBecomeActive() {
         super.didBecomeActive()
         // TODO: Implement business logic here.
-        
-        presenter.action(.updateButtonState(isEnabled: false))
     }
 
     override func willResignActive() {
@@ -72,12 +70,15 @@ extension InputGenderInteractor {
     func request(_ request: InputGenderPresenterRequest) {
         
         switch request {
+        case .viewDidLoad:
+            
+            presenter.action(.updateButtonState(isEnabled: false))
+            
         case .updateSelectedGender(let gender):
             
             state.gender = gender
             
             let buttonIsEnabled = (gender != nil)
-            
             presenter.action(.updateButtonState(isEnabled: buttonIsEnabled))
             
         case .confirmCurrentGender:

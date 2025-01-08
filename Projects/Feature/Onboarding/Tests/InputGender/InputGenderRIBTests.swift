@@ -20,6 +20,7 @@ class InputGenderRIBTestCase: XCTestCase {
         let presenter = InputGenderViewController()
         let interactor = InputGenderInteractor(presenter: presenter)
         presenter.loadView()
+        presenter.viewDidLoad()
         XCTAssertFalse(presenter.mainView.ctaButton.isEnabled)
         
         // When

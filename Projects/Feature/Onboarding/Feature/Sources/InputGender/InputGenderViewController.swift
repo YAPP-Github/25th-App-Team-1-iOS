@@ -11,6 +11,7 @@ import UIKit
 
 enum InputGenderPresenterRequest {
     
+    case viewDidLoad
     case updateSelectedGender(Gender?)
     case confirmCurrentGender
     case exitPage
@@ -34,6 +35,12 @@ final class InputGenderViewController: UIViewController, InputGenderPresentable,
         self.mainView = mainView
         self.view = mainView
         mainView.listener = self
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        listener?.request(.viewDidLoad)
     }
 }
 
