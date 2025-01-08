@@ -15,7 +15,32 @@ protocol InputBirthDatePresentableListener: AnyObject {
     // interactor class.
 }
 
-final class InputBirthDateViewController: UIViewController, InputBirthDatePresentable, InputBirthDateViewControllable {
+final class InputBirthDateViewController: UIViewController, InputBirthDatePresentable, InputBirthDateViewControllable, InputBirthDateViewListener {
 
-    weak var listener: InputBirthDayPresentableListener?
+    weak var listener: InputBirthDatePresentableListener?
+    
+    private(set) var mainView: InputBirthDateView!
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) { nil
+    }
+    
+    override func loadView() {
+        
+        self.mainView = InputBirthDateView()
+        self.view = mainView
+        mainView.listener = self
+    }
+}
+
+
+// MARK: InputBirthDateViewListener
+extension InputBirthDateViewController {
+    
+    func action(_ action: InputBirthDateView.Action) {
+        
+        //
+    }
 }

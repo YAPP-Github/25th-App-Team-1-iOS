@@ -13,6 +13,7 @@ public enum RootRouterRequest {
     case routeToIntro
     case routeToInputName
     case routeToInputBornTime
+    case routeToInputBirthDate
     case detachInputBornTime
 }
 
@@ -44,6 +45,8 @@ final class RootInteractor: Interactor, RootInteractable {
             router?.request(.routeToInputName)
         case .inputBornTime:
             router?.request(.routeToInputBornTime)
+        case .inputBirthDate:
+            router?.request(.routeToInputBirthDate)
         }
     }
 
