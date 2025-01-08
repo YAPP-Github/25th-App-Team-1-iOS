@@ -7,7 +7,7 @@
 
 import RIBs
 
-protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener {
+protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -27,13 +27,15 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         introBuilder: IntroBuildable,
         inputNameBuilder: InputNameBuilder,
         inputBornTimeBuilder: InputBornTimeBuildable,
-        inputGenderBuilder: InputGenderBuildable
+        inputGenderBuilder: InputGenderBuildable,
+        inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable
     ) {
         self.viewController = viewController
         self.introBuilder = introBuilder
         self.inputNameBuilder = inputNameBuilder
         self.inputBornTimeBuilder = inputBornTimeBuilder
         self.inputGenderBuilder = inputGenderBuilder
+        self.inputWakeUpAlarmBuilder = inputWakeUpAlarmBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -50,6 +52,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToInputBornTime()
         case .routeToInputGender:
             routeToInputGender()
+        case .routeToInputWakeUpAlarm:
+            routeToInputWakeUpAlarm()
         case .detachInputBornTime:
             detachInputBornTime()
         }
@@ -70,6 +74,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let inputGenderBuilder: InputGenderBuildable
     private var inputGenderRouter: InputGenderRouting?
+    
+    private let inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable
+    private var inputWakeUpAlarmRouter: InputWakeUpAlarmRouting?
     
     private func cleanupViews() {
         
@@ -103,6 +110,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard inputGenderRouter == nil else { return }
         let router = inputGenderBuilder.build(withListener: interactor)
         inputGenderRouter = router
+        attachChild(router)
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    private func routeToInputWakeUpAlarm() {
+        guard inputWakeUpAlarmRouter == nil else { return }
+        let router = inputWakeUpAlarmBuilder.build(withListener: interactor)
+        inputWakeUpAlarmRouter = router
         attachChild(router)
         viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
