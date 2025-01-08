@@ -63,6 +63,7 @@ final class BirthDatePickerItemView: UIView {
 }
 
 
+// MARK: Public interface
 extension BirthDatePickerItemView {
     
     @discardableResult

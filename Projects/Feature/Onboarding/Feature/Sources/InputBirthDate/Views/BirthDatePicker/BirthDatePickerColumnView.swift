@@ -323,6 +323,8 @@ extension BirthDatePickerColumnView {
             for index in newItemArrSize..<currentItemArrSize {
                 
                 let needToRemoveItem = self.orderedItemViews[index]
+                
+                // 아이템 수에의해서 스크롤이 scrollViewDidScroll에 의해 새로운 이벤트가 자동으로 방출된다.
                 needToRemoveItem.removeFromSuperview()
             }
             let removeIndexSet = IndexSet(newItemArrSize..<currentItemArrSize)
