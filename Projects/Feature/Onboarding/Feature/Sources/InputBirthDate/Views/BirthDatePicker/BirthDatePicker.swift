@@ -14,7 +14,7 @@ import RxSwift
 
 protocol BirthDatePickerListener: AnyObject {
     
-    
+    func latestDate(calendar: CalendarType, year: Int, month: Int, day: Int)
 }
 
 final class BirthDatePicker: UIView {
@@ -208,11 +208,26 @@ final class BirthDatePicker: UIView {
             monthColumn.rx.selectedContent,
             dayColumn.rx.selectedContent
         )
-        .subscribe(onNext: { [weak self] calendarType, year, month, day in
+        .subscribe(onNext: { [weak self] calendar, year, month, day in
             
             guard let self else { return }
-        
-            print("\(calendarType) \(year)년 \(month)월 \(day)일")
+            
+            var calendarType: CalendarType!
+            
+            switch calendar {
+            case CalendarType.lunar.content:
+                calendarType = .lunar
+            case CalendarType.gregorian.content:
+                calendarType = .gregorian
+            default:
+                fatalError()
+            }
+            
+            guard let yearInt = Int(year), let monthInt = Int(month), let dayInt = Int(day) else {
+                fatalError()
+            }
+            
+            listener?.latestDate(calendar: calendarType, year: yearInt, month: monthInt, day: dayInt)
         })
         .disposed(by: disposeBag)
     }
