@@ -86,38 +86,6 @@ final class BirthDatePickerColumnView: UIView, UIScrollViewDelegate {
     }
     
     
-    private func createItemViews() {
-        
-        let itemViews = self.items.map { selectionItem in
-            
-            let itemView = createItemView(item: selectionItem)
-            self.itemViews[selectionItem.content] = itemView
-            
-            return itemView
-        }
-        
-        self.orderedItemViews = itemViews
-        
-        orderedItemViews.forEach {
-            itemStackView.addArrangedSubview($0)
-        }
-    }
-    
-    
-    private func createItemView(item: BirthDaySelectionItem) -> BirthDatePickerItemView {
-        
-        BirthDatePickerItemView(
-            content: item.content,
-            viewSize: item.contentSize
-        )
-        .update(titleLabelText: item.displayingText)
-        .update(titleLabelConfig: .init(
-            font: .title2SemiBold,
-            textColor: R.Color.white100
-        ))
-    }
-    
-    
     private func setupLayout() {
         
         // self
@@ -448,6 +416,42 @@ extension BirthDatePickerColumnView {
                 animated: false
             )
         }
+    }
+}
+
+
+// MARK: ItemView creation
+private extension BirthDatePickerColumnView {
+    
+    func createItemViews() {
+        
+        let itemViews = self.items.map { selectionItem in
+            
+            let itemView = createItemView(item: selectionItem)
+            self.itemViews[selectionItem.content] = itemView
+            
+            return itemView
+        }
+        
+        self.orderedItemViews = itemViews
+        
+        orderedItemViews.forEach {
+            itemStackView.addArrangedSubview($0)
+        }
+    }
+    
+    
+    func createItemView(item: BirthDaySelectionItem) -> BirthDatePickerItemView {
+        
+        BirthDatePickerItemView(
+            content: item.content,
+            viewSize: item.contentSize
+        )
+        .update(titleLabelText: item.displayingText)
+        .update(titleLabelConfig: .init(
+            font: .title2SemiBold,
+            textColor: R.Color.white100
+        ))
     }
 }
 
