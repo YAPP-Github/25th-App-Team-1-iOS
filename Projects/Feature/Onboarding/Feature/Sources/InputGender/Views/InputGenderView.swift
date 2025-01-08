@@ -8,6 +8,7 @@
 import UIKit
 
 import FeatureResources
+import FeatureDesignSystem
 
 protocol InputGenderViewListener: AnyObject {
     
