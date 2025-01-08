@@ -1,5 +1,5 @@
 //
-//  DefaultCTAButton.swift
+//  DSDefaultCTAButton.swift
 //  FeatureOnboarding
 //
 //  Created by choijunios on 1/6/25.
@@ -11,12 +11,12 @@ import FeatureResources
 
 import SnapKit
 
-public protocol DefaultCTAButtonListener: AnyObject {
+public protocol DSDefaultCTAButtonListener: AnyObject {
     
-    func action(_ action: DefaultCTAButton.Action)
+    func action(_ action: DSDefaultCTAButton.Action)
 }
 
-public final class DefaultCTAButton: UIView {
+public final class DSDefaultCTAButton: UIView {
     
     // Action
     public enum Action {
@@ -30,7 +30,7 @@ public final class DefaultCTAButton: UIView {
     
     
     // Listener
-    public weak var listener: DefaultCTAButtonListener?
+    public weak var listener: DSDefaultCTAButtonListener?
     
 
     // State
@@ -119,7 +119,7 @@ public final class DefaultCTAButton: UIView {
 
 
 // MARK: Public interface
-public extension DefaultCTAButton {
+public extension DSDefaultCTAButton {
     
     func update(_ text: String) {
         updateAppearance(text: text, state: self.state)
@@ -143,7 +143,7 @@ public extension DefaultCTAButton {
 
 
 // MARK: State
-extension DefaultCTAButton {
+extension DSDefaultCTAButton {
     
     public enum State {
         case active
@@ -183,7 +183,7 @@ extension DefaultCTAButton {
 
 #Preview("활성 상태") {
     
-    let view = DefaultCTAButton()
+    let view = DSDefaultCTAButton()
     view.update("안녕하세요")
     
     return view
@@ -191,7 +191,7 @@ extension DefaultCTAButton {
 
 #Preview("비활성 상태") {
     
-    let view = DefaultCTAButton()
+    let view = DSDefaultCTAButton()
     view.update("안녕하세요")
     view.update(state: .inactive)
     

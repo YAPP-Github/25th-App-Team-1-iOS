@@ -15,7 +15,7 @@ protocol InputGenderViewListener: AnyObject {
     func action(_ action: InputGenderView.Action)
 }
 
-final class InputGenderView: UIView, DSBoxButtonListener, DefaultCTAButtonListener, OnBoardingNavBarViewListener {
+final class InputGenderView: UIView, DSBoxButtonListener, DSDefaultCTAButtonListener, OnBoardingNavBarViewListener {
     
     // View action
     enum Action {
@@ -44,7 +44,7 @@ final class InputGenderView: UIView, DSBoxButtonListener, DefaultCTAButtonListen
             $0.distribution = .fillEqually
             $0.spacing = 16
         }
-    let ctaButton: DefaultCTAButton = .init(initialState: .active).then {
+    let ctaButton: DSDefaultCTAButton = .init(initialState: .active).then {
         $0.update("다음")
         $0.update(state: .inactive)
     }
@@ -192,10 +192,10 @@ extension InputGenderView {
 }
 
 
-// MARK: DefaultCTAButtonListener
+// MARK: DSDefaultCTAButton
 extension InputGenderView {
     
-    func action(_ action: DefaultCTAButton.Action) {
+    func action(_ action: DSDefaultCTAButton.Action) {
         
         listener?.action(.confirmButtonClicked)
     }
