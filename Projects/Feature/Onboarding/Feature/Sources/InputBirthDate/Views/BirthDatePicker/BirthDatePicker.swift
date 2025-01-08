@@ -56,38 +56,20 @@ final class BirthDatePicker: UIView {
         return BirthDatePickerColumnView(itemSpacing: 12, items: selectionItems)
     }()
     private let dayColumn: BirthDatePickerColumnView = {
-        
         let selectionItemViewSize: CGSize = .init(width: 42, height: 38)
-        
         let selectionItems = (1...30).map { dayItem in
             
             var displayingText = "\(dayItem)"
-            
             if dayItem < 10 {
-                
                 displayingText = "0\(dayItem)"
             }
-            
             return BirthDaySelectionItem(
                 content: String(dayItem),
                 displayingText: displayingText,
                 contentSize: selectionItemViewSize
             )
         }
-        
-        let columnView = BirthDatePickerColumnView(
-            itemSpacing: 12,
-            items: selectionItems
-        )
-        
-        columnView.updateCellUI { cellView in
-            
-            cellView
-                .update(titleLabelConfig: .init(font: .title2SemiBold, textColor: R.Color.white100))
-                .update(viewSize: selectionItemViewSize)
-        }
-        
-        return columnView
+        return BirthDatePickerColumnView(itemSpacing: 12, items: selectionItems)
     }()
     
     private let inBoundDisplayView: UIView = .init()

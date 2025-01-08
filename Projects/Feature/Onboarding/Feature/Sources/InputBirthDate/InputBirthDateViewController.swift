@@ -62,3 +62,8 @@ extension InputBirthDateViewController {
         }
     }
 }
+
+
+#Preview {
+    InputBirthDateViewController()
+}
