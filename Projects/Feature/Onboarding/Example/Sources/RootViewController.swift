@@ -14,12 +14,14 @@ final class RootViewController: UIViewController {
         case intro
         case inputName
         case inputBornTime
+        case inputGender
         
         var title: String {
             switch self {
             case .intro: return "소개페이지"
             case .inputName: return "이름 입력 화면"
             case .inputBornTime: return "태어난 시간 입력 화면"
+            case .inputGender:  return "성별 입력 화면"
             }
         }
     }
@@ -67,6 +69,13 @@ final class RootViewController: UIViewController {
         router.interactable.activate()
         rootRouter = router
     }
+    
+    private func showInputGender() {
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
+        let router = builder.build(withListener: self, entryPoint: .inputGender)
+        router.interactable.activate()
+        rootRouter = router
+    }
 }
 
 extension RootViewController: RootListener, RootViewControllable {
@@ -102,6 +111,8 @@ extension RootViewController: UITableViewDelegate {
             showInputName()
         case .inputBornTime:
             showInputBornTIme()
+        case .inputGender:
+            showInputGender()
         }
     }
 }
