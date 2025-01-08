@@ -21,14 +21,16 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, DSDefaultC
     // View action
     enum Action {
         
-        
+        case backButtonClicked
+        case birthDatePicker(BirthDateData)
+        case ctaButtonClicked
     }
     
     
     // Sub view
     private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel: UILabel = .init()
-    private let birthDatePicker: BirthDatePicker = .init()
+    let birthDatePicker: BirthDatePicker = .init()
     private let ctaButton: DSDefaultCTAButton = .init(initialState: .active)
     
     
@@ -129,7 +131,7 @@ extension InputBirthDateView {
     
     func action(_ action: OnBoardingNavBarView.Action) {
         
-        print("back button")
+        listener?.action(.backButtonClicked)
     }
 }
 
@@ -139,7 +141,7 @@ extension InputBirthDateView {
     
     func action(_ action: DSDefaultCTAButton.Action) {
         
-        print("CTAButton")
+        listener?.action(.ctaButtonClicked)
     }
 }
 
@@ -149,7 +151,9 @@ extension InputBirthDateView {
     
     func latestDate(calendar: CalendarType, year: Int, month: Int, day: Int) {
         
-        print("\(calendar) \(year) \(month) \(day)")
+        let data: BirthDateData = .init(calendarType: calendar.content, year: year, month: month, day: day)
+        
+        listener?.action(.birthDatePicker(data))
     }
 }
 

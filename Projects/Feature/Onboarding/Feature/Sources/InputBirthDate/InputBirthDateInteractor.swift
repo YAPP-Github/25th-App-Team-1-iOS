@@ -25,6 +25,11 @@ final class InputBirthDateInteractor: PresentableInteractor<InputBirthDatePresen
 
     weak var router: InputBirthDateRouting?
     weak var listener: InputBirthDateListener?
+    
+    
+    // State
+    private(set) var birthDate: BirthDateData?
+    
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
@@ -41,5 +46,22 @@ final class InputBirthDateInteractor: PresentableInteractor<InputBirthDatePresen
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+}
+
+
+// MARK: InputBirthDatePresentableListener
+extension InputBirthDateInteractor {
+    
+    func request(_ request: InputBirthDatePresenterRequest) {
+        switch request {
+        case .exitPage:
+            print("exit")
+        case .confirmUserInputAndExit:
+            print("cofnirm and exit")
+        case .updateCurrentBirthDate(let birthDateData):
+            self.birthDate = birthDateData
+            print(birthDateData)
+        }
     }
 }

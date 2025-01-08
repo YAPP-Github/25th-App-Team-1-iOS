@@ -9,10 +9,16 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum InputBirthDatePresenterRequest {
+    
+    case exitPage
+    case confirmUserInputAndExit
+    case updateCurrentBirthDate(BirthDateData)
+}
+
 protocol InputBirthDatePresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    
+    func request(_ request: InputBirthDatePresenterRequest)
 }
 
 final class InputBirthDateViewController: UIViewController, InputBirthDatePresentable, InputBirthDateViewControllable, InputBirthDateViewListener {
@@ -24,14 +30,19 @@ final class InputBirthDateViewController: UIViewController, InputBirthDatePresen
     init() {
         super.init(nibName: nil, bundle: nil)
     }
-    required init?(coder: NSCoder) { nil
-    }
+    required init?(coder: NSCoder) { nil }
     
     override func loadView() {
         
         self.mainView = InputBirthDateView()
         self.view = mainView
         mainView.listener = self
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        mainView.birthDatePicker.updateToNow()
     }
 }
 
@@ -41,6 +52,13 @@ extension InputBirthDateViewController {
     
     func action(_ action: InputBirthDateView.Action) {
         
-        //
+        switch action {
+        case .backButtonClicked:
+            listener?.request(.exitPage)
+        case .birthDatePicker(let birthDateData):
+            listener?.request(.updateCurrentBirthDate(birthDateData))
+        case .ctaButtonClicked:
+            listener?.request(.confirmUserInputAndExit)
+        }
     }
 }
