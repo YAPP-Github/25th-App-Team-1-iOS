@@ -100,7 +100,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     }
     
     private func routeToInputBirthDate() {
-        guard inputBornTimeRouter == nil else { return }
+        guard inputBirthDateRouter == nil else { return }
         let router = inputBirthDateBuilder.build(withListener: interactor)
         inputBirthDateRouter = router
         attachChild(router)
