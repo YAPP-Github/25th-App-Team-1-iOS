@@ -16,6 +16,7 @@ final class RootViewController: UIViewController {
         case inputBornTime
         case inputGender
         case inputWakeUpAlarm
+        case inputBirthDate
         
         var title: String {
             switch self {
@@ -24,6 +25,7 @@ final class RootViewController: UIViewController {
             case .inputBornTime: return "태어난 시간 입력 화면"
             case .inputGender: return "성별 입력 화면"
             case .inputWakeUpAlarm: return "알람 시간 입력 화면"
+            case .inputBirthDate: return "생일 입력 화면"
             }
         }
     }
@@ -85,6 +87,12 @@ final class RootViewController: UIViewController {
         router.interactable.activate()
         rootRouter = router
     }
+    private func showInputBirthDate() {
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
+        let router = builder.build(withListener: self, entryPoint: .inputBirthDate)
+        router.interactable.activate()
+        rootRouter = router
+    }
 }
 
 extension RootViewController: RootListener, RootViewControllable {
@@ -124,6 +132,8 @@ extension RootViewController: UITableViewDelegate {
             showInputGender()
         case .inputWakeUpAlarm:
             showInputWakeUpAlarm()
+        case .inputBirthDate:
+            showInputBirthDate()
         }
     }
 }

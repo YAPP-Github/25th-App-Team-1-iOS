@@ -13,6 +13,7 @@ public enum EntryPoint {
     case inputBornTime
     case inputGender
     case inputWakeUpAlarm
+    case inputBirthDate
 }
 
 public protocol RootDependency: Dependency {
@@ -53,6 +54,8 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let inputBornTimeBuilder = InputBornTimeBuilder(dependency: component)
         let inputGenderBuilder = InputGenderBuilder(dependency: component)
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)
+        let inputBirthDateBuilder = InputBirthDateBuilder(dependency: component)
+        
         return RootRouter(
             interactor: interactor,
             viewController: component.rootViewController,
@@ -60,7 +63,8 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
             inputNameBuilder: inputNameBuilder,
             inputBornTimeBuilder: inputBornTimeBuilder,
             inputGenderBuilder: inputGenderBuilder,
-            inputWakeUpAlarmBuilder: inputWakeUpAlarmBuilder
+            inputWakeUpAlarmBuilder: inputWakeUpAlarmBuilder,
+            inputBirthDateBuilder: inputBirthDateBuilder
         )
     }
 }

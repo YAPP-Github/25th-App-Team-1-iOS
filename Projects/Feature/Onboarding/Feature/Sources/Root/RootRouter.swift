@@ -7,7 +7,7 @@
 
 import RIBs
 
-protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener {
+protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -28,7 +28,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         inputNameBuilder: InputNameBuilder,
         inputBornTimeBuilder: InputBornTimeBuildable,
         inputGenderBuilder: InputGenderBuildable,
-        inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable
+        inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable,
+        inputBirthDateBuilder: InputBirthDateBuildable
     ) {
         self.viewController = viewController
         self.introBuilder = introBuilder
@@ -36,6 +37,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         self.inputBornTimeBuilder = inputBornTimeBuilder
         self.inputGenderBuilder = inputGenderBuilder
         self.inputWakeUpAlarmBuilder = inputWakeUpAlarmBuilder
+        self.inputBirthDateBuilder = inputBirthDateBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -54,6 +56,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToInputGender()
         case .routeToInputWakeUpAlarm:
             routeToInputWakeUpAlarm()
+        case .routeToInputBirthDate:
+            routeToInputBirthDate()
         case .detachInputBornTime:
             detachInputBornTime()
         }
@@ -77,6 +81,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable
     private var inputWakeUpAlarmRouter: InputWakeUpAlarmRouting?
+    private let inputBirthDateBuilder: InputBirthDateBuildable
+    private var inputBirthDateRouter: InputBirthDateRouting?
     
     private func cleanupViews() {
         
@@ -118,6 +124,13 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard inputWakeUpAlarmRouter == nil else { return }
         let router = inputWakeUpAlarmBuilder.build(withListener: interactor)
         inputWakeUpAlarmRouter = router
+        attachChild(router)
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    private func routeToInputBirthDate() {
+        guard inputBirthDateRouter == nil else { return }
+        let router = inputBirthDateBuilder.build(withListener: interactor)
+        inputBirthDateRouter = router
         attachChild(router)
         viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
