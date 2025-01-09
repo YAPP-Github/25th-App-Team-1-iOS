@@ -14,6 +14,8 @@ final class RootViewController: UIViewController {
         case intro
         case inputName
         case inputBornTime
+        case inputGender
+        case inputWakeUpAlarm
         case inputBirthDate
         
         var title: String {
@@ -21,6 +23,8 @@ final class RootViewController: UIViewController {
             case .intro: return "소개페이지"
             case .inputName: return "이름 입력 화면"
             case .inputBornTime: return "태어난 시간 입력 화면"
+            case .inputGender: return "성별 입력 화면"
+            case .inputWakeUpAlarm: return "알람 시간 입력 화면"
             case .inputBirthDate: return "생일 입력 화면"
             }
         }
@@ -70,7 +74,19 @@ final class RootViewController: UIViewController {
         rootRouter = router
     }
     
+    private func showInputGender() {
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
+        let router = builder.build(withListener: self, entryPoint: .inputGender)
+        router.interactable.activate()
+        rootRouter = router
+    }
     
+    private func showInputWakeUpAlarm() {
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
+        let router = builder.build(withListener: self, entryPoint: .inputWakeUpAlarm)
+        router.interactable.activate()
+        rootRouter = router
+    }
     private func showInputBirthDate() {
         let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
         let router = builder.build(withListener: self, entryPoint: .inputBirthDate)
@@ -112,6 +128,10 @@ extension RootViewController: UITableViewDelegate {
             showInputName()
         case .inputBornTime:
             showInputBornTIme()
+        case .inputGender:
+            showInputGender()
+        case .inputWakeUpAlarm:
+            showInputWakeUpAlarm()
         case .inputBirthDate:
             showInputBirthDate()
         }
