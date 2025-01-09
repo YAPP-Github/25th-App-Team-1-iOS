@@ -7,7 +7,7 @@
 
 import RIBs
 
-protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener {
+protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputBirthDateListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -26,12 +26,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         viewController: RootViewControllable,
         introBuilder: IntroBuildable,
         inputNameBuilder: InputNameBuilder,
-        inputBornTimeBuilder: InputBornTimeBuildable
+        inputBornTimeBuilder: InputBornTimeBuildable,
+        inputBirthDateBuilder: InputBirthDateBuildable
     ) {
         self.viewController = viewController
         self.introBuilder = introBuilder
         self.inputNameBuilder = inputNameBuilder
         self.inputBornTimeBuilder = inputBornTimeBuilder
+        self.inputBirthDateBuilder = inputBirthDateBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -46,6 +48,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToInputName()
         case .routeToInputBornTime:
             routeToInputBornTime()
+        case .routeToInputBirthDate:
+            routeToInputBirthDate()
         case .detachInputBornTime:
             detachInputBornTime()
         }
@@ -63,6 +67,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let inputBornTimeBuilder: InputBornTimeBuildable
     private var inputBornTimeRouter: InputBornTimeRouting?
+    
+    private let inputBirthDateBuilder: InputBirthDateBuildable
+    private var inputBirthDateRouter: InputBirthDateRouting?
     
     private func cleanupViews() {
         
@@ -88,6 +95,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard inputBornTimeRouter == nil else { return }
         let router = inputBornTimeBuilder.build(withListener: interactor)
         inputBornTimeRouter = router
+        attachChild(router)
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    private func routeToInputBirthDate() {
+        guard inputBirthDateRouter == nil else { return }
+        let router = inputBirthDateBuilder.build(withListener: interactor)
+        inputBirthDateRouter = router
         attachChild(router)
         viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
