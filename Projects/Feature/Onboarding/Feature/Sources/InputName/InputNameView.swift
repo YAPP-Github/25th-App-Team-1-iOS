@@ -1,0 +1,189 @@
+//
+//  InputNameView.swift
+//  FeatureOnboarding
+//
+//  Created by ever on 1/9/25.
+//
+
+import UIKit
+import SnapKit
+import Then
+import FeatureDesignSystem
+import FeatureResources
+
+protocol InputNameViewListener: AnyObject {
+    func action(_ action: InputNameView.Action)
+}
+
+final class InputNameView: UIView {
+    
+    enum Action {
+        case nameChanged(String)
+        case nextButtonTapped
+    }
+    
+    enum State {
+        case shortNameLength
+        case invalidName
+        case buttonEnabled(Bool)
+    }
+    
+    init() {
+        super.init(frame: .zero)
+        setupUI()
+        layout()
+        registerForKeyboardNotifications()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    weak var listener: InputNameViewListener?
+    
+    func update(_ state: State) {
+        switch state {
+        case .shortNameLength:
+            showNameLengthError()
+        case .invalidName:
+            showInvalidNameError()
+        case let .buttonEnabled(isEnabled):
+            updateNextButtonState(isEnabled)
+        }
+    }
+    
+    
+    private let titleLabel = UILabel()
+    private let nameField = DSTextFieldWithTitleWithMessage(
+        config: .init(
+            textFieldConfig: .init(
+                placeholder: "이름 입력",
+                alignment: .center,
+                keyboardType: .default
+            ),
+            titleState: .none,
+            messageState: .none
+        )
+    )
+    private let termLabel = UILabel()
+    private let nextButton: DSDefaultCTAButton = .init(initialState: .inactive)
+    
+    @objc
+    private func nameChanged(_ textField: UITextField) {
+        nameField.update(messageState: .none)
+        let name = textField.text ?? ""
+        listener?.action(.nameChanged(name))
+    }
+    
+    private func showNameLengthError() {
+        nameField.update(messageState: .none)
+    }
+    
+    private func showInvalidNameError() {
+        nameField.update(messageState: .error("입력한 내용을 확인해주세요.", .center))
+    }
+    
+    private func updateNextButtonState(_ isEnabled: Bool) {
+        nextButton.update(state: isEnabled ? .active : .inactive)
+    }
+}
+
+private extension InputNameView {
+    func setupUI() {
+        backgroundColor = R.Color.gray900
+        titleLabel.do {
+            $0.displayText = "어떤 이름으로 불리길\n원하시나요?".displayText(font: .title3SemiBold, color: R.Color.white100)
+            $0.numberOfLines = 0
+            $0.textAlignment = .center
+        }
+        
+        nameField.do {
+            $0.editingChanged = { [weak self] textField in
+                guard let self else { return }
+                nameChanged(textField)
+            }
+        }
+        termLabel.do {
+            $0.displayText = "서비스 시작 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.".displayText(font: .caption1Regular, color: R.Color.gray500)
+            $0.textAlignment = .center
+            $0.numberOfLines = 0
+        }
+        nextButton.do {
+            $0.update("다음")
+            $0.listener = self
+        }
+        
+        [titleLabel, nameField, termLabel, nextButton].forEach {
+            addSubview($0)
+        }
+    }
+    
+    func layout() {
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).offset(40)
+            $0.centerX.equalToSuperview()
+        }
+        
+        nameField.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(60)
+            $0.leading.equalTo(72.5)
+            $0.trailing.equalTo(-72.5)
+        }
+        
+        termLabel.snp.makeConstraints {
+            $0.leading.equalTo(20)
+            $0.trailing.equalTo(-20)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+        }
+        
+        nextButton.snp.makeConstraints {
+            $0.bottom.equalTo(termLabel.snp.top).offset(-14)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+        }
+    }
+}
+
+extension InputNameView: DSDefaultCTAButtonListener {
+    func action(_ action: FeatureDesignSystem.DSDefaultCTAButton.Action) {
+        switch action {
+        case .buttonIsTapped:
+            listener?.action(.nextButtonTapped)
+        }
+    }
+}
+
+private extension InputNameView {
+    func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector:#selector(textViewMoveUp(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(textViewMoveDown(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc
+    private func textViewMoveUp(_ notification: NSNotification){
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
+        else { return }
+        termLabel.snp.updateConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10 + -keyboardFrame.size.height)
+        }
+        UIView.animate(withDuration: animationDuration) {
+            self.layoutIfNeeded()
+        }
+    }
+    
+    @objc
+    private func textViewMoveDown(_ notification: NSNotification){
+        guard let userInfo = notification.userInfo,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
+        else { return }
+        
+        termLabel.snp.updateConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+        }
+        
+        UIView.animate(withDuration: animationDuration) {
+            self.layoutIfNeeded()
+        }
+    }
+}
