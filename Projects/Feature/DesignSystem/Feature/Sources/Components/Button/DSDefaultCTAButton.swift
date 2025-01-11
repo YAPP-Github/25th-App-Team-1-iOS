@@ -11,22 +11,38 @@ import FeatureResources
 
 import SnapKit
 
-public final class DSDefaultCTAButton: UIView {
+public final class DSDefaultCTAButton: TouchDetectingView {
     // Sub view
     private let titleLabel: UILabel = .init()
-    private let fadeView: UIView = .init()
-    
     
     // Listener
     public var buttonAction: (() -> Void)?
 
     // State
-    private var state: State = .active
+    private var state: State
+    private var style: ButtonStyle
+    private(set) var title: String = ""
     public var isEnabled: Bool { state == .active }
-    
     
     // Gesture
     private let tapRecognizer: UITapGestureRecognizer = .init()
+    override func onTouchIn() {
+        self.backgroundColor = style.type.pressedBackgroundColor
+        self.titleLabel.displayText = title.displayText(
+            font: style.size.font,
+            color: style.type.pressedTitleColor
+        )
+        self.layer.cornerRadius = style.cornerRadius.pressedValue
+    }
+    
+    override func onTouchOut() {
+        self.backgroundColor = style.type.backgroundColor
+        self.titleLabel.displayText = title.displayText(
+            font: style.size.font,
+            color: style.type.titleColor
+        )
+        self.layer.cornerRadius = style.cornerRadius.value
+    }
     
     
     //
@@ -34,17 +50,17 @@ public final class DSDefaultCTAButton: UIView {
     
     
     public override var intrinsicContentSize: CGSize {
-        
         .init(width: UIView.noIntrinsicMetric, height: 54)
     }
     
     
-    public init(initialState: State = .active) {
-    
+    public init(
+        initialState: State = .active, 
+        style: ButtonStyle = .init()
+    ) {
+        self.style = style
+        self.state = initialState
         super.init(frame: .zero)
-        
-        update(state: initialState)
-        
         setupUI()
         setupLayout()
         setupTapGesture()
@@ -53,21 +69,14 @@ public final class DSDefaultCTAButton: UIView {
     
     
     private func setupUI() {
-        
         // self
-        layer.cornerRadius = 16
+        self.backgroundColor = style.type.backgroundColor
+        self.layer.cornerRadius = style.cornerRadius.value
         self.clipsToBounds = true
-        
-        
-        // fadeView
-        fadeView.alpha = 0
-        fadeView.isUserInteractionEnabled = false
-        fadeView.backgroundColor = .lightGray.withAlphaComponent(0.3)
     }
     
     
     private func setupLayout() {
-        
         // titleLabel
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
@@ -75,15 +84,7 @@ public final class DSDefaultCTAButton: UIView {
             make.leading.greaterThanOrEqualToSuperview()
             make.trailing.lessThanOrEqualToSuperview()
         }
-        
-        
-        // fadeView
-        addSubview(fadeView)
-        fadeView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
     }
-    
     
     private func setupTapGesture() {
         tapRecognizer.addTarget(self, action: #selector(onTap(_:)))
@@ -94,36 +95,20 @@ public final class DSDefaultCTAButton: UIView {
     @objc
     private func onTap(_ gesture: UIGestureRecognizer) {
         buttonAction?()
-        
-        // tap anim
-        fadeView.alpha = 1
-        UIView.animate(withDuration: 0.35) {
-            self.fadeView.alpha = 0
-        }
     }
 }
 
 
 // MARK: Public interface
 public extension DSDefaultCTAButton {
-    
-    func update(_ text: String) {
-        updateAppearance(text: text, state: self.state)
+    func update(title: String) {
+        self.title = title
+        updateAppearance()
     }
     
-    func update(state: State, animated: Bool = false) {
+    func update(state: State) {
         self.state = state
-        self.isUserInteractionEnabled = (state == .active)
-        
-        UIView.animate(withDuration: animated ? 0.35 : 0.0) {
-            
-            let currentTitleText = self.titleLabel.displayText?.string
-            
-            self.updateAppearance(
-                text: currentTitleText,
-                state: state
-            )
-        }
+        self.updateAppearance()
     }
 }
 
@@ -137,59 +122,171 @@ extension DSDefaultCTAButton {
     }
     
     
-    private func updateAppearance(text: String?, state: State) {
-        
+    private func updateAppearance() {
         switch state {
         case .active:
-            
-            self.backgroundColor = R.Color.main100
-            if let text {
-                
-                titleLabel.displayText = text.displayText(
-                    font: baseFont,
-                    color: R.Color.gray900
-                )
-            }
-            
-            
+            self.isUserInteractionEnabled = true
+            backgroundColor = style.type.backgroundColor
+            titleLabel.displayText = title.displayText(
+                font: style.size.font,
+                color: style.type.titleColor
+            )
         case .inactive:
-            
-            self.backgroundColor = R.Color.gray700
-            if let text {
-                
-                titleLabel.displayText = text.displayText(
-                    font: baseFont,
-                    color: R.Color.gray600
-                )
-            }
+            self.isUserInteractionEnabled = false
+            backgroundColor = R.Color.gray700
+            titleLabel.displayText = title.displayText(
+                font: style.size.font,
+                color: R.Color.gray600
+            )
         }
     }
 }
 
 extension DSDefaultCTAButton {
-    public enum Style {
+    public struct ButtonStyle {
+        var type: ButtonType
+        var size: ButtonSize
+        var cornerRadius: CornerRadius
+        
+        public init(
+            type: ButtonType = .primaary,
+            size: ButtonSize = .large,
+            cornerRadius: CornerRadius = .medium
+        ) {
+            self.type = type
+            self.size = size
+            self.cornerRadius = cornerRadius
+        }
+    }
+    
+    public enum ButtonType {
         case primaary
         case secondary
         case tertiary
         case tertiary20
         case transparent
+        
+        var backgroundColor: UIColor {
+            switch self {
+            case .primaary:
+                return R.Color.main100
+            case .secondary:
+                return R.Color.gray600
+            case .tertiary:
+                return R.Color.white100
+            case .tertiary20:
+                return R.Color.white20
+            case .transparent:
+                return .clear
+            }
+        }
+        
+        var pressedBackgroundColor: UIColor {
+            switch self {
+            case .primaary:
+                return R.Color.main80
+            case .secondary:
+                return R.Color.gray500
+            case .tertiary:
+                return R.Color.white80
+            case .tertiary20:
+                return R.Color.white20
+            case .transparent:
+                return .clear
+            }
+        }
+        
+        var titleColor: UIColor {
+            switch self {
+            case .primaary:
+                return R.Color.gray900
+            case .secondary:
+                return R.Color.white100
+            case .tertiary:
+                return R.Color.gray900
+            case .tertiary20:
+                return R.Color.white100
+            case .transparent:
+                return R.Color.white100
+            }
+        }
+        
+        var pressedTitleColor: UIColor {
+            switch self {
+            case .primaary:
+                return R.Color.gray600
+            case .secondary:
+                return R.Color.white70
+            case .tertiary:
+                return R.Color.gray600
+            case .tertiary20:
+                return R.Color.white100
+            case .transparent:
+                return R.Color.white70
+            }
+        }
+    }
+    
+    public enum ButtonSize {
+        case extraLarge
+        case large
+        case medium
+        
+        var font: R.Font {
+            switch self {
+            case .extraLarge:
+                return .headline1SemiBold
+            case .large:
+                return .body1SemiBold
+            case .medium:
+                return .body1SemiBold
+            }
+        }
+    }
+    
+    public enum CornerRadius {
+        case medium
+        case small
+        
+        var value: CGFloat {
+            switch self {
+            case .medium:
+                return 16
+            case .small:
+                return 0
+            }
+        }
+        
+        var pressedValue: CGFloat {
+            switch self {
+            case .medium:
+                return 12
+            case .small:
+                return 0
+            }
+        }
     }
 }
 
 
 #Preview("활성 상태") {
     
-    let view = DSDefaultCTAButton()
-    view.update("안녕하세요")
+    let view = DSDefaultCTAButton(
+        initialState: .active,
+        style: .init()
+    )
+    view.update(title: "안녕하세요")
     
     return view
 }
 
 #Preview("비활성 상태") {
     
-    let view = DSDefaultCTAButton()
-    view.update("안녕하세요")
-    view.update(state: .inactive)
+    let view = DSDefaultCTAButton(
+        initialState: .inactive,
+        style: .init()
+    )
+    view.update(title: "안녕하세요")
     
     return view
 }

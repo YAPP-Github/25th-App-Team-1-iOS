@@ -11,7 +11,6 @@ import FeatureResources
 import FeatureDesignSystem
 
 protocol InputGenderViewListener: AnyObject {
-    
     func action(_ action: InputGenderView.Action)
 }
 
@@ -45,7 +44,7 @@ final class InputGenderView: UIView, DSBoxButtonListener, OnBoardingNavBarViewLi
             $0.spacing = 16
         }
     let ctaButton: DSDefaultCTAButton = .init(initialState: .active).then {
-        $0.update("다음")
+        $0.update(title: "다음")
         $0.update(state: .inactive)
     }
     let policyAgreementLabel = PolicyAgreementLabel()

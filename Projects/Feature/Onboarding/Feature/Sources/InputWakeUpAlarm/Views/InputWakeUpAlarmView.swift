@@ -83,7 +83,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         ctaButton.buttonAction = { [weak self] in
             self?.listener?.action(.ctaButtonClicked)
         }
-        ctaButton.update("만들기")
+        ctaButton.update(title: "만들기")
     }
     
     
