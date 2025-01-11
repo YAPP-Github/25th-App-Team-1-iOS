@@ -7,7 +7,7 @@
 
 import RIBs
 
-protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener {
+protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -30,7 +30,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         inputGenderBuilder: InputGenderBuildable,
         inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable,
         inputBirthDateBuilder: InputBirthDateBuildable,
-        authorizationRequestBuilder: AuthorizationRequestBuildable
+        authorizationRequestBuilder: AuthorizationRequestBuildable,
+        authorizationDeniedBuilder: AuthorizationDeniedBuildable
     ) {
         self.viewController = viewController
         self.introBuilder = introBuilder
@@ -40,6 +41,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         self.inputWakeUpAlarmBuilder = inputWakeUpAlarmBuilder
         self.inputBirthDateBuilder = inputBirthDateBuilder
         self.authorizationRequestBuilder = authorizationRequestBuilder
+        self.authorizationDeniedBuilder = authorizationDeniedBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -66,6 +68,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToAuthorizationRequest()
         case .detachAuthorizationRequest:
             detachAuthorizationRequest()
+        case .routeToAuthorizationDenied:
+            routeToAuthorizationDenied()
+        case .detachAuthorizationDenied:
+            detachAuthorizationDenied()
         }
     }
     
@@ -92,6 +98,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let authorizationRequestBuilder: AuthorizationRequestBuildable
     private var authorizationRequestRouter: AuthorizationRequestRouting?
+    
+    private let authorizationDeniedBuilder: AuthorizationDeniedBuildable
+    private var authorizationDeniedRouter: AuthorizationDeniedRouting?
     
     private func cleanupViews() {
         
@@ -162,6 +171,21 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private func detachAuthorizationRequest() {
         guard let router = authorizationRequestRouter else { return }
         authorizationRequestRouter = nil
+        detachChild(router)
+        viewController.uiviewController.dismiss(animated: true)
+    }
+    
+    private func routeToAuthorizationDenied() {
+        guard authorizationDeniedRouter == nil else { return }
+        let router = authorizationDeniedBuilder.build(withListener: interactor)
+        authorizationDeniedRouter = router
+        attachChild(router)
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    private func detachAuthorizationDenied() {
+        guard let router = authorizationDeniedRouter else { return }
+        authorizationDeniedRouter = nil
         detachChild(router)
         viewController.uiviewController.dismiss(animated: true)
     }

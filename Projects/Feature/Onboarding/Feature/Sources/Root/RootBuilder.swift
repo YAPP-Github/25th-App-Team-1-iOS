@@ -57,7 +57,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)
         let inputBirthDateBuilder = InputBirthDateBuilder(dependency: component)
         let authorizationRequestBuilder = AuthorizationRequestBuilder(dependency: component)
-        
+        let authorizationDeniedBuilder = AuthorizationDeniedBuilder(dependency: component)
         return RootRouter(
             interactor: interactor,
             viewController: component.rootViewController,
@@ -67,7 +67,8 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
             inputGenderBuilder: inputGenderBuilder,
             inputWakeUpAlarmBuilder: inputWakeUpAlarmBuilder,
             inputBirthDateBuilder: inputBirthDateBuilder,
-            authorizationRequestBuilder: authorizationRequestBuilder
+            authorizationRequestBuilder: authorizationRequestBuilder,
+            authorizationDeniedBuilder: authorizationDeniedBuilder
         )
     }
 }
