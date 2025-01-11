@@ -17,6 +17,8 @@ public enum RootRouterRequest {
     case routeToInputWakeUpAlarm
     case routeToInputBirthDate
     case detachInputBornTime
+    case routeToAuthorizationRequest
+    case detachAuthorizationRequest
 }
 
 public protocol RootRouting: Routing {
@@ -53,6 +55,8 @@ final class RootInteractor: Interactor, RootInteractable {
             router?.request(.routeToInputWakeUpAlarm)
         case .inputBirthDate:
             router?.request(.routeToInputBirthDate)
+        case .authorizationRequest:
+            router?.request(.routeToAuthorizationRequest)
         }
     }
 
@@ -78,4 +82,16 @@ extension RootInteractor {
         }
     }
     
+}
+
+extension RootInteractor {
+    func request(_ request: AuthorizationRequestListenerRequest) {
+        router?.request(.detachAuthorizationRequest)
+        switch request {
+        case .agree:
+            print("agree")
+        case .disagree:
+            print("disagree")
+        }
+    }
 }

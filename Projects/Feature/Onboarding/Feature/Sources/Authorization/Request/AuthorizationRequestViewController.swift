@@ -9,13 +9,31 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum AuthorizationRequestPresentableListenerRequest {
+    case yesButtonTapped
+}
+
 protocol AuthorizationRequestPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    func request(_ request: AuthorizationRequestPresentableListenerRequest)
 }
 
 final class AuthorizationRequestViewController: UIViewController, AuthorizationRequestPresentable, AuthorizationRequestViewControllable {
 
     weak var listener: AuthorizationRequestPresentableListener?
+    
+    override func loadView() {
+        view = mainView
+        mainView.listener = self
+    }
+    
+    private let mainView = AuthorizationRequestView()
+}
+
+extension AuthorizationRequestViewController: AuthorizationRequestViewListener {
+    func action(_ action: AuthorizationRequestView.Action) {
+        switch action {
+        case .yesButtonTapped:
+            listener?.request(.yesButtonTapped)
+        }
+    }
 }

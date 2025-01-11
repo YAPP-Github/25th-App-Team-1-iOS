@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import UIKit
 
 protocol AuthorizationRequestRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -17,8 +18,13 @@ protocol AuthorizationRequestPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
+enum AuthorizationRequestListenerRequest {
+    case agree
+    case disagree
+}
+
 protocol AuthorizationRequestListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: AuthorizationRequestListenerRequest)
 }
 
 final class AuthorizationRequestInteractor: PresentableInteractor<AuthorizationRequestPresentable>, AuthorizationRequestInteractable, AuthorizationRequestPresentableListener {
@@ -28,7 +34,11 @@ final class AuthorizationRequestInteractor: PresentableInteractor<AuthorizationR
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: AuthorizationRequestPresentable) {
+    init(
+        presenter: AuthorizationRequestPresentable,
+        service: AuthorizationRequestServiceable
+    ) {
+        self.service = service
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -41,5 +51,26 @@ final class AuthorizationRequestInteractor: PresentableInteractor<AuthorizationR
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+    
+    private let service: AuthorizationRequestServiceable
+    
+    func request(_ request: AuthorizationRequestPresentableListenerRequest) {
+        switch request {
+        case .yesButtonTapped:
+            requestPermission()
+        }
+    }
+    
+    private func requestPermission() {
+        service.requestPermission { [weak listener] granted in
+            DispatchQueue.main.async {
+                if granted {
+                    listener?.request(.agree)
+                } else {
+                    listener?.request(.disagree)
+                }
+            }
+        }
     }
 }

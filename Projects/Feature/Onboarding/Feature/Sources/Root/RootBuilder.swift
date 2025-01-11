@@ -14,6 +14,7 @@ public enum EntryPoint {
     case inputGender
     case inputWakeUpAlarm
     case inputBirthDate
+    case authorizationRequest
 }
 
 public protocol RootDependency: Dependency {
@@ -55,6 +56,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let inputGenderBuilder = InputGenderBuilder(dependency: component)
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)
         let inputBirthDateBuilder = InputBirthDateBuilder(dependency: component)
+        let authorizationRequestBuilder = AuthorizationRequestBuilder(dependency: component)
         
         return RootRouter(
             interactor: interactor,
@@ -64,7 +66,8 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
             inputBornTimeBuilder: inputBornTimeBuilder,
             inputGenderBuilder: inputGenderBuilder,
             inputWakeUpAlarmBuilder: inputWakeUpAlarmBuilder,
-            inputBirthDateBuilder: inputBirthDateBuilder
+            inputBirthDateBuilder: inputBirthDateBuilder,
+            authorizationRequestBuilder: authorizationRequestBuilder
         )
     }
 }

@@ -6,3 +6,5 @@
 //
 
 import Foundation
+
+extension RootComponent: AuthorizationRequestDependency {}

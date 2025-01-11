@@ -13,8 +13,13 @@ protocol AuthorizationRequestDependency: Dependency {
 }
 
 final class AuthorizationRequestComponent: Component<AuthorizationRequestDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    let service: AuthorizationRequestServiceable
+    
+    init(dependency: AuthorizationRequestDependency,
+         service: AuthorizationRequestServiceable = AuthorizationRequestService()) {
+        self.service = service
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
@@ -32,7 +37,7 @@ final class AuthorizationRequestBuilder: Builder<AuthorizationRequestDependency>
     func build(withListener listener: AuthorizationRequestListener) -> AuthorizationRequestRouting {
         let component = AuthorizationRequestComponent(dependency: dependency)
         let viewController = AuthorizationRequestViewController()
-        let interactor = AuthorizationRequestInteractor(presenter: viewController)
+        let interactor = AuthorizationRequestInteractor(presenter: viewController, service: component.service)
         interactor.listener = listener
         return AuthorizationRequestRouter(interactor: interactor, viewController: viewController)
     }
