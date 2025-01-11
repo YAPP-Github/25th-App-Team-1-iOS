@@ -5,6 +5,7 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import Foundation
 import RIBs
 import RxSwift
 
@@ -59,13 +60,15 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
         }
     }
     
+    private let helper = InputNameHelper()
     private var name: String = ""
     
     private func validateNameLength(_ name: String) -> Bool {
-        return name.count >= 2
+        return name.count >= 1
     }
     
     private func validateName(_ name: String) -> Bool {
-        return name == "이름"
+        guard let helper else { return false }
+        return helper.isWithinMaxLength(name)
     }
 }
