@@ -16,7 +16,7 @@ protocol InputWakeUpAlarmViewListener: AnyObject {
 }
 
 
-final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener, DSDefaultCTAButtonListener {
+final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener {
     
     // View action
     enum Action {
@@ -80,7 +80,9 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         
         
         // ctaButton
-        ctaButton.listener = self
+        ctaButton.buttonAction = { [weak self] in
+            self?.listener?.action(.ctaButtonClicked)
+        }
         ctaButton.update("만들기")
     }
     
@@ -158,19 +160,6 @@ extension InputWakeUpAlarmView {
         listener?.action(.alarmPicker(alarmData))
     }
 }
-
-
-// MARK: DSDefaultCTAButtonListener
-extension InputWakeUpAlarmView {
-    
-    func action(_ action: DSDefaultCTAButton.Action) {
-        switch action {
-        case .buttonIsTapped:
-            listener?.action(.ctaButtonClicked)
-        }
-    }
-}
-
 
 #Preview {
     

@@ -11,27 +11,14 @@ import FeatureResources
 
 import SnapKit
 
-public protocol DSDefaultCTAButtonListener: AnyObject {
-    
-    func action(_ action: DSDefaultCTAButton.Action)
-}
-
 public final class DSDefaultCTAButton: UIView {
-    
-    // Action
-    public enum Action {
-        case buttonIsTapped
-    }
-    
-    
     // Sub view
     private let titleLabel: UILabel = .init()
     private let fadeView: UIView = .init()
     
     
     // Listener
-    public weak var listener: DSDefaultCTAButtonListener?
-    
+    public var buttonAction: (() -> Void)?
 
     // State
     private var state: State = .active
@@ -106,8 +93,7 @@ public final class DSDefaultCTAButton: UIView {
     
     @objc
     private func onTap(_ gesture: UIGestureRecognizer) {
-        
-        listener?.action(.buttonIsTapped)
+        buttonAction?()
         
         // tap anim
         fadeView.alpha = 1
@@ -177,6 +163,16 @@ extension DSDefaultCTAButton {
                 )
             }
         }
+    }
+}
+
+extension DSDefaultCTAButton {
+    public enum Style {
+        case primaary
+        case secondary
+        case tertiary
+        case tertiary20
+        case transparent
     }
 }
 

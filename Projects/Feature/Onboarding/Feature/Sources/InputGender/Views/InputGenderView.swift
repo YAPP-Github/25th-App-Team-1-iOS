@@ -15,7 +15,7 @@ protocol InputGenderViewListener: AnyObject {
     func action(_ action: InputGenderView.Action)
 }
 
-final class InputGenderView: UIView, DSBoxButtonListener, DSDefaultCTAButtonListener, OnBoardingNavBarViewListener {
+final class InputGenderView: UIView, DSBoxButtonListener, OnBoardingNavBarViewListener {
     
     // View action
     enum Action {
@@ -102,7 +102,9 @@ private extension InputGenderView {
         [ctaButton, policyAgreementLabel].forEach {
             buttonAndTextStack.addArrangedSubview($0)
         }
-        ctaButton.listener = self
+        ctaButton.buttonAction = { [weak self] in
+            self?.listener?.action(.confirmButtonClicked)
+        }
         addSubview(buttonAndTextStack)
     }
     
@@ -190,17 +192,6 @@ extension InputGenderView {
         }
     }
 }
-
-
-// MARK: DSDefaultCTAButton
-extension InputGenderView {
-    
-    func action(_ action: DSDefaultCTAButton.Action) {
-        
-        listener?.action(.confirmButtonClicked)
-    }
-}
-
 
 // MARK: OnBoardingNavBarViewListener
 extension InputGenderView {
