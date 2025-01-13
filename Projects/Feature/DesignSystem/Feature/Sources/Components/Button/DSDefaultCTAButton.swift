@@ -149,7 +149,7 @@ extension DSDefaultCTAButton {
         var cornerRadius: CornerRadius
         
         public init(
-            type: ButtonType = .primaary,
+            type: ButtonType = .primary,
             size: ButtonSize = .large,
             cornerRadius: CornerRadius = .medium
         ) {
@@ -160,7 +160,7 @@ extension DSDefaultCTAButton {
     }
     
     public enum ButtonType {
-        case primaary
+        case primary
         case secondary
         case tertiary
         case tertiary20
@@ -168,7 +168,7 @@ extension DSDefaultCTAButton {
         
         var backgroundColor: UIColor {
             switch self {
-            case .primaary:
+            case .primary:
                 return R.Color.main100
             case .secondary:
                 return R.Color.gray600
@@ -183,7 +183,7 @@ extension DSDefaultCTAButton {
         
         var pressedBackgroundColor: UIColor {
             switch self {
-            case .primaary:
+            case .primary:
                 return R.Color.main80
             case .secondary:
                 return R.Color.gray500
@@ -198,7 +198,7 @@ extension DSDefaultCTAButton {
         
         var titleColor: UIColor {
             switch self {
-            case .primaary:
+            case .primary:
                 return R.Color.gray900
             case .secondary:
                 return R.Color.white100
@@ -213,7 +213,7 @@ extension DSDefaultCTAButton {
         
         var pressedTitleColor: UIColor {
             switch self {
-            case .primaary:
+            case .primary:
                 return R.Color.gray600
             case .secondary:
                 return R.Color.white70
