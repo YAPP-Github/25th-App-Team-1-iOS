@@ -55,6 +55,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
         
         // navigationBar
         navigationBar.listener = self
+        navigationBar.setIndex(1, of: 6)
         addSubview(navigationBar)
         
         

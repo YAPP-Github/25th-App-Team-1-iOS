@@ -43,6 +43,7 @@ final class InputBirthDateViewController: UIViewController, InputBirthDatePresen
         super.viewDidLoad()
         
         mainView.birthDatePicker.updateToNow()
+        navigationController?.isNavigationBarHidden = true
     }
 }
 
