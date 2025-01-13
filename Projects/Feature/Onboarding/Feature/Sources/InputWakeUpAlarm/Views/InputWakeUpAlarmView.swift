@@ -56,7 +56,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         
         // navigationBar
         navigationBar.listener = self
-        
+        navigationBar.setIndex(1, of: 6)
         
         // titleLabel
         titleLabel.displayText = "몇시에 깨워 드릴까요?"

@@ -10,7 +10,6 @@ import RxSwift
 import UIKit
 
 enum InputGenderPresenterRequest {
-    
     case viewDidLoad
     case updateSelectedGender(Gender?)
     case confirmCurrentGender

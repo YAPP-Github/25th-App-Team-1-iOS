@@ -9,4 +9,7 @@ import Foundation
 
 struct OnboardingModel {
     var birthDate: BirthDateData?
+    var bornTime: BornTimeData?
+    var name: String?
+    var gender: Gender?
 }

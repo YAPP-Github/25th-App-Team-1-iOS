@@ -25,7 +25,7 @@ protocol InputBornTimePresentable: Presentable {
 
 enum InputBornTimeListenerRequest {
     case back
-    case done(hour: Int, minute: Int)
+    case next(BornTimeData)
     case skip
 }
 
@@ -73,10 +73,8 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
                 presenter.request(.showInvalidBornTimeError)
                 return
             }
-            self.hour = hour
-            self.minute = minute
             
-            isValidTime = true
+            bornTimeData = .init(hours: hour, minutes: minute)
             
             presenter.request(.updateButton(canGoNext))
         case .iDontKnowButtonTapped:
@@ -88,23 +86,22 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
                 listener?.request(.skip)
                 return
             }
-            guard let hour, let minute else {
+            guard let bornTimeData else {
                 return
             }
-            listener?.request(.done(hour: hour, minute: minute))
+            listener?.request(.next(bornTimeData))
         }
     }
     
     private func resetTime() {
-        self.hour = nil
-        self.minute = nil
-        self.isValidTime = false
+        self.bornTimeData = nil
     }
     
-    var hour: Int?
-    var minute: Int?
-    var shouldSkip: Bool = false
-    var isValidTime: Bool = false
+    private var bornTimeData: BornTimeData?
+    private var shouldSkip: Bool = false
+    private var isValidTime: Bool {
+        bornTimeData != nil
+    }
     var canGoNext: Bool {
         isValidTime || shouldSkip
     }

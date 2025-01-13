@@ -53,18 +53,22 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             cleanupViews()
         case .routeToIntro:
             routeToIntro()
-        case .routeToInputName:
-            routeToInputName()
+        case .routeToInputBirthDate:
+            routeToInputBirthDate()
         case .routeToInputBornTime:
             routeToInputBornTime()
         case .detachInputBornTime:
             detachInputBornTime()
+        case .routeToInputName:
+            routeToInputName()
+        case .detachInputName:
+            detachInputName()
         case .routeToInputGender:
             routeToInputGender()
+        case .detachInputGender:
+            detachInputGender()
         case .routeToInputWakeUpAlarm:
             routeToInputWakeUpAlarm()
-        case .routeToInputBirthDate:
-            routeToInputBirthDate()
         case .routeToAuthorizationRequest:
             routeToAuthorizationRequest()
         case .detachAuthorizationRequest:
@@ -136,10 +140,18 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPushViewController(with: router)
     }
     
-    private func routeToInputName() {
-        guard inputNameRouter == nil else { return }
-        let router = inputNameBuilder.build(withListener: interactor)
-        inputNameRouter = router
+    private func routeToInputWakeUpAlarm() {
+        guard inputWakeUpAlarmRouter == nil else { return }
+        let router = inputWakeUpAlarmBuilder.build(withListener: interactor)
+        inputWakeUpAlarmRouter = router
+        attachChild(router)
+        presentOrPushViewController(with: router)
+    }
+    
+    private func routeToInputBirthDate() {
+        guard inputBirthDateRouter == nil else { return }
+        let router = inputBirthDateBuilder.build(withListener: interactor)
+        inputBirthDateRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
     }
@@ -152,6 +164,28 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPushViewController(with: router)
     }
     
+    private func detachInputBornTime() {
+        guard let router = inputBornTimeRouter else { return }
+        inputBornTimeRouter = nil
+        detachChild(router)
+        dismissOrPopViewController()
+    }
+    
+    private func routeToInputName() {
+        guard inputNameRouter == nil else { return }
+        let router = inputNameBuilder.build(withListener: interactor)
+        inputNameRouter = router
+        attachChild(router)
+        presentOrPushViewController(with: router)
+    }
+    
+    private func detachInputName() {
+        guard let router = inputNameRouter else { return }
+        inputNameRouter = nil
+        detachChild(router)
+        dismissOrPopViewController()
+    }
+    
     private func routeToInputGender() {
         guard inputGenderRouter == nil else { return }
         let router = inputGenderBuilder.build(withListener: interactor)
@@ -160,24 +194,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPushViewController(with: router)
     }
     
-    private func routeToInputWakeUpAlarm() {
-        guard inputWakeUpAlarmRouter == nil else { return }
-        let router = inputWakeUpAlarmBuilder.build(withListener: interactor)
-        inputWakeUpAlarmRouter = router
-        attachChild(router)
-        presentOrPushViewController(with: router)
-    }
-    private func routeToInputBirthDate() {
-        guard inputBirthDateRouter == nil else { return }
-        let router = inputBirthDateBuilder.build(withListener: interactor)
-        inputBirthDateRouter = router
-        attachChild(router)
-        presentOrPushViewController(with: router)
-    }
-    
-    private func detachInputBornTime() {
-        guard let router = inputBornTimeRouter else { return }
-        inputBornTimeRouter = nil
+    private func detachInputGender() {
+        guard let router = inputGenderRouter else { return }
+        inputGenderRouter = nil
         detachChild(router)
         dismissOrPopViewController()
     }

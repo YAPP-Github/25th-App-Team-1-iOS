@@ -11,12 +11,14 @@ import RxSwift
 public enum RootRouterRequest {
     case cleanUpViews
     case routeToIntro
-    case routeToInputName
+    case routeToInputBirthDate
     case routeToInputBornTime
     case detachInputBornTime
+    case routeToInputName
+    case detachInputName
     case routeToInputGender
+    case detachInputGender
     case routeToInputWakeUpAlarm
-    case routeToInputBirthDate
     case routeToAuthorizationRequest
     case detachAuthorizationRequest
     case routeToAuthorizationDenied
@@ -91,14 +93,16 @@ extension RootInteractor {
         case .back:
             router?.request(.detachInputBornTime)
         case .skip:
-            print("born time skip")
-        case let .done(hour, minute):
-            print("born hour: \(hour), minute: \(minute)")
+            router?.request(.routeToInputName)
+        case let .next(bornTimeData):
+            onboardingModel.bornTime = bornTimeData
+            router?.request(.routeToInputName)
         }
     }
     
 }
 
+// MARK: AuthorizationRequestListenerRequest
 extension RootInteractor {
     func request(_ request: AuthorizationRequestListenerRequest) {
         router?.request(.detachAuthorizationRequest)
@@ -107,6 +111,33 @@ extension RootInteractor {
             print("agree")
         case .disagree:
             router?.request(.routeToAuthorizationDenied)
+        }
+    }
+}
+
+// MARK: InputNameListenerRequest
+extension RootInteractor {
+    func request(_ request: InputNameListenerRequest) {
+        switch request {
+        case .back:
+            onboardingModel.name = nil
+            router?.request(.detachInputName)
+        case let .next(name):
+            onboardingModel.name = name
+            router?.request(.routeToInputGender)
+        }
+    }
+}
+
+extension RootInteractor {
+    func request(_ request: InputGenderListenerRequest) {
+        switch request {
+        case .back:
+            onboardingModel.gender = nil
+            router?.request(.detachInputGender)
+        case let .next(gender):
+            onboardingModel.gender = gender
+            router?.request(.routeToAuthorizationRequest)
         }
     }
 }

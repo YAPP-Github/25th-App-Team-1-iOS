@@ -18,6 +18,7 @@ protocol InputNameViewListener: AnyObject {
 final class InputNameView: UIView {
     
     enum Action {
+        case backButtonTapped
         case nameChanged(String)
         case nextButtonTapped
     }
@@ -52,7 +53,7 @@ final class InputNameView: UIView {
         }
     }
     
-    
+    private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel = UILabel()
     private let nameField = DSTextFieldWithTitleWithMessage(
         config: .init(
@@ -91,6 +92,11 @@ final class InputNameView: UIView {
 private extension InputNameView {
     func setupUI() {
         backgroundColor = R.Color.gray900
+        navigationBar.do {
+            $0.listener = self
+            $0.setIndex(4, of: 6)
+        }
+        
         titleLabel.do {
             $0.displayText = "어떤 이름으로 불리길\n원하시나요?".displayText(font: .title3SemiBold, color: R.Color.white100)
             $0.numberOfLines = 0
@@ -115,14 +121,18 @@ private extension InputNameView {
             }
         }
         
-        [titleLabel, nameField, termLabel, nextButton].forEach {
+        [navigationBar, titleLabel, nameField, termLabel, nextButton].forEach {
             addSubview($0)
         }
     }
     
     func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.horizontalEdges.equalTo(safeAreaLayoutGuide)
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(40)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
         }
         
@@ -177,6 +187,15 @@ private extension InputNameView {
         
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
+        }
+    }
+}
+
+extension InputNameView: OnBoardingNavBarViewListener {
+    func action(_ action: OnBoardingNavBarView.Action) {
+        switch action {
+        case .backButtonClicked:
+            listener?.action(.backButtonTapped)
         }
     }
 }
