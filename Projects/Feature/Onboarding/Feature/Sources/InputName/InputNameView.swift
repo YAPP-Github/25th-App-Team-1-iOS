@@ -109,8 +109,10 @@ private extension InputNameView {
             $0.numberOfLines = 0
         }
         nextButton.do {
-            $0.update("다음")
-            $0.listener = self
+            $0.update(title: "다음")
+            $0.buttonAction = { [weak self] in
+                self?.listener?.action(.nextButtonTapped)
+            }
         }
         
         [titleLabel, nameField, termLabel, nextButton].forEach {
@@ -139,15 +141,6 @@ private extension InputNameView {
         nextButton.snp.makeConstraints {
             $0.bottom.equalTo(termLabel.snp.top).offset(-14)
             $0.horizontalEdges.equalToSuperview().inset(20)
-        }
-    }
-}
-
-extension InputNameView: DSDefaultCTAButtonListener {
-    func action(_ action: FeatureDesignSystem.DSDefaultCTAButton.Action) {
-        switch action {
-        case .buttonIsTapped:
-            listener?.action(.nextButtonTapped)
         }
     }
 }
