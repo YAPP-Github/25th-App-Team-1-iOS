@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum AuthorizationRequestPresentableListenerRequest {
+    case back
     case yesButtonTapped
 }
 
@@ -32,6 +33,8 @@ final class AuthorizationRequestViewController: UIViewController, AuthorizationR
 extension AuthorizationRequestViewController: AuthorizationRequestViewListener {
     func action(_ action: AuthorizationRequestView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.request(.back)
         case .yesButtonTapped:
             listener?.request(.yesButtonTapped)
         }

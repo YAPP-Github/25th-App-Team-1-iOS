@@ -213,7 +213,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard let router = authorizationRequestRouter else { return }
         authorizationRequestRouter = nil
         detachChild(router)
-        viewController.uiviewController.dismiss(animated: true)
+        dismissOrPopViewController()
     }
     
     private func routeToAuthorizationDenied() {

@@ -105,8 +105,9 @@ extension RootInteractor {
 // MARK: AuthorizationRequestListenerRequest
 extension RootInteractor {
     func request(_ request: AuthorizationRequestListenerRequest) {
-        router?.request(.detachAuthorizationRequest)
         switch request {
+        case .back:
+            router?.request(.detachAuthorizationRequest)
         case .agree:
             print("agree")
         case .disagree:
