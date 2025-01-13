@@ -11,11 +11,10 @@ import FeatureResources
 import FeatureDesignSystem
 
 protocol InputGenderViewListener: AnyObject {
-    
     func action(_ action: InputGenderView.Action)
 }
 
-final class InputGenderView: UIView, DSBoxButtonListener, DSDefaultCTAButtonListener, OnBoardingNavBarViewListener {
+final class InputGenderView: UIView, DSBoxButtonListener, OnBoardingNavBarViewListener {
     
     // View action
     enum Action {
@@ -45,7 +44,7 @@ final class InputGenderView: UIView, DSBoxButtonListener, DSDefaultCTAButtonList
             $0.spacing = 16
         }
     let ctaButton: DSDefaultCTAButton = .init(initialState: .active).then {
-        $0.update("다음")
+        $0.update(title: "다음")
         $0.update(state: .inactive)
     }
     let policyAgreementLabel = PolicyAgreementLabel()
@@ -102,7 +101,9 @@ private extension InputGenderView {
         [ctaButton, policyAgreementLabel].forEach {
             buttonAndTextStack.addArrangedSubview($0)
         }
-        ctaButton.listener = self
+        ctaButton.buttonAction = { [weak self] in
+            self?.listener?.action(.confirmButtonClicked)
+        }
         addSubview(buttonAndTextStack)
     }
     
@@ -190,17 +191,6 @@ extension InputGenderView {
         }
     }
 }
-
-
-// MARK: DSDefaultCTAButton
-extension InputGenderView {
-    
-    func action(_ action: DSDefaultCTAButton.Action) {
-        
-        listener?.action(.confirmButtonClicked)
-    }
-}
-
 
 // MARK: OnBoardingNavBarViewListener
 extension InputGenderView {

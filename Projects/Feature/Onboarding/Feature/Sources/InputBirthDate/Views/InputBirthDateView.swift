@@ -16,7 +16,7 @@ protocol InputBirthDateViewListener: AnyObject {
 }
 
 
-final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, DSDefaultCTAButtonListener, BirthDatePickerListener {
+final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDatePickerListener {
     
     // View action
     enum Action {
@@ -85,8 +85,10 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, DSDefaultC
         
         
         // ctaButton
-        ctaButton.listener = self
-        ctaButton.update("만들기")
+        ctaButton.buttonAction = { [weak self] in
+            self?.listener?.action(.ctaButtonClicked)
+        }
+        ctaButton.update(title: "만들기")
         addSubview(ctaButton)
     }
     
@@ -134,17 +136,6 @@ extension InputBirthDateView {
         listener?.action(.backButtonClicked)
     }
 }
-
-
-// MARK: DSDefaultCTAButtonListener
-extension InputBirthDateView {
-    
-    func action(_ action: DSDefaultCTAButton.Action) {
-        
-        listener?.action(.ctaButtonClicked)
-    }
-}
-
 
 // MARK: BirthDatePickerListener
 extension InputBirthDateView {

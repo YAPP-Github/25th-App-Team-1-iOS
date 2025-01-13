@@ -17,6 +17,7 @@ final class RootViewController: UIViewController {
         case inputGender
         case inputWakeUpAlarm
         case inputBirthDate
+        case authorizationRequest
         
         var title: String {
             switch self {
@@ -26,6 +27,7 @@ final class RootViewController: UIViewController {
             case .inputGender: return "성별 입력 화면"
             case .inputWakeUpAlarm: return "알람 시간 입력 화면"
             case .inputBirthDate: return "생일 입력 화면"
+            case .authorizationRequest: return "권한 요청 화면"
             }
         }
     }
@@ -93,6 +95,13 @@ final class RootViewController: UIViewController {
         router.interactable.activate()
         rootRouter = router
     }
+    
+    private func showAuthorizationRequest() {
+        let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
+        let router = builder.build(withListener: self, entryPoint: .authorizationRequest)
+        router.interactable.activate()
+        rootRouter = router
+    }
 }
 
 extension RootViewController: RootListener, RootViewControllable {
@@ -134,6 +143,8 @@ extension RootViewController: UITableViewDelegate {
             showInputWakeUpAlarm()
         case .inputBirthDate:
             showInputBirthDate()
+        case .authorizationRequest:
+            showAuthorizationRequest()
         }
     }
 }
