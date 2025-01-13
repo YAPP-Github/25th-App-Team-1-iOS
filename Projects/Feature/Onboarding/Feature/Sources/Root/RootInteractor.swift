@@ -13,10 +13,10 @@ public enum RootRouterRequest {
     case routeToIntro
     case routeToInputName
     case routeToInputBornTime
+    case detachInputBornTime
     case routeToInputGender
     case routeToInputWakeUpAlarm
     case routeToInputBirthDate
-    case detachInputBornTime
     case routeToAuthorizationRequest
     case detachAuthorizationRequest
     case routeToAuthorizationDenied
@@ -70,13 +70,26 @@ final class RootInteractor: Interactor, RootInteractable {
     }
     
     private let entryPoint: EntryPoint
+    private var onboardingModel = OnboardingModel()
+}
+
+// MARK: InputBirthDateListenerRequest
+extension RootInteractor {
+    func request(_ request: InputBirthDateListenerRequest) {
+        switch request {
+        case let .confirmBirthDate(birthDateData):
+            onboardingModel.birthDate = birthDateData
+            router?.request(.routeToInputBornTime)
+        }
+    }
 }
 
 // MARK: InputBornTimeListenerRequest
 extension RootInteractor {
     func request(_ request: InputBornTimeListenerRequest) {
-        router?.request(.detachInputBornTime)
         switch request {
+        case .back:
+            router?.request(.detachInputBornTime)
         case .skip:
             print("born time skip")
         case let .done(hour, minute):

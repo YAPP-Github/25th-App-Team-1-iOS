@@ -24,6 +24,7 @@ protocol InputBornTimePresentable: Presentable {
 }
 
 enum InputBornTimeListenerRequest {
+    case back
     case done(hour: Int, minute: Int)
     case skip
 }
@@ -56,6 +57,8 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
     
     func request(_ request: InputBornTimePresentableListenerRequest) {
         switch request {
+        case .back:
+            listener?.request(.back)
         case let .timeChanged(time):
             resetTime()
             presenter.request(.updateButton(canGoNext))

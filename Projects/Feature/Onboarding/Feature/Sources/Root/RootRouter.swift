@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import UIKit
 
 protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener {
     var router: RootRouting? { get set }
@@ -56,14 +57,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToInputName()
         case .routeToInputBornTime:
             routeToInputBornTime()
+        case .detachInputBornTime:
+            detachInputBornTime()
         case .routeToInputGender:
             routeToInputGender()
         case .routeToInputWakeUpAlarm:
             routeToInputWakeUpAlarm()
         case .routeToInputBirthDate:
             routeToInputBirthDate()
-        case .detachInputBornTime:
-            detachInputBornTime()
         case .routeToAuthorizationRequest:
             routeToAuthorizationRequest()
         case .detachAuthorizationRequest:
@@ -78,6 +79,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     // MARK: - Private
 
     private let viewController: RootViewControllable
+    private var navigationController: UINavigationController?
     
     private let introBuilder: IntroBuildable
     private var introRouter: IntroRouting?
@@ -105,13 +107,33 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private func cleanupViews() {
         
     }
+    
+    private func presentOrPushViewController(with router: ViewableRouting) {
+        if let navigationController {
+            navigationController.pushViewController(router.viewControllable.uiviewController, animated: true)
+        } else {
+            let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
+            navigationController.modalPresentationStyle = .fullScreen
+            viewController.uiviewController.present(navigationController, animated: true)
+            self.navigationController = navigationController
+        }
+    }
+    
+    private func dismissOrPopViewController() {
+        if let navigationController,
+           navigationController.viewControllers.count > 1 {
+            navigationController.popViewController(animated: true)
+        } else {
+            viewController.uiviewController.dismiss(animated: true)
+        }
+    }
 
     private func routeToIntro() {
         guard introRouter == nil else { return }
         let router = introBuilder.build(withListener: interactor)
         introRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     private func routeToInputName() {
@@ -119,7 +141,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         let router = inputNameBuilder.build(withListener: interactor)
         inputNameRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     private func routeToInputBornTime() {
@@ -127,7 +149,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         let router = inputBornTimeBuilder.build(withListener: interactor)
         inputBornTimeRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     private func routeToInputGender() {
@@ -135,7 +157,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         let router = inputGenderBuilder.build(withListener: interactor)
         inputGenderRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     private func routeToInputWakeUpAlarm() {
@@ -143,21 +165,21 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         let router = inputWakeUpAlarmBuilder.build(withListener: interactor)
         inputWakeUpAlarmRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     private func routeToInputBirthDate() {
         guard inputBirthDateRouter == nil else { return }
         let router = inputBirthDateBuilder.build(withListener: interactor)
         inputBirthDateRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     private func detachInputBornTime() {
         guard let router = inputBornTimeRouter else { return }
         inputBornTimeRouter = nil
         detachChild(router)
-        viewController.uiviewController.dismiss(animated: true)
+        dismissOrPopViewController()
     }
     
     private func routeToAuthorizationRequest() {
@@ -165,7 +187,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         let router = authorizationRequestBuilder.build(withListener: interactor)
         authorizationRequestRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     private func detachAuthorizationRequest() {
@@ -180,7 +202,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         let router = authorizationDeniedBuilder.build(withListener: interactor)
         authorizationDeniedRouter = router
         attachChild(router)
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     private func detachAuthorizationDenied() {
