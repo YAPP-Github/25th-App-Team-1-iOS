@@ -18,7 +18,8 @@ protocol InputWakeUpAlarmPresentable: Presentable {
 }
 
 enum InputWakeUpAlarmListenerRequest {
-    case next
+    case back
+    case next(AlarmData)
 }
 
 protocol InputWakeUpAlarmListener: AnyObject {
@@ -36,16 +37,8 @@ final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPr
         super.init(presenter: presenter)
         presenter.listener = self
     }
-
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
+    
+    private var alarmData: AlarmData?
 }
 
 
@@ -56,9 +49,10 @@ extension InputWakeUpAlarmInteractor {
         
         switch request {
         case .exitPage:
-            print("알람 설정 페이지 이탈")
+            listener?.request(.back)
         case .confirmUserInputAndExit:
-            listener?.request(.next)
+            guard let alarmData else { return }
+            listener?.request(.next(alarmData))
         case .updateCurrentAlarmData(let alarmData):
             print("현재 알람 데이터 업데이트 \(alarmData)")
         }

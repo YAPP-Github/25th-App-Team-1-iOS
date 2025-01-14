@@ -11,14 +11,16 @@ import RxSwift
 public enum RootRouterRequest {
     case cleanUpViews
     case routeToIntro
+    case routeToInputWakeUpAlarm
+    case detachInputWakeUpAlarm
     case routeToInputBirthDate
+    case detachInputBirthDate
     case routeToInputBornTime
     case detachInputBornTime
     case routeToInputName
     case detachInputName
     case routeToInputGender
     case detachInputGender
-    case routeToInputWakeUpAlarm
     case routeToAuthorizationRequest
     case detachAuthorizationRequest
     case routeToAuthorizationDenied
@@ -89,7 +91,11 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: InputWakeUpAlarmListenerRequest) {
         switch request {
-        case .next:
+        case .back:
+            onboardingModel.alarm = nil
+            router?.request(.detachInputWakeUpAlarm)
+        case let .next(alarmData):
+            onboardingModel.alarm = alarmData
             router?.request(.routeToInputBirthDate)
         }
     }
@@ -99,6 +105,9 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: InputBirthDateListenerRequest) {
         switch request {
+        case .back:
+            onboardingModel.birthDate = nil
+            router?.request(.detachInputBirthDate)
         case let .confirmBirthDate(birthDateData):
             onboardingModel.birthDate = birthDateData
             router?.request(.routeToInputBornTime)

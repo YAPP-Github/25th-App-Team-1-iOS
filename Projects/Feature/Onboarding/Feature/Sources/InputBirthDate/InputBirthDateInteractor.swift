@@ -18,6 +18,7 @@ protocol InputBirthDatePresentable: Presentable {
 }
 
 enum InputBirthDateListenerRequest {
+    case back
     case confirmBirthDate(BirthDateData)
 }
 
@@ -60,7 +61,7 @@ extension InputBirthDateInteractor {
     func request(_ request: InputBirthDatePresenterRequest) {
         switch request {
         case .exitPage:
-            print("exit")
+            listener?.request(.back)
         case .confirmUserInputAndExit:
             guard let birthDate else { return }
             listener?.request(.confirmBirthDate(birthDate))

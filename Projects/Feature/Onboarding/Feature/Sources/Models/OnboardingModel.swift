@@ -8,6 +8,7 @@
 import Foundation
 
 struct OnboardingModel {
+    var alarm: AlarmData?
     var birthDate: BirthDateData?
     var bornTime: BornTimeData?
     var name: String?

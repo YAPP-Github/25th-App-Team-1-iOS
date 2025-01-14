@@ -26,21 +26,21 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         interactor: RootInteractable,
         viewController: RootViewControllable,
         introBuilder: IntroBuildable,
-        inputNameBuilder: InputNameBuilder,
-        inputBornTimeBuilder: InputBornTimeBuildable,
-        inputGenderBuilder: InputGenderBuildable,
         inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable,
         inputBirthDateBuilder: InputBirthDateBuildable,
+        inputBornTimeBuilder: InputBornTimeBuildable,
+        inputNameBuilder: InputNameBuilder,
+        inputGenderBuilder: InputGenderBuildable,
         authorizationRequestBuilder: AuthorizationRequestBuildable,
         authorizationDeniedBuilder: AuthorizationDeniedBuildable
     ) {
         self.viewController = viewController
         self.introBuilder = introBuilder
-        self.inputNameBuilder = inputNameBuilder
-        self.inputBornTimeBuilder = inputBornTimeBuilder
-        self.inputGenderBuilder = inputGenderBuilder
         self.inputWakeUpAlarmBuilder = inputWakeUpAlarmBuilder
         self.inputBirthDateBuilder = inputBirthDateBuilder
+        self.inputBornTimeBuilder = inputBornTimeBuilder
+        self.inputNameBuilder = inputNameBuilder
+        self.inputGenderBuilder = inputGenderBuilder
         self.authorizationRequestBuilder = authorizationRequestBuilder
         self.authorizationDeniedBuilder = authorizationDeniedBuilder
         super.init(interactor: interactor)
@@ -53,8 +53,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             cleanupViews()
         case .routeToIntro:
             routeToIntro()
+        case .routeToInputWakeUpAlarm:
+            routeToInputWakeUpAlarm()
+        case .detachInputWakeUpAlarm:
+            detachInputWakeUpAlarm()
         case .routeToInputBirthDate:
             routeToInputBirthDate()
+        case .detachInputBirthDate:
+            detachInputBirthDate()
         case .routeToInputBornTime:
             routeToInputBornTime()
         case .detachInputBornTime:
@@ -67,8 +73,6 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToInputGender()
         case .detachInputGender:
             detachInputGender()
-        case .routeToInputWakeUpAlarm:
-            routeToInputWakeUpAlarm()
         case .routeToAuthorizationRequest:
             routeToAuthorizationRequest()
         case .detachAuthorizationRequest:
@@ -88,19 +92,20 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private let introBuilder: IntroBuildable
     private var introRouter: IntroRouting?
     
-    private let inputNameBuilder: InputNameBuildable
-    private var inputNameRouter: InputNameRouting?
+    private let inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable
+    private var inputWakeUpAlarmRouter: InputWakeUpAlarmRouting?
+    
+    private let inputBirthDateBuilder: InputBirthDateBuildable
+    private var inputBirthDateRouter: InputBirthDateRouting?
     
     private let inputBornTimeBuilder: InputBornTimeBuildable
     private var inputBornTimeRouter: InputBornTimeRouting?
     
+    private let inputNameBuilder: InputNameBuildable
+    private var inputNameRouter: InputNameRouting?
+    
     private let inputGenderBuilder: InputGenderBuildable
     private var inputGenderRouter: InputGenderRouting?
-    
-    private let inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable
-    private var inputWakeUpAlarmRouter: InputWakeUpAlarmRouting?
-    private let inputBirthDateBuilder: InputBirthDateBuildable
-    private var inputBirthDateRouter: InputBirthDateRouting?
     
     private let authorizationRequestBuilder: AuthorizationRequestBuildable
     private var authorizationRequestRouter: AuthorizationRequestRouting?
@@ -148,12 +153,26 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPushViewController(with: router)
     }
     
+    private func detachInputWakeUpAlarm() {
+        guard let router = inputWakeUpAlarmRouter else { return }
+        inputWakeUpAlarmRouter = nil
+        detachChild(router)
+        dismissOrPopViewController()
+    }
+    
     private func routeToInputBirthDate() {
         guard inputBirthDateRouter == nil else { return }
         let router = inputBirthDateBuilder.build(withListener: interactor)
         inputBirthDateRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
+    }
+    
+    private func detachInputBirthDate() {
+        guard let router = inputBirthDateRouter else { return }
+        inputBirthDateRouter = nil
+        detachChild(router)
+        dismissOrPopViewController()
     }
     
     private func routeToInputBornTime() {

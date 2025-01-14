@@ -51,22 +51,23 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let interactor = RootInteractor(entryPoint: entryPoint)
         interactor.listener = listener
         let introBuilder = IntroBuilder(dependency: component)
-        let inputNameBuilder = InputNameBuilder(dependency: component)
-        let inputBornTimeBuilder = InputBornTimeBuilder(dependency: component)
-        let inputGenderBuilder = InputGenderBuilder(dependency: component)
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)
         let inputBirthDateBuilder = InputBirthDateBuilder(dependency: component)
+        let inputBornTimeBuilder = InputBornTimeBuilder(dependency: component)
+        let inputNameBuilder = InputNameBuilder(dependency: component)
+        let inputGenderBuilder = InputGenderBuilder(dependency: component)
         let authorizationRequestBuilder = AuthorizationRequestBuilder(dependency: component)
         let authorizationDeniedBuilder = AuthorizationDeniedBuilder(dependency: component)
+        
         return RootRouter(
             interactor: interactor,
             viewController: component.rootViewController,
             introBuilder: introBuilder,
-            inputNameBuilder: inputNameBuilder,
-            inputBornTimeBuilder: inputBornTimeBuilder,
-            inputGenderBuilder: inputGenderBuilder,
             inputWakeUpAlarmBuilder: inputWakeUpAlarmBuilder,
             inputBirthDateBuilder: inputBirthDateBuilder,
+            inputBornTimeBuilder: inputBornTimeBuilder,
+            inputNameBuilder: inputNameBuilder,
+            inputGenderBuilder: inputGenderBuilder,
             authorizationRequestBuilder: authorizationRequestBuilder,
             authorizationDeniedBuilder: authorizationDeniedBuilder
         )
