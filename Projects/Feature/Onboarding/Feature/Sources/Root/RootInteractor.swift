@@ -75,6 +75,26 @@ final class RootInteractor: Interactor, RootInteractable {
     private var onboardingModel = OnboardingModel()
 }
 
+// MARK: IntroListenerRequest
+extension RootInteractor {
+    func request(_ request: IntroListenerRequest) {
+        switch request {
+        case .next:
+            router?.request(.routeToInputWakeUpAlarm)
+        }
+    }
+}
+
+// MARK: InputWakeUpAlarmListenerRequest
+extension RootInteractor {
+    func request(_ request: InputWakeUpAlarmListenerRequest) {
+        switch request {
+        case .next:
+            router?.request(.routeToInputBirthDate)
+        }
+    }
+}
+
 // MARK: InputBirthDateListenerRequest
 extension RootInteractor {
     func request(_ request: InputBirthDateListenerRequest) {

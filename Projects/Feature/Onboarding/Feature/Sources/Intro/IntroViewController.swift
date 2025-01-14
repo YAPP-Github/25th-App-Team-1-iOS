@@ -9,18 +9,37 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum IntroPresentableListenerRequest {
+    case next
+}
+
 protocol IntroPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    func request(_ request: IntroPresentableListenerRequest)
 }
 
 final class IntroViewController: UIViewController, IntroPresentable, IntroViewControllable {
 
     weak var listener: IntroPresentableListener?
     
+    override func loadView() {
+        view = mainView
+        mainView.listener = self
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        mainView.playAnimation()
+        navigationController?.isNavigationBarHidden = true
+    }
+    
+    private let mainView = OnboardingIntroView()
+}
+
+extension IntroViewController: OnboardingIntroViewListener {
+    func action(_ action: OnboardingIntroView.Action) {
+        switch action {
+        case .nextButtonTapped:
+            listener?.request(.next)
+        }
     }
 }
