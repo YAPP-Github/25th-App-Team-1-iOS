@@ -8,7 +8,7 @@
 import RIBs
 import UIKit
 
-protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener, OnboardingMissionGuideListener, OnboardingFortuneGuideListener {
+protocol RootInteractable: Interactable, OnboardingIntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener, OnboardingMissionGuideListener, OnboardingFortuneGuideListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -25,7 +25,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     init(
         interactor: RootInteractable,
         viewController: RootViewControllable,
-        introBuilder: IntroBuildable,
+        introBuilder: OnboardingIntroBuildable,
         inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable,
         inputBirthDateBuilder: InputBirthDateBuildable,
         inputBornTimeBuilder: InputBornTimeBuildable,
@@ -97,8 +97,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private let viewController: RootViewControllable
     private var navigationController: UINavigationController?
     
-    private let introBuilder: IntroBuildable
-    private var introRouter: IntroRouting?
+    private let introBuilder: OnboardingIntroBuildable
+    private var introRouter: OnboardingIntroRouting?
     
     private let inputWakeUpAlarmBuilder: InputWakeUpAlarmBuildable
     private var inputWakeUpAlarmRouter: InputWakeUpAlarmRouting?

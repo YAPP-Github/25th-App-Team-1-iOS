@@ -50,7 +50,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let component = RootComponent(dependency: dependency)
         let interactor = RootInteractor(entryPoint: entryPoint)
         interactor.listener = listener
-        let introBuilder = IntroBuilder(dependency: component)
+        let introBuilder = OnboardingIntroBuilder(dependency: component)
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)
         let inputBirthDateBuilder = InputBirthDateBuilder(dependency: component)
         let inputBornTimeBuilder = InputBornTimeBuilder(dependency: component)

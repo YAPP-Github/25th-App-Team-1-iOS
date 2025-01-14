@@ -79,9 +79,9 @@ final class RootInteractor: Interactor, RootInteractable {
     private var onboardingModel = OnboardingModel()
 }
 
-// MARK: IntroListenerRequest
+// MARK: OnboardingIntroListenerRequest
 extension RootInteractor {
-    func request(_ request: IntroListenerRequest) {
+    func request(_ request: OnboardingIntroListenerRequest) {
         switch request {
         case .next:
             router?.request(.routeToInputWakeUpAlarm)
