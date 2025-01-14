@@ -8,7 +8,7 @@
 import RIBs
 import UIKit
 
-protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener, OnboardingMissionGuideListener {
+protocol RootInteractable: Interactable, IntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener, OnboardingMissionGuideListener, OnboardingFortuneGuideListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -33,7 +33,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         inputGenderBuilder: InputGenderBuildable,
         authorizationRequestBuilder: AuthorizationRequestBuildable,
         authorizationDeniedBuilder: AuthorizationDeniedBuildable,
-        onboardingMissionGuideBuilder: OnboardingMissionGuideBuildable
+        onboardingMissionGuideBuilder: OnboardingMissionGuideBuildable,
+        onboardingFortuneGuideBuilder: OnboardingFortuneGuideBuildable
     ) {
         self.viewController = viewController
         self.introBuilder = introBuilder
@@ -45,6 +46,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         self.authorizationRequestBuilder = authorizationRequestBuilder
         self.authorizationDeniedBuilder = authorizationDeniedBuilder
         self.onboardingMissionGuideBuilder = onboardingMissionGuideBuilder
+        self.onboardingFortuneGuideBuilder = onboardingFortuneGuideBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -85,6 +87,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             detachAuthorizationDenied()
         case .routeToMissionGuide:
             routeToMissionGuide()
+        case .routeToFortuneGuide:
+            routeToFortunenGuide()
         }
     }
     
@@ -119,6 +123,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let onboardingMissionGuideBuilder: OnboardingMissionGuideBuildable
     private var onboardingMissionGuideRouter: OnboardingMissionGuideRouting?
+    
+    private let onboardingFortuneGuideBuilder: OnboardingFortuneGuideBuildable
+    private var onboardingFortuneGuideRouter: OnboardingFortuneGuideRouting?
     
     private func cleanupViews() {
         
@@ -261,6 +268,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard onboardingMissionGuideRouter == nil else { return }
         let router = onboardingMissionGuideBuilder.build(withListener: interactor)
         onboardingMissionGuideRouter = router
+        attachChild(router)
+        presentOrPushViewController(with: router)
+    }
+    
+    private func routeToFortunenGuide() {
+        guard onboardingFortuneGuideRouter == nil else { return }
+        let router = onboardingFortuneGuideBuilder.build(withListener: interactor)
+        onboardingFortuneGuideRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
     }

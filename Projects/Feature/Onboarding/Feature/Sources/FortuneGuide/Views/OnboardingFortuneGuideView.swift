@@ -1,5 +1,5 @@
 //
-//  OnboardingMissionGuideView.swift
+//  OnboardingFortuneGuideView.swift
 //  FeatureOnboarding
 //
 //  Created by ever on 1/15/25.
@@ -12,13 +12,13 @@ import Then
 import FeatureResources
 import FeatureDesignSystem
 
-protocol OnboardingMissionGuideViewListener: AnyObject {
-    func action(_ action: OnboardingMissionGuideView.Action)
+protocol OnboardingFortuneGuideViewListener: AnyObject {
+    func action(_ action: OnboardingFortuneGuideView.Action)
 }
 
-final class OnboardingMissionGuideView: UIView {
+final class OnboardingFortuneGuideView: UIView {
     enum Action {
-        case nextButtonTapped
+        case startButtonTapped
     }
     init() {
         super.init(frame: .zero)
@@ -30,7 +30,7 @@ final class OnboardingMissionGuideView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    weak var listener: OnboardingMissionGuideViewListener?
+    weak var listener: OnboardingFortuneGuideViewListener?
     
     func playAnimation() {
         animationView.play()
@@ -38,12 +38,12 @@ final class OnboardingMissionGuideView: UIView {
     
     private let welcomeLabel = UILabel()
     private let guideLabel = UILabel()
-    private let animationView = LottieAnimationView(name: "onboarding_2", bundle: Bundle.resources)
+    private let animationView = LottieAnimationView(name: "onboarding_3", bundle: Bundle.resources)
     private let countImageView = UIImageView()
-    private let nextButton = DSDefaultCTAButton(initialState: .active)
+    private let startButton = DSDefaultCTAButton(initialState: .active)
 }
 
-private extension OnboardingMissionGuideView {
+private extension OnboardingFortuneGuideView {
     func setupUI() {
         backgroundColor = R.Color.gray900
         
@@ -53,8 +53,8 @@ private extension OnboardingMissionGuideView {
         
         guideLabel.do {
             $0.displayText = """
-            기상 미션을 수행하면 
-            운세를 확인 할 수 있어요
+            오르비의 하루 운세로
+            아침을 즐겁게 시작해 보세요!
             """.displayText(font: .heading1SemiBold, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
@@ -71,14 +71,14 @@ private extension OnboardingMissionGuideView {
             $0.contentMode = .scaleAspectFit
         }
         
-        nextButton.do {
-            $0.update(title: "다음")
+        startButton.do {
+            $0.update(title: "시작하기")
             $0.buttonAction = { [weak self] in
-                self?.listener?.action(.nextButtonTapped)
+                self?.listener?.action(.startButtonTapped)
             }
         }
         
-        [welcomeLabel, guideLabel, animationView, countImageView, nextButton].forEach { addSubview($0) }
+        [welcomeLabel, guideLabel, animationView, countImageView, startButton].forEach { addSubview($0) }
     }
     
     func layout() {
@@ -92,20 +92,14 @@ private extension OnboardingMissionGuideView {
             $0.centerX.equalToSuperview()
         }
         
-        nextButton.snp.makeConstraints {
+        animationView.snp.makeConstraints {
+            $0.top.equalTo(guideLabel.snp.bottom).offset(36)
+            $0.leading.equalTo(3.5)
+        }
+        
+        startButton.snp.makeConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview().inset(20)
-        }
-        
-        animationView.snp.makeConstraints {
-            $0.top.equalTo(guideLabel.snp.bottom).offset(71)
-            $0.leading.equalTo(48.85)
-            $0.bottom.equalTo(nextButton)
-        }
-        
-        countImageView.snp.makeConstraints {
-            $0.bottom.equalTo(nextButton.snp.top).offset(-40)
-            $0.centerX.equalToSuperview()
         }
     }
 }

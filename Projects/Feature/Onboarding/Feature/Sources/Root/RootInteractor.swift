@@ -26,6 +26,7 @@ public enum RootRouterRequest {
     case routeToAuthorizationDenied
     case detachAuthorizationDenied
     case routeToMissionGuide
+    case routeToFortuneGuide
 }
 
 public protocol RootRouting: Routing {
@@ -184,11 +185,23 @@ extension RootInteractor {
     }
 }
 
+// MARK: OnboardingMissionGuideListenerRequest
 extension RootInteractor {
     func request(_ request: OnboardingMissionGuideListenerRequest) {
         switch request {
         case .next:
+            router?.request(.routeToFortuneGuide)
+        }
+    }
+}
+
+// MARK: OnboardingFortuneGuideListenerRequest
+extension RootInteractor {
+    func request(_ request: OnboardingFortuneGuideListenerRequest) {
+        switch request {
+        case .start:
             break
+            //여기다가 이제 온보딩 때 입력한 데이터 저장 및 메인 화면 호출 이벤트를 리스너에게 전달해야함.
         }
     }
 }

@@ -29,6 +29,7 @@ final class OnboardingMissionGuideViewController: UIViewController, OnboardingMi
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
+        mainView.playAnimation()
     }
     
     private let mainView = OnboardingMissionGuideView()
