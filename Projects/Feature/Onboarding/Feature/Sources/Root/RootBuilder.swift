@@ -58,6 +58,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let inputGenderBuilder = InputGenderBuilder(dependency: component)
         let authorizationRequestBuilder = AuthorizationRequestBuilder(dependency: component)
         let authorizationDeniedBuilder = AuthorizationDeniedBuilder(dependency: component)
+        let onboardingMissionGuideBuilder = OnboardingMissionGuideBuilder(dependency: component)
         
         return RootRouter(
             interactor: interactor,
@@ -69,7 +70,8 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
             inputNameBuilder: inputNameBuilder,
             inputGenderBuilder: inputGenderBuilder,
             authorizationRequestBuilder: authorizationRequestBuilder,
-            authorizationDeniedBuilder: authorizationDeniedBuilder
+            authorizationDeniedBuilder: authorizationDeniedBuilder,
+            onboardingMissionGuideBuilder: onboardingMissionGuideBuilder
         )
     }
 }

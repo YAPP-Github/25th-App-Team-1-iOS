@@ -27,6 +27,11 @@ final class AuthorizationRequestViewController: UIViewController, AuthorizationR
         mainView.listener = self
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationController?.isNavigationBarHidden = true
+    }
+    
     private let mainView = AuthorizationRequestView()
 }
 

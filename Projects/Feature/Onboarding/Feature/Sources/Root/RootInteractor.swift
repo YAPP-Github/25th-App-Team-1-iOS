@@ -25,6 +25,7 @@ public enum RootRouterRequest {
     case detachAuthorizationRequest
     case routeToAuthorizationDenied
     case detachAuthorizationDenied
+    case routeToMissionGuide
 }
 
 public protocol RootRouting: Routing {
@@ -138,7 +139,7 @@ extension RootInteractor {
         case .back:
             router?.request(.detachAuthorizationRequest)
         case .agree:
-            print("agree")
+            router?.request(.routeToMissionGuide)
         case .disagree:
             router?.request(.routeToAuthorizationDenied)
         }
@@ -174,12 +175,20 @@ extension RootInteractor {
 
 extension RootInteractor {
     func request(_ request: AuthorizationDeniedListenerRequest) {
-        router?.request(.detachAuthorizationDenied)
         switch request {
         case .later:
-            print("later")
+            router?.request(.routeToMissionGuide)
         case .allowed:
-            print("allowed")
+            router?.request(.routeToMissionGuide)
+        }
+    }
+}
+
+extension RootInteractor {
+    func request(_ request: OnboardingMissionGuideListenerRequest) {
+        switch request {
+        case .next:
+            break
         }
     }
 }
