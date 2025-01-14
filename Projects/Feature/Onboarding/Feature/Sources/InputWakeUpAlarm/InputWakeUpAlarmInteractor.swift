@@ -54,6 +54,7 @@ extension InputWakeUpAlarmInteractor {
             guard let alarmData else { return }
             listener?.request(.next(alarmData))
         case .updateCurrentAlarmData(let alarmData):
+            self.alarmData = alarmData
             print("현재 알람 데이터 업데이트 \(alarmData)")
         }
     }
