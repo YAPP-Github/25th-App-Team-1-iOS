@@ -91,6 +91,10 @@ private extension InputSummaryView {
     
     func setupUI() {
         
+        // self
+        self.backgroundColor = .black.withAlphaComponent(0.8)
+        
+        
         // containerView
         containerView.backgroundColor = R.Color.gray800
         addSubview(containerView)
@@ -158,7 +162,7 @@ private extension InputSummaryView {
         buttonStack.snp.makeConstraints { make in
             make.top.equalTo(inputSummaryStack.snp.bottom).inset(-24)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().inset(-self.safeAreaInsets.bottom)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(44)
         }
     }
     
