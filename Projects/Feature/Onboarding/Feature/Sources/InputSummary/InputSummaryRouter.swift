@@ -24,3 +24,12 @@ final class InputSummaryRouter: ViewableRouter<InputSummaryInteractable, InputSu
         interactor.router = self
     }
 }
+
+
+// MARK: InputSummaryRouting
+extension InputSummaryRouter {
+    
+    func confirmUserInputs() {
+        print("유저 인풋 확정")
+    }
+}

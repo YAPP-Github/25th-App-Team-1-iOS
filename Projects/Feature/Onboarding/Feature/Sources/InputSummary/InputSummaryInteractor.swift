@@ -9,7 +9,8 @@ import RIBs
 import RxSwift
 
 protocol InputSummaryRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    
+    func confirmUserInputs()
 }
 
 protocol InputSummaryPresentable: Presentable {
@@ -18,7 +19,8 @@ protocol InputSummaryPresentable: Presentable {
 }
 
 protocol InputSummaryListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    
+    func dismissSummaryPage()
 }
 
 final class InputSummaryInteractor: PresentableInteractor<InputSummaryPresentable>, InputSummaryInteractable, InputSummaryPresentableListener {
@@ -41,5 +43,20 @@ final class InputSummaryInteractor: PresentableInteractor<InputSummaryPresentabl
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+}
+
+
+// MARK: InputSummaryPresentableListener
+extension InputSummaryInteractor {
+    
+    func request(_ request: InputSummaryViewRequest) {
+        
+        switch request {
+        case .confirmInputs:
+            router?.confirmUserInputs()
+        case .backToEditInputs:
+            listener?.dismissSummaryPage()
+        }
     }
 }

@@ -9,10 +9,15 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum InputSummaryViewRequest {
+    
+    case confirmInputs
+    case backToEditInputs
+}
+
 protocol InputSummaryPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    
+    func request(_ request: InputSummaryViewRequest)
 }
 
 final class InputSummaryViewController: UIViewController, InputSummaryPresentable, InputSummaryViewControllable, InputSummaryViewListener {
@@ -29,10 +34,29 @@ final class InputSummaryViewController: UIViewController, InputSummaryPresentabl
 }
 
 
+// MARK: Public interface
+extension InputSummaryViewController {
+    
+    func update(inputs: [String: String]) {
+        mainView.update(inputs: inputs)
+    }
+}
+
+
 // MARK: InputSummaryViewListener
 extension InputSummaryViewController {
     
     func action(_ action: InputSummaryView.Action) {
-        
+        switch action {
+        case .agreeInSumamry:
+            listener?.request(.confirmInputs)
+        case .disagreeInSummary:
+            listener?.request(.backToEditInputs)
+        }
     }
+}
+
+
+#Preview {
+    InputSummaryViewController()
 }
