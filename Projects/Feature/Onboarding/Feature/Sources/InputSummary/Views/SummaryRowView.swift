@@ -20,6 +20,11 @@ final class SummaryRowView: UIView {
     private let labelStack: UIStackView = .init()
     
     
+    override var intrinsicContentSize: CGSize {
+        .init(width: UIView.noIntrinsicMetric, height: 50)
+    }
+    
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -30,8 +35,9 @@ final class SummaryRowView: UIView {
 
 
 // MARK: Public interface
-private extension SummaryRowView {
+extension SummaryRowView {
     
+    @discardableResult
     func update(keyText: String) -> Self {
         keyLabel.displayText = keyText.displayText(
             font: .body1Regular, color: R.Color.gray50
@@ -40,6 +46,7 @@ private extension SummaryRowView {
     }
     
     
+    @discardableResult
     func update(valueText: String) -> Self {
         valueLabel.displayText = valueText.displayText(
             font: .body1SemiBold, color: R.Color.gray50
@@ -71,7 +78,7 @@ private extension SummaryRowView {
         // labelStack
         labelStack.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(24)
-            make.verticalEdges.equalToSuperview().inset(12)
+            make.centerY.equalToSuperview()
         }
     }
 }

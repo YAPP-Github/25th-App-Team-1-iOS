@@ -15,7 +15,24 @@ protocol InputSummaryPresentableListener: AnyObject {
     // interactor class.
 }
 
-final class InputSummaryViewController: UIViewController, InputSummaryPresentable, InputSummaryViewControllable {
-
+final class InputSummaryViewController: UIViewController, InputSummaryPresentable, InputSummaryViewControllable, InputSummaryViewListener {
+    
+    var mainView: InputSummaryView!
+    
     weak var listener: InputSummaryPresentableListener?
+    
+    override func loadView() {
+        self.mainView = InputSummaryView()
+        self.view = mainView
+        mainView.listener = self
+    }
+}
+
+
+// MARK: InputSummaryViewListener
+extension InputSummaryViewController {
+    
+    func action(_ action: InputSummaryView.Action) {
+        
+    }
 }
