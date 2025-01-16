@@ -73,15 +73,26 @@ final class InputSummaryView: UIView {
 // MARK: Public interface
 extension InputSummaryView {
     
+    func update(isPresent: Bool) {
+        if isPresent {
+            self.backgroundColor = .black.withAlphaComponent(0.8)
+            containerView.transform = .identity
+        } else {
+            self.backgroundColor = .clear
+            let height = containerView.layer.bounds.height
+            containerView.transform = containerView.transform.translatedBy(x: 0, y: height)
+        }
+    }
+    
     func update(inputs: [String: String]) {
-        
         inputSummaryStack.arrangedSubviews.forEach {$0.removeFromSuperview()}
         inputs.forEach { keyText, valueText in
             let rowView = SummaryRowView()
                 .update(keyText: keyText)
-                .update(valueText: valueText)            
+                .update(valueText: valueText)
             inputSummaryStack.addArrangedSubview(rowView)
         }
+        layoutIfNeeded()
     }
 }
 
@@ -90,10 +101,6 @@ extension InputSummaryView {
 private extension InputSummaryView {
     
     func setupUI() {
-        
-        // self
-        self.backgroundColor = .black.withAlphaComponent(0.8)
-        
         
         // containerView
         containerView.backgroundColor = R.Color.gray800
