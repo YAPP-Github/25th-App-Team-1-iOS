@@ -34,7 +34,7 @@ final class BirthDatePicker: UIView {
     private let yearColumn: BirthDatePickerColumnView = {
         let selectionItemViewSize: CGSize = .init(width: 63, height: 38)
         let currentYear = Calendar.current.dateComponents([.year], from: .now).year!
-        let selectionItems = (1900...currentYear).map { yearItem in
+        let selectionItems = (1900...(currentYear-1)).map { yearItem in
             BirthDaySelectionItem(
                 content: String(yearItem),
                 displayingText: String(yearItem),
@@ -230,9 +230,13 @@ final class BirthDatePicker: UIView {
 // MARK: Public interface
 extension BirthDatePicker {
     
-    func updateToNow() {
+    func updateToOneYearAgo() {
         
-        let dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: .now)
+        let gregorianCalendar = Calendar(identifier: .gregorian)
+        
+        guard let oneYearAgoDate = gregorianCalendar.date(byAdding: .year, value: -1, to: .now) else { return }
+        
+        let dateComponents = gregorianCalendar.dateComponents([.year, .month, .day], from: oneYearAgoDate)
         
         guard let year = dateComponents.year, let month = dateComponents.month, let day = dateComponents.day else { return }
         
