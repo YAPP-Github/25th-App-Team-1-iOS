@@ -20,7 +20,7 @@ final class InputSummaryComponent: Component<InputSummaryDependency> {
 // MARK: - Builder
 
 protocol InputSummaryBuildable: Buildable {
-    func build(withListener listener: InputSummaryListener) -> InputSummaryRouting
+    func build(withListener listener: InputSummaryListener, onBoardingModel: OnboardingModel) -> InputSummaryRouting
 }
 
 final class InputSummaryBuilder: Builder<InputSummaryDependency>, InputSummaryBuildable {
@@ -29,10 +29,13 @@ final class InputSummaryBuilder: Builder<InputSummaryDependency>, InputSummaryBu
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: InputSummaryListener) -> InputSummaryRouting {
+    func build(withListener listener: InputSummaryListener, onBoardingModel: OnboardingModel) -> InputSummaryRouting {
         let component = InputSummaryComponent(dependency: dependency)
         let viewController = InputSummaryViewController()
-        let interactor = InputSummaryInteractor(presenter: viewController)
+        let interactor = InputSummaryInteractor(
+            presenter: viewController,
+            onBoardingModel: onBoardingModel
+        )
         interactor.listener = listener
         return InputSummaryRouter(interactor: interactor, viewController: viewController)
     }

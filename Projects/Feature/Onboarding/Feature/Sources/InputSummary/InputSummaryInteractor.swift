@@ -10,27 +10,42 @@ import RxSwift
 
 protocol InputSummaryRouting: ViewableRouting {
     
-    func confirmUserInputs()
 }
 
 protocol InputSummaryPresentable: Presentable {
     var listener: InputSummaryPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    
+    func presentMainView(onBoadingModel: OnboardingModel, animated: Bool)
+    
+    func dismissMainView(animated: Bool, completion: @escaping () -> Void)
+}
+
+enum InputSummaryListenerRequest {
+    
+    case dismiss
+    case next
 }
 
 protocol InputSummaryListener: AnyObject {
     
-    func dismissSummaryPage()
+    func request(_ request: InputSummaryListenerRequest)
 }
 
 final class InputSummaryInteractor: PresentableInteractor<InputSummaryPresentable>, InputSummaryInteractable, InputSummaryPresentableListener {
 
     weak var router: InputSummaryRouting?
     weak var listener: InputSummaryListener?
+    
+    
+    // State
+    private let onBoardingModel: OnboardingModel
+    private var mainViewIsAppear = false
 
+    
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputSummaryPresentable) {
+    init(presenter: InputSummaryPresentable, onBoardingModel: OnboardingModel) {
+        self.onBoardingModel = onBoardingModel
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -53,10 +68,25 @@ extension InputSummaryInteractor {
     func request(_ request: InputSummaryViewRequest) {
         
         switch request {
+        case .viewDidAppear:
+            
+            if !mainViewIsAppear {
+                mainViewIsAppear = true
+            
+                presenter.presentMainView(
+                    onBoadingModel: onBoardingModel,
+                    animated: true
+                )
+            }
+            
         case .confirmInputs:
-            router?.confirmUserInputs()
+            listener?.request(.dismiss)
+            listener?.request(.next)
         case .backToEditInputs:
-            listener?.dismissSummaryPage()
+            presenter.dismissMainView(animated: true) { [weak self] in
+                guard let self else { return }
+                listener?.request(.dismiss)
+            }
         }
     }
 }
