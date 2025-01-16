@@ -7,7 +7,7 @@
 
 struct BirthDateData {
     
-    let calendarType: String
+    let calendarType: CalendarType
     let year: Int
     let month: Int
     let day: Int

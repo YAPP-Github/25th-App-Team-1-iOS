@@ -67,7 +67,6 @@ extension InputBirthDateInteractor {
             listener?.request(.confirmBirthDate(birthDate))
         case .updateCurrentBirthDate(let birthDateData):
             self.birthDate = birthDateData
-            print(birthDateData)
         }
     }
 }

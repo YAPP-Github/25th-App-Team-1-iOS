@@ -143,7 +143,7 @@ extension InputBirthDateView {
     
     func latestDate(calendar: CalendarType, year: Int, month: Int, day: Int) {
         
-        let data: BirthDateData = .init(calendarType: calendar.content, year: year, month: month, day: day)
+        let data: BirthDateData = .init(calendarType: calendar, year: year, month: month, day: day)
         
         listener?.action(.birthDatePicker(data))
     }
