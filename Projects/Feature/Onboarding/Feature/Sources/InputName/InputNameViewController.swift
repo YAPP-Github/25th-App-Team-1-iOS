@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum InputNamePresentableListenerRequest {
+    case back
     case nameChanged(String)
     case goNext
 }
@@ -25,6 +26,11 @@ final class InputNameViewController: UIViewController, InputNamePresentable, Inp
     override func loadView() {
         view = mainView
         mainView.listener = self
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationController?.isNavigationBarHidden = true
     }
     
     func request(_ request: InputNamePresentableRequest) {
@@ -44,6 +50,8 @@ final class InputNameViewController: UIViewController, InputNamePresentable, Inp
 extension InputNameViewController: InputNameViewListener {
     func action(_ action: InputNameView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.reqeust(.back)
         case let .nameChanged(name):
             listener?.reqeust(.nameChanged(name))
         case .nextButtonTapped:

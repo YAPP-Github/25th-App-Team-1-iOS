@@ -17,6 +17,7 @@ protocol InputBornTImeViewListener: AnyObject {
 
 final class InputBornTImeView: UIView {
     enum Action {
+        case backButtonTapped
         case timeChanged(String)
         case iDontKnowButtonTapped
         case nextButtonTapped
@@ -57,6 +58,7 @@ final class InputBornTImeView: UIView {
         }
     }
     
+    private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel = UILabel()
     private let timeField = DSTextFieldWithTitleWithMessage(
         config: .init(
@@ -140,6 +142,8 @@ final class InputBornTImeView: UIView {
 private extension InputBornTImeView {
     func setupUI() {
         backgroundColor = R.Color.gray900
+        navigationBar.listener = self
+        navigationBar.setIndex(3, of: 6)
         titleLabel.do {
             $0.displayText = "태어난 시간을 알려주세요".displayText(font: .title3SemiBold, color: R.Color.white100)
         }
@@ -175,14 +179,18 @@ private extension InputBornTImeView {
         }
         
         
-        [titleLabel, timeField, termLabel, nextButton, iDontKnowButton].forEach {
+        [navigationBar, titleLabel, timeField, termLabel, nextButton, iDontKnowButton].forEach {
             addSubview($0)
         }
     }
     
     func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.horizontalEdges.equalTo(safeAreaLayoutGuide)
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(40)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
         }
         
@@ -244,6 +252,15 @@ private extension InputBornTImeView {
         
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
+        }
+    }
+}
+
+extension InputBornTImeView: OnBoardingNavBarViewListener {
+    func action(_ action: FeatureDesignSystem.OnBoardingNavBarView.Action) {
+        switch action {
+        case .backButtonClicked:
+            listener?.action(.backButtonTapped)
         }
     }
 }

@@ -82,6 +82,7 @@ private extension InputGenderView {
         // navigationBarView
         addSubview(navigationBar)
         navigationBar.listener = self
+        navigationBar.setIndex(5, of: 6)
         
         
         // title label

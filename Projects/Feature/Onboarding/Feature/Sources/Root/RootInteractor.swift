@@ -11,16 +11,22 @@ import RxSwift
 public enum RootRouterRequest {
     case cleanUpViews
     case routeToIntro
-    case routeToInputName
-    case routeToInputBornTime
-    case routeToInputGender
     case routeToInputWakeUpAlarm
+    case detachInputWakeUpAlarm
     case routeToInputBirthDate
+    case detachInputBirthDate
+    case routeToInputBornTime
     case detachInputBornTime
+    case routeToInputName
+    case detachInputName
+    case routeToInputGender
+    case detachInputGender
     case routeToAuthorizationRequest
     case detachAuthorizationRequest
     case routeToAuthorizationDenied
     case detachAuthorizationDenied
+    case routeToMissionGuide
+    case routeToFortuneGuide
 }
 
 public protocol RootRouting: Routing {
@@ -70,42 +76,132 @@ final class RootInteractor: Interactor, RootInteractable {
     }
     
     private let entryPoint: EntryPoint
+    private var onboardingModel = OnboardingModel()
+}
+
+// MARK: OnboardingIntroListenerRequest
+extension RootInteractor {
+    func request(_ request: OnboardingIntroListenerRequest) {
+        switch request {
+        case .next:
+            router?.request(.routeToInputWakeUpAlarm)
+        }
+    }
+}
+
+// MARK: InputWakeUpAlarmListenerRequest
+extension RootInteractor {
+    func request(_ request: InputWakeUpAlarmListenerRequest) {
+        switch request {
+        case .back:
+            onboardingModel.alarm = nil
+            router?.request(.detachInputWakeUpAlarm)
+        case let .next(alarmData):
+            onboardingModel.alarm = alarmData
+            router?.request(.routeToInputBirthDate)
+        }
+    }
+}
+
+// MARK: InputBirthDateListenerRequest
+extension RootInteractor {
+    func request(_ request: InputBirthDateListenerRequest) {
+        switch request {
+        case .back:
+            onboardingModel.birthDate = nil
+            router?.request(.detachInputBirthDate)
+        case let .confirmBirthDate(birthDateData):
+            onboardingModel.birthDate = birthDateData
+            router?.request(.routeToInputBornTime)
+        }
+    }
 }
 
 // MARK: InputBornTimeListenerRequest
 extension RootInteractor {
     func request(_ request: InputBornTimeListenerRequest) {
-        router?.request(.detachInputBornTime)
         switch request {
+        case .back:
+            router?.request(.detachInputBornTime)
         case .skip:
-            print("born time skip")
-        case let .done(hour, minute):
-            print("born hour: \(hour), minute: \(minute)")
+            router?.request(.routeToInputName)
+        case let .next(bornTimeData):
+            onboardingModel.bornTime = bornTimeData
+            router?.request(.routeToInputName)
         }
     }
     
 }
 
+// MARK: AuthorizationRequestListenerRequest
 extension RootInteractor {
     func request(_ request: AuthorizationRequestListenerRequest) {
-        router?.request(.detachAuthorizationRequest)
         switch request {
+        case .back:
+            router?.request(.detachAuthorizationRequest)
         case .agree:
-            print("agree")
+            router?.request(.routeToMissionGuide)
         case .disagree:
             router?.request(.routeToAuthorizationDenied)
         }
     }
 }
 
+// MARK: InputNameListenerRequest
+extension RootInteractor {
+    func request(_ request: InputNameListenerRequest) {
+        switch request {
+        case .back:
+            onboardingModel.name = nil
+            router?.request(.detachInputName)
+        case let .next(name):
+            onboardingModel.name = name
+            router?.request(.routeToInputGender)
+        }
+    }
+}
+
+extension RootInteractor {
+    func request(_ request: InputGenderListenerRequest) {
+        switch request {
+        case .back:
+            onboardingModel.gender = nil
+            router?.request(.detachInputGender)
+        case let .next(gender):
+            onboardingModel.gender = gender
+            router?.request(.routeToAuthorizationRequest)
+        }
+    }
+}
+
 extension RootInteractor {
     func request(_ request: AuthorizationDeniedListenerRequest) {
-        router?.request(.detachAuthorizationDenied)
         switch request {
         case .later:
-            print("later")
+            router?.request(.routeToMissionGuide)
         case .allowed:
-            print("allowed")
+            router?.request(.routeToMissionGuide)
+        }
+    }
+}
+
+// MARK: OnboardingMissionGuideListenerRequest
+extension RootInteractor {
+    func request(_ request: OnboardingMissionGuideListenerRequest) {
+        switch request {
+        case .next:
+            router?.request(.routeToFortuneGuide)
+        }
+    }
+}
+
+// MARK: OnboardingFortuneGuideListenerRequest
+extension RootInteractor {
+    func request(_ request: OnboardingFortuneGuideListenerRequest) {
+        switch request {
+        case .start:
+            break
+            //여기다가 이제 온보딩 때 입력한 데이터 저장 및 메인 화면 호출 이벤트를 리스너에게 전달해야함.
         }
     }
 }

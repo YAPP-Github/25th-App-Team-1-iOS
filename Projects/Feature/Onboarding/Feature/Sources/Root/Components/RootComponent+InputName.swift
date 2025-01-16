@@ -1,5 +1,5 @@
 //
-//  Component+InputName.swift
+//  RootComponent+InputName.swift
 //  FeatureOnboarding
 //
 //  Created by 손병근 on 1/4/25.

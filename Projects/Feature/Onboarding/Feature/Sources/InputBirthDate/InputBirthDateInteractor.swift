@@ -17,8 +17,13 @@ protocol InputBirthDatePresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
+enum InputBirthDateListenerRequest {
+    case back
+    case confirmBirthDate(BirthDateData)
+}
+
 protocol InputBirthDateListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: InputBirthDateListenerRequest)
 }
 
 final class InputBirthDateInteractor: PresentableInteractor<InputBirthDatePresentable>, InputBirthDateInteractable, InputBirthDatePresentableListener {
@@ -56,9 +61,10 @@ extension InputBirthDateInteractor {
     func request(_ request: InputBirthDatePresenterRequest) {
         switch request {
         case .exitPage:
-            print("exit")
+            listener?.request(.back)
         case .confirmUserInputAndExit:
-            print("cofnirm and exit")
+            guard let birthDate else { return }
+            listener?.request(.confirmBirthDate(birthDate))
         case .updateCurrentBirthDate(let birthDateData):
             self.birthDate = birthDateData
             print(birthDateData)

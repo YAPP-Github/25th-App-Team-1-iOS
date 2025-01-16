@@ -17,8 +17,13 @@ protocol InputWakeUpAlarmPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
+enum InputWakeUpAlarmListenerRequest {
+    case back
+    case next(AlarmData)
+}
+
 protocol InputWakeUpAlarmListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request:InputWakeUpAlarmListenerRequest)
 }
 
 final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPresentable>, InputWakeUpAlarmInteractable, InputWakeUpAlarmPresentableListener {
@@ -32,16 +37,8 @@ final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPr
         super.init(presenter: presenter)
         presenter.listener = self
     }
-
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
+    
+    private var alarmData: AlarmData?
 }
 
 
@@ -52,10 +49,12 @@ extension InputWakeUpAlarmInteractor {
         
         switch request {
         case .exitPage:
-            print("알람 설정 페이지 이탈")
+            listener?.request(.back)
         case .confirmUserInputAndExit:
-            print("알람데이터 확정")
+            guard let alarmData else { return }
+            listener?.request(.next(alarmData))
         case .updateCurrentAlarmData(let alarmData):
+            self.alarmData = alarmData
             print("현재 알람 데이터 업데이트 \(alarmData)")
         }
     }
