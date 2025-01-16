@@ -55,7 +55,8 @@ let project = Project(
                 .feature(implements: .DesignSystem),
                 .thirdParty(library: .RIBs),
                 .thirdParty(library: .SnapKit),
-                .thirdParty(library: .Then)
+                .thirdParty(library: .Then),
+                .thirdParty(library: .Lottie)
             ]
         ),
     ]

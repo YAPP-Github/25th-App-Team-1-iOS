@@ -22,7 +22,6 @@ public final class OnBoardingNavBarView: UIView {
     
     // View actions
     public enum Action {
-        
         case backButtonClicked
     }
     
@@ -47,6 +46,9 @@ public final class OnBoardingNavBarView: UIView {
     }
     required init?(coder: NSCoder) { nil }
     
+    public func setIndex(_ currentStage: Int, of stageCount: Int) {
+        stageIndexView.update(currentStage: currentStage, stageCount: stageCount)
+    }
     
     @objc
     private func backButtonClicked() {

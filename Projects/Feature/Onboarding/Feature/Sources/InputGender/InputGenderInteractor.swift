@@ -22,8 +22,13 @@ protocol InputGenderPresentable: Presentable {
     func action(_ action: InputGenderInteractorAction)
 }
 
+enum InputGenderListenerRequest {
+    case back
+    case next(Gender)
+}
+
 protocol InputGenderListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: InputGenderListenerRequest)
 }
 
 final class InputGenderInteractor: PresentableInteractor<InputGenderPresentable>, InputGenderInteractable, InputGenderPresentableListener {
@@ -82,9 +87,10 @@ extension InputGenderInteractor {
             presenter.action(.updateButtonState(isEnabled: buttonIsEnabled))
             
         case .confirmCurrentGender:
-            print("confirm gender")
+            guard let gender = state.gender else { return }
+            listener?.request(.next(gender))
         case .exitPage:
-            print("exit page")
+            listener?.request(.back)
         }
     }
 }

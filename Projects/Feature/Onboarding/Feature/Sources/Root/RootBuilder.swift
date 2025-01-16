@@ -50,25 +50,32 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let component = RootComponent(dependency: dependency)
         let interactor = RootInteractor(entryPoint: entryPoint)
         interactor.listener = listener
-        let introBuilder = IntroBuilder(dependency: component)
-        let inputNameBuilder = InputNameBuilder(dependency: component)
-        let inputBornTimeBuilder = InputBornTimeBuilder(dependency: component)
-        let inputGenderBuilder = InputGenderBuilder(dependency: component)
+        let introBuilder = OnboardingIntroBuilder(dependency: component)
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)
         let inputBirthDateBuilder = InputBirthDateBuilder(dependency: component)
+        let inputBornTimeBuilder = InputBornTimeBuilder(dependency: component)
+        let inputNameBuilder = InputNameBuilder(dependency: component)
+        let inputGenderBuilder = InputGenderBuilder(dependency: component)
         let authorizationRequestBuilder = AuthorizationRequestBuilder(dependency: component)
         let authorizationDeniedBuilder = AuthorizationDeniedBuilder(dependency: component)
+        let onboardingMissionGuideBuilder = OnboardingMissionGuideBuilder(dependency: component)
+        let onboardingFortuneGuideBuilder = OnboardingFortuneGuideBuilder(dependency: component)
+        let inputSummaryBuilder = InputSummaryBuilder(dependency: component)
+        
         return RootRouter(
             interactor: interactor,
             viewController: component.rootViewController,
             introBuilder: introBuilder,
-            inputNameBuilder: inputNameBuilder,
-            inputBornTimeBuilder: inputBornTimeBuilder,
-            inputGenderBuilder: inputGenderBuilder,
             inputWakeUpAlarmBuilder: inputWakeUpAlarmBuilder,
             inputBirthDateBuilder: inputBirthDateBuilder,
+            inputBornTimeBuilder: inputBornTimeBuilder,
+            inputNameBuilder: inputNameBuilder,
+            inputGenderBuilder: inputGenderBuilder,
             authorizationRequestBuilder: authorizationRequestBuilder,
-            authorizationDeniedBuilder: authorizationDeniedBuilder
+            authorizationDeniedBuilder: authorizationDeniedBuilder,
+            onboardingMissionGuideBuilder: onboardingMissionGuideBuilder,
+            onboardingFortuneGuideBuilder: onboardingFortuneGuideBuilder,
+            inputSummaryBuilder: inputSummaryBuilder
         )
     }
 }

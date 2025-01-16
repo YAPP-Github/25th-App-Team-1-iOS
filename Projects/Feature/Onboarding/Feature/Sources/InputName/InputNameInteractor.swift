@@ -23,8 +23,13 @@ protocol InputNamePresentable: Presentable {
     func request(_ request: InputNamePresentableRequest)
 }
 
+enum InputNameListenerRequest {
+    case back
+    case next(String)
+}
+
 protocol InputNameListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: InputNameListenerRequest)
 }
 
 final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, InputNameInteractable, InputNamePresentableListener {
@@ -41,6 +46,8 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
     
     func reqeust(_ request: InputNamePresentableListenerRequest) {
         switch request {
+        case .back:
+            listener?.request(.back)
         case let .nameChanged(name):
             self.name = name
             guard validateNameLength(name) else {
@@ -56,7 +63,7 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
             }
             presenter.request(.updateButtonIsEnabled(true))
         case .goNext:
-            print("nextButtonTapped")
+            listener?.request(.next(name))
         }
     }
     

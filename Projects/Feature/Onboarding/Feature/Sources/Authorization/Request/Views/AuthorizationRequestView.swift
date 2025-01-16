@@ -17,6 +17,7 @@ protocol AuthorizationRequestViewListener: AnyObject {
 
 final class AuthorizationRequestView: UIView {
     enum Action {
+        case backButtonTapped
         case yesButtonTapped
     }
     
@@ -34,7 +35,8 @@ final class AuthorizationRequestView: UIView {
     }
     
     weak var listener: AuthorizationRequestViewListener?
-    
+
+    private let navigationBar = OnBoardingNavBarView()
     private let titleLabel = UILabel()
     private let guideImageView = UIImageView()
     private let yesButton = DSDefaultCTAButton(initialState: .active)
@@ -43,6 +45,10 @@ final class AuthorizationRequestView: UIView {
 private extension AuthorizationRequestView {
     func setupUI() {
         backgroundColor = R.Color.gray900
+        navigationBar.do {
+            $0.listener = self
+            $0.setIndex(6, of: 6)
+        }
         titleLabel.do {
             $0.displayText = """
             알람을 받으려면 꼭 필요해요
@@ -64,14 +70,18 @@ private extension AuthorizationRequestView {
             }
         }
         
-        [titleLabel, guideImageView, yesButton].forEach {
+        [navigationBar, titleLabel, guideImageView, yesButton].forEach {
             addSubview($0)
         }
     }
     
     func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.horizontalEdges.equalTo(safeAreaLayoutGuide)
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(40)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
         }
         
@@ -84,6 +94,15 @@ private extension AuthorizationRequestView {
             $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
             $0.leading.equalTo(20)
             $0.trailing.equalTo(-20)
+        }
+    }
+}
+
+extension AuthorizationRequestView: OnBoardingNavBarViewListener {
+    func action(_ action: OnBoardingNavBarView.Action) {
+        switch action {
+        case .backButtonClicked:
+            listener?.action(.backButtonTapped)
         }
     }
 }

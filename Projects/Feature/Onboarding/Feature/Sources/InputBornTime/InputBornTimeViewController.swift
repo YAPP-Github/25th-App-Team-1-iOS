@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum InputBornTimePresentableListenerRequest {
+    case back
     case timeChanged(String)
     case iDontKnowButtonTapped
     case next
@@ -28,6 +29,11 @@ final class InputBornTimeViewController: UIViewController, InputBornTimePresenta
         mainView.listener = self
     }
  
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationController?.isNavigationBarHidden = true
+    }
+    
     func request(_ request: InputBornTimePresentableRequest) {
         switch request {
         case .showShortLenghError:
@@ -45,6 +51,8 @@ final class InputBornTimeViewController: UIViewController, InputBornTimePresenta
 extension InputBornTimeViewController: InputBornTImeViewListener {
     func action(_ action: InputBornTImeView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.request(.back)
         case let .timeChanged(time):
             listener?.request(.timeChanged(time))
         case .iDontKnowButtonTapped:

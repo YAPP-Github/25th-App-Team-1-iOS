@@ -40,6 +40,11 @@ final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPr
         self.view = mainView
         mainView.listener = self
     }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationController?.isNavigationBarHidden = true
+    }
 }
 
 

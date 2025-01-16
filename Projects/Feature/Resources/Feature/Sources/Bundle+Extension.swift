@@ -7,6 +7,6 @@
 
 import UIKit
 
-extension Bundle {
+public extension Bundle {
     static let resources: Bundle = Bundle(for: R.self)
 }
