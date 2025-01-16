@@ -53,6 +53,7 @@ public extension ModulePath {
         case RIBs
         case Then
         case SnapKit
+        case Lottie
         
         public static let categoryName: String = "ThirdParty"
     }

@@ -19,6 +19,7 @@ protocol AuthorizationRequestPresentable: Presentable {
 }
 
 enum AuthorizationRequestListenerRequest {
+    case back
     case agree
     case disagree
 }
@@ -57,6 +58,8 @@ final class AuthorizationRequestInteractor: PresentableInteractor<AuthorizationR
     
     func request(_ request: AuthorizationRequestPresentableListenerRequest) {
         switch request {
+        case .back:
+            listener?.request(.back)
         case .yesButtonTapped:
             requestPermission()
         }
