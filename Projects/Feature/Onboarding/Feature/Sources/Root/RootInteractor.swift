@@ -27,6 +27,8 @@ public enum RootRouterRequest {
     case detachAuthorizationDenied
     case routeToMissionGuide
     case routeToFortuneGuide
+    case routeToInputSummary(OnboardingModel)
+    case detachInputSummary
 }
 
 public protocol RootRouting: Routing {
@@ -79,6 +81,7 @@ final class RootInteractor: Interactor, RootInteractable {
     private var onboardingModel = OnboardingModel()
 }
 
+
 // MARK: OnboardingIntroListenerRequest
 extension RootInteractor {
     func request(_ request: OnboardingIntroListenerRequest) {
@@ -88,6 +91,7 @@ extension RootInteractor {
         }
     }
 }
+
 
 // MARK: InputWakeUpAlarmListenerRequest
 extension RootInteractor {
@@ -103,6 +107,7 @@ extension RootInteractor {
     }
 }
 
+
 // MARK: InputBirthDateListenerRequest
 extension RootInteractor {
     func request(_ request: InputBirthDateListenerRequest) {
@@ -116,6 +121,7 @@ extension RootInteractor {
         }
     }
 }
+
 
 // MARK: InputBornTimeListenerRequest
 extension RootInteractor {
@@ -133,6 +139,7 @@ extension RootInteractor {
     
 }
 
+
 // MARK: AuthorizationRequestListenerRequest
 extension RootInteractor {
     func request(_ request: AuthorizationRequestListenerRequest) {
@@ -146,6 +153,7 @@ extension RootInteractor {
         }
     }
 }
+
 
 // MARK: InputNameListenerRequest
 extension RootInteractor {
@@ -161,6 +169,8 @@ extension RootInteractor {
     }
 }
 
+
+// MARK: InputGenderListenerRequest
 extension RootInteractor {
     func request(_ request: InputGenderListenerRequest) {
         switch request {
@@ -169,11 +179,13 @@ extension RootInteractor {
             router?.request(.detachInputGender)
         case let .next(gender):
             onboardingModel.gender = gender
-            router?.request(.routeToAuthorizationRequest)
+            router?.request(.routeToInputSummary(onboardingModel))
         }
     }
 }
 
+
+// MARK: AuthorizationDeniedListenerRequest
 extension RootInteractor {
     func request(_ request: AuthorizationDeniedListenerRequest) {
         switch request {
@@ -185,6 +197,7 @@ extension RootInteractor {
     }
 }
 
+
 // MARK: OnboardingMissionGuideListenerRequest
 extension RootInteractor {
     func request(_ request: OnboardingMissionGuideListenerRequest) {
@@ -195,6 +208,7 @@ extension RootInteractor {
     }
 }
 
+
 // MARK: OnboardingFortuneGuideListenerRequest
 extension RootInteractor {
     func request(_ request: OnboardingFortuneGuideListenerRequest) {
@@ -202,6 +216,19 @@ extension RootInteractor {
         case .start:
             break
             //여기다가 이제 온보딩 때 입력한 데이터 저장 및 메인 화면 호출 이벤트를 리스너에게 전달해야함.
+        }
+    }
+}
+
+
+// MARK: InputSummaryListener
+extension RootInteractor {
+    func request(_ request: InputSummaryListenerRequest) {
+        switch request {
+        case .dismiss:
+            router?.request(.detachInputSummary)
+        case .next:
+            router?.request(.routeToAuthorizationRequest)
         }
     }
 }

@@ -8,7 +8,7 @@
 import RIBs
 import UIKit
 
-protocol RootInteractable: Interactable, OnboardingIntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener, OnboardingMissionGuideListener, OnboardingFortuneGuideListener {
+protocol RootInteractable: Interactable, OnboardingIntroListener, InputNameListener, InputBornTimeListener, InputGenderListener, InputWakeUpAlarmListener, InputBirthDateListener, AuthorizationRequestListener, AuthorizationDeniedListener, OnboardingMissionGuideListener, OnboardingFortuneGuideListener, InputSummaryListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -34,7 +34,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         authorizationRequestBuilder: AuthorizationRequestBuildable,
         authorizationDeniedBuilder: AuthorizationDeniedBuildable,
         onboardingMissionGuideBuilder: OnboardingMissionGuideBuildable,
-        onboardingFortuneGuideBuilder: OnboardingFortuneGuideBuildable
+        onboardingFortuneGuideBuilder: OnboardingFortuneGuideBuildable,
+        inputSummaryBuilder: InputSummaryBuilder
     ) {
         self.viewController = viewController
         self.introBuilder = introBuilder
@@ -47,6 +48,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         self.authorizationDeniedBuilder = authorizationDeniedBuilder
         self.onboardingMissionGuideBuilder = onboardingMissionGuideBuilder
         self.onboardingFortuneGuideBuilder = onboardingFortuneGuideBuilder
+        self.inputSummaryBuilder = inputSummaryBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -89,6 +91,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToMissionGuide()
         case .routeToFortuneGuide:
             routeToFortunenGuide()
+        case .routeToInputSummary(let model):
+            routeToInputSummary(onBoardingModel: model)
+        case .detachInputSummary:
+            detachInputSummary()
         }
     }
     
@@ -115,6 +121,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private let inputGenderBuilder: InputGenderBuildable
     private var inputGenderRouter: InputGenderRouting?
     
+    private let inputSummaryBuilder: InputSummaryBuilder
+    private var inputSummaryRouter: InputSummaryRouting?
+    
     private let authorizationRequestBuilder: AuthorizationRequestBuildable
     private var authorizationRequestRouter: AuthorizationRequestRouting?
     
@@ -131,23 +140,23 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         
     }
     
-    private func presentOrPushViewController(with router: ViewableRouting) {
+    private func presentOrPushViewController(with router: ViewableRouting, animated: Bool = true) {
         if let navigationController {
-            navigationController.pushViewController(router.viewControllable.uiviewController, animated: true)
+            navigationController.pushViewController(router.viewControllable.uiviewController, animated: animated)
         } else {
             let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
             navigationController.modalPresentationStyle = .fullScreen
-            viewController.uiviewController.present(navigationController, animated: true)
+            viewController.uiviewController.present(navigationController, animated: animated)
             self.navigationController = navigationController
         }
     }
     
-    private func dismissOrPopViewController() {
+    private func dismissOrPopViewController(animated: Bool = true) {
         if let navigationController,
            navigationController.viewControllers.count > 1 {
-            navigationController.popViewController(animated: true)
+            navigationController.popViewController(animated: animated)
         } else {
-            viewController.uiviewController.dismiss(animated: true)
+            viewController.uiviewController.dismiss(animated: animated)
         }
     }
 
@@ -278,5 +287,38 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         onboardingFortuneGuideRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
+    }
+    
+    private func routeToInputSummary(onBoardingModel: OnboardingModel) {
+        guard inputSummaryRouter == nil else { return }
+        let router = inputSummaryBuilder.build(
+            withListener: interactor,
+            onBoardingModel: onBoardingModel
+        )
+        inputSummaryRouter = router
+        attachChild(router)
+        
+        router.viewControllable.uiviewController.modalPresentationStyle = .overFullScreen
+        
+        if let navigationController {
+            navigationController.topViewController?
+                .present(router.viewControllable.uiviewController, animated: false)
+        } else {
+            viewController.uiviewController
+                .present(router.viewControllable.uiviewController, animated: false)
+        }
+    }
+    
+    private func detachInputSummary() {
+        guard let router = inputSummaryRouter else { return }
+        inputSummaryRouter = nil
+        detachChild(router)
+        if let navigationController {
+            navigationController.topViewController?
+                .dismiss(animated: false)
+        } else {
+            viewController.uiviewController
+                .dismiss(animated: false)
+        }
     }
 }

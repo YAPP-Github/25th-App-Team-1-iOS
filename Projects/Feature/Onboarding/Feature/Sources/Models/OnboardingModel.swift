@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct OnboardingModel {
+public struct OnboardingModel {
     var alarm: AlarmData?
     var birthDate: BirthDateData?
     var bornTime: BornTimeData?
