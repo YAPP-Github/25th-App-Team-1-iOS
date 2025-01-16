@@ -80,13 +80,9 @@ extension InputSummaryInteractor {
             }
             
         case .confirmInputs:
-            listener?.request(.dismiss)
             listener?.request(.next)
         case .backToEditInputs:
-            presenter.dismissMainView(animated: true) { [weak self] in
-                guard let self else { return }
-                listener?.request(.dismiss)
-            }
+            listener?.request(.dismiss)
         }
     }
 }

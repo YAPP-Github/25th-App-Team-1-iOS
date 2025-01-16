@@ -93,8 +93,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToFortunenGuide()
         case .routeToInputSummary(let model):
             routeToInputSummary(onBoardingModel: model)
-        case .detachInputSummary:
-            detachInputSummary()
+        case let .detachInputSummary(completion):
+            detachInputSummary(completion: completion)
         }
     }
     
@@ -300,8 +300,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         
         router.viewControllable.uiviewController.modalPresentationStyle = .overFullScreen
         
+        
         if let navigationController {
-            navigationController.topViewController?
+            navigationController
                 .present(router.viewControllable.uiviewController, animated: false)
         } else {
             viewController.uiviewController
@@ -309,16 +310,15 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         }
     }
     
-    private func detachInputSummary() {
+    private func detachInputSummary(completion: (() -> Void)?) {
         guard let router = inputSummaryRouter else { return }
         inputSummaryRouter = nil
         detachChild(router)
         if let navigationController {
-            navigationController.topViewController?
-                .dismiss(animated: false)
+            navigationController.dismiss(animated: true, completion: completion)
         } else {
             viewController.uiviewController
-                .dismiss(animated: false)
+                .dismiss(animated: true, completion: completion)
         }
     }
 }

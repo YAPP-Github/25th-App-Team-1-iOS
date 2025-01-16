@@ -28,7 +28,7 @@ public enum RootRouterRequest {
     case routeToMissionGuide
     case routeToFortuneGuide
     case routeToInputSummary(OnboardingModel)
-    case detachInputSummary
+    case detachInputSummary(completion: (() -> Void)?)
 }
 
 public protocol RootRouting: Routing {
@@ -226,9 +226,12 @@ extension RootInteractor {
     func request(_ request: InputSummaryListenerRequest) {
         switch request {
         case .dismiss:
-            router?.request(.detachInputSummary)
+            router?.request(.detachInputSummary(completion: nil))
         case .next:
-            router?.request(.routeToAuthorizationRequest)
+            router?.request(.detachInputSummary { [weak self] in
+                self?.router?.request(.routeToAuthorizationRequest)
+            })
+            
         }
     }
 }
