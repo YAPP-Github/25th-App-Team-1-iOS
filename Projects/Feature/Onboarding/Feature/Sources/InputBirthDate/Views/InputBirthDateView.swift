@@ -80,7 +80,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
         
         // alarmPicker
         birthDatePicker.listener = self
-        birthDatePicker.updateToNow()
+        birthDatePicker.updateToOneYearAgo()
         addSubview(birthDatePicker)
         
         

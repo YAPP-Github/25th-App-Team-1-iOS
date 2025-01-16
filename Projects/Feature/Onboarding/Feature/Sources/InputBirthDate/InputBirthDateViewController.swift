@@ -38,12 +38,6 @@ final class InputBirthDateViewController: UIViewController, InputBirthDatePresen
         self.view = mainView
         mainView.listener = self
     }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        mainView.birthDatePicker.updateToNow()
-    }
 }
 
 

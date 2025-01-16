@@ -230,9 +230,13 @@ final class BirthDatePicker: UIView {
 // MARK: Public interface
 extension BirthDatePicker {
     
-    func updateToNow() {
+    func updateToOneYearAgo() {
         
-        let dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: .now)
+        let gregorianCalendar = Calendar(identifier: .gregorian)
+        
+        guard let oneYearAgoDate = gregorianCalendar.date(byAdding: .year, value: -1, to: .now) else { return }
+        
+        let dateComponents = gregorianCalendar.dateComponents([.year, .month, .day], from: oneYearAgoDate)
         
         guard let year = dateComponents.year, let month = dateComponents.month, let day = dateComponents.day else { return }
         
