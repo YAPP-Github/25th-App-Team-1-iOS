@@ -24,7 +24,11 @@ let project = Project(
             dependencies: [
                 .feature(implements: .Onboarding),
                 .thirdParty(library: .RIBs)
-            ]
+            ],
+            settings: .settings(configurations: [
+                .debug(name: "Debug"),
+                .release(name: "Release")
+            ])
         ),
 
 
@@ -58,6 +62,28 @@ let project = Project(
                 .thirdParty(library: .Then),
                 .thirdParty(library: .Lottie)
             ]
+        ),
+    ],
+    schemes: [
+        
+        // MARK: Debug scheme
+        .scheme(
+            name: "FeatureOnboardingExample-Debug",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureOnboardingExample") ]
+            ),
+            runAction: .runAction(configuration: "Debug"),
+            archiveAction: .archiveAction(configuration: "Debug")
+        ),
+        
+        // MARK: Release scheme
+        .scheme(
+            name: "FeatureOnboardingExample-Release",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureOnboardingExample") ]
+            ),
+            runAction: .runAction(configuration: "Release"),
+            archiveAction: .archiveAction(configuration: "Release")
         ),
     ]
 )
