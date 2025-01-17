@@ -16,6 +16,7 @@ let project = Project(
             name: "FeatureOnboardingExample",
             destinations: .iOS,
             product: .app,
+            productName: "OrbitOnboardingDemo",
             bundleId: Project.Environment.bundleId(suffix: "feature.example"),
             deploymentTargets: Project.Environment.deploymentTarget,
             infoPlist: .example_app,
