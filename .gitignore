@@ -68,3 +68,8 @@ Derived/
 
 ### Tuist managed dependencies ###
 Tuist/.build
+
+
+### Fastlane
+
+fastlane/auth.json
