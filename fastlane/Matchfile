@@ -1,0 +1,13 @@
+git_url("https://x-token-auth:#{ENV['TOKEN_FOR_CER_AND_PROFILE']}@bitbucket.org/yaforbit/cerandprofilefororbit.git")
+storage_mode("git")
+type("appstore") # The default type, can be: appstore, adhoc, enterprise or development
+api_key_path("fastlane/apple_connect_auth.json")
+team_id(ENV["TEAM_ID"]) 
+
+app_identifier(["com.yaf.orbit.feature.example"])
+# username("user@fastlane.tools") # Your Apple Developer Portal username
+
+# For all available options run `fastlane match --help`
+# Remove the # in the beginning of the line to enable the other options
+
+# The docs are available on https://docs.fastlane.tools/actions/match
