@@ -68,3 +68,9 @@ Derived/
 
 ### Tuist managed dependencies ###
 Tuist/.build
+
+
+### Fastlane
+
+fastlane/apple_connect_auth.json
+fastlane/.env
