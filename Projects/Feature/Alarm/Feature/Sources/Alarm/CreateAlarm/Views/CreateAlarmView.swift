@@ -8,6 +8,8 @@
 import UIKit
 import SnapKit
 import Then
+import FeatureResources
+import FeatureDesignSystem
 
 protocol CreateAlarmViewListener: AnyObject {
     func action(_ action: CreateAlarmView.Action)
@@ -40,12 +42,34 @@ final class CreateAlarmView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private let stackView = UIStackView()
-    
-    private let meridiemSegmentedControl = UISegmentedControl(items: ["AM", "PM"])
-    private let hoursField = UITextField()
-    private let minutesField = UITextField()
-    private let doneButton = UIButton(type: .system)
+    private let alarmPicker: AlarmPicker = .init(
+        meridiemColumns: MeridiemItem.allCases.map { item in
+            return PickerSelectionItem(
+                content: item.content,
+                displayingText: item.displayingText
+            )
+        },
+        hourColumns: (1...12).map { hour in
+            return PickerSelectionItem(
+                content: String(hour),
+                displayingText: "\(hour)"
+            )
+        },
+        minuteColumns: (1...60).map { minute in
+            var displayingText = "\(minute)"
+            if minute < 10 {
+                displayingText = "0\(minute)"
+            }
+            
+            return PickerSelectionItem(
+                content: String(minute),
+                displayingText: displayingText
+            )
+        }
+    )
+    private let navigationBar = OnBoardingNavBarView()
+    private let selectWeekDayView = SelectWeekDayView()
+    private let doneButton = DSDefaultCTAButton()
     
     weak var listener: CreateAlarmViewListener?
     
@@ -81,47 +105,64 @@ final class CreateAlarmView: UIView {
 
 private extension CreateAlarmView {
     func setupUI() {
-        backgroundColor = .white
-        stackView.do {
-            $0.axis = .vertical
-            $0.spacing = 16
-            $0.alignment = .fill
-            $0.distribution = .fill
+        
+        backgroundColor = R.Color.gray900
+        navigationBar.do {
+            $0.listener = self
         }
-        meridiemSegmentedControl.do {
-            $0.selectedSegmentIndex = 0
-            $0.addTarget(self, action: #selector(meridiemChanged), for: .valueChanged)
-        }
-        hoursField.do {
-            $0.borderStyle = .roundedRect
-            $0.placeholder = "시간 입력: 1~12"
-            $0.keyboardType = .asciiCapableNumberPad
-            $0.addTarget(self, action: #selector(hourChanged), for: .editingChanged)
-        }
-        minutesField.do {
-            $0.borderStyle = .roundedRect
-            $0.placeholder = "분 입력: 0~59"
-            $0.keyboardType = .asciiCapableNumberPad
-            $0.addTarget(self, action: #selector(minuteChanged), for: .editingChanged)
+        alarmPicker.do {
+            $0.listener = self
+            $0.updateToNow()
         }
         
         doneButton.do {
-            $0.setTitle("완료", for: .normal)
-            $0.setTitleColor(.black, for: .normal)
-            $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-            $0.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+            $0.buttonAction = { [weak self] in
+                self?.listener?.action(.doneButtonTapped)
+            }
+            $0.update(title: "저장하기")
         }
-        addSubview(stackView)
-        [meridiemSegmentedControl, hoursField, minutesField, doneButton].forEach {
-            stackView.addArrangedSubview($0)
-        }
+        
+        
+        [navigationBar, alarmPicker, selectWeekDayView, doneButton].forEach { addSubview($0) }
     }
     
     func layout() {
-        stackView.snp.makeConstraints {
+        navigationBar.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
-            $0.leading.trailing.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+        }
+        alarmPicker.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom).offset(42)
+            $0.horizontalEdges.equalToSuperview()
+                .inset(20)
+        }
+        doneButton.snp.makeConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+        }
+        selectWeekDayView.snp.makeConstraints {
+            $0.top.equalTo(alarmPicker.snp.bottom).offset(50)
+            $0.bottom.equalTo(doneButton.snp.top).offset(-24)
+            $0.horizontalEdges.equalToSuperview().inset(20)
         }
     }
 }
 
+extension CreateAlarmView: OnBoardingNavBarViewListener {
+    func action(_ action: OnBoardingNavBarView.Action) {
+        switch action {
+        case .backButtonClicked:
+            print("BackButtonTapped")
+        }
+    }
+}
+
+extension CreateAlarmView: AlarmPickerListener {
+    func latestSelection(meridiem: String, hour: Int, minute: Int) {
+        print("alarmPicker latestSelection: \(meridiem), \(hour), \(minute)")
+        guard let meridiem = Meridiem(rawValue: meridiem) else { return }
+        listener?.action(.meridiemChanged(meridiem))
+        listener?.action(.hourChanged(hour))
+        listener?.action(.minuteChanged(minute))
+    }
+}

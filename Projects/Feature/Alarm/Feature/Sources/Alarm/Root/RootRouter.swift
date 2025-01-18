@@ -51,7 +51,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     // MARK: - Private
 
     private let viewController: RootViewControllable
-    private let navigationController = UINavigationController()
+    private let navigationController = UINavigationController().then {
+        $0.modalPresentationStyle = .fullScreen
+    }
 
     private let alarmListBuilder: AlarmListBuildable
     private var alarmListRouter: AlarmListRouting?
