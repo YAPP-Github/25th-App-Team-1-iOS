@@ -6,17 +6,15 @@
 //
 
 import UIKit
+import FeatureDesignSystem
 
-struct SelectionItem: Hashable {
-    
+struct PickerSelectionItem: PickerSelectionItemable, Hashable {
     let content: String
     let displayingText: String
-    let contentSize: CGSize
     
-    init(content: String, displayingText: String, contentSize: CGSize) {
+    init(content: String, displayingText: String) {
         self.displayingText = displayingText
         self.content = content
-        self.contentSize = contentSize
     }
     
     func hash(into hasher: inout Hasher) {
