@@ -31,7 +31,31 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
     private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel: UILabel = .init()
     private let subTitleLabel: UILabel = .init()
-    private let alarmPicker: AlarmPicker = .init()
+    private let alarmPicker: AlarmPicker = .init(
+        meridiemColumns: MeridiemItem.allCases.map { item in
+            return PickerSelectionItem(
+                content: item.content,
+                displayingText: item.displayingText
+            )
+        },
+        hourColumns: (1...12).map { hour in
+            return PickerSelectionItem(
+                content: String(hour),
+                displayingText: "\(hour)"
+            )
+        },
+        minuteColumns: (1...60).map { minute in
+            var displayingText = "\(minute)"
+            if minute < 10 {
+                displayingText = "0\(minute)"
+            }
+            
+            return PickerSelectionItem(
+                content: String(minute),
+                displayingText: displayingText
+            )
+        }
+    )
     private let ctaButton: DSDefaultCTAButton = .init(initialState: .active)
     
     

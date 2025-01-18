@@ -5,13 +5,11 @@
 //  Created by choijunios on 1/6/25.
 //
 
-enum MeridiemItem: CaseIterable {
-    
+public enum MeridiemItem: CaseIterable {
     case ante
     case post
     
-    var content: String {
-        
+    public var content: String {
         switch self {
         case .ante:
             "AM"
@@ -20,7 +18,7 @@ enum MeridiemItem: CaseIterable {
         }
     }
     
-    var displayingText: String {
+    public var displayingText: String {
         switch self {
         case .ante:
             "오전"

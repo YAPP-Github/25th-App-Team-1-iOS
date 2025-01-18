@@ -12,6 +12,9 @@ import RxSwift
 import RxRelay
 
 final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
+    struct Constant {
+        static let cellSize = CGSize(width: 48, height: 48)
+    }
     
     typealias Content = String
     
@@ -22,7 +25,7 @@ final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
     
     // Model
-    private let items: [SelectionItem]
+    private let items: [PickerSelectionItemable]
     
     
     // Feedback generator
@@ -37,7 +40,7 @@ final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     
     // Observable
     fileprivate let changeContent: BehaviorRelay<Content?> = .init(value: nil)
-    fileprivate let currentSelectedItem: BehaviorRelay<SelectionItem?> = .init(value: nil)
+    fileprivate let currentSelectedItem: BehaviorRelay<PickerSelectionItemable?> = .init(value: nil)
     private let layoutSubViews: BehaviorSubject<Void?> = .init(value: nil)
     private let disposeBag = DisposeBag()
     
@@ -46,7 +49,7 @@ final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
     }
     
     
-    init(itemSpacing: CGFloat, items: [SelectionItem]) {
+    init(itemSpacing: CGFloat, items: [PickerSelectionItemable]) {
         
         self.itemSpacing = itemSpacing
         self.items = items
@@ -96,22 +99,18 @@ final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
         
         // self
         if items.count == 2 {
-            
-            let cellSize = items.first!.contentSize
-            let height = (cellSize.height * 3) + (itemSpacing * 2)
+            let height = (Constant.cellSize.height * 3) + (itemSpacing * 2)
             
             viewSize = .init(
-                width: cellSize.width,
+                width: Constant.cellSize.width,
                 height: height
             )
             
         } else if items.count >= 3 {
-            
-            let cellSize = items.first!.contentSize
-            let height = (cellSize.height * 5) + (itemSpacing * 4)
+            let height = (Constant.cellSize.height * 5) + (itemSpacing * 4)
             
             viewSize = .init(
-                width: cellSize.width,
+                width: Constant.cellSize.width,
                 height: height
             )
             
@@ -137,14 +136,9 @@ final class AlarmPickerColumnView: UIView, UIScrollViewDelegate {
         var verticalInset: CGFloat = 0
         
         if items.count == 2 {
-            
-            let cellSize = items.first!.contentSize
-            verticalInset = cellSize.height + itemSpacing
-            
+            verticalInset = Constant.cellSize.height + itemSpacing
         } else if items.count >= 3 {
-            
-            let cellSize = items.first!.contentSize
-            verticalInset = (cellSize.height * 2) + (itemSpacing * 2)
+            verticalInset = (Constant.cellSize.height * 2) + (itemSpacing * 2)
         }
         
         
@@ -259,19 +253,6 @@ extension AlarmPickerColumnView {
             
             // 피드백 전송
             self.selectionFeedbackGenerator.selectionChanged()
-            
-            
-            /*
-            if #available(iOS 17.5, *) {
-                let centerOfView: CGPoint = .init(
-                    x: self.bounds.width/2,
-                    y: self.bounds.height/2
-                )
-                self.selectionFeedbackGenerator.selectionChanged(at: centerOfView)
-            } else {
-                self.selectionFeedbackGenerator.selectionChanged()
-            }
-             */
         }
     }
     
@@ -296,11 +277,9 @@ extension AlarmPickerColumnView {
         
         var emptySpaceHeight: CGFloat = 0
         if items.count == 2 {
-            let cellSize = items.first!.contentSize
-            emptySpaceHeight = cellSize.height + itemSpacing
+            emptySpaceHeight = Constant.cellSize.height + itemSpacing
         } else if items.count >= 3 {
-            let cellSize = items.first!.contentSize
-            emptySpaceHeight = (cellSize.height * 2) + (itemSpacing * 2)
+            emptySpaceHeight = (Constant.cellSize.height * 2) + (itemSpacing * 2)
         } else {
             fatalError("아이템은 2개이상이 필요합니다.")
         }
@@ -321,48 +300,11 @@ extension AlarmPickerColumnView {
 // MARK: Reactive
 extension Reactive where Base == AlarmPickerColumnView {
     
-    var selectedItem: Observable<SelectionItem> {
+    var selectedItem: Observable<PickerSelectionItemable> {
         base.currentSelectedItem.compactMap({ $0 })
     }
     
     var setContent: BehaviorRelay<String?> {
         base.changeContent
     }
-}
-
-
-#Preview {
-    
-    let view = AlarmPickerColumnView(
-        itemSpacing: 18,
-        items: [
-            SelectionItem(
-                content: "12",
-                displayingText: "12",
-                contentSize: .init(width: 48, height: 48)
-            ),
-            SelectionItem(
-                content: "12",
-                displayingText: "12",
-                contentSize: .init(width: 48, height: 48)
-            ),
-            SelectionItem(
-                content: "12",
-                displayingText: "12",
-                contentSize: .init(width: 48, height: 48)
-            ),
-            SelectionItem(
-                content: "12",
-                displayingText: "12",
-                contentSize: .init(width: 48, height: 48)
-            ),
-            SelectionItem(
-                content: "12",
-                displayingText: "12",
-                contentSize: .init(width: 48, height: 48)
-            ),
-        ]
-    )
-    
-    return view
 }

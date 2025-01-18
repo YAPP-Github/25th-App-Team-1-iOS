@@ -12,34 +12,26 @@ import FeatureResources
 import SnapKit
 import RxSwift
 
-protocol AlarmPickerListener: AnyObject {
-    
+public protocol AlarmPickerListener: AnyObject {
     func latestSelection(meridiem: String, hour: Int, minute: Int)
 }
 
-final class AlarmPicker: UIView {
+public final class AlarmPicker: UIView {
+    private let meridiemColumns: [PickerSelectionItemable]
+    private let hourColumns: [PickerSelectionItemable]
+    private let minuteColumns: [PickerSelectionItemable]
     
     // Sub view
-    private let meridiemColumn: AlarmPickerColumnView = {
+    private lazy var meridiemColumnView: AlarmPickerColumnView = {
         
         let selectionItemViewSize: CGSize = .init(width: 48, height: 38)
         
-        let selectionItems = MeridiemItem.allCases.map { item in
-            
-            SelectionItem(
-                content: item.content,
-                displayingText: item.displayingText,
-                contentSize: selectionItemViewSize
-            )
-        }
-        
         let columnView = AlarmPickerColumnView(
             itemSpacing: 12,
-            items: selectionItems
+            items: meridiemColumns
         )
         
         columnView.updateCellUI { cellView in
-            
             cellView
                 .setTextStyle(font: .title2Medium, color: R.Color.white100)
                 .setContentSize(selectionItemViewSize)
@@ -47,26 +39,16 @@ final class AlarmPicker: UIView {
         
         return columnView
     }()
-    private let hourColumn: AlarmPickerColumnView = {
+    private lazy var hourColumnView: AlarmPickerColumnView = {
         
         let selectionItemViewSize: CGSize = .init(width: 48, height: 48)
         
-        let selectionItems = (1...12).map { hour in
-            
-            SelectionItem(
-                content: String(hour),
-                displayingText: "\(hour)",
-                contentSize: selectionItemViewSize
-            )
-        }
-        
         let columnView = AlarmPickerColumnView(
             itemSpacing: 12,
-            items: selectionItems
+            items: hourColumns
         )
         
         columnView.updateCellUI { cellView in
-            
             cellView
                 .setTextStyle(font: .title2Medium, color: R.Color.white100)
                 .setContentSize(selectionItemViewSize)
@@ -74,33 +56,15 @@ final class AlarmPicker: UIView {
         
         return columnView
     }()
-    private let minuteColumn: AlarmPickerColumnView = {
+    private lazy var minuteColumnView: AlarmPickerColumnView = {
         
         let selectionItemViewSize: CGSize = .init(width: 48, height: 48)
-        
-        let selectionItems = (1...60).map { minute in
-            
-            var displayingText = "\(minute)"
-            
-            if minute < 10 {
-                
-                displayingText = "0\(minute)"
-            }
-            
-            return SelectionItem(
-                content: String(minute),
-                displayingText: displayingText,
-                contentSize: selectionItemViewSize
-            )
-        }
-        
         let columnView = AlarmPickerColumnView(
             itemSpacing: 12,
-            items: selectionItems
+            items: minuteColumns
         )
         
         columnView.updateCellUI { cellView in
-            
             cellView
                 .setTextStyle(font: .title2Medium, color: R.Color.white100)
                 .setContentSize(selectionItemViewSize)
@@ -113,14 +77,19 @@ final class AlarmPicker: UIView {
     
     
     // Listener
-    weak var listener: AlarmPickerListener?
-    
+    public weak var listener: AlarmPickerListener?
     
     // Rx
     private let disposeBag: DisposeBag = .init()
     
-    
-    init() {
+    public init(
+        meridiemColumns: [PickerSelectionItemable],
+        hourColumns: [PickerSelectionItemable],
+        minuteColumns: [PickerSelectionItemable]
+    ) {
+        self.meridiemColumns = meridiemColumns
+        self.hourColumns = hourColumns
+        self.minuteColumns = minuteColumns
         super.init(frame: .zero)
         
         setupUI()
@@ -129,19 +98,9 @@ final class AlarmPicker: UIView {
     }
     required init?(coder: NSCoder) { nil }
     
+   
     
-    private func setupUI() {
-        
-        // self
-        self.backgroundColor = R.Color.gray900
-        
-        
-        // inBoundDisplayView
-        inBoundDisplayView.backgroundColor = R.Color.gray700
-        inBoundDisplayView.layer.cornerRadius = 12
-    }
-    
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         
         if let gradientLayer {
@@ -151,9 +110,16 @@ final class AlarmPicker: UIView {
         }
     }
     
+    private func setupUI() {
+        // self
+        self.backgroundColor = R.Color.gray900
+        
+        // inBoundDisplayView
+        inBoundDisplayView.backgroundColor = R.Color.gray700
+        inBoundDisplayView.layer.cornerRadius = 12
+    }
     
     private func setupLayout() {
-        
         // inBoundDisplayView
         addSubview(inBoundDisplayView)
         inBoundDisplayView.snp.makeConstraints { make in
@@ -162,14 +128,13 @@ final class AlarmPicker: UIView {
             make.height.equalTo(50)
         }
         
-        
         // columnStackView
         let columnStackView: UIStackView = .init(arrangedSubviews: [
-            meridiemColumn,
+            meridiemColumnView,
             UIStackView.Spacer(contentSize: .init(width: 40, height: 0)),
-            hourColumn,
+            hourColumnView,
             UIStackView.Spacer(contentSize: .init(width: 30, height: 0)),
-            minuteColumn
+            minuteColumnView
         ])
         columnStackView.axis = .horizontal
         columnStackView.distribution = .fill
@@ -187,9 +152,9 @@ final class AlarmPicker: UIView {
     private func setReactive() {
         
         Observable.combineLatest(
-            meridiemColumn.rx.selectedItem,
-            hourColumn.rx.selectedItem,
-            minuteColumn.rx.selectedItem
+            meridiemColumnView.rx.selectedItem,
+            hourColumnView.rx.selectedItem,
+            minuteColumnView.rx.selectedItem
         ).subscribe(onNext: { [weak self] meridiem, hour, minute in
             guard let self else { return }
             
@@ -205,28 +170,28 @@ final class AlarmPicker: UIView {
 
 
 // MARK: Public interface
-extension AlarmPicker {
+public extension AlarmPicker {
     
     func update(meridiem: MeridiemItem? = nil, hour: Int? = nil, minute: Int? = nil) {
         
         if let meridiem {
             
             let content = meridiem.content
-            meridiemColumn.rx.setContent.accept(content)
+            meridiemColumnView.rx.setContent.accept(content)
         }
         
         
         if let hour, (1...12).contains(hour) {
             
             let content = String(hour)
-            hourColumn.rx.setContent.accept(content)
+            hourColumnView.rx.setContent.accept(content)
         }
         
         
         if let minute, (0...60).contains(minute) {
             
             let content = String(minute)
-            minuteColumn.rx.setContent.accept(content)
+            minuteColumnView.rx.setContent.accept(content)
         }
     }
     
@@ -309,10 +274,4 @@ fileprivate extension UIStackView {
         }
         required init?(coder: NSCoder) { nil }
     }
-}
-
-
-#Preview {
-    
-    AlarmPicker()
 }
