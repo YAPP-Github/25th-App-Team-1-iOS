@@ -19,7 +19,9 @@ let project = Project(
             productName: "OrbitOnboardingDemo",
             bundleId: Project.Environment.bundleId(suffix: "feature.example"),
             deploymentTargets: Project.Environment.deploymentTarget,
-            infoPlist: .example_app,
+            infoPlist: .app_plist(with: [
+                "CFBundleShortVersionString": "1.0.1"
+            ]),
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
