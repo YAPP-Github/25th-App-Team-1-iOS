@@ -37,7 +37,7 @@ struct RootService: RootServiceable {
         let copySuccess = copySoundFileToLibrary()
         if copySuccess {
             // Library/Sounds에 복사된 사운드 파일을 사용
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("alarm.caf"))
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("Marimba.caf"))
         } else {
             // 복사 실패 시 기본 사운드 사용
             content.sound = .default
