@@ -37,7 +37,7 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
     private let mainView = CreateAlarmView()
     
     private func setupNavigation() {
-        navigationController?.isNavigationBarHidden = true
+        title = "알람추가"
     }
 }
 
