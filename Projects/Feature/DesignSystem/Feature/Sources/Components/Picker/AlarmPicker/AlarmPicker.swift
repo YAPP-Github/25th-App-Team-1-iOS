@@ -41,7 +41,7 @@ public final class AlarmPicker: UIView {
     }()
     private lazy var hourColumnView: AlarmPickerColumnView = {
         
-        let selectionItemViewSize: CGSize = .init(width: 48, height: 48)
+        let selectionItemViewSize: CGSize = .init(width: 48, height: 38)
         
         let columnView = AlarmPickerColumnView(
             itemSpacing: 12,
@@ -58,7 +58,7 @@ public final class AlarmPicker: UIView {
     }()
     private lazy var minuteColumnView: AlarmPickerColumnView = {
         
-        let selectionItemViewSize: CGSize = .init(width: 48, height: 48)
+        let selectionItemViewSize: CGSize = .init(width: 48, height: 38)
         let columnView = AlarmPickerColumnView(
             itemSpacing: 12,
             items: minuteColumns
