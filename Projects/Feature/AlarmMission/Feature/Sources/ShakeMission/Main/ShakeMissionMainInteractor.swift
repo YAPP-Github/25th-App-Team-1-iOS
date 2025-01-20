@@ -10,12 +10,15 @@ import FeatureDesignSystem
 import RIBs
 import RxSwift
 
+enum ShakeMissionMainRoutingRequest {
+    case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
+    case dismissAlert(completion: (()->Void)?=nil)
+    case exitPage
+}
+
 protocol ShakeMissionMainRouting: ViewableRouting {
     
-    func presentTwoButtonAlert(
-        config: DSTwoButtonAlert.Config,
-        listener: DSTwoButtonAlertViewControllerListener
-    )
+    func request(_ request: ShakeMissionMainRoutingRequest)
 }
 
 
@@ -58,13 +61,9 @@ extension ShakeMissionMainInteractor {
     func request(_ request: ShakeMissionMainPresenterRequest) {
         switch request {
         case .startMission:
-            return
+            break
         case .presentAlert(let config):
-            router?.presentTwoButtonAlert(
-                config: config,
-                listener: self
-            )
-            return
+            router?.request(.presentAlert(config, self))
         }
     }
 }
@@ -76,9 +75,9 @@ extension ShakeMissionMainInteractor {
     func action(_ action: DSTwoButtonAlertViewController.Action) {
         switch action {
         case .leftButtonClicked:
-            print("left")
+            router?.request(.dismissAlert())
         case .rightButtonClicked:
-            print("right")
+            router?.request(.exitPage)
         }
     }
 }

@@ -38,13 +38,22 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
 // MARK: ShakeMissionMainRouting
 extension ShakeMissionMainRouter {
     
-    func presentTwoButtonAlert(config: DSTwoButtonAlert.Config, listener: any DSTwoButtonAlertViewControllerListener) {
-        
-        presentAlert(
-            presentingController: viewController.uiviewController,
-            listener: listener,
-            config: config
-        )
+    func request(_ request: ShakeMissionMainRoutingRequest) {
+        switch request {
+        case .presentAlert(let config, let listener):
+            presentAlert(
+                presentingController: viewController.uiviewController,
+                listener: listener,
+                config: config
+            )
+        case .dismissAlert(let completion):
+            dismissAlert(
+                presentingController: viewController.uiviewController,
+                completion: completion
+            )
+        case .exitPage:
+            print("exit ShakeMissionMainPage")
+        }
     }
 }
 
