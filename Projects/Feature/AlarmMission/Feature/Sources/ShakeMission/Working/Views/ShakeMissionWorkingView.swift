@@ -28,6 +28,19 @@ class ShakeMissionWorkingView: UIView {
     // Sub views
     private let exitButton: ExitButton = .init()
     private let missionProgressView: MissionProgressView = .init(percent: 0.0)
+    private let amuletCardImage: UIImageView = .init().then {
+        $0.image = FeatureResourcesAsset.shakeMissionWorkingAmulet.image
+        $0.contentMode = .scaleAspectFit
+    }
+    
+    // - Label
+    private let labelStackView: UIStackView = .init().then {
+        $0.axis = .vertical
+        $0.spacing = 4
+        $0.alignment = .center
+    }
+    private let titleLabel: UILabel = .init()
+    private let shakeCountLabel: UILabel = .init()
     
     // - Background
     private var backgroundLayer: CAGradientLayer = .init()
@@ -85,6 +98,15 @@ private extension ShakeMissionWorkingView {
         
         // missionProgressView
         addSubview(missionProgressView)
+        
+        
+        // labelStackView
+        [titleLabel,shakeCountLabel].forEach({labelStackView.addArrangedSubview($0)})
+        addSubview(labelStackView)
+        
+        
+        // amuletCardImage
+        addSubview(amuletCardImage)
     }
     
     func setupLayout() {
@@ -115,6 +137,25 @@ private extension ShakeMissionWorkingView {
         missionProgressView.snp.makeConstraints { make in
             make.top.equalTo(exitButton.snp.bottom).offset(19)
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide).inset(20)
+        }
+        
+        
+        // labelStackView
+        labelStackView.snp.makeConstraints { make in
+            make.top.equalTo(missionProgressView.snp.bottom).offset(48)
+            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
+        }
+        
+        
+        // amuletCardImage
+        amuletCardImage.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        amuletCardImage.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        amuletCardImage.snp.makeConstraints { make in
+            make.top.equalTo(labelStackView.snp.bottom).offset(78)
+            make.left.greaterThanOrEqualTo(self.safeAreaLayoutGuide).inset(92)
+            make.right.lessThanOrEqualTo(self.safeAreaLayoutGuide).inset(92)
+            make.centerX.equalToSuperview()
+            make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide).priority(.required)
         }
     }
 }
