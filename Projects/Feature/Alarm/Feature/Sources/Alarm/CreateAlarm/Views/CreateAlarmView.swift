@@ -20,6 +20,9 @@ final class CreateAlarmView: UIView {
         case meridiemChanged(Meridiem)
         case hourChanged(Int)
         case minuteChanged(Int)
+        case selectWeekday(Set<DayOfWeek>)
+        case snoozeButtonTapped
+        case soundButtonTapped
         case doneButtonTapped
     }
     
@@ -80,7 +83,9 @@ private extension CreateAlarmView {
             $0.listener = self
             $0.updateToNow()
         }
-        
+        selectWeekDayView.do {
+            $0.listener = self
+        }
         doneButton.do {
             $0.buttonAction = { [weak self] in
                 self?.listener?.action(.doneButtonTapped)
@@ -130,5 +135,18 @@ extension CreateAlarmView: AlarmPickerListener {
         listener?.action(.meridiemChanged(meridiem))
         listener?.action(.hourChanged(hour))
         listener?.action(.minuteChanged(minute))
+    }
+}
+
+extension CreateAlarmView: SelectWeekDayViewListener {
+    func action(_ action: SelectWeekDayView.Action) {
+        switch action {
+        case let .selectWeekday(set):
+            listener?.action(.selectWeekday(set))
+        case .snoozeButtonTapped:
+            listener?.action(.snoozeButtonTapped)
+        case .soundButtonTapped:
+            listener?.action(.soundButtonTapped)
+        }
     }
 }

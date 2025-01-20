@@ -13,6 +13,9 @@ enum CreateAlarmPresentableListenerRequest {
     case meridiemChanged(Meridiem)
     case hourChanged(Int)
     case minuteChanged(Int)
+    case selectedDaysChanged(Set<DayOfWeek>)
+    case selectSnooze
+    case selectSound
     case done
 }
 
@@ -50,6 +53,12 @@ extension CreateAlarmViewController: CreateAlarmViewListener {
             listener?.request(.hourChanged(hour))
         case let .minuteChanged(minute):
             listener?.request(.minuteChanged(minute))
+        case let .selectWeekday(set):
+            listener?.request(.selectedDaysChanged(set))
+        case .snoozeButtonTapped:
+            listener?.request(.selectSnooze)
+        case .soundButtonTapped:
+            listener?.request(.selectSound)
         case .doneButtonTapped:
             listener?.request(.done)
         }

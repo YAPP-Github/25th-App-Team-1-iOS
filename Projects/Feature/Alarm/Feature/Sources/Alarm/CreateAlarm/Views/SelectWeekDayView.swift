@@ -23,7 +23,16 @@ enum DayOfWeek {
     static let weekends = Set([sunday, saturday])
 }
 
+protocol SelectWeekDayViewListener: AnyObject {
+    func action(_ action: SelectWeekDayView.Action)
+}
+
 final class SelectWeekDayView: UIView {
+    enum Action {
+        case selectWeekday(Set<DayOfWeek>)
+        case snoozeButtonTapped
+        case soundButtonTapped
+    }
     
     init() {
         super.init(frame: .zero)
@@ -34,6 +43,9 @@ final class SelectWeekDayView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Internal
+    weak var listener: SelectWeekDayViewListener?
     
     // MARK: - Properties
     private var selectedDays = Set<DayOfWeek>()
@@ -79,6 +91,7 @@ final class SelectWeekDayView: UIView {
         toggle.thumbTintColor = toggle.isOn ? R.Color.gray800 : R.Color.gray300
         isWeekendDisabled = toggle.isOn
         updateButtons()
+        listener?.action(.selectWeekday(selectedDays))
     }
     
     @objc
@@ -101,6 +114,7 @@ final class SelectWeekDayView: UIView {
         default:
             break
         }
+        listener?.action(.selectWeekday(selectedDays))
     }
     
     @objc
@@ -112,6 +126,7 @@ final class SelectWeekDayView: UIView {
             selectedDays.formUnion(DayOfWeek.weekdays)
         }
         updateButtons()
+        listener?.action(.selectWeekday(selectedDays))
     }
     
     @objc
@@ -123,6 +138,17 @@ final class SelectWeekDayView: UIView {
             selectedDays.formUnion(DayOfWeek.weekends)
         }
         updateButtons()
+        listener?.action(.selectWeekday(selectedDays))
+    }
+    
+    @objc
+    private func snoozeButtonTapped() {
+        listener?.action(.snoozeButtonTapped)
+    }
+    
+    @objc
+    private func soundButtonTapped() {
+        listener?.action(.soundButtonTapped)
     }
 }
 
@@ -210,6 +236,7 @@ private extension SelectWeekDayView {
  
         snoozeValueButton.do {
             $0.setAttributedTitle("5분, 무한".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+            $0.addTarget(self, action: #selector(snoozeButtonTapped), for: .touchUpInside)
         }
         
         soundTitleLabel.do {
@@ -218,6 +245,7 @@ private extension SelectWeekDayView {
         
         soundValueButton.do {
             $0.setAttributedTitle("진동, 알림음1".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+            $0.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
         }
         
         [

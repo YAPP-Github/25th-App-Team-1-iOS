@@ -45,6 +45,12 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
             alarm.hour = hour
         case let .minuteChanged(minute):
             alarm.minute = minute
+        case let .selectedDaysChanged(set):
+            print(set)
+        case .selectSnooze:
+            print("미루기 선택")
+        case .selectSound:
+            print("사운드 선택")
         case .done:
             createAlarm()
         }
