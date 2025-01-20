@@ -12,6 +12,8 @@ public protocol DSTwoButtonAlertPresentable: AnyObject {
     var alertTransitionDelegate: UIViewControllerTransitioningDelegate? { get set }
     
     func presentAlert(presentingController: UIViewController, listener: DSTwoButtonAlertViewControllerListener, config: DSTwoButtonAlert.Config)
+    
+    func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)?)
 }
 
 public extension DSTwoButtonAlertPresentable {
@@ -26,6 +28,12 @@ public extension DSTwoButtonAlertPresentable {
         alertController.transitioningDelegate = transitionDelegate
         alertController.modalPresentationStyle = .custom
         viewController.present(alertController, animated: true)
+    }
+    
+    func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)?=nil) {
+        if viewController.presentedViewController is DSTwoButtonAlertViewController {
+            viewController.dismiss(animated: true, completion: completion)
+        }
     }
 }
 
