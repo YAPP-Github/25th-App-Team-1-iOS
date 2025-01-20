@@ -10,14 +10,17 @@ import SnapKit
 import Then
 import FeatureResources
 
-enum WeekDay {
+enum DayOfWeek {
     case sunday
     case monday
     case tuesday
-    case wednesDay
+    case wednesday
     case thursday
     case friday
     case saturday
+    
+    static let weekdays = Set([monday, tuesday, wednesday, thursday, friday])
+    static let weekends = Set([sunday, saturday])
 }
 
 final class SelectWeekDayView: UIView {
@@ -32,11 +35,11 @@ final class SelectWeekDayView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private var selectedDays = Set<Weekday>()
+    private var selectedDays = Set<DayOfWeek>()
     
-    private let weekDayRepeatLabel = UILabel()
-    private let weekDayToggleButton = UIButton()
-    private let weekendToggleButton = UIButton()
+    private let weekdayRepeatLabel = UILabel()
+    private let weekdayToggleButton = UIButton(type: .system)
+    private let weekendToggleButton = UIButton(type: .system)
     
     private let sundayButton = DateItemButton()
     private let mondayButton = DateItemButton()
@@ -87,13 +90,15 @@ final class SelectWeekDayView: UIView {
         }
     }
     
-    private func toggleDay(day: Weekday) {
+    private func toggleDay(day: DayOfWeek) {
         if selectedDays.contains(day) {
             selectedDays.remove(day)
         } else {
             selectedDays.insert(day)
         }
         updateDayButtons()
+        updateToggleButtons()
+        
     }
     
     private func updateDayButtons() {
@@ -105,6 +110,48 @@ final class SelectWeekDayView: UIView {
         fridayButton.update(state: selectedDays.contains(.friday) ? .selected : .normal)
         saturdayButton.update(state: selectedDays.contains(.saturday) ? .selected : .normal)
     }
+    
+    private func updateToggleButtons() {
+        // 평일 반복 버튼
+        let isWeekdaySelected = DayOfWeek.weekdays.isSubset(of: selectedDays)
+        weekdayToggleButton.tintColor = isWeekdaySelected ? R.Color.main100 : R.Color.gray400
+        
+        // 주말 반복 버튼
+        let isWeekendSelected = DayOfWeek.weekends.isSubset(of: selectedDays)
+        weekendToggleButton.tintColor = isWeekendSelected ? R.Color.main100 : R.Color.gray400
+    }
+    
+    private var weekdayButtons: [DateItemButton] {
+        [mondayButton, tuesdayButton, wednesdayButton, thursdayButton, fridayButton]
+    }
+    
+    private var weekendButtons: [DateItemButton] {
+        [saturdayButton, sundayButton]
+    }
+    
+    @objc
+    private func weekdayToggleButtonTapped() {
+        let isWeekdaySelected = DayOfWeek.weekdays.isSubset(of: selectedDays)
+        if isWeekdaySelected {
+            selectedDays.subtract(DayOfWeek.weekdays)
+        } else {
+            selectedDays.formUnion(DayOfWeek.weekdays)
+        }
+        updateDayButtons()
+        updateToggleButtons()
+    }
+    
+    @objc
+    private func weekendToggleButtonTapped() {
+        let isWeekendSelected = DayOfWeek.weekends.isSubset(of: selectedDays)
+        if isWeekendSelected {
+            selectedDays.subtract(DayOfWeek.weekends)
+        } else {
+            selectedDays.formUnion(DayOfWeek.weekends)
+        }
+        updateDayButtons()
+        updateToggleButtons()
+    }
 }
 
 private extension SelectWeekDayView {
@@ -113,18 +160,20 @@ private extension SelectWeekDayView {
         layer.cornerRadius = 12
         layer.masksToBounds = true
         
-        weekDayRepeatLabel.do {
+        weekdayRepeatLabel.do {
             $0.displayText = "요일 반복".displayText(font: .body1SemiBold, color: R.Color.white100)
         }
-        weekDayToggleButton.do {
-            $0.setImage(FeatureResourcesAsset.icoCheck.image, for: .normal)
-            $0.setAttributedTitle("평일".displayText(font: .label1Medium, color: R.Color.gray400), for: .normal)
-            $0.setAttributedTitle("평일".displayText(font: .label1Medium, color: R.Color.main100), for: .selected)
+        weekdayToggleButton.do {
+            $0.setImage(FeatureResourcesAsset.icoCheck.image.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.tintColor = R.Color.gray400
+            $0.setAttributedTitle("평일".displayText(font: .label1Medium), for: .normal)
+            $0.addTarget(self, action: #selector(weekdayToggleButtonTapped), for: .touchUpInside)
         }
         weekendToggleButton.do {
-            $0.setImage(FeatureResourcesAsset.icoCheck.image, for: .normal)
-            $0.setAttributedTitle("주말".displayText(font: .label1Medium, color: R.Color.gray400), for: .normal)
-            $0.setAttributedTitle("주말".displayText(font: .label1Medium, color: R.Color.main100), for: .selected)
+            $0.setImage(FeatureResourcesAsset.icoCheck.image.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.tintColor = R.Color.gray400
+            $0.setAttributedTitle("주말".displayText(font: .label1Medium), for: .normal)
+            $0.addTarget(self, action: #selector(weekendToggleButtonTapped), for: .touchUpInside)
         }
         sundayButton.do {
             $0.update(title: "일")
@@ -200,7 +249,7 @@ private extension SelectWeekDayView {
         }
         
         [
-            weekDayRepeatLabel, weekDayToggleButton, weekendToggleButton,
+            weekdayRepeatLabel, weekdayToggleButton, weekendToggleButton,
             dayButtonsStackView,
             holidayImageView, holidayLabel, holidayToggle,
             snoozeDivider, snoozeTitleLabel, snoozeValueButton,
@@ -211,23 +260,23 @@ private extension SelectWeekDayView {
     }
     
     func layout() {
-        weekDayRepeatLabel.snp.makeConstraints {
+        weekdayRepeatLabel.snp.makeConstraints {
             $0.top.equalTo(16)
             $0.leading.equalTo(20)
         }
         
         weekendToggleButton.snp.makeConstraints {
             $0.trailing.equalTo(-20)
-            $0.centerY.equalTo(weekDayRepeatLabel)
+            $0.centerY.equalTo(weekdayRepeatLabel)
         }
         
-        weekDayToggleButton.snp.makeConstraints {
+        weekdayToggleButton.snp.makeConstraints {
             $0.trailing.equalTo(weekendToggleButton.snp.leading).offset(-2)
-            $0.centerY.equalTo(weekDayRepeatLabel)
+            $0.centerY.equalTo(weekdayRepeatLabel)
         }
         
         dayButtonsStackView.snp.makeConstraints {
-            $0.top.equalTo(weekDayRepeatLabel.snp.bottom).offset(12)
+            $0.top.equalTo(weekdayRepeatLabel.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
