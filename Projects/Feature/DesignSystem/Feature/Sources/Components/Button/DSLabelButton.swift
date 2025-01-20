@@ -9,10 +9,6 @@ import UIKit
 
 import FeatureResources
 
-public protocol LabelButtonListener: AnyObject {
-    func action(_ action: DSLabelButton.Action)
-}
-
 public class DSLabelButton: TouchDetectingView {
     
     public enum Action {
@@ -20,7 +16,7 @@ public class DSLabelButton: TouchDetectingView {
     }
     
     // Listener
-    weak var listener: LabelButtonListener?
+    public var buttonAction: (() -> Void)?
     
     
     // Sub views
@@ -41,7 +37,7 @@ public class DSLabelButton: TouchDetectingView {
     
     
     override func onTouchOut() {
-        listener?.action(.onTapped)
+        buttonAction?()
     }
 }
 
@@ -78,6 +74,11 @@ public extension DSLabelButton {
     struct Config {
         let font: R.Font
         let textColor: UIColor
+        
+        public init(font: R.Font, textColor: UIColor) {
+            self.font = font
+            self.textColor = textColor
+        }
     }
 }
 
