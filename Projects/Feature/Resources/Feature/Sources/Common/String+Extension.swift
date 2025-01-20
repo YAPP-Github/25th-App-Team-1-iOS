@@ -24,12 +24,19 @@ public extension String {
         let adjustedLetterSpacing = font.size * (font.letterSpacing / 100)
         let adjustedLineHeight = font.size * font.lineHeight
         let uiFont = font.toUIFont() ?? UIFont.systemFont(ofSize: font.size)
-//        let wordMinHeight = uiFont.ascender + abs(uiFont.descender)
-//        let baseLineOffset = (font.lineHeight-wordMinHeight)/2
+        
+        let paragraphStyle: NSMutableParagraphStyle = .init()
+        paragraphStyle.minimumLineHeight = adjustedLineHeight
+        paragraphStyle.maximumLineHeight = adjustedLineHeight
+        
+        let wordMinHeight = uiFont.ascender + abs(uiFont.descender)
+        let baseLineOffset = (adjustedLineHeight-wordMinHeight)/2
+        
         var attributes: [NSAttributedString.Key: Any] = [
             .font: uiFont,
             .kern: adjustedLetterSpacing, // 글자 간격
-            .paragraphStyle: toParagraphStyle(lineHeight: adjustedLineHeight),
+            .paragraphStyle: paragraphStyle,
+            .baselineOffset : baseLineOffset,
         ]
         if let color {
             attributes[.foregroundColor] = color
