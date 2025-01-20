@@ -21,11 +21,6 @@ protocol ShakeMissionMainViewControllable: ViewControllable {
 }
 
 final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable, ShakeMissionMainViewControllable>, ShakeMissionMainRouting, DSTwoButtonAlertPresentable, DSTwoButtonAlertViewControllerListener {
-
-    
-    // AlertTransition
-    var alertTransitionDelegate: UIViewControllerTransitioningDelegate?
-    
     
     // TODO: Constructor inject child builder protocols to allow building children.
     override init(interactor: ShakeMissionMainInteractable, viewController: ShakeMissionMainViewControllable) {

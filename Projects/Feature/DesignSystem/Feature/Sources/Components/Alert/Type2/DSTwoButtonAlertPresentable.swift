@@ -16,9 +16,7 @@ public extension DSTwoButtonAlertPresentable {
         let alertController = DSTwoButtonAlertViewController(config: config)
         alertController.listener = listener
         
-        let transitionDelegate = DSTwoButtonAlertTranstionDelegate()
-        self.alertTransitionDelegate = transitionDelegate
-        alertController.transitioningDelegate = transitionDelegate
+        alertController.transitioningDelegate = alertController
         alertController.modalPresentationStyle = .custom
         viewController.present(alertController, animated: true)
     }
