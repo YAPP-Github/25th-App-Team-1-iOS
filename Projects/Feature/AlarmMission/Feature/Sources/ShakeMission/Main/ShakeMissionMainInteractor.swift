@@ -43,3 +43,17 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
         // TODO: Pause any business logic.
     }
 }
+
+
+// MARK: ShakeMissionMainPresentableListener
+extension ShakeMissionMainInteractor {
+    
+    func request(_ request: ShakeMissionMainPresenterRequest) {
+        switch request {
+        case .startMission:
+            return
+        case .exitPage:
+            return
+        }
+    }
+}
