@@ -21,7 +21,8 @@ class ShakeMissionMainView: UIView {
     
     // Action
     enum Action {
-        
+        case startMissionButtonClicked
+        case rejectMissionButtonClicked
     }
     
     
@@ -46,6 +47,18 @@ class ShakeMissionMainView: UIView {
         $0.image = FeatureResourcesAsset.shakeMissionAmulet.image
         $0.contentMode = .scaleAspectFit
     }
+    
+    // - Buttons
+    private let startMissionButton: DSDefaultCTAButton = .init(
+        initialState: .active, style: .init(
+            type: .primary,
+            size: .large,
+            cornerRadius: .medium)
+    )
+    private let rejectMissionButton: DSLabelButton = .init(config: .init(
+        font: .body1SemiBold,
+        textColor: .white)
+    )
     
     // - Background
     private var backgroundLayer: CAGradientLayer = .init()
@@ -107,6 +120,24 @@ private extension ShakeMissionMainView {
         
         // amuletImage
         addSubview(amuletImage)
+        
+        
+        // startMissionButton
+        startMissionButton.update(title: "미션 시작")
+        startMissionButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.action(.startMissionButtonClicked)
+        }
+        addSubview(startMissionButton)
+        
+        
+        // rejectMissionButton
+        rejectMissionButton.update(titleText: "미션하지 않기")
+        rejectMissionButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.action(.rejectMissionButtonClicked)
+        }
+        addSubview(rejectMissionButton)
     }
     
     func setupLayout() {
@@ -141,10 +172,28 @@ private extension ShakeMissionMainView {
         
         
         // amuletImage
+        amuletImage.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        amuletImage.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         amuletImage.snp.makeConstraints { make in
             make.top.equalTo(titleLabelStack.snp.bottom).offset(76)
             make.left.greaterThanOrEqualTo(self.safeAreaInsets).inset(38)
             make.right.lessThanOrEqualTo(self.safeAreaInsets).inset(38)
+            make.bottom.lessThanOrEqualTo(startMissionButton.snp.top).inset(-41)
+        }
+        
+        
+        // startMissionButton
+        startMissionButton.setContentCompressionResistancePriority(.required, for: .vertical)
+        startMissionButton.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(self.safeAreaInsets).inset(20)
+            make.bottom.equalTo(rejectMissionButton.snp.top).offset(-8)
+        }
+        
+        
+        // rejectMissionButton
+        rejectMissionButton.snp.makeConstraints { make in
+            make.bottom.equalTo(self.safeAreaLayoutGuide).offset(-26)
+            make.centerX.equalToSuperview()
         }
     }
 }
