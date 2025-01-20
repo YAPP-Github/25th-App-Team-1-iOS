@@ -18,20 +18,15 @@ final class AlarmPickerItemView: UIView {
     
     
     // View model
-    let selectionItem: SelectionItem
+    let selectionItem: PickerSelectionItemable
     
-    
-    //
     private var contentSize: CGSize?
-    
     
     override var intrinsicContentSize: CGSize {
         return contentSize ?? super.intrinsicContentSize
     }
     
-    
-    init(item: SelectionItem) {
-        
+    init(item: PickerSelectionItemable) {
         self.selectionItem = item
         
         super.init(frame: .zero)
@@ -43,13 +38,12 @@ final class AlarmPickerItemView: UIView {
     
     
     private func setupUI() {
-        
         self.backgroundColor = .clear
     }
     
     
     @discardableResult
-    public func setTextStyle(font: R.Font, color: UIColor) -> Self {
+    func setTextStyle(font: R.Font, color: UIColor) -> Self {
         
         label.displayText = selectionItem.displayingText
             .displayText(font: font, color: color)
@@ -59,7 +53,7 @@ final class AlarmPickerItemView: UIView {
     
     
     @discardableResult
-    public func setContentSize(_ size: CGSize) -> Self {
+    func setContentSize(_ size: CGSize) -> Self {
         
         self.contentSize = size
         
