@@ -5,12 +5,19 @@
 //  Created by choijunios on 1/20/25.
 //
 
+import FeatureDesignSystem
+
 import RIBs
 import RxSwift
 
 protocol ShakeMissionMainRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    
+    func presentTwoButtonAlert(
+        config: DSTwoButtonAlert.Config,
+        listener: DSTwoButtonAlertViewControllerListener
+    )
 }
+
 
 protocol ShakeMissionMainPresentable: Presentable {
     var listener: ShakeMissionMainPresentableListener? { get set }
@@ -21,7 +28,7 @@ protocol ShakeMissionMainListener: AnyObject {
     // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
 }
 
-final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPresentable>, ShakeMissionMainInteractable, ShakeMissionMainPresentableListener {
+final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPresentable>, ShakeMissionMainInteractable, ShakeMissionMainPresentableListener, DSTwoButtonAlertViewControllerListener {
 
     weak var router: ShakeMissionMainRouting?
     weak var listener: ShakeMissionMainListener?
@@ -52,8 +59,26 @@ extension ShakeMissionMainInteractor {
         switch request {
         case .startMission:
             return
-        case .exitPage:
+        case .presentAlert(let config):
+            router?.presentTwoButtonAlert(
+                config: config,
+                listener: self
+            )
             return
+        }
+    }
+}
+
+
+// MARK: DSTwoButtonAlertViewControllerListener
+extension ShakeMissionMainInteractor {
+    
+    func action(_ action: DSTwoButtonAlertViewController.Action) {
+        switch action {
+        case .leftButtonClicked:
+            print("left")
+        case .rightButtonClicked:
+            print("right")
         }
     }
 }
