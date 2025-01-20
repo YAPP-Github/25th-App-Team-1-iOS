@@ -26,6 +26,7 @@ class ShakeMissionWorkingView: UIView {
     
     
     // Sub views
+    private let exitButton: ExitButton = .init()
     
     // - Background
     private var backgroundLayer: CAGradientLayer = .init()
@@ -75,6 +76,9 @@ private extension ShakeMissionWorkingView {
         [backgroundStar1,backgroundStar2,backgroundStar3]
             .forEach({ self.addSubview($0) })
         
+        
+        // exitButton
+        addSubview(exitButton)
     }
     
     func setupLayout() {
@@ -91,6 +95,13 @@ private extension ShakeMissionWorkingView {
         backgroundStar3.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(2.4)
             make.bottom.equalToSuperview().inset(6.8)
+        }
+        
+        
+        // exitButton
+        exitButton.snp.makeConstraints { make in
+            make.top.equalTo(self.safeAreaLayoutGuide).inset(11)
+            make.right.equalTo(self.safeAreaLayoutGuide).inset(20)
         }
     }
 }
