@@ -15,7 +15,25 @@ protocol ShakeMissionMainPresentableListener: AnyObject {
     // interactor class.
 }
 
-final class ShakeMissionMainViewController: UIViewController, ShakeMissionMainPresentable, ShakeMissionMainViewControllable {
+final class ShakeMissionMainViewController: UIViewController, ShakeMissionMainPresentable, ShakeMissionMainViewControllable, ShakeMissionMainViewListener {
 
     weak var listener: ShakeMissionMainPresentableListener?
+    
+    private(set) var mainView: ShakeMissionMainView?
+    
+    override func loadView() {
+        let mainView = ShakeMissionMainView()
+        self.mainView = mainView
+        self.view = mainView
+        mainView.listener = self
+    }
+}
+
+
+// MARK: ShakeMissionMainViewListener
+extension ShakeMissionMainViewController {
+    
+    func action(_ action: ShakeMissionMainView.Action) {
+        
+    }
 }
