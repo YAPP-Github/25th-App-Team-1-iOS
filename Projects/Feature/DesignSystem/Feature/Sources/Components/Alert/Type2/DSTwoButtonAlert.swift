@@ -50,7 +50,13 @@ public class DSTwoButtonAlert: UIView {
         $0.alignment = .fill
     }
     
-    public init() {
+    
+    // Configuration
+    public let config: Config
+    
+    
+    public init(config: Config) {
+        self.config = config
         super.init(frame: .zero)
         setupUI()
         setupLayout()
@@ -72,11 +78,21 @@ private extension DSTwoButtonAlert {
         // labels
         [titleLabel, subTitleLabel].forEach({labelStack.addArrangedSubview($0)})
         addSubview(labelStack)
+        titleLabel.displayText = config.titleText.displayText(
+            font: .heading1SemiBold,
+            color: R.Color.gray50
+        )
+        subTitleLabel.displayText = config.subTitleText.displayText(
+            font: .body1Regular,
+            color: R.Color.gray300
+        )
         
         
         // buttons
         [leftButton, rightButton].forEach({buttonStack.addArrangedSubview($0)})
         addSubview(buttonStack)
+        leftButton.update(title: config.leftButtonText)
+        rightButton.update(title: config.rightButtonText)
         
         
         // containerStack
@@ -96,31 +112,27 @@ private extension DSTwoButtonAlert {
 // MARK: Public interface
 public extension DSTwoButtonAlert {
     
-    @discardableResult
-    func update(titleText: String) -> Self {
-        self.titleLabel.displayText = titleText.displayText(
-            font: .heading1SemiBold,
-            color: R.Color.gray50
-        )
-        return self
-    }
-    
-    @discardableResult
-    func update(subTitleText: String) -> Self {
-        self.subTitleLabel.displayText = subTitleText.displayText(
-            font: .body1Regular,
-            color: R.Color.gray300
-        )
-        return self
+    struct Config {
+        let titleText: String
+        let subTitleText: String
+        let leftButtonText: String
+        let rightButtonText: String
+        
+        public init(titleText: String, subTitleText: String, leftButtonText: String, rightButtonText: String) {
+            self.titleText = titleText
+            self.subTitleText = subTitleText
+            self.leftButtonText = leftButtonText
+            self.rightButtonText = rightButtonText
+        }
     }
 }
 
 
 #Preview {
-    let view = DSTwoButtonAlert()
-    view.leftButton.update(title: "취소")
-    view.rightButton.update(title: "삭제")
-    view.update(titleText: "알람 삭제")
-    view.update(subTitleText: "삭제하시겠어요?")
-    return view
+    DSTwoButtonAlert(config: .init(
+        titleText: "이것은 타이틀 입니다.",
+        subTitleText: "이것은 서브타이틀 입니다.",
+        leftButtonText: "왼쪽",
+        rightButtonText: "오른쪽"
+    ))
 }
