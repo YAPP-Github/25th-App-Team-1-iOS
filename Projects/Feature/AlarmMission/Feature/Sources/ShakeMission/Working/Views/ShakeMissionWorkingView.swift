@@ -27,6 +27,7 @@ class ShakeMissionWorkingView: UIView {
     
     // Sub views
     private let exitButton: ExitButton = .init()
+    private let missionProgressView: MissionProgressView = .init(percent: 0.0)
     
     // - Background
     private var backgroundLayer: CAGradientLayer = .init()
@@ -52,6 +53,7 @@ class ShakeMissionWorkingView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
+        // backgroundLayer
         backgroundLayer.frame = self.layer.bounds
     }
 }
@@ -79,6 +81,10 @@ private extension ShakeMissionWorkingView {
         
         // exitButton
         addSubview(exitButton)
+        
+        
+        // missionProgressView
+        addSubview(missionProgressView)
     }
     
     func setupLayout() {
@@ -102,6 +108,13 @@ private extension ShakeMissionWorkingView {
         exitButton.snp.makeConstraints { make in
             make.top.equalTo(self.safeAreaLayoutGuide).inset(11)
             make.right.equalTo(self.safeAreaLayoutGuide).inset(20)
+        }
+        
+        
+        // missionProgressView
+        missionProgressView.snp.makeConstraints { make in
+            make.top.equalTo(exitButton.snp.bottom).offset(19)
+            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide).inset(20)
         }
     }
 }
