@@ -9,13 +9,13 @@ import UIKit
 
 import FeatureResources
 
-protocol LabelButtonListener: AnyObject {
+public protocol LabelButtonListener: AnyObject {
     func action(_ action: DSLabelButton.Action)
 }
 
-class DSLabelButton: TouchDetectingView {
+public class DSLabelButton: TouchDetectingView {
     
-    enum Action {
+    public enum Action {
         case onTapped
     }
     
@@ -31,9 +31,11 @@ class DSLabelButton: TouchDetectingView {
     let config: Config
     
     
-    init(config: Config) {
+    public init(config: Config) {
         self.config = config
         super.init(frame: .zero)
+        setupUI()
+        setupLayout()
     }
     required init?(coder: NSCoder) { nil }
     
@@ -44,22 +46,44 @@ class DSLabelButton: TouchDetectingView {
 }
 
 
+// MARK: Setup
+private extension DSLabelButton {
+    
+    func setupUI() {
+        addSubview(titleLabel)
+    }
+    
+    func setupLayout() {
+        titleLabel.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+}
+
+
 // MARK: Public interface
-extension LabelButton {
+public extension DSLabelButton {
     
     func update(titleText: String) {
         self.titleLabel.displayText = titleText.displayText(
-            font: .body1SemiBold,
-            color: .white
+            font: config.font,
+            color: config.textColor
         )
     }
 }
 
 
-extension LabelButton {
+public extension DSLabelButton {
     
     struct Config {
         let font: R.Font
         let textColor: UIColor
     }
+}
+
+
+#Preview {
+    let view = DSLabelButton(config: .init(font: .body1Medium, textColor: .black))
+    view.update(titleText: "안녕하세요")
+    return view
 }
