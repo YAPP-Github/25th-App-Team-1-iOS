@@ -10,7 +10,7 @@ import UIKit
 import FeatureResources
 import FeatureDesignSystem
 
-class ExitButton: TouchDetectingView {
+final class ExitButton: TouchDetectingView {
     
     // Action
     var buttonAction: (() -> Void)?

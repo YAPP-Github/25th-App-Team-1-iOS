@@ -9,7 +9,7 @@ import UIKit
 
 import FeatureResources
 
-class MissionProgressView: UIView {
+final class MissionProgressView: UIView {
     
     // Sub layer
     private let stickLayer: CALayer = .init()

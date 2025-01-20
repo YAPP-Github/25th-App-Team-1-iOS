@@ -14,7 +14,7 @@ protocol ShakeMissionWorkingViewListener: AnyObject {
     func action(_ action: ShakeMissionWorkingView.Action)
 }
 
-class ShakeMissionWorkingView: UIView {
+final class ShakeMissionWorkingView: UIView {
     
     // Action
     enum Action {
