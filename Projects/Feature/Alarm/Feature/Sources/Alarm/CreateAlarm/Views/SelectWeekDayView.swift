@@ -10,6 +10,16 @@ import SnapKit
 import Then
 import FeatureResources
 
+enum WeekDay {
+    case sunday
+    case monday
+    case tuesday
+    case wednesDay
+    case thursday
+    case friday
+    case saturday
+}
+
 final class SelectWeekDayView: UIView {
     
     init() {
@@ -21,6 +31,8 @@ final class SelectWeekDayView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    private var selectedDays = Set<Weekday>()
     
     private let weekDayRepeatLabel = UILabel()
     private let weekDayToggleButton = UIButton()
@@ -52,6 +64,47 @@ final class SelectWeekDayView: UIView {
     private func holidayToggleChanged(toggle: UISwitch) {
         toggle.thumbTintColor = toggle.isOn ? R.Color.gray800 : R.Color.gray300
     }
+    
+    @objc
+    private func dayButtonTapped(button: UIButton) {
+        switch button {
+        case sundayButton:
+            toggleDay(day: .sunday)
+        case mondayButton:
+            toggleDay(day: .monday)
+        case tuesdayButton:
+            toggleDay(day: .tuesday)
+        case wednesdayButton:
+            toggleDay(day: .wednesday)
+        case thursdayButton:
+            toggleDay(day: .thursday)
+        case fridayButton:
+            toggleDay(day: .friday)
+        case saturdayButton:
+            toggleDay(day: .saturday)
+        default:
+            break
+        }
+    }
+    
+    private func toggleDay(day: Weekday) {
+        if selectedDays.contains(day) {
+            selectedDays.remove(day)
+        } else {
+            selectedDays.insert(day)
+        }
+        updateDayButtons()
+    }
+    
+    private func updateDayButtons() {
+        sundayButton.isSelected = selectedDays.contains(.sunday)
+        mondayButton.isSelected = selectedDays.contains(.monday)
+        tuesdayButton.isSelected = selectedDays.contains(.tuesday)
+        wednesdayButton.isSelected = selectedDays.contains(.wednesday)
+        thursdayButton.isSelected = selectedDays.contains(.thursday)
+        fridayButton.isSelected = selectedDays.contains(.friday)
+        saturdayButton.isSelected = selectedDays.contains(.saturday)
+    }
 }
 
 private extension SelectWeekDayView {
@@ -64,40 +117,49 @@ private extension SelectWeekDayView {
             $0.displayText = "요일 반복".displayText(font: .body1SemiBold, color: R.Color.white100)
         }
         weekDayToggleButton.do {
+            $0.setImage(FeatureResourcesAsset.icoCheck.image, for: .normal)
             $0.setAttributedTitle("평일".displayText(font: .label1Medium, color: R.Color.gray400), for: .normal)
             $0.setAttributedTitle("평일".displayText(font: .label1Medium, color: R.Color.main100), for: .selected)
         }
         weekendToggleButton.do {
+            $0.setImage(FeatureResourcesAsset.icoCheck.image, for: .normal)
             $0.setAttributedTitle("주말".displayText(font: .label1Medium, color: R.Color.gray400), for: .normal)
             $0.setAttributedTitle("주말".displayText(font: .label1Medium, color: R.Color.main100), for: .selected)
         }
         sundayButton.do {
             $0.setAttributedTitle("일".displayText(font: .body1Medium, color: R.Color.gray300), for: .normal)
             $0.setAttributedTitle("일".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.addTarget(self, action: #selector(dayButtonTapped), for: .touchUpInside)
         }
         mondayButton.do {
             $0.setAttributedTitle("월".displayText(font: .body1Medium, color: R.Color.gray300), for: .normal)
             $0.setAttributedTitle("월".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.addTarget(self, action: #selector(dayButtonTapped), for: .touchUpInside)
         }
         tuesdayButton.do {
             $0.setAttributedTitle("화".displayText(font: .body1Medium, color: R.Color.gray300), for: .normal)
             $0.setAttributedTitle("화".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.addTarget(self, action: #selector(dayButtonTapped), for: .touchUpInside)
         }
         wednesdayButton.do {
             $0.setAttributedTitle("수".displayText(font: .body1Medium, color: R.Color.gray300), for: .normal)
             $0.setAttributedTitle("수".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.addTarget(self, action: #selector(dayButtonTapped), for: .touchUpInside)
         }
         thursdayButton.do {
             $0.setAttributedTitle("목".displayText(font: .body1Medium, color: R.Color.gray300), for: .normal)
             $0.setAttributedTitle("목".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.addTarget(self, action: #selector(dayButtonTapped), for: .touchUpInside)
         }
         fridayButton.do {
             $0.setAttributedTitle("금".displayText(font: .body1Medium, color: R.Color.gray300), for: .normal)
             $0.setAttributedTitle("금".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.addTarget(self, action: #selector(dayButtonTapped), for: .touchUpInside)
         }
         saturdayButton.do {
             $0.setAttributedTitle("토".displayText(font: .body1Medium, color: R.Color.gray300), for: .normal)
             $0.setAttributedTitle("토".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.addTarget(self, action: #selector(dayButtonTapped), for: .touchUpInside)
         }
         
         dayButtonsStackView.do {
