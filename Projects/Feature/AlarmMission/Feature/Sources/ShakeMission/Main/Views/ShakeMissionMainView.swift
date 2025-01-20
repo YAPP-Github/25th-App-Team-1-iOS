@@ -42,6 +42,10 @@ class ShakeMissionMainView: UIView {
     private let titleLabel: UILabel = .init().then {
         $0.displayText = "부적을 뒤집어줘".displayText(font: .title1Bold, color: .white)
     }
+    private let amuletImage: UIImageView = .init().then {
+        $0.image = FeatureResourcesAsset.shakeMissionAmulet.image
+        $0.contentMode = .scaleAspectFit
+    }
     
     // - Background
     private var backgroundLayer: CAGradientLayer = .init()
@@ -101,6 +105,8 @@ private extension ShakeMissionMainView {
         addSubview(titleLabelStack)
         
         
+        // amuletImage
+        addSubview(amuletImage)
     }
     
     func setupLayout() {
@@ -131,6 +137,14 @@ private extension ShakeMissionMainView {
         titleLabelStack.snp.makeConstraints { make in
             make.top.equalTo(tagLabelView.snp.bottom).offset(34)
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
+        }
+        
+        
+        // amuletImage
+        amuletImage.snp.makeConstraints { make in
+            make.top.equalTo(titleLabelStack.snp.bottom).offset(76)
+            make.left.greaterThanOrEqualTo(self.safeAreaInsets).inset(38)
+            make.right.lessThanOrEqualTo(self.safeAreaInsets).inset(38)
         }
     }
 }
