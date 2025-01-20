@@ -12,7 +12,7 @@ public protocol DSTwoButtonAlertViewControllerListener: AnyObject {
     func action(_ action: DSTwoButtonAlertViewController.Action)
 }
 
-public class DSTwoButtonAlertViewController: UIViewController {
+public final class DSTwoButtonAlertViewController: UIViewController {
     
     // Action
     public enum Action {
@@ -25,15 +25,11 @@ public class DSTwoButtonAlertViewController: UIViewController {
     
     
     // Sub views
-    private let alertView: DSTwoButtonAlert = .init()
+    private let alertView: DSTwoButtonAlert
     
     
-    // Config
-    public let config: Config
-    
-    
-    public init(config: Config) {
-        self.config = config
+    public init(config: DSTwoButtonAlert.Config) {
+        self.alertView = .init(config: config)
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) { nil }
@@ -50,11 +46,6 @@ public class DSTwoButtonAlertViewController: UIViewController {
         view.backgroundColor = UIColor(hex: "#17191F").withAlphaComponent(0.9)
         
         // alertView
-        alertView
-            .update(titleText: config.titleText)
-            .update(subTitleText: config.subTitleText)
-        alertView.leftButton.update(title: config.leftButtonText)
-        alertView.rightButton.update(title: config.rightButtonText)
         alertView.leftButton.buttonAction = { [weak self] in
             self?.listener?.action(.leftButtonClicked)
         }
@@ -70,25 +61,6 @@ public class DSTwoButtonAlertViewController: UIViewController {
         alertView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(33.5)
-        }
-    }
-}
-
-
-// MARK: Configuration
-public extension DSTwoButtonAlertViewController {
-    
-    struct Config {
-        let titleText: String
-        let subTitleText: String
-        let leftButtonText: String
-        let rightButtonText: String
-        
-        public init(titleText: String, subTitleText: String, leftButtonText: String, rightButtonText: String) {
-            self.titleText = titleText
-            self.subTitleText = subTitleText
-            self.leftButtonText = leftButtonText
-            self.rightButtonText = rightButtonText
         }
     }
 }
