@@ -35,8 +35,11 @@ final class SelectWeekDayView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Properties
     private var selectedDays = Set<DayOfWeek>()
+    private var isWeekendDisabled = false
     
+    // MARK: - Views
     private let weekdayRepeatLabel = UILabel()
     private let weekdayToggleButton = UIButton(type: .system)
     private let weekendToggleButton = UIButton(type: .system)
@@ -48,6 +51,14 @@ final class SelectWeekDayView: UIView {
     private let thursdayButton = DateItemButton()
     private let fridayButton = DateItemButton()
     private let saturdayButton = DateItemButton()
+    
+    private var weekdayButtons: [DateItemButton] {
+        [mondayButton, tuesdayButton, wednesdayButton, thursdayButton, fridayButton]
+    }
+    
+    private var weekendButtons: [DateItemButton] {
+        [saturdayButton, sundayButton]
+    }
     
     private let dayButtonsStackView = UIStackView()
     
@@ -66,6 +77,8 @@ final class SelectWeekDayView: UIView {
     @objc
     private func holidayToggleChanged(toggle: UISwitch) {
         toggle.thumbTintColor = toggle.isOn ? R.Color.gray800 : R.Color.gray300
+        isWeekendDisabled = toggle.isOn
+        updateButtons()
     }
     
     @objc
@@ -90,45 +103,6 @@ final class SelectWeekDayView: UIView {
         }
     }
     
-    private func toggleDay(day: DayOfWeek) {
-        if selectedDays.contains(day) {
-            selectedDays.remove(day)
-        } else {
-            selectedDays.insert(day)
-        }
-        updateDayButtons()
-        updateToggleButtons()
-        
-    }
-    
-    private func updateDayButtons() {
-        sundayButton.update(state: selectedDays.contains(.sunday) ? .selected : .normal)
-        mondayButton.update(state: selectedDays.contains(.monday) ? .selected : .normal)
-        tuesdayButton.update(state: selectedDays.contains(.tuesday) ? .selected : .normal)
-        wednesdayButton.update(state: selectedDays.contains(.wednesday) ? .selected : .normal)
-        thursdayButton.update(state: selectedDays.contains(.thursday) ? .selected : .normal)
-        fridayButton.update(state: selectedDays.contains(.friday) ? .selected : .normal)
-        saturdayButton.update(state: selectedDays.contains(.saturday) ? .selected : .normal)
-    }
-    
-    private func updateToggleButtons() {
-        // 평일 반복 버튼
-        let isWeekdaySelected = DayOfWeek.weekdays.isSubset(of: selectedDays)
-        weekdayToggleButton.tintColor = isWeekdaySelected ? R.Color.main100 : R.Color.gray400
-        
-        // 주말 반복 버튼
-        let isWeekendSelected = DayOfWeek.weekends.isSubset(of: selectedDays)
-        weekendToggleButton.tintColor = isWeekendSelected ? R.Color.main100 : R.Color.gray400
-    }
-    
-    private var weekdayButtons: [DateItemButton] {
-        [mondayButton, tuesdayButton, wednesdayButton, thursdayButton, fridayButton]
-    }
-    
-    private var weekendButtons: [DateItemButton] {
-        [saturdayButton, sundayButton]
-    }
-    
     @objc
     private func weekdayToggleButtonTapped() {
         let isWeekdaySelected = DayOfWeek.weekdays.isSubset(of: selectedDays)
@@ -137,8 +111,7 @@ final class SelectWeekDayView: UIView {
         } else {
             selectedDays.formUnion(DayOfWeek.weekdays)
         }
-        updateDayButtons()
-        updateToggleButtons()
+        updateButtons()
     }
     
     @objc
@@ -149,8 +122,7 @@ final class SelectWeekDayView: UIView {
         } else {
             selectedDays.formUnion(DayOfWeek.weekends)
         }
-        updateDayButtons()
-        updateToggleButtons()
+        updateButtons()
     }
 }
 
@@ -331,5 +303,54 @@ private extension SelectWeekDayView {
             $0.trailing.equalTo(-20)
             $0.centerY.equalTo(soundTitleLabel)
         }
+    }
+}
+
+private extension SelectWeekDayView {
+    private func toggleDay(day: DayOfWeek) {
+        if selectedDays.contains(day) {
+            selectedDays.remove(day)
+        } else {
+            selectedDays.insert(day)
+        }
+        updateButtons()
+    }
+    
+    func updateButtons() {
+        updateDayOfWeekButtons()
+        updateToggleButtons()
+    }
+    
+    func updateDayOfWeekButtons() {
+        if isWeekendDisabled {
+            selectedDays.subtract(DayOfWeek.weekends)
+            sundayButton.update(state: .disabled)
+            sundayButton.isEnabled = false
+            
+            saturdayButton.update(state: .disabled)
+            saturdayButton.isEnabled = false
+        } else {
+            sundayButton.update(state: selectedDays.contains(.sunday) ? .selected : .normal)
+            sundayButton.isEnabled = true
+            
+            saturdayButton.update(state: selectedDays.contains(.saturday) ? .selected : .normal)
+            saturdayButton.isEnabled = true
+        }
+        
+        mondayButton.update(state: selectedDays.contains(.monday) ? .selected : .normal)
+        tuesdayButton.update(state: selectedDays.contains(.tuesday) ? .selected : .normal)
+        wednesdayButton.update(state: selectedDays.contains(.wednesday) ? .selected : .normal)
+        thursdayButton.update(state: selectedDays.contains(.thursday) ? .selected : .normal)
+        fridayButton.update(state: selectedDays.contains(.friday) ? .selected : .normal)
+    }
+    
+    func updateToggleButtons() {
+        // 평일 반복 버튼
+        let isWeekdaySelected = DayOfWeek.weekdays.isSubset(of: selectedDays)
+        weekdayToggleButton.tintColor = isWeekdaySelected ? R.Color.main100 : R.Color.gray400
+        
+        // 주말 반복 버튼
+        let isWeekendSelected = DayOfWeek.weekends.isSubset(of: selectedDays)
+        weekendToggleButton.tintColor = isWeekendSelected ? R.Color.main100 : R.Color.gray400
     }
 }
