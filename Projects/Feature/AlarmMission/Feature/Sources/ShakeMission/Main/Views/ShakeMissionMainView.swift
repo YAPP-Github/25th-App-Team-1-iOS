@@ -30,6 +30,18 @@ class ShakeMissionMainView: UIView {
     
     
     // Sub views
+    private let tagLabelView: TagLabelView = .init().then {$0.update(text: "기상미션")}
+    private let titleLabelStack: UIStackView = .init().then {
+        $0.axis = .vertical
+        $0.spacing = 8
+        $0.alignment = .center
+    }
+    private let subTitleLabel: UILabel = .init().then {
+        $0.displayText = "10회를 흔들어".displayText(font: .headline2Medium, color: .white)
+    }
+    private let titleLabel: UILabel = .init().then {
+        $0.displayText = "부적을 뒤집어줘".displayText(font: .title1Bold, color: .white)
+    }
     
     // - Background
     private var backgroundLayer: CAGradientLayer = .init()
@@ -80,7 +92,15 @@ private extension ShakeMissionMainView {
             .forEach({ self.addSubview($0) })
         
         
-        //
+        // tagLabel
+        addSubview(tagLabelView)
+        
+        
+        // titleLabels
+        [subTitleLabel, titleLabel].forEach({ titleLabelStack.addArrangedSubview($0) })
+        addSubview(titleLabelStack)
+        
+        
     }
     
     func setupLayout() {
@@ -97,6 +117,20 @@ private extension ShakeMissionMainView {
         backgroundStar3.snp.makeConstraints { make in
             make.left.equalToSuperview().inset(-2.5)
             make.top.equalTo(self.safeAreaLayoutGuide).inset(148)
+        }
+        
+        
+        // tagLabel
+        tagLabelView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(self.safeAreaLayoutGuide).inset(59)
+        }
+        
+        
+        // titleLabels
+        titleLabelStack.snp.makeConstraints { make in
+            make.top.equalTo(tagLabelView.snp.bottom).offset(34)
+            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
         }
     }
 }
