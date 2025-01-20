@@ -36,7 +36,7 @@ public class DSLabelButton: TouchDetectingView {
     required init?(coder: NSCoder) { nil }
     
     
-    override func onTouchOut() {
+    public override func onTouchOut() {
         buttonAction?()
     }
 }

@@ -26,7 +26,7 @@ public final class DSDefaultCTAButton: TouchDetectingView {
     
     // Gesture
     private let tapRecognizer: UITapGestureRecognizer = .init()
-    override func onTouchIn() {
+    public override func onTouchIn() {
         self.backgroundColor = style.type.pressedBackgroundColor
         self.titleLabel.displayText = title.displayText(
             font: style.size.font,
@@ -35,7 +35,7 @@ public final class DSDefaultCTAButton: TouchDetectingView {
         self.layer.cornerRadius = style.cornerRadius.pressedValue
     }
     
-    override func onTouchOut() {
+    public override func onTouchOut() {
         self.backgroundColor = style.type.backgroundColor
         self.titleLabel.displayText = title.displayText(
             font: style.size.font,
