@@ -50,12 +50,6 @@ public class DSTwoButtonAlert: UIView {
         $0.alignment = .fill
     }
     
-    
-    // Interaction
-    public var leftButtonAction: (() -> Void)?
-    public var rightButtonAction: (() -> Void)?
-    
-    
     public init() {
         super.init(frame: .zero)
         setupUI()
