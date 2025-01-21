@@ -159,3 +159,40 @@ private extension ShakeMissionWorkingView {
         }
     }
 }
+
+
+// MARK: Shake amulet animation
+private extension ShakeMissionWorkingView {
+    
+    func startShakeGuideAnim() {
+        if amuletCardImage.layer.animation(forKey: "shake_guide") != nil &&
+            amuletCardImage.layer.animation(forKey: "shake_guide_adjust") != nil { return }
+        let guideAnimation = CAKeyframeAnimation(keyPath: "transform.rotation.z")
+        guideAnimation.values = [0,(CGFloat.pi/180)*10,0,0,-(CGFloat.pi/180)*10,0]
+        guideAnimation.keyTimes = [0.1,0.2,0.4,0.5,0.65,1.0]
+        guideAnimation.duration = 1.75
+        guideAnimation.repeatCount = .infinity
+        amuletCardImage.layer.add(guideAnimation, forKey: "shake_guide")
+    }
+    
+    func stopShakeGuideAnim() {
+        guard amuletCardImage.layer.animation(forKey: "shake_guide") != nil else { return }
+        let currentTransform = amuletCardImage.layer.presentation()
+        amuletCardImage.layer.removeAnimation(forKey: "shake_guide")
+        amuletCardImage.layer.transform = currentTransform!.transform
+        let adjustAnim = CABasicAnimation(keyPath: "transform.rotation.z")
+        adjustAnim.toValue = 0
+        adjustAnim.duration = 0.5
+        adjustAnim.fillMode = .forwards
+        adjustAnim.isRemovedOnCompletion = false
+        amuletCardImage.layer.add(adjustAnim, forKey: "shake_guide_adjust")
+        DispatchQueue.main.asyncAfter(deadline: .now()+0.5) { [weak self] in
+            guard let self else { return }
+            
+            guard amuletCardImage.layer.animation(forKey: "shake_guide_adjust") != nil else { return }
+            let currentTransform = amuletCardImage.layer.presentation()
+            amuletCardImage.layer.removeAnimation(forKey: "shake_guide_adjust")
+            amuletCardImage.layer.transform = currentTransform!.transform
+        }
+    }
+}
