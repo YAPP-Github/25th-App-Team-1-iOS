@@ -161,9 +161,38 @@ private extension ShakeMissionWorkingView {
 }
 
 
-// MARK: Shake amulet animation
-private extension ShakeMissionWorkingView {
+// MARK: Public interface
+extension ShakeMissionWorkingView {
     
+    @discardableResult
+    func update(titleText: String) -> Self {
+        self.titleLabel.displayText = titleText.displayText(
+            font: .heading2SemiBold,
+            color: R.Color.white100
+        )
+        return self
+    }
+    
+    
+    @discardableResult
+    func update(countText: String) -> Self {
+        self.shakeCountLabel.displayText = countText.displayText(
+            font: .displaySemiBold,
+            color: R.Color.white100
+        )
+        return self
+    }
+    
+    
+    @discardableResult
+    /// 입력값 범위: 0.0...1.0
+    func update(progress: Double) -> Self {
+        self.missionProgressView.update(progress: progress)
+        return self
+    }
+    
+    
+    // MARK: Shake amulet animation
     func startShakeGuideAnim() {
         if amuletCardImage.layer.animation(forKey: "shake_guide") != nil &&
             amuletCardImage.layer.animation(forKey: "shake_guide_adjust") != nil { return }
