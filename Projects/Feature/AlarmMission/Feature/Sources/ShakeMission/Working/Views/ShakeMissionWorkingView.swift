@@ -24,14 +24,16 @@ final class ShakeMissionWorkingView: UIView {
     // Listener
     weak var listener: ShakeMissionWorkingViewListener?
     
+    var group: CAAnimationGroup?
     
     // Sub views
     private let exitButton: ExitButton = .init()
     private let missionProgressView: MissionProgressView = .init(percent: 0.0)
-    private let amuletCardImage: UIImageView = .init().then {
-        $0.image = FeatureResourcesAsset.shakeMissionWorkingAmulet.image
+    private let amuletCardBackImage: UIImageView = .init().then {
+        $0.image = FeatureResourcesAsset.shakeMissionWorkingAmuletBack.image
         $0.contentMode = .scaleAspectFit
     }
+    private var amuletCardFrontImageLayer: CALayer?
     
     // - Label
     private let labelStackView: UIStackView = .init().then {
@@ -115,8 +117,8 @@ private extension ShakeMissionWorkingView {
         
         
         // amuletCardImage
-        amuletCardImage.alpha = 0
-        addSubview(amuletCardImage)
+        amuletCardBackImage.alpha = 0
+        addSubview(amuletCardBackImage)
     }
     
     func setupLayout() {
@@ -158,9 +160,9 @@ private extension ShakeMissionWorkingView {
         
         
         // amuletCardImage
-        amuletCardImage.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-        amuletCardImage.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        amuletCardImage.snp.makeConstraints { make in
+        amuletCardBackImage.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        amuletCardBackImage.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        amuletCardBackImage.snp.makeConstraints { make in
             make.top.equalTo(labelStackView.snp.bottom).offset(78)
             make.left.greaterThanOrEqualTo(self.safeAreaLayoutGuide).inset(92)
             make.right.lessThanOrEqualTo(self.safeAreaLayoutGuide).inset(92)
@@ -197,19 +199,15 @@ extension ShakeMissionWorkingView {
             }
             
         case .working:
-            
             missionProgressView.alpha = 1
             labelStackView.alpha = 1
-            amuletCardImage.alpha = 1
+            amuletCardBackImage.alpha = 1
             
             startShakeGuideAnim()
             
-            // Shake모션 감지
-            
         case .success:
-            
-            // 미션성공
-            break
+            stopShakeGuideAnim()
+            startZoomInAndFlipAnim()
         }
         
         return self
@@ -244,36 +242,85 @@ extension ShakeMissionWorkingView {
     }
     
     
-    // MARK: Shake amulet animation
+    // MARK: Animation
+    private enum AnimationConfig {
+        // Duration
+        static let shakeGuideAnimDuration = 1.75
+        static let successZoomInAnimDuration = 0.35
+        static let successFlipAnimDuration = 1.0
+        
+        // Value
+        static let successZoomInValue = 1.25
+    }
+    
+    // - Shake amulet animation
     func startShakeGuideAnim() {
-        if amuletCardImage.layer.animation(forKey: "shake_guide") != nil &&
-            amuletCardImage.layer.animation(forKey: "shake_guide_adjust") != nil { return }
+        if amuletCardBackImage.layer.animation(forKey: "shake_guide") != nil { return }
         let guideAnimation = CAKeyframeAnimation(keyPath: "transform.rotation.z")
         guideAnimation.values = [0,(CGFloat.pi/180)*10,0,0,-(CGFloat.pi/180)*10,0]
         guideAnimation.keyTimes = [0.1,0.2,0.4,0.5,0.65,1.0]
-        guideAnimation.duration = 1.75
+        guideAnimation.duration = AnimationConfig.shakeGuideAnimDuration
         guideAnimation.repeatCount = .infinity
-        amuletCardImage.layer.add(guideAnimation, forKey: "shake_guide")
+        amuletCardBackImage.layer.add(guideAnimation, forKey: "shake_guide")
     }
     
     func stopShakeGuideAnim() {
-        guard amuletCardImage.layer.animation(forKey: "shake_guide") != nil else { return }
-        let currentTransform = amuletCardImage.layer.presentation()
-        amuletCardImage.layer.removeAnimation(forKey: "shake_guide")
-        amuletCardImage.layer.transform = currentTransform!.transform
-        let adjustAnim = CABasicAnimation(keyPath: "transform.rotation.z")
-        adjustAnim.toValue = 0
-        adjustAnim.duration = 0.5
-        adjustAnim.fillMode = .forwards
-        adjustAnim.isRemovedOnCompletion = false
-        amuletCardImage.layer.add(adjustAnim, forKey: "shake_guide_adjust")
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.5) { [weak self] in
+        guard amuletCardBackImage.layer.animation(forKey: "shake_guide") != nil else { return }
+        amuletCardBackImage.layer.removeAnimation(forKey: "shake_guide")
+    }
+    
+    
+    // - Zoom in & Flips animation
+    func startZoomInAndFlipAnim() {
+        let zoomInAnim = CABasicAnimation(keyPath: "transform.scale")
+        zoomInAnim.fromValue = 1.0
+        zoomInAnim.toValue = AnimationConfig.successZoomInValue
+        zoomInAnim.duration = AnimationConfig.successZoomInAnimDuration
+        zoomInAnim.fillMode = .forwards
+        zoomInAnim.isRemovedOnCompletion = false
+        amuletCardBackImage.layer.add(zoomInAnim, forKey: "success_zoom_in")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()+AnimationConfig.successZoomInAnimDuration) { [weak self] in
             guard let self else { return }
             
-            guard amuletCardImage.layer.animation(forKey: "shake_guide_adjust") != nil else { return }
-            let currentTransform = amuletCardImage.layer.presentation()
-            amuletCardImage.layer.removeAnimation(forKey: "shake_guide_adjust")
-            amuletCardImage.layer.transform = currentTransform!.transform
+            amuletCardBackImage.layer.isDoubleSided = true
+            amuletCardBackImage.layer.zPosition = 1000
+            let flipAnim1 = CABasicAnimation(keyPath: "transform.rotation.y")
+            flipAnim1.fromValue = 0
+            flipAnim1.toValue = CGFloat.pi/2
+            flipAnim1.duration = AnimationConfig.successFlipAnimDuration
+            flipAnim1.fillMode = .forwards
+            flipAnim1.isRemovedOnCompletion = false
+            amuletCardBackImage.layer.add(flipAnim1, forKey: "success_flip")
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()+AnimationConfig.successZoomInAnimDuration+AnimationConfig.successFlipAnimDuration) { [weak self] in
+            guard let self else { return }
+            
+            let amuletCardFrontImageLayer = createAmuletFrontView()
+            amuletCardFrontImageLayer.isDoubleSided = true
+            amuletCardFrontImageLayer.zPosition = 1001
+            let flipAnim2 = CABasicAnimation(keyPath: "transform.rotation.y")
+            flipAnim2.fromValue = CGFloat.pi*2 * 3/4
+            flipAnim2.toValue = CGFloat.pi*2
+            flipAnim2.duration = AnimationConfig.successFlipAnimDuration
+            flipAnim2.fillMode = .forwards
+            flipAnim2.isRemovedOnCompletion = false
+            amuletCardFrontImageLayer.add(flipAnim2, forKey: "success_flip")
+        }
+    }
+    
+    private func createAmuletFrontView() -> CALayer {
+        let imageLayer = CALayer()
+        imageLayer.frame = amuletCardBackImage.layer.frame
+        imageLayer.contents = FeatureResourcesAsset.shakeMissionWorkingAmuletFront.image.cgImage
+        imageLayer.contentsGravity = .resizeAspect
+        imageLayer.setAffineTransform(.init(
+            scaleX: AnimationConfig.successZoomInValue,
+            y: AnimationConfig.successZoomInValue
+        ))
+        self.layer.addSublayer(imageLayer)
+        self.amuletCardFrontImageLayer = imageLayer
+        return imageLayer
     }
 }

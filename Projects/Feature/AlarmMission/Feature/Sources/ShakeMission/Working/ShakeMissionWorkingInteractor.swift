@@ -28,6 +28,7 @@ enum ShakeMissionWorkingInteractorRequest {
     case startShakeMissionFlow(successShakeCount: Int)
     case updateSuccessCount(Int)
     case updateMissionProgressPercent(Double)
+    case startSuccessFlow
 }
 
 
@@ -44,6 +45,7 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
     // Mission configuration
     private let successShakeCount = 10
     private var currentShakeCount = 0
+    private var isMissionSuccess = false
     
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
@@ -86,8 +88,9 @@ extension ShakeMissionWorkingInteractor {
                 presenter.request(.updateMissionProgressPercent(percent))
             }
             
-            if currentShakeCount >= successShakeCount {
-                // 미션완료 조건을 충족한 경우
+            if !isMissionSuccess, currentShakeCount >= successShakeCount {
+                self.isMissionSuccess = true
+                presenter.request(.startSuccessFlow)
             }
         }
     }

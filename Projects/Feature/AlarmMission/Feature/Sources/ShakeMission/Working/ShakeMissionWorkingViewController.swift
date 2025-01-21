@@ -55,6 +55,7 @@ extension ShakeMissionWorkingViewController {
     func request(_ request: ShakeMissionWorkingInteractorRequest) {
         switch request {
         case .startShakeMissionFlow(let successShakeCount):
+            // 가이드 플로우 시작
             mainView
                 .update(progress: 0.0)
                 .update(countText: "0")
@@ -76,6 +77,13 @@ extension ShakeMissionWorkingViewController {
             mainView.update(countText: "\(newCount)")
         case .updateMissionProgressPercent(let newPercent):
             mainView.update(progress: newPercent)
+        case .startSuccessFlow:
+            // 모션 감지 종료
+            self.shakeDetecter?.stopDetection()
+            self.shakeDetecter = nil
+            
+            // 성공 프로우 시작
+            mainView.update(missionState: .success)
         }
     }
 }
