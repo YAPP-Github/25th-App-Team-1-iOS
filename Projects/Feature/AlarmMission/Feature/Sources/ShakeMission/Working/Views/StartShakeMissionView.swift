@@ -30,7 +30,7 @@ final class StartShakeMissionView: UIView {
     private func setupUI() {
         
         // self
-        self.layer.backgroundColor = UIColor.clear.cgColor
+        self.backgroundColor = UIColor(hex: "#17191F").withAlphaComponent(0.7)
         
         // titleLabel
         titleLabel.transform = titleLabel.transform.scaledBy(x: 0, y: 0)
@@ -53,21 +53,9 @@ extension StartShakeMissionView {
     
     func startShowUpAnimation(duration: CGFloat, completion: (()->Void)? = nil) {
         
-        if self.layer.animation(forKey: "showup_backround") != nil, titleLabel.layer.animation(forKey: "showup_title") != nil {
-            self.layer.removeAnimation(forKey: "showup_backround")
+        if titleLabel.layer.animation(forKey: "showup_title") != nil {
             titleLabel.layer.removeAnimation(forKey: "showup_title")
         }
-        
-        // Background animation
-        let backgroundAnim = CABasicAnimation(keyPath: "backgroundColor")
-        let targetBackgroundColor = UIColor(hex: "#17191F").withAlphaComponent(0.7).cgColor
-        backgroundAnim.fromValue = UIColor.clear.cgColor
-        backgroundAnim.toValue = targetBackgroundColor
-        backgroundAnim.duration = duration
-        backgroundAnim.fillMode = .forwards
-        backgroundAnim.isRemovedOnCompletion = false
-        self.layer.add(backgroundAnim, forKey: "showup_backround")
-        
         
         // Text animation
         let springAnimation = CASpringAnimation(keyPath: "transform.scale")

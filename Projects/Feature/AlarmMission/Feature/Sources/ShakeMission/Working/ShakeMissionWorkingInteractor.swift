@@ -12,9 +12,14 @@ protocol ShakeMissionWorkingRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum ShakeMissionWorkingInteractorRequest {
+    case startShakeMissionFlow(successShakeCount: Int)
+}
+
 protocol ShakeMissionWorkingPresentable: Presentable {
     var listener: ShakeMissionWorkingPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    
+    func request(_ request: ShakeMissionWorkingInteractorRequest)
 }
 
 protocol ShakeMissionWorkingListener: AnyObject {
@@ -25,6 +30,12 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
 
     weak var router: ShakeMissionWorkingRouting?
     weak var listener: ShakeMissionWorkingListener?
+    
+    
+    // Mission configuration
+    private let successShakeCount = 10
+    private var currentShakeCount = 0
+    
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
@@ -41,5 +52,19 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+}
+
+
+// MARK: ShakeMissionWorkingPresentableListener
+extension ShakeMissionWorkingInteractor {
+    
+    func request(_ request: ShakeMissionWorkingPresenterRequest) {
+        switch request {
+        case .startMission:
+            presenter.request(.startShakeMissionFlow(
+                successShakeCount: successShakeCount
+            ))
+        }
     }
 }

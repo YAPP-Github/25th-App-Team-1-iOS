@@ -54,6 +54,9 @@ final class ShakeMissionWorkingView: UIView {
         $0.image = FeatureResourcesAsset.shakeMissionStar1.image
     }
     
+    // Mission start view
+    private var startShakeMissionView: StartShakeMissionView?
+    
     
     init() {
         super.init(frame: .zero)
@@ -163,6 +166,50 @@ private extension ShakeMissionWorkingView {
 
 // MARK: Public interface
 extension ShakeMissionWorkingView {
+    
+    enum MissionState {
+        case guide
+        case working
+        case success
+    }
+    
+    @discardableResult
+    func update(missionState state: MissionState, completion: (()->Void)?=nil) -> Self {
+        switch state {
+        case .guide:
+            missionProgressView.alpha = 0
+            labelStackView.alpha = 0
+            
+            let startMissionView = StartShakeMissionView()
+            addSubview(startMissionView)
+            startMissionView.snp.makeConstraints({ $0.edges.equalToSuperview() })
+            self.startShakeMissionView = startMissionView
+            
+            startMissionView.startShowUpAnimation(duration: 1.0)
+            DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
+                self?.startShakeMissionView?.removeFromSuperview()
+                self?.startShakeMissionView = nil
+                completion?()
+            }
+            
+        case .working:
+            
+            missionProgressView.alpha = 1
+            labelStackView.alpha = 1
+            
+            startShakeGuideAnim()
+            
+            // Shake모션 감지
+            
+        case .success:
+            
+            // 미션성공
+            break
+        }
+        
+        return self
+    }
+    
     
     @discardableResult
     func update(titleText: String) -> Self {

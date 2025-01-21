@@ -10,9 +10,13 @@ import RxSwift
 import UIKit
 
 protocol ShakeMissionWorkingPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    
+    func request(_ request: ShakeMissionWorkingPresenterRequest)
+}
+
+enum ShakeMissionWorkingPresenterRequest {
+    
+    case startMission
 }
 
 final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWorkingPresentable, ShakeMissionWorkingViewControllable, ShakeMissionWorkingViewListener {
@@ -26,6 +30,31 @@ final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWor
         self.mainView = mainView
         self.view = mainView
         mainView.listener = self
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        listener?.request(.startMission)
+    }
+}
+
+
+// MARK: ShakeMissionWorkingPresentable
+extension ShakeMissionWorkingViewController {
+    
+    func request(_ request: ShakeMissionWorkingInteractorRequest) {
+        switch request {
+        case .startShakeMissionFlow(let successShakeCount):
+            mainView
+                .update(progress: 0.0)
+                .update(countText: "0")
+                .update(titleText: "\(successShakeCount)회를 흔들어야 운세를 받아요")
+                .update(missionState: .guide) { [weak self] in
+                    guard let self else { return }
+                    // Guide --> Working(쉐이킹 감지)
+                    mainView.update(missionState: .working)
+                }
+        }
     }
 }
 
