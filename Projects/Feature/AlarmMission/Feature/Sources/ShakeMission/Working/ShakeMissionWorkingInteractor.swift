@@ -65,6 +65,8 @@ extension ShakeMissionWorkingInteractor {
             presenter.request(.startShakeMissionFlow(
                 successShakeCount: successShakeCount
             ))
+        case .shakeIsDetected:
+            print("Shake 감지!!!")
         }
     }
 }

@@ -9,6 +9,8 @@ import RIBs
 import RxSwift
 import UIKit
 
+import CoreMotion
+
 protocol ShakeMissionWorkingPresentableListener: AnyObject {
     
     func request(_ request: ShakeMissionWorkingPresenterRequest)
@@ -17,10 +19,15 @@ protocol ShakeMissionWorkingPresentableListener: AnyObject {
 enum ShakeMissionWorkingPresenterRequest {
     
     case startMission
+    case shakeIsDetected
 }
 
 final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWorkingPresentable, ShakeMissionWorkingViewControllable, ShakeMissionWorkingViewListener {
 
+    // Motion detecter
+    private var shakeDetecter: ShakeDetecter?
+    
+    
     private(set) var mainView: ShakeMissionWorkingView!
     
     weak var listener: ShakeMissionWorkingPresentableListener?
@@ -53,6 +60,14 @@ extension ShakeMissionWorkingViewController {
                     guard let self else { return }
                     // Guide --> Working(쉐이킹 감지)
                     mainView.update(missionState: .working)
+                    
+                    // 모션감지
+                    let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.3) { [weak self] in
+                        guard let self else { return }
+                        listener?.request(.shakeIsDetected)
+                    }
+                    self.shakeDetecter = shakeDetector
+                    shakeDetector.startDetection()
                 }
         }
     }

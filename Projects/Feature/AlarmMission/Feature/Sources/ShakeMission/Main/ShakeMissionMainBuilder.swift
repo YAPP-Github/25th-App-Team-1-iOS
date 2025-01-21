@@ -34,6 +34,11 @@ final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeM
         let viewController = ShakeMissionMainViewController()
         let interactor = ShakeMissionMainInteractor(presenter: viewController)
         interactor.listener = listener
-        return ShakeMissionMainRouter(interactor: interactor, viewController: viewController)
+        let shakeMissionWorkingBuilder = ShakeMissionWorkingBuilder(dependency: component)
+        return ShakeMissionMainRouter(
+            interactor: interactor,
+            viewController: viewController,
+            shakeMissionWorkingBuilder: shakeMissionWorkingBuilder
+        )
     }
 }
