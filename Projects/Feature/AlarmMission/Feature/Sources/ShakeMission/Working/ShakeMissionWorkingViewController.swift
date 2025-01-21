@@ -9,6 +9,8 @@ import RIBs
 import RxSwift
 import UIKit
 
+import FeatureDesignSystem
+
 import CoreMotion
 
 protocol ShakeMissionWorkingPresentableListener: AnyObject {
@@ -20,6 +22,7 @@ enum ShakeMissionWorkingPresenterRequest {
     
     case startMission
     case shakeIsDetected
+    case presentExitAlert(DSTwoButtonAlert.Config)
 }
 
 final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWorkingPresentable, ShakeMissionWorkingViewControllable, ShakeMissionWorkingViewListener {
@@ -78,7 +81,16 @@ extension ShakeMissionWorkingViewController {
 extension ShakeMissionWorkingViewController {
     
     func action(_ action: ShakeMissionWorkingView.Action) {
-        
+        switch action {
+        case .exitButtonClicked:
+            let alertConfig: DSTwoButtonAlert.Config = .init(
+                titleText: "나가면 운세를 받을 수 없어요",
+                subTitleText: "미션을 수행하지 않고 나가시겠어요?",
+                leftButtonText: "취소",
+                rightButtonText: "나가기"
+            )
+            listener?.request(.presentExitAlert(alertConfig))
+        }
     }
 }
 

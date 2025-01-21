@@ -5,11 +5,12 @@
 //  Created by choijunios on 1/20/25.
 //
 
+import UIKit
+
 import RIBs
 
 protocol ShakeMissionMainDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var navigationController: UINavigationController { get }
 }
 
 final class ShakeMissionMainComponent: Component<ShakeMissionMainDependency> {
@@ -36,6 +37,7 @@ final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeM
         interactor.listener = listener
         let shakeMissionWorkingBuilder = ShakeMissionWorkingBuilder(dependency: component)
         return ShakeMissionMainRouter(
+            navigationController: component.dependency.navigationController,
             interactor: interactor,
             viewController: viewController,
             shakeMissionWorkingBuilder: shakeMissionWorkingBuilder

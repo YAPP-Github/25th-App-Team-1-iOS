@@ -18,7 +18,7 @@ final class ShakeMissionWorkingView: UIView {
     
     // Action
     enum Action {
-        
+        case exitButtonClicked
     }
     
     // Listener
@@ -96,6 +96,10 @@ private extension ShakeMissionWorkingView {
         
         
         // exitButton
+        exitButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.action(.exitButtonClicked)
+        }
         addSubview(exitButton)
         
         

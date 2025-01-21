@@ -5,28 +5,35 @@
 //  Created by choijunios on 1/20/25.
 //
 
+import FeatureDesignSystem
+
 import RIBs
 import RxSwift
 
 protocol ShakeMissionWorkingRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func request(_ request: ShakeMissionWorkingRoutingRequest)
+}
+enum ShakeMissionWorkingRoutingRequest {
+    case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
+    case dismissAlert(completion: (()->Void)?=nil)
 }
 
-enum ShakeMissionWorkingInteractorRequest {
-    case startShakeMissionFlow(successShakeCount: Int)
-}
 
 protocol ShakeMissionWorkingPresentable: Presentable {
     var listener: ShakeMissionWorkingPresentableListener? { get set }
     
     func request(_ request: ShakeMissionWorkingInteractorRequest)
 }
-
-protocol ShakeMissionWorkingListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+enum ShakeMissionWorkingInteractorRequest {
+    case startShakeMissionFlow(successShakeCount: Int)
 }
 
-final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWorkingPresentable>, ShakeMissionWorkingInteractable, ShakeMissionWorkingPresentableListener {
+
+protocol ShakeMissionWorkingListener: AnyObject {
+    func exitShakeMissionWorkingPage()
+}
+
+final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWorkingPresentable>, ShakeMissionWorkingInteractable, ShakeMissionWorkingPresentableListener, DSTwoButtonAlertViewControllerListener {
 
     weak var router: ShakeMissionWorkingRouting?
     weak var listener: ShakeMissionWorkingListener?
@@ -67,6 +74,25 @@ extension ShakeMissionWorkingInteractor {
             ))
         case .shakeIsDetected:
             print("Shake 감지!!!")
+        case .presentExitAlert(let config):
+            router?.request(.presentAlert(config, self))
+        }
+    }
+}
+
+
+// MARK: DSTwoButtonAlertViewControllerListener
+extension ShakeMissionWorkingInteractor {
+    func action(_ action: DSTwoButtonAlertViewController.Action) {
+        switch action {
+        case .leftButtonClicked:
+            router?.request(.dismissAlert())
+        case .rightButtonClicked:
+            let completion = { [weak self] in
+                guard let self else { return }
+                listener?.exitShakeMissionWorkingPage()
+            }
+            router?.request(.dismissAlert(completion: completion))
         }
     }
 }

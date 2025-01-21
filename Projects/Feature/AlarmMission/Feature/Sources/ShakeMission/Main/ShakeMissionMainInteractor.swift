@@ -12,6 +12,7 @@ import RxSwift
 
 enum ShakeMissionMainRoutingRequest {
     case presentWorkingPage(listener: ShakeMissionWorkingListener)
+    case dissmissWorkingPage
     case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
     case exitPage
@@ -87,4 +88,7 @@ extension ShakeMissionMainInteractor {
 // MARK: ShakeMissionWorkingListener
 extension ShakeMissionMainInteractor {
     
+    func exitShakeMissionWorkingPage() {
+        router?.request(.dissmissWorkingPage)
+    }
 }
