@@ -26,6 +26,8 @@ protocol ShakeMissionWorkingPresentable: Presentable {
 }
 enum ShakeMissionWorkingInteractorRequest {
     case startShakeMissionFlow(successShakeCount: Int)
+    case updateSuccessCount(Int)
+    case updateMissionProgressPercent(Double)
 }
 
 
@@ -72,10 +74,21 @@ extension ShakeMissionWorkingInteractor {
             presenter.request(.startShakeMissionFlow(
                 successShakeCount: successShakeCount
             ))
-        case .shakeIsDetected:
-            print("Shake 감지!!!")
         case .presentExitAlert(let config):
             router?.request(.presentAlert(config, self))
+        case .shakeIsDetected:
+            
+            if currentShakeCount < successShakeCount {
+                // 성공 횟수를 증가시키고 UI업데이트
+                self.currentShakeCount += 1
+                presenter.request(.updateSuccessCount(currentShakeCount))
+                let percent = Double(currentShakeCount)/Double(successShakeCount)
+                presenter.request(.updateMissionProgressPercent(percent))
+            }
+            
+            if currentShakeCount >= successShakeCount {
+                // 미션완료 조건을 충족한 경우
+            }
         }
     }
 }

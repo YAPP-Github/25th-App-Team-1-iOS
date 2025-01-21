@@ -65,13 +65,17 @@ extension ShakeMissionWorkingViewController {
                     mainView.update(missionState: .working)
                     
                     // 모션감지
-                    let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.3) { [weak self] in
+                    let shakeDetector = ShakeDetecter(shakeThreshold: 1.25, detectionInterval: 0.5) { [weak self] in
                         guard let self else { return }
                         listener?.request(.shakeIsDetected)
                     }
                     self.shakeDetecter = shakeDetector
                     shakeDetector.startDetection()
                 }
+        case .updateSuccessCount(let newCount):
+            mainView.update(countText: "\(newCount)")
+        case .updateMissionProgressPercent(let newPercent):
+            mainView.update(progress: newPercent)
         }
     }
 }

@@ -64,7 +64,7 @@ extension StartShakeMissionView {
         springAnimation.duration = duration
         springAnimation.damping = 9.0
         springAnimation.initialVelocity = 30.0
-        springAnimation.mass = 0.5
+        springAnimation.mass = 0.3
         springAnimation.stiffness = 300.0
         springAnimation.fillMode = .forwards
         springAnimation.isRemovedOnCompletion = false

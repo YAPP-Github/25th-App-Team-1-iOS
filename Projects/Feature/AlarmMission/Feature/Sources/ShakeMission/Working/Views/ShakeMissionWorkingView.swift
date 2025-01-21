@@ -104,15 +104,18 @@ private extension ShakeMissionWorkingView {
         
         
         // missionProgressView
+        missionProgressView.alpha = 0
         addSubview(missionProgressView)
         
         
         // labelStackView
+        labelStackView.alpha = 0
         [titleLabel,shakeCountLabel].forEach({labelStackView.addArrangedSubview($0)})
         addSubview(labelStackView)
         
         
         // amuletCardImage
+        amuletCardImage.alpha = 0
         addSubview(amuletCardImage)
     }
     
@@ -181,9 +184,6 @@ extension ShakeMissionWorkingView {
     func update(missionState state: MissionState, completion: (()->Void)?=nil) -> Self {
         switch state {
         case .guide:
-            missionProgressView.alpha = 0
-            labelStackView.alpha = 0
-            
             let startMissionView = StartShakeMissionView()
             addSubview(startMissionView)
             startMissionView.snp.makeConstraints({ $0.edges.equalToSuperview() })
@@ -200,6 +200,7 @@ extension ShakeMissionWorkingView {
             
             missionProgressView.alpha = 1
             labelStackView.alpha = 1
+            amuletCardImage.alpha = 1
             
             startShakeGuideAnim()
             
