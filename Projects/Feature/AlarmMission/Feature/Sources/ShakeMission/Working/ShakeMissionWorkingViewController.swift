@@ -27,8 +27,9 @@ enum ShakeMissionWorkingPresenterRequest {
 
 final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWorkingPresentable, ShakeMissionWorkingViewControllable, ShakeMissionWorkingViewListener {
 
-    // Motion detecter
+    // Shake motion effect
     private var shakeDetecter: ShakeDetecter?
+    private let impactFeedBackGenerator: UIImpactFeedbackGenerator = .init(style: .medium)
     
     
     private(set) var mainView: ShakeMissionWorkingView!
@@ -40,6 +41,11 @@ final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWor
         self.mainView = mainView
         self.view = mainView
         mainView.listener = self
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        impactFeedBackGenerator.prepare()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -66,7 +72,7 @@ extension ShakeMissionWorkingViewController {
                     mainView.update(missionState: .working)
                     
                     // 모션감지
-                    let shakeDetector = ShakeDetecter(shakeThreshold: 1.25, detectionInterval: 0.5) { [weak self] in
+                    let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.25) { [weak self] in
                         guard let self else { return }
                         listener?.request(.shakeIsDetected)
                     }
@@ -84,6 +90,8 @@ extension ShakeMissionWorkingViewController {
             
             // 성공 프로우 시작
             mainView.update(missionState: .success)
+        case .occurShakeMotionFeedback:
+            impactFeedBackGenerator.impactOccurred()
         }
     }
 }

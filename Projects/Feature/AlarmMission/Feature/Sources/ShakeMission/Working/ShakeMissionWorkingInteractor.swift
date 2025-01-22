@@ -29,6 +29,7 @@ enum ShakeMissionWorkingInteractorRequest {
     case updateSuccessCount(Int)
     case updateMissionProgressPercent(Double)
     case startSuccessFlow
+    case occurShakeMotionFeedback
 }
 
 
@@ -81,11 +82,18 @@ extension ShakeMissionWorkingInteractor {
         case .shakeIsDetected:
             
             if currentShakeCount < successShakeCount {
-                // 성공 횟수를 증가시키고 UI업데이트
+                // 성공 횟수를 증가
                 self.currentShakeCount += 1
+                
+                // 성공 횟수 UI업데이트
                 presenter.request(.updateSuccessCount(currentShakeCount))
+                
+                // Percent UI업데이트
                 let percent = Double(currentShakeCount)/Double(successShakeCount)
                 presenter.request(.updateMissionProgressPercent(percent))
+                
+                // 햅틱 Feedback실행
+                presenter.request(.occurShakeMotionFeedback)
             }
             
             if !isMissionSuccess, currentShakeCount >= successShakeCount {
