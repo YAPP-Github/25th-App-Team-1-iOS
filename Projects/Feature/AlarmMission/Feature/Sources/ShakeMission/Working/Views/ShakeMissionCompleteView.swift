@@ -11,6 +11,7 @@ import FeatureResources
 
 import SnapKit
 import Lottie
+import RxSwift
 
 final class ShakeMissionCompleteView: UIView {
     
@@ -21,6 +22,10 @@ final class ShakeMissionCompleteView: UIView {
         )
     }
     private var confettiAnimView: LottieAnimationView?
+    
+    
+    // Rx
+    private let disposeBag: DisposeBag = .init()
     
     
     init() {
@@ -69,6 +74,12 @@ extension ShakeMissionCompleteView {
             size: labelSize
         )
         
+        
+        // Complete subject
+        let titleTextShowupCompleted = PublishSubject<Void>()
+        let confettiLottieCompleted = PublishSubject<Void>()
+        
+        
         // Text animation
         let springAnimation = CASpringAnimation(keyPath: "transform.scale")
         springAnimation.fromValue = 0.0
@@ -81,19 +92,30 @@ extension ShakeMissionCompleteView {
         springAnimation.fillMode = .forwards
         springAnimation.isRemovedOnCompletion = false
         titleLabel.layer.add(springAnimation, forKey: "showup_title")
+        let duration = AnimationConfig.titleTextShowupDuration
+        DispatchQueue.main.asyncAfter(deadline: .now()+duration) {
+            titleTextShowupCompleted.onNext(())
+        }
         
         
         // Confetti lottie
         let lottieView = createConfettiLottieView()
         addSubview(lottieView)
         lottieView.snp.makeConstraints { make in
-            make.center.equalTo(titleLabel)
-            make.horizontalEdges.equalToSuperview()
-            make.height.equalTo(lottieView.snp.width)
+            make.center.equalTo(titleLabel).priority(.high)
+            make.horizontalEdges.equalToSuperview().priority(.high)
+            make.height.equalTo(lottieView.snp.width).priority(.medium)
         }
-        lottieView.play { _ in
-            completion?()
-        }
+        lottieView.play { _ in confettiLottieCompleted.onNext(()) }
+        
+        
+        Observable
+            .zip(titleTextShowupCompleted, confettiLottieCompleted)
+            .take(1)
+            .subscribe(onNext: { _ in
+                completion?()
+            })
+            .disposed(by: disposeBag)
     }
     
     private func createConfettiLottieView() -> LottieAnimationView {

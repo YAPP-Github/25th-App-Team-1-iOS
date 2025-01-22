@@ -19,6 +19,8 @@ final class ShakeMissionWorkingView: UIView {
     // Action
     enum Action {
         case exitButtonClicked
+        case missionGuideAnimationCompleted
+        case missionSuccessAnimationCompleted
     }
     
     // Listener
@@ -59,12 +61,15 @@ final class ShakeMissionWorkingView: UIView {
     // Mission start & complete view
     private var startShakeMissionView: StartShakeMissionView?
     private var shakeMissionCompleteView: ShakeMissionCompleteView?
+    private let invisibleLayer = CALayer()
     
     
     init() {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        
+        layer.addSublayer(invisibleLayer)
     }
     required init?(coder: NSCoder) { nil }
     
@@ -74,6 +79,9 @@ final class ShakeMissionWorkingView: UIView {
         
         // backgroundLayer
         backgroundLayer.frame = self.layer.bounds
+        
+        // invisibleLayer
+        invisibleLayer.frame = layer.bounds
     }
 }
 
@@ -184,7 +192,7 @@ extension ShakeMissionWorkingView {
     }
     
     @discardableResult
-    func update(missionState state: MissionState, completion: (()->Void)?=nil) -> Self {
+    func update(missionState state: MissionState) -> Self {
         switch state {
         case .guide:
             let startMissionView = StartShakeMissionView()
@@ -194,9 +202,10 @@ extension ShakeMissionWorkingView {
             
             startMissionView.startShowUpAnimation()
             DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
-                self?.startShakeMissionView?.removeFromSuperview()
-                self?.startShakeMissionView = nil
-                completion?()
+                guard let self else { return }
+                startShakeMissionView?.removeFromSuperview()
+                startShakeMissionView = nil
+                listener?.action(.missionGuideAnimationCompleted)
             }
             
         case .working:
@@ -209,16 +218,16 @@ extension ShakeMissionWorkingView {
         case .success:
             stopShakeGuideAnim()
             startZoomInAndFlipAnim()
-            
             let shakeMissionCompleteView = ShakeMissionCompleteView()
             addSubview(shakeMissionCompleteView)
             shakeMissionCompleteView.layer.zPosition = 500
             shakeMissionCompleteView.snp.makeConstraints({ $0.edges.equalToSuperview() })
             self.shakeMissionCompleteView = shakeMissionCompleteView
             
-            shakeMissionCompleteView.startShowUpAnimation(
-                cardView: amuletCardBackImage
-            )
+            shakeMissionCompleteView.startShowUpAnimation(cardView: amuletCardBackImage) { [weak self] in
+                guard let self else { return }
+                listener?.action(.missionSuccessAnimationCompleted)
+            }
         }
         
         return self
@@ -256,12 +265,12 @@ extension ShakeMissionWorkingView {
     // MARK: Animation
     private enum AnimationConfig {
         // Duration
-        static let shakeGuideAnimDuration = 1.75
-        static let successZoomInAnimDuration = 0.3
-        static let successFlipAnimDuration = 0.3
+        static let shakeGuideAnimDuration: Double = 1.75
+        static let successZoomInAnimDuration: Double = 0.3
+        static let successFlipAnimDuration: Double = 0.3
         
         // Value
-        static let successZoomInValue = 1.25
+        static let successZoomInValue: Double = 1.25
     }
     
     // - Shake amulet animation
@@ -330,7 +339,7 @@ extension ShakeMissionWorkingView {
             scaleX: AnimationConfig.successZoomInValue,
             y: AnimationConfig.successZoomInValue
         ))
-        self.layer.addSublayer(imageLayer)
+        self.invisibleLayer.addSublayer(imageLayer)
         self.amuletCardFrontImageLayer = imageLayer
         return imageLayer
     }

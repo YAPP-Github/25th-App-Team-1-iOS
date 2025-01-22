@@ -77,6 +77,11 @@ extension ShakeMissionWorkingInteractor {
             presenter.request(.startShakeMissionFlow(
                 successShakeCount: successShakeCount
             ))
+        case .finishMission:
+            
+            // 임시 조치
+            listener?.exitShakeMissionWorkingPage()
+            
         case .presentExitAlert(let config):
             router?.request(.presentAlert(config, self))
         case .shakeIsDetected:

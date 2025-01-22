@@ -23,6 +23,7 @@ enum ShakeMissionWorkingPresenterRequest {
     case startMission
     case shakeIsDetected
     case presentExitAlert(DSTwoButtonAlert.Config)
+    case finishMission
 }
 
 final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWorkingPresentable, ShakeMissionWorkingViewControllable, ShakeMissionWorkingViewListener {
@@ -66,19 +67,7 @@ extension ShakeMissionWorkingViewController {
                 .update(progress: 0.0)
                 .update(countText: "0")
                 .update(titleText: "\(successShakeCount)회를 흔들어야 운세를 받아요")
-                .update(missionState: .guide) { [weak self] in
-                    guard let self else { return }
-                    // Guide --> Working(쉐이킹 감지)
-                    mainView.update(missionState: .working)
-                    
-                    // 모션감지
-                    let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.25) { [weak self] in
-                        guard let self else { return }
-                        listener?.request(.shakeIsDetected)
-                    }
-                    self.shakeDetecter = shakeDetector
-                    shakeDetector.startDetection()
-                }
+                .update(missionState: .guide)
         case .updateSuccessCount(let newCount):
             mainView.update(countText: "\(newCount)")
         case .updateMissionProgressPercent(let newPercent):
@@ -110,6 +99,19 @@ extension ShakeMissionWorkingViewController {
                 rightButtonText: "나가기"
             )
             listener?.request(.presentExitAlert(alertConfig))
+        case .missionGuideAnimationCompleted:
+            // Guide --> Working(쉐이킹 감지)
+            mainView.update(missionState: .working)
+            
+            // 모션감지
+            let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.25) { [weak self] in
+                guard let self else { return }
+                listener?.request(.shakeIsDetected)
+            }
+            self.shakeDetecter = shakeDetector
+            shakeDetector.startDetection()
+        case .missionSuccessAnimationCompleted:
+            listener?.request(.finishMission)
         }
     }
 }
