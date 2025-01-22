@@ -192,7 +192,7 @@ extension ShakeMissionWorkingView {
             startMissionView.snp.makeConstraints({ $0.edges.equalToSuperview() })
             self.startShakeMissionView = startMissionView
             
-            startMissionView.startShowUpAnimation(duration: 1.0)
+            startMissionView.startShowUpAnimation()
             DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
                 self?.startShakeMissionView?.removeFromSuperview()
                 self?.startShakeMissionView = nil
@@ -217,8 +217,7 @@ extension ShakeMissionWorkingView {
             self.shakeMissionCompleteView = shakeMissionCompleteView
             
             shakeMissionCompleteView.startShowUpAnimation(
-                cardView: amuletCardBackImage,
-                duration: 1.0
+                cardView: amuletCardBackImage
             )
         }
         

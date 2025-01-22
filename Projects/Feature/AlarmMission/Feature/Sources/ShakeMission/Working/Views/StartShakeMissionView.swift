@@ -51,7 +51,12 @@ final class StartShakeMissionView: UIView {
 // MARK: Public interface
 extension StartShakeMissionView {
     
-    func startShowUpAnimation(duration: CGFloat, completion: (()->Void)? = nil) {
+    enum AnimationConfig {
+        // Duration
+        static let titleTextShowupDuration: Double = 0.5
+    }
+    
+    func startShowUpAnimation(completion: (()->Void)? = nil) {
         
         if titleLabel.layer.animation(forKey: "showup_title") != nil {
             titleLabel.layer.removeAnimation(forKey: "showup_title")
@@ -61,7 +66,7 @@ extension StartShakeMissionView {
         let springAnimation = CASpringAnimation(keyPath: "transform.scale")
         springAnimation.fromValue = 0.0
         springAnimation.toValue = 1.0
-        springAnimation.duration = duration
+        springAnimation.duration = AnimationConfig.titleTextShowupDuration
         springAnimation.damping = 9.0
         springAnimation.initialVelocity = 30.0
         springAnimation.mass = 0.3
@@ -70,8 +75,8 @@ extension StartShakeMissionView {
         springAnimation.isRemovedOnCompletion = false
         titleLabel.layer.add(springAnimation, forKey: "showup_title")
         
-        
         // Completion
+        let duration = AnimationConfig.titleTextShowupDuration
         DispatchQueue.main.asyncAfter(deadline: .now()+duration) {
             
             completion?()
