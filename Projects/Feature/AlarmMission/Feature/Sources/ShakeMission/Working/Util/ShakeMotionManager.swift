@@ -57,6 +57,6 @@ extension ShakeDetecter {
     }
     
     func stopDetection() {
-        motionManager.stopDeviceMotionUpdates()
+        motionManager.stopAccelerometerUpdates()
     }
 }

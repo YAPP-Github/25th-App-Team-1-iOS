@@ -106,7 +106,16 @@ extension ShakeMissionWorkingInteractor {
             listener?.exitShakeMissionWorkingPage()
             
         case .presentExitAlert(let config):
+            
+            // 미션이 성공 상태인 경우 Alert표출 금지
+            if isMissionSuccess { return }
+            
+            // 모션감지 퍼즈
+            presenter.request(.shakeMotionDetactor(.pause))
+            
+            // Alert 표시
             router?.request(.presentAlert(config, self))
+            
         case .shakeIsDetected:
             if currentShakeCount < successShakeCount {
                 // 성공 횟수를 증가
@@ -139,7 +148,12 @@ extension ShakeMissionWorkingInteractor {
     func action(_ action: DSTwoButtonAlertViewController.Action) {
         switch action {
         case .leftButtonClicked:
+            // Dismiss alert
             router?.request(.dismissAlert())
+            
+            // 모션감지기 재동작
+            presenter.request(.shakeMotionDetactor(.resume))
+            
         case .rightButtonClicked:
             let completion = { [weak self] in
                 guard let self else { return }
