@@ -58,7 +58,8 @@ let project = Project(
                 // Third party
                 .thirdParty(library: .RIBs),
                 .thirdParty(library: .Then),
-                .thirdParty(library: .SnapKit)
+                .thirdParty(library: .SnapKit),
+                .thirdParty(library: .Lottie),
             ]
         ),
     ]

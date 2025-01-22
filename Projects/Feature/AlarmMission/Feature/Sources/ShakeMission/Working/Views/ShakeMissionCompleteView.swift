@@ -10,6 +10,7 @@ import UIKit
 import FeatureResources
 
 import SnapKit
+import Lottie
 
 final class ShakeMissionCompleteView: UIView {
     
@@ -19,6 +20,8 @@ final class ShakeMissionCompleteView: UIView {
             font: .displayBold, color: R.Color.white100
         )
     }
+    private var confettiAnimView: LottieAnimationView?
+    
     
     init() {
         super.init(frame: .zero)
@@ -43,7 +46,14 @@ final class ShakeMissionCompleteView: UIView {
 // MARK: Public interface
 extension ShakeMissionCompleteView {
     
-    func startShowUpAnimation(cardView: UIView, duration: CGFloat, completion: (()->Void)? = nil) {
+    enum AnimationConfig {
+        // Duration
+        static let titleTextShowupDuration: Double = 0.5
+    }
+    
+    
+    // MARK: Animation
+    func startShowUpAnimation(cardView: UIView, completion: (()->Void)? = nil) {
         
         if titleLabel.layer.animation(forKey: "showup_title") != nil {
             titleLabel.layer.removeAnimation(forKey: "showup_title")
@@ -63,7 +73,7 @@ extension ShakeMissionCompleteView {
         let springAnimation = CASpringAnimation(keyPath: "transform.scale")
         springAnimation.fromValue = 0.0
         springAnimation.toValue = 1.0
-        springAnimation.duration = duration
+        springAnimation.duration = AnimationConfig.titleTextShowupDuration
         springAnimation.damping = 9.0
         springAnimation.initialVelocity = 30.0
         springAnimation.mass = 0.3
@@ -73,10 +83,27 @@ extension ShakeMissionCompleteView {
         titleLabel.layer.add(springAnimation, forKey: "showup_title")
         
         
-        // Completion
-        DispatchQueue.main.asyncAfter(deadline: .now()+duration) {
-            
+        // Confetti lottie
+        let lottieView = createConfettiLottieView()
+        addSubview(lottieView)
+        lottieView.snp.makeConstraints { make in
+            make.center.equalTo(titleLabel)
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(lottieView.snp.width)
+        }
+        lottieView.play { _ in
             completion?()
         }
     }
+    
+    private func createConfettiLottieView() -> LottieAnimationView {
+        
+        guard let path = Bundle.resources.path(forResource: "shakemissionconfetti", ofType: "json") else { fatalError() }
+        let confettiAnimView = LottieAnimationView(filePath: path)
+        confettiAnimView.contentMode = .scaleAspectFit
+        confettiAnimView.loopMode = .playOnce
+        confettiAnimView.animationSpeed = 1
+        return confettiAnimView
+    }
+    
 }
