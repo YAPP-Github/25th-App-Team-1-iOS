@@ -35,7 +35,6 @@ final class ShakeMissionWorkingView: UIView {
         $0.image = FeatureResourcesAsset.shakeMissionWorkingAmuletBack.image
         $0.contentMode = .scaleAspectFit
     }
-    private var amuletCardFrontImageLayer: CALayer?
     
     // - Label
     private let labelStackView: UIStackView = .init().then {
@@ -68,8 +67,6 @@ final class ShakeMissionWorkingView: UIView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
-        
-        layer.addSublayer(invisibleLayer)
     }
     required init?(coder: NSCoder) { nil }
     
@@ -81,7 +78,7 @@ final class ShakeMissionWorkingView: UIView {
         backgroundLayer.frame = self.layer.bounds
         
         // invisibleLayer
-        invisibleLayer.frame = layer.bounds
+        invisibleLayer.frame = amuletCardBackImage.layer.frame
     }
 }
 
@@ -90,6 +87,10 @@ final class ShakeMissionWorkingView: UIView {
 private extension ShakeMissionWorkingView {
     
     func setupUI() {
+        
+        // invisibleLayer
+        layer.addSublayer(invisibleLayer)
+        
         
         // backgroundLayer
         backgroundLayer.colors = [
@@ -332,15 +333,14 @@ extension ShakeMissionWorkingView {
     
     private func createAmuletFrontLayer() -> CALayer {
         let imageLayer = CALayer()
-        imageLayer.frame = amuletCardBackImage.layer.frame
+        self.invisibleLayer.addSublayer(imageLayer)
+        imageLayer.frame = invisibleLayer.bounds
         imageLayer.contents = FeatureResourcesAsset.shakeMissionWorkingAmuletFront.image.cgImage
         imageLayer.contentsGravity = .resizeAspect
         imageLayer.setAffineTransform(.init(
             scaleX: AnimationConfig.successZoomInValue,
             y: AnimationConfig.successZoomInValue
         ))
-        self.invisibleLayer.addSublayer(imageLayer)
-        self.amuletCardFrontImageLayer = imageLayer
         return imageLayer
     }
 }
