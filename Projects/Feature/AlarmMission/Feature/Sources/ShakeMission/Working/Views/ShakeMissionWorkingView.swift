@@ -297,7 +297,7 @@ extension ShakeMissionWorkingView {
         DispatchQueue.main.asyncAfter(deadline: .now()+AnimationConfig.successZoomInAnimDuration+AnimationConfig.successFlipAnimDuration) { [weak self] in
             guard let self else { return }
             
-            let amuletCardFrontImageLayer = createAmuletFrontView()
+            let amuletCardFrontImageLayer = createAmuletFrontLayer()
             amuletCardFrontImageLayer.isDoubleSided = true
             amuletCardFrontImageLayer.zPosition = 1001
             let flipAnim2 = CABasicAnimation(keyPath: "transform.rotation.y")
@@ -310,7 +310,7 @@ extension ShakeMissionWorkingView {
         }
     }
     
-    private func createAmuletFrontView() -> CALayer {
+    private func createAmuletFrontLayer() -> CALayer {
         let imageLayer = CALayer()
         imageLayer.frame = amuletCardBackImage.layer.frame
         imageLayer.contents = FeatureResourcesAsset.shakeMissionWorkingAmuletFront.image.cgImage
