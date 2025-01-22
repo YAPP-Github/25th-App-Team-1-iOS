@@ -20,17 +20,19 @@ protocol ShakeMissionWorkingPresentableListener: AnyObject {
 
 enum ShakeMissionWorkingPresenterRequest {
     
-    case startMission
+    case missionPageIsReady
+    case missionGuideFinished
+    case missionSuccessEventFinished
+    
     case shakeIsDetected
     case presentExitAlert(DSTwoButtonAlert.Config)
-    case finishMission
 }
 
 final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWorkingPresentable, ShakeMissionWorkingViewControllable, ShakeMissionWorkingViewListener {
 
     // Shake motion effect
     private var shakeDetecter: ShakeDetecter?
-    private let impactFeedBackGenerator: UIImpactFeedbackGenerator = .init(style: .medium)
+    private var impactFeedBackGenerator: UIImpactFeedbackGenerator?
     
     
     private(set) var mainView: ShakeMissionWorkingView!
@@ -46,12 +48,11 @@ final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWor
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        impactFeedBackGenerator.prepare()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        listener?.request(.startMission)
+        listener?.request(.missionPageIsReady)
     }
 }
 
@@ -61,26 +62,56 @@ extension ShakeMissionWorkingViewController {
     
     func request(_ request: ShakeMissionWorkingInteractorRequest) {
         switch request {
-        case .startShakeMissionFlow(let successShakeCount):
-            // 가이드 플로우 시작
-            mainView
-                .update(progress: 0.0)
-                .update(countText: "0")
-                .update(titleText: "\(successShakeCount)회를 흔들어야 운세를 받아요")
-                .update(missionState: .guide)
+        case .missionFlow(let state):
+            
+            switch state {
+            case .guide(let successShakeCount):
+                mainView
+                    .update(progress: 0.0)
+                    .update(countText: "0")
+                    .update(titleText: "\(successShakeCount)회를 흔들어야 운세를 받아요")
+                    .update(missionState: .guide)
+            case .start:
+                mainView.update(missionState: .working)
+            case .success:
+                mainView.update(missionState: .success)
+            }
+            
         case .updateSuccessCount(let newCount):
             mainView.update(countText: "\(newCount)")
+            
         case .updateMissionProgressPercent(let newPercent):
             mainView.update(progress: newPercent)
-        case .startSuccessFlow:
-            // 모션 감지 종료
-            self.shakeDetecter?.stopDetection()
-            self.shakeDetecter = nil
             
-            // 성공 프로우 시작
-            mainView.update(missionState: .success)
-        case .occurShakeMotionFeedback:
-            impactFeedBackGenerator.impactOccurred()
+        case .shakeMotionDetactor(let state):
+            switch state {
+            case .start:
+                let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.25) { [weak self] in
+                    guard let self else { return }
+                    listener?.request(.shakeIsDetected)
+                }
+                self.shakeDetecter = shakeDetector
+                shakeDetector.startDetection()
+            case .stop:
+                self.shakeDetecter?.stopDetection()
+                self.shakeDetecter = nil
+            case .pause:
+                self.shakeDetecter?.stopDetection()
+            case .resume:
+                self.shakeDetecter?.startDetection()
+            }
+            
+        case .hapticGeneratorAction(let action):
+            switch action {
+            case .prepare:
+                self.impactFeedBackGenerator = .init(style: .medium)
+                self.impactFeedBackGenerator?.prepare()
+            case .occur:
+                self.impactFeedBackGenerator?.impactOccurred()
+            case .stop:
+                self.impactFeedBackGenerator = nil
+            }
+            
         }
     }
 }
@@ -100,18 +131,9 @@ extension ShakeMissionWorkingViewController {
             )
             listener?.request(.presentExitAlert(alertConfig))
         case .missionGuideAnimationCompleted:
-            // Guide --> Working(쉐이킹 감지)
-            mainView.update(missionState: .working)
-            
-            // 모션감지
-            let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.25) { [weak self] in
-                guard let self else { return }
-                listener?.request(.shakeIsDetected)
-            }
-            self.shakeDetecter = shakeDetector
-            shakeDetector.startDetection()
+            listener?.request(.missionGuideFinished)
         case .missionSuccessAnimationCompleted:
-            listener?.request(.finishMission)
+            listener?.request(.missionSuccessEventFinished)
         }
     }
 }

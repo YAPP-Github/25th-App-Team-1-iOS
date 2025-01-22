@@ -25,11 +25,32 @@ protocol ShakeMissionWorkingPresentable: Presentable {
     func request(_ request: ShakeMissionWorkingInteractorRequest)
 }
 enum ShakeMissionWorkingInteractorRequest {
-    case startShakeMissionFlow(successShakeCount: Int)
+    
+    // Mission flow
+    enum MissionFlowState {
+        case guide(successShakeCount: Int)
+        case start
+        case success
+    }
+    case missionFlow(MissionFlowState)
+    
+    // Shake motion
+    enum ShakeMotionDetactorState {
+        case start, stop, pause, resume
+    }
+    case shakeMotionDetactor(ShakeMotionDetactorState)
+    
+    // Haptik feedback
+    enum HapticGeneratorAction {
+        case prepare
+        case occur
+        case stop
+    }
+    case hapticGeneratorAction(HapticGeneratorAction)
+    
+    // UI update
     case updateSuccessCount(Int)
     case updateMissionProgressPercent(Double)
-    case startSuccessFlow
-    case occurShakeMotionFeedback
 }
 
 
@@ -73,19 +94,20 @@ extension ShakeMissionWorkingInteractor {
     
     func request(_ request: ShakeMissionWorkingPresenterRequest) {
         switch request {
-        case .startMission:
-            presenter.request(.startShakeMissionFlow(
-                successShakeCount: successShakeCount
-            ))
-        case .finishMission:
+        case .missionPageIsReady:
+            presenter.request(.hapticGeneratorAction(.prepare))
+            presenter.request(.missionFlow(.guide(successShakeCount: 10)))
+        case .missionGuideFinished:
+            presenter.request(.missionFlow(.start))
+            presenter.request(.shakeMotionDetactor(.start))
+        case .missionSuccessEventFinished:
             
-            // 임시 조치
+            // MARK: 임시 조치, 변경예정
             listener?.exitShakeMissionWorkingPage()
             
         case .presentExitAlert(let config):
             router?.request(.presentAlert(config, self))
         case .shakeIsDetected:
-            
             if currentShakeCount < successShakeCount {
                 // 성공 횟수를 증가
                 self.currentShakeCount += 1
@@ -98,12 +120,14 @@ extension ShakeMissionWorkingInteractor {
                 presenter.request(.updateMissionProgressPercent(percent))
                 
                 // 햅틱 Feedback실행
-                presenter.request(.occurShakeMotionFeedback)
+                presenter.request(.hapticGeneratorAction(.occur))
             }
             
             if !isMissionSuccess, currentShakeCount >= successShakeCount {
                 self.isMissionSuccess = true
-                presenter.request(.startSuccessFlow)
+                presenter.request(.missionFlow(.success))
+                presenter.request(.shakeMotionDetactor(.stop))
+                presenter.request(.hapticGeneratorAction(.stop))
             }
         }
     }
