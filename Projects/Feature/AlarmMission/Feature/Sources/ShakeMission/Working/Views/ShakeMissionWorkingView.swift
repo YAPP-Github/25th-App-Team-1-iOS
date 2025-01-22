@@ -56,8 +56,9 @@ final class ShakeMissionWorkingView: UIView {
         $0.image = FeatureResourcesAsset.shakeMissionStar1.image
     }
     
-    // Mission start view
+    // Mission start & complete view
     private var startShakeMissionView: StartShakeMissionView?
+    private var shakeMissionCompleteView: ShakeMissionCompleteView?
     
     
     init() {
@@ -208,6 +209,17 @@ extension ShakeMissionWorkingView {
         case .success:
             stopShakeGuideAnim()
             startZoomInAndFlipAnim()
+            
+            let shakeMissionCompleteView = ShakeMissionCompleteView()
+            addSubview(shakeMissionCompleteView)
+            shakeMissionCompleteView.layer.zPosition = 500
+            shakeMissionCompleteView.snp.makeConstraints({ $0.edges.equalToSuperview() })
+            self.shakeMissionCompleteView = shakeMissionCompleteView
+            
+            shakeMissionCompleteView.startShowUpAnimation(
+                cardView: amuletCardBackImage,
+                duration: 1.0
+            )
         }
         
         return self
@@ -284,7 +296,7 @@ extension ShakeMissionWorkingView {
             guard let self else { return }
             
             amuletCardBackImage.layer.isDoubleSided = true
-            amuletCardBackImage.layer.zPosition = 1000
+            amuletCardBackImage.layer.zPosition = 100
             let flipAnim1 = CABasicAnimation(keyPath: "transform.rotation.y")
             flipAnim1.fromValue = 0
             flipAnim1.toValue = CGFloat.pi/2
@@ -299,7 +311,7 @@ extension ShakeMissionWorkingView {
             
             let amuletCardFrontImageLayer = createAmuletFrontLayer()
             amuletCardFrontImageLayer.isDoubleSided = true
-            amuletCardFrontImageLayer.zPosition = 1001
+            amuletCardFrontImageLayer.zPosition = 101
             let flipAnim2 = CABasicAnimation(keyPath: "transform.rotation.y")
             flipAnim2.fromValue = CGFloat.pi*2 * 3/4
             flipAnim2.toValue = CGFloat.pi*2
