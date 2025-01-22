@@ -306,7 +306,6 @@ extension ShakeMissionWorkingView {
             guard let self else { return }
             
             let amuletCardBackImageLayer = createAmuletBackLayer()
-            amuletCardBackImageLayer.isDoubleSided = true
             amuletCardBackImageLayer.zPosition = 50
             amuletCardBackImage.alpha = 0
             
@@ -323,7 +322,6 @@ extension ShakeMissionWorkingView {
             guard let self else { return }
             
             let amuletCardFrontImageLayer = createAmuletFrontLayer()
-            amuletCardFrontImageLayer.isDoubleSided = true
             amuletCardFrontImageLayer.zPosition = 300
             let flipAnim2 = CABasicAnimation(keyPath: "transform.rotation.y")
             flipAnim2.fromValue = CGFloat.pi*2 * 3/4
