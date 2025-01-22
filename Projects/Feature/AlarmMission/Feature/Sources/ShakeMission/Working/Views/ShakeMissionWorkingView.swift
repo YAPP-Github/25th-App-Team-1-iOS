@@ -246,8 +246,8 @@ extension ShakeMissionWorkingView {
     private enum AnimationConfig {
         // Duration
         static let shakeGuideAnimDuration = 1.75
-        static let successZoomInAnimDuration = 0.35
-        static let successFlipAnimDuration = 1.0
+        static let successZoomInAnimDuration = 0.3
+        static let successFlipAnimDuration = 0.3
         
         // Value
         static let successZoomInValue = 1.25
