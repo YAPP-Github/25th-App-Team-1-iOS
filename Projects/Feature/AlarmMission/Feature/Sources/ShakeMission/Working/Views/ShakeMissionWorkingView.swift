@@ -90,6 +90,7 @@ private extension ShakeMissionWorkingView {
         
         // invisibleLayer
         layer.addSublayer(invisibleLayer)
+        invisibleLayer.zPosition = 100
         
         
         // backgroundLayer
@@ -304,15 +305,18 @@ extension ShakeMissionWorkingView {
         DispatchQueue.main.asyncAfter(deadline: .now()+AnimationConfig.successZoomInAnimDuration) { [weak self] in
             guard let self else { return }
             
-            amuletCardBackImage.layer.isDoubleSided = true
-            amuletCardBackImage.layer.zPosition = 100
+            let amuletCardBackImageLayer = createAmuletBackLayer()
+            amuletCardBackImageLayer.isDoubleSided = true
+            amuletCardBackImageLayer.zPosition = 50
+            amuletCardBackImage.alpha = 0
+            
             let flipAnim1 = CABasicAnimation(keyPath: "transform.rotation.y")
             flipAnim1.fromValue = 0
             flipAnim1.toValue = CGFloat.pi/2
             flipAnim1.duration = AnimationConfig.successFlipAnimDuration
             flipAnim1.fillMode = .forwards
             flipAnim1.isRemovedOnCompletion = false
-            amuletCardBackImage.layer.add(flipAnim1, forKey: "success_flip")
+            amuletCardBackImageLayer.add(flipAnim1, forKey: "success_flip")
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now()+AnimationConfig.successZoomInAnimDuration+AnimationConfig.successFlipAnimDuration) { [weak self] in
@@ -320,7 +324,7 @@ extension ShakeMissionWorkingView {
             
             let amuletCardFrontImageLayer = createAmuletFrontLayer()
             amuletCardFrontImageLayer.isDoubleSided = true
-            amuletCardFrontImageLayer.zPosition = 101
+            amuletCardFrontImageLayer.zPosition = 300
             let flipAnim2 = CABasicAnimation(keyPath: "transform.rotation.y")
             flipAnim2.fromValue = CGFloat.pi*2 * 3/4
             flipAnim2.toValue = CGFloat.pi*2
@@ -331,7 +335,25 @@ extension ShakeMissionWorkingView {
         }
     }
     
+    private func createAmuletBackLayer() -> CALayer {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        let imageLayer = CALayer()
+        invisibleLayer.addSublayer(imageLayer)
+        imageLayer.frame = invisibleLayer.bounds
+        imageLayer.contents = FeatureResourcesAsset.shakeMissionWorkingAmuletBack.image.cgImage
+        imageLayer.contentsGravity = .resizeAspect
+        imageLayer.setAffineTransform(.init(
+            scaleX: AnimationConfig.successZoomInValue,
+            y: AnimationConfig.successZoomInValue
+        ))
+        CATransaction.commit()
+        return imageLayer
+    }
+    
     private func createAmuletFrontLayer() -> CALayer {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         let imageLayer = CALayer()
         self.invisibleLayer.addSublayer(imageLayer)
         imageLayer.frame = invisibleLayer.bounds
@@ -341,6 +363,7 @@ extension ShakeMissionWorkingView {
             scaleX: AnimationConfig.successZoomInValue,
             y: AnimationConfig.successZoomInValue
         ))
+        CATransaction.commit()
         return imageLayer
     }
 }
