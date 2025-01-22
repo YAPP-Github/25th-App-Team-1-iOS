@@ -53,11 +53,14 @@ final class RootBuilder: Builder<RootDependency>, RootBuildable {
         interactor.listener = listener
         let alarmListBuilder = AlarmListBuilder(dependency: component)
         let createAlarmBuilder = CreateAlarmBuilder(dependency: component)
+        let snoozeOptionBuilder = CreateAlarmSnoozeOptionBuilder(dependency: component)
+        
         return RootRouter(
             interactor: interactor,
             viewController: component.RootViewController,
             alarmListBuilder: alarmListBuilder,
-            createAlarmBuilder: createAlarmBuilder
+            createAlarmBuilder: createAlarmBuilder,
+            snoozeOptionBuilder: snoozeOptionBuilder
         )
     }
 }

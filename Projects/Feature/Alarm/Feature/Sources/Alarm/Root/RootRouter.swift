@@ -8,7 +8,7 @@
 import RIBs
 import UIKit
 
-protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener {
+protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener, CreateAlarmSnoozeOptionListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -26,11 +26,13 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         interactor: RootInteractable,
         viewController: RootViewControllable,
         alarmListBuilder: AlarmListBuildable,
-        createAlarmBuilder: CreateAlarmBuildable
+        createAlarmBuilder: CreateAlarmBuildable,
+        snoozeOptionBuilder: CreateAlarmSnoozeOptionBuildable
     ) {
         self.viewController = viewController
         self.alarmListBuilder = alarmListBuilder
         self.createAlarmBuilder = createAlarmBuilder
+        self.snoozeOptionBuilder = snoozeOptionBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -45,6 +47,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToCreateAlarm()
         case .detachCreateAlarm:
             detachCreateAlarm()
+        case .routeToSnoozeOption:
+            routeToSnoozeOption()
+        case .detachSnoozeOption:
+            detachSnoozeOption()
         }
     }
     
@@ -61,6 +67,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private let createAlarmBuilder: CreateAlarmBuildable
     private var createAlarmRouter: CreateAlarmRouting?
     
+    private let snoozeOptionBuilder: CreateAlarmSnoozeOptionBuildable
+    private var snoozeOptionRouter: CreateAlarmSnoozeOptionRouting?
     
     private func cleanupViews() {
         // TODO: Since this router does not own its view, it needs to cleanup the views
@@ -92,5 +100,22 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         createAlarmRouter = nil
         detachChild(router)
         navigationController.popViewController(animated: true)
+    }
+    
+    func routeToSnoozeOption() {
+        guard snoozeOptionRouter == nil else { return }
+        let router = snoozeOptionBuilder.build(withListener: interactor)
+        self.snoozeOptionRouter = router
+        attachChild(router)
+        router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
+        router.viewControllable.uiviewController.modalTransitionStyle = .crossDissolve
+        navigationController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    func detachSnoozeOption() {
+        guard let router = snoozeOptionRouter else { return }
+        snoozeOptionRouter = nil
+        detachChild(router)
+        router.viewControllable.uiviewController.dismiss(animated: true)
     }
 }

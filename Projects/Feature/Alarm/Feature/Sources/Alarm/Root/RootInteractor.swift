@@ -13,6 +13,8 @@ enum RootRouterRequest {
     case routeToAlarmList
     case routeToCreateAlarm
     case detachCreateAlarm
+    case routeToSnoozeOption
+    case detachSnoozeOption
 }
 
 protocol RootRouting: Routing {
@@ -70,6 +72,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: CreateAlarmListenerRequest) {
         switch request {
+        case .snoozeOption:
+            router?.request(.routeToSnoozeOption)
         case let .done(alarm):
             router?.request(.detachCreateAlarm)
             service.createAlarm(alarm)
