@@ -24,7 +24,7 @@ let project = Project(
                     "UIInterfaceOrientationPortrait"
                 ],
                 "CFBundleDisplayName": "Orbit_ShakeMission",
-                "CFBundleVersionString": "1.1.0",
+                "CFBundleShortVersionString": "1.1.0"
             ]),
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
