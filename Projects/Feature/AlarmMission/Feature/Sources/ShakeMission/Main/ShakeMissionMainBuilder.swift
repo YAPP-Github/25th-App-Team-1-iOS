@@ -9,7 +9,7 @@ import UIKit
 
 import RIBs
 
-protocol ShakeMissionMainDependency: Dependency {
+public protocol ShakeMissionMainDependency: Dependency {
     var navigationController: UINavigationController { get }
 }
 
@@ -24,13 +24,13 @@ protocol ShakeMissionMainBuildable: Buildable {
     func build(withListener listener: ShakeMissionMainListener) -> ShakeMissionMainRouting
 }
 
-final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeMissionMainBuildable {
+public final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeMissionMainBuildable {
 
-    override init(dependency: ShakeMissionMainDependency) {
+    public override init(dependency: ShakeMissionMainDependency) {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: ShakeMissionMainListener) -> ShakeMissionMainRouting {
+    public func build(withListener listener: ShakeMissionMainListener) -> ShakeMissionMainRouting {
         let component = ShakeMissionMainComponent(dependency: dependency)
         let viewController = ShakeMissionMainViewController()
         let interactor = ShakeMissionMainInteractor(presenter: viewController)

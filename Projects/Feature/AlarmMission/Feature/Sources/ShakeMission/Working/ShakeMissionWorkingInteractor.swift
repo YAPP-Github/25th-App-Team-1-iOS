@@ -54,7 +54,7 @@ enum ShakeMissionWorkingInteractorRequest {
 }
 
 
-protocol ShakeMissionWorkingListener: AnyObject {
+public protocol ShakeMissionWorkingListener: AnyObject {
     func exitShakeMissionWorkingPage()
 }
 

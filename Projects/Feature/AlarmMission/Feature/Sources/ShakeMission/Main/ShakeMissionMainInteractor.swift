@@ -10,15 +10,15 @@ import FeatureDesignSystem
 import RIBs
 import RxSwift
 
-enum ShakeMissionMainRoutingRequest {
-    case presentWorkingPage(listener: ShakeMissionWorkingListener)
+public enum ShakeMissionMainRoutingRequest {
+    case presentWorkingPage
     case dissmissWorkingPage
     case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
     case exitPage
 }
 
-protocol ShakeMissionMainRouting: ViewableRouting {
+public protocol ShakeMissionMainRouting: ViewableRouting {
     
     func request(_ request: ShakeMissionMainRoutingRequest)
 }
@@ -29,7 +29,7 @@ protocol ShakeMissionMainPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
-protocol ShakeMissionMainListener: AnyObject {
+public protocol ShakeMissionMainListener: AnyObject {
     // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
 }
 
@@ -63,7 +63,7 @@ extension ShakeMissionMainInteractor {
     func request(_ request: ShakeMissionMainPresenterRequest) {
         switch request {
         case .startMission:
-            router?.request(.presentWorkingPage(listener: self))
+            router?.request(.presentWorkingPage)
         case .presentAlert(let config):
             router?.request(.presentAlert(config, self))
         }

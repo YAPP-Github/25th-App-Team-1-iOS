@@ -20,7 +20,7 @@ protocol ShakeMissionMainViewControllable: ViewControllable {
     // TODO: Declare methods the router invokes to manipulate the view hierarchy.
 }
 
-final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable, ShakeMissionMainViewControllable>, ShakeMissionMainRouting, DSTwoButtonAlertPresentable, DSTwoButtonAlertViewControllerListener {
+final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable, ShakeMissionMainViewControllable>, ShakeMissionMainRouting, DSTwoButtonAlertPresentable {
     
     // Navigation
     private let navigationController: UINavigationController
@@ -91,19 +91,5 @@ private extension ShakeMissionMainRouter {
         guard let shakeMissionWorkingRouter else { return }
         detachChild(shakeMissionWorkingRouter)
         navigationController.popViewController(animated: true)
-    }
-}
-
-
-// MARK: DSTwoButtonAlertViewControllerListener
-extension ShakeMissionMainRouter {
-    
-    func action(_ action: DSTwoButtonAlertViewController.Action) {
-        switch action {
-        case .leftButtonClicked:
-            print("left")
-        case .rightButtonClicked:
-            print("right")
-        }
     }
 }
