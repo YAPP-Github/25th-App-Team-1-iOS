@@ -21,7 +21,15 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios betaOnboarding
 ```
 
-Demo apps
+On boarding demo app
+
+### ios betaShakeMission
+
+```sh
+[bundle exec] fastlane ios betaShakeMission
+```
+
+Shake mission demo app
 
 ----
 
