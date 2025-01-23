@@ -69,5 +69,27 @@ let project = Project(
                 .thirdParty(library: .Lottie),
             ]
         ),
+    ],
+    schemes: [
+        
+        // MARK: Debug scheme
+        .scheme(
+            name: "FeatureAlarmMissionExample-Debug",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureAlarmMissionExample") ]
+            ),
+            runAction: .runAction(configuration: "Debug"),
+            archiveAction: .archiveAction(configuration: "Debug")
+        ),
+        
+        // MARK: Release scheme
+        .scheme(
+            name: "FeatureAlarmMissionExample-Release",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureAlarmMissionExample") ]
+            ),
+            runAction: .runAction(configuration: "Release"),
+            archiveAction: .archiveAction(configuration: "Release")
+        ),
     ]
 )
