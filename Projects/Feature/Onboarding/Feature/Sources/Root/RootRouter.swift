@@ -156,7 +156,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
            navigationController.viewControllers.count > 1 {
             navigationController.popViewController(animated: animated)
         } else {
+            // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
             viewController.uiviewController.dismiss(animated: animated)
+            navigationController = nil
         }
     }
 
