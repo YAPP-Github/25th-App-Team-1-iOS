@@ -33,7 +33,7 @@ let project = Project(
             name: "FeatureOnboardingTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: Project.Environment.bundleId(suffix: "feature.nboarding.tests"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.onboarding.tests"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Tests/**"],
             dependencies: [
@@ -47,7 +47,7 @@ let project = Project(
             name: "FeatureOnboarding",
             destinations: .iOS,
             product: .staticFramework,
-            bundleId: Project.Environment.bundleId(suffix: "feature.FeatureOnboarding"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.onBoarding"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
