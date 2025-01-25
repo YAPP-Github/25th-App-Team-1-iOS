@@ -11,6 +11,8 @@ import RIBs
 import RxSwift
 
 enum ShakeMissionMainRoutingRequest {
+    case presentWorkingPage(listener: ShakeMissionWorkingListener)
+    case dissmissWorkingPage
     case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
     case exitPage
@@ -61,7 +63,7 @@ extension ShakeMissionMainInteractor {
     func request(_ request: ShakeMissionMainPresenterRequest) {
         switch request {
         case .startMission:
-            break
+            router?.request(.presentWorkingPage(listener: self))
         case .presentAlert(let config):
             router?.request(.presentAlert(config, self))
         }
@@ -79,5 +81,14 @@ extension ShakeMissionMainInteractor {
         case .rightButtonClicked:
             router?.request(.exitPage)
         }
+    }
+}
+
+
+// MARK: ShakeMissionWorkingListener
+extension ShakeMissionMainInteractor {
+    
+    func exitShakeMissionWorkingPage() {
+        router?.request(.dissmissWorkingPage)
     }
 }
