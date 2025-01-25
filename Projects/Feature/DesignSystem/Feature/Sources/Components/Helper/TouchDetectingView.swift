@@ -7,10 +7,10 @@
 
 import UIKit
 
-public class TouchDetectingView: UIView {
+open class TouchDetectingView: UIView {
     
-    func onTouchIn() {}
-    func onTouchOut() {}
+    open func onTouchIn() {}
+    open func onTouchOut() {}
     
     private var isTouchInside = false
     
