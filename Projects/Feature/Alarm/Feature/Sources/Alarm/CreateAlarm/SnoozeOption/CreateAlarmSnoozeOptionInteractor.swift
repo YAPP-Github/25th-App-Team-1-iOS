@@ -12,13 +12,23 @@ protocol CreateAlarmSnoozeOptionRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum CreateAlarmSnoozeOptionPresentableRequest {
+    case disableOptions
+    case enableOptions(SnoozeFrequency, SnoozeCount)
+}
+
 protocol CreateAlarmSnoozeOptionPresentable: Presentable {
     var listener: CreateAlarmSnoozeOptionPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: CreateAlarmSnoozeOptionPresentableRequest)
+}
+
+enum CreateAlarmSnoozeOptionListenerRequest {
+    case cancel
+    case done(SnoozeFrequency, SnoozeCount)
 }
 
 protocol CreateAlarmSnoozeOptionListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: CreateAlarmSnoozeOptionListenerRequest)
 }
 
 final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarmSnoozeOptionPresentable>, CreateAlarmSnoozeOptionInteractable, CreateAlarmSnoozeOptionPresentableListener {
@@ -41,5 +51,29 @@ final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarm
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+    
+    private var isSnoozeOn: Bool = true
+    private var frequency: SnoozeFrequency = .fiveMinutes
+    private var count: SnoozeCount = .fiveTimes
+    
+    func request(_ request: CreateAlarmSnoozeOptionPresentableListenerRequest) {
+        switch request {
+        case .viewDidLoad:
+            presenter.request(.enableOptions(frequency, count))
+        case let .isOnChanged(isOn):
+            self.isSnoozeOn = isOn
+            if isSnoozeOn {
+                presenter.request(.enableOptions(frequency, count))
+            } else {
+                presenter.request(.disableOptions)
+            }
+        case let .frequencyChanged(frequency):
+            self.frequency = frequency
+        case let .countChanged(count):
+            self.count = count
+        case .done:
+            listener?.request(.done(frequency, count))
+        }
     }
 }

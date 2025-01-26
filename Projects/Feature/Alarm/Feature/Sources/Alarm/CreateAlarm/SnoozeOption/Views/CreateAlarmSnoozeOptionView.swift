@@ -11,12 +11,31 @@ import Then
 import FeatureResources
 import FeatureDesignSystem
 
+enum SnoozeFrequency: String, CaseIterable {
+    case oneMinute = "1분"
+    case threeMinutes = "3분"
+    case fiveMinutes = "5분"
+    case tenMinutes = "10분"
+    case fifteenMinutes = "15분"
+}
+
+enum SnoozeCount: String, CaseIterable {
+    case once = "1회"
+    case threeTimes = "3회"
+    case fiveTimes = "5회"
+    case tenTimes = "10회"
+    case unlimited = "무한"
+}
+
 protocol CreateAlarmSnoozeOptionViewListener: AnyObject {
     func action(_ action: CreateAlarmSnoozeOptionView.Action)
 }
 
 final class CreateAlarmSnoozeOptionView: UIView {
     enum Action {
+        case isOnChanged(Bool)
+        case frequencyChanged(SnoozeFrequency)
+        case countChanged(SnoozeCount)
         case doneButtonTapped
     }
     
@@ -36,16 +55,34 @@ final class CreateAlarmSnoozeOptionView: UIView {
     private let titleLabel = UILabel()
     private let onOffSwitch = UISwitch()
     
-    private let frequencyView = UIView()
-    private let countView = UIView()
+    private let frequencyView = SnoozeOptionSelectionView(
+        title: "간격",
+        options: SnoozeFrequency.allCases.map { $0.rawValue }
+    )
+    private let countView = SnoozeOptionSelectionView(
+        title: "횟수",
+        options: SnoozeCount.allCases.map { $0.rawValue }
+    )
     
     private let guideView = UIView()
     private let guideLabel = UILabel()
     private let doneButton = DSDefaultCTAButton(initialState: .active, style: .init(type: .secondary))
     
+    // MARK: Internal
+    func disableOptions() {
+        frequencyView.disableOptions()
+        countView.disableOptions()
+    }
+    
+    func enableOptions(frequency: SnoozeFrequency, count: SnoozeCount) {
+        frequencyView.selectOption(frequency.rawValue)
+        countView.selectOption(count.rawValue)
+    }
+    
     @objc
     private func onOffSwitchChanged(toggle: UISwitch) {
-        
+        toggle.thumbTintColor = toggle.isOn ? R.Color.gray800 : R.Color.gray300
+        listener?.action(.isOnChanged(toggle.isOn))
     }
 }
 
@@ -60,13 +97,30 @@ private extension CreateAlarmSnoozeOptionView {
         }
         
         titleLabel.do {
-            $0.displayText = "알람 미루가".displayText(font: .heading2SemiBold, color: R.Color.white100)
+            $0.displayText = "알람 미루기".displayText(font: .heading2SemiBold, color: R.Color.white100)
         }
         onOffSwitch.do {
             $0.onTintColor = R.Color.main100
             $0.tintColor = R.Color.gray600
-            $0.thumbTintColor = R.Color.gray300
+            $0.thumbTintColor = R.Color.gray800
             $0.addTarget(self, action: #selector(onOffSwitchChanged), for: .valueChanged)
+            $0.isOn = true
+        }
+        
+        frequencyView.do {
+            $0.optionSelected = { [weak self] option in
+                guard let self,
+                      let frequency = SnoozeFrequency(rawValue: option) else { return }
+                listener?.action(.frequencyChanged(frequency))
+            }
+        }
+        
+        countView.do {
+            $0.optionSelected = { [weak self] option in
+                guard let self,
+                      let count = SnoozeCount(rawValue: option) else { return }
+                listener?.action(.countChanged(count))
+            }
         }
         
         guideView.do {
@@ -108,13 +162,11 @@ private extension CreateAlarmSnoozeOptionView {
         frequencyView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(28)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(96)
         }
         
         countView.snp.makeConstraints {
             $0.top.equalTo(frequencyView.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(96)
         }
         guideView.snp.makeConstraints {
             $0.top.equalTo(countView.snp.bottom).offset(40)

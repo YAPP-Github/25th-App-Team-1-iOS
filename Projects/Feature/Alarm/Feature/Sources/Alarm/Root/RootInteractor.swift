@@ -60,6 +60,7 @@ final class RootInteractor: Interactor, RootInteractable {
     }
 }
 
+// MARK: AlarmListListenerRequest
 extension RootInteractor {
     func request(_ request: AlarmListListenerRequest) {
         switch request {
@@ -69,6 +70,7 @@ extension RootInteractor {
     }
 }
 
+// MARK: CreateAlarmListenerRequest
 extension RootInteractor {
     func request(_ request: CreateAlarmListenerRequest) {
         switch request {
@@ -77,6 +79,19 @@ extension RootInteractor {
         case let .done(alarm):
             router?.request(.detachCreateAlarm)
             service.createAlarm(alarm)
+        }
+    }
+}
+
+extension RootInteractor {
+    func request(_ request: CreateAlarmSnoozeOptionListenerRequest) {
+        
+        switch request {
+        case .cancel:
+            router?.request(.detachSnoozeOption)
+        case let .done(frequency, count):
+            router?.request(.detachSnoozeOption)
+            print("frequency: \(frequency.rawValue), count: \(count.rawValue)")
         }
     }
 }
