@@ -49,7 +49,7 @@ final class CreateAlarmView: UIView {
                 displayingText: "\(hour)"
             )
         },
-        minuteColumns: (1...60).map { minute in
+        minuteColumns: (0...60).map { minute in
             var displayingText = "\(minute)"
             if minute < 10 {
                 displayingText = "0\(minute)"

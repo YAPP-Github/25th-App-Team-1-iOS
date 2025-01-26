@@ -8,7 +8,7 @@
 import RIBs
 import UIKit
 
-protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener, CreateAlarmSnoozeOptionListener {
+protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener, CreateAlarmSnoozeOptionListener, CreateAlarmSoundOptionListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -27,12 +27,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         viewController: RootViewControllable,
         alarmListBuilder: AlarmListBuildable,
         createAlarmBuilder: CreateAlarmBuildable,
-        snoozeOptionBuilder: CreateAlarmSnoozeOptionBuildable
+        snoozeOptionBuilder: CreateAlarmSnoozeOptionBuildable,
+        soundOptionBuilder: CreateAlarmSoundOptionBuildable
     ) {
         self.viewController = viewController
         self.alarmListBuilder = alarmListBuilder
         self.createAlarmBuilder = createAlarmBuilder
         self.snoozeOptionBuilder = snoozeOptionBuilder
+        self.soundOptionBuilder = soundOptionBuilder
         super.init(interactor: interactor)
         interactor.router = self
     }
@@ -51,6 +53,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToSnoozeOption()
         case .detachSnoozeOption:
             detachSnoozeOption()
+        case .routeToSoundOption:
+            routeToSoundOption()
+        case .detachSoundOption:
+            detachSoundOption()
         }
     }
     
@@ -69,6 +75,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let snoozeOptionBuilder: CreateAlarmSnoozeOptionBuildable
     private var snoozeOptionRouter: CreateAlarmSnoozeOptionRouting?
+    
+    private let soundOptionBuilder: CreateAlarmSoundOptionBuildable
+    private var soundOptionRouter: CreateAlarmSoundOptionRouting?
     
     private func cleanupViews() {
         // TODO: Since this router does not own its view, it needs to cleanup the views
@@ -115,6 +124,23 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     func detachSnoozeOption() {
         guard let router = snoozeOptionRouter else { return }
         snoozeOptionRouter = nil
+        detachChild(router)
+        router.viewControllable.uiviewController.dismiss(animated: true)
+    }
+    
+    func routeToSoundOption() {
+        guard soundOptionRouter == nil else { return }
+        let router = soundOptionBuilder.build(withListener: interactor)
+        self.soundOptionRouter = router
+        attachChild(router)
+        router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
+        router.viewControllable.uiviewController.modalTransitionStyle = .crossDissolve
+        navigationController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    func detachSoundOption() {
+        guard let router = soundOptionRouter else { return }
+        soundOptionRouter = nil
         detachChild(router)
         router.viewControllable.uiviewController.dismiss(animated: true)
     }

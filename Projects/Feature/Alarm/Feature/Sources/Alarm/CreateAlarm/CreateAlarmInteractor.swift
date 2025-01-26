@@ -19,6 +19,7 @@ protocol CreateAlarmPresentable: Presentable {
 
 enum CreateAlarmListenerRequest {
     case snoozeOption
+    case soundOption
     case done(Alarm)
 }
 
@@ -51,7 +52,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         case .selectSnooze:
             listener?.request(.snoozeOption)
         case .selectSound:
-            print("사운드 선택")
+            listener?.request(.soundOption)
         case .done:
             createAlarm()
         }
