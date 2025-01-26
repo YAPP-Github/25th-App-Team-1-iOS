@@ -39,7 +39,6 @@ final class OnboardingFortuneGuideView: UIView {
     private let welcomeLabel = UILabel()
     private let guideLabel = UILabel()
     private let animationView = LottieAnimationView(name: "onboarding_3", bundle: Bundle.resources)
-    private let countImageView = UIImageView()
     private let startButton = DSDefaultCTAButton(initialState: .active)
 }
 
@@ -66,11 +65,6 @@ private extension OnboardingFortuneGuideView {
             $0.contentMode = .scaleAspectFit
         }
         
-        countImageView.do {
-            $0.image = FeatureResourcesAsset.svgOnboardingShake10.image
-            $0.contentMode = .scaleAspectFit
-        }
-        
         startButton.do {
             $0.update(title: "시작하기")
             $0.buttonAction = { [weak self] in
@@ -78,7 +72,7 @@ private extension OnboardingFortuneGuideView {
             }
         }
         
-        [welcomeLabel, guideLabel, animationView, countImageView, startButton].forEach { addSubview($0) }
+        [welcomeLabel, guideLabel, animationView, startButton].forEach { addSubview($0) }
     }
     
     func layout() {
@@ -93,8 +87,8 @@ private extension OnboardingFortuneGuideView {
         }
         
         animationView.snp.makeConstraints {
-            $0.top.equalTo(guideLabel.snp.bottom).offset(36)
-            $0.leading.equalTo(3.5)
+            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         startButton.snp.makeConstraints {
