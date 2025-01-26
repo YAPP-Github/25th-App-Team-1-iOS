@@ -72,11 +72,25 @@ final class CreateAlarmSnoozeOptionView: UIView {
     func disableOptions() {
         frequencyView.disableOptions()
         countView.disableOptions()
+        guideView.isHidden = true
+        doneButton.snp.remakeConstraints {
+            $0.top.equalTo(countView.snp.bottom).offset(40)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview()
+        }
     }
     
     func enableOptions(frequency: SnoozeFrequency, count: SnoozeCount) {
         frequencyView.selectOption(frequency.rawValue)
         countView.selectOption(count.rawValue)
+        
+        guideLabel.displayText = "\(frequency.rawValue) 간격으로 \(count.rawValue) 울립니다.".displayText(font: .label1Medium, color: R.Color.main100)
+        guideView.isHidden = false
+        doneButton.snp.remakeConstraints {
+            $0.top.equalTo(guideView.snp.bottom).offset(23)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview()
+        }
     }
     
     @objc
@@ -127,10 +141,6 @@ private extension CreateAlarmSnoozeOptionView {
             $0.backgroundColor = R.Color.gray700
             $0.layer.cornerRadius = 8
             $0.layer.masksToBounds = true
-        }
-        
-        guideLabel.do {
-            $0.displayText = "5분 간격으로 5회 울립니다.".displayText(font: .label1Medium, color: R.Color.main100)
         }
         
         doneButton.do {

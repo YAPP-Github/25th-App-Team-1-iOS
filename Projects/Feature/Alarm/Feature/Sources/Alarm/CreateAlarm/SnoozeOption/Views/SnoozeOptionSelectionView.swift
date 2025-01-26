@@ -96,8 +96,6 @@ final class SnoozeOptionSelectionView: UIView {
     
     @objc
     private func buttonSelected(button: AlarmOptionButton) {
-        deselectAllButtons()
-        button.isSelected = true
         switch button {
         case option1Button:
             optionSelected?(options[0])

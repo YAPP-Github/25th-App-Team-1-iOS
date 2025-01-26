@@ -70,8 +70,10 @@ final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarm
             }
         case let .frequencyChanged(frequency):
             self.frequency = frequency
+            presenter.request(.enableOptions(frequency, count))
         case let .countChanged(count):
             self.count = count
+            presenter.request(.enableOptions(frequency, count))
         case .done:
             listener?.request(.done(frequency, count))
         }
