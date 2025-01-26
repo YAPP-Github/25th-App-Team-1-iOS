@@ -16,15 +16,22 @@ let project = Project(
             name: "FeatureOnboardingExample",
             destinations: .iOS,
             product: .app,
+            productName: "OrbitOnboardingDemo",
             bundleId: Project.Environment.bundleId(suffix: "feature.example"),
             deploymentTargets: Project.Environment.deploymentTarget,
-            infoPlist: .example_app,
+            infoPlist: .app_plist(with: [
+                "CFBundleShortVersionString": "1.0.1"
+            ]),
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
                 .feature(implements: .Onboarding),
                 .thirdParty(library: .RIBs)
-            ]
+            ],
+            settings: .settings(configurations: [
+                .debug(name: "Debug"),
+                .release(name: "Release")
+            ])
         ),
 
 
@@ -33,7 +40,7 @@ let project = Project(
             name: "FeatureOnboardingTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: Project.Environment.bundleId(suffix: "feature.nboarding.tests"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.onboarding.tests"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Tests/**"],
             dependencies: [
@@ -47,7 +54,7 @@ let project = Project(
             name: "FeatureOnboarding",
             destinations: .iOS,
             product: .staticFramework,
-            bundleId: Project.Environment.bundleId(suffix: "feature.FeatureOnboarding"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.onBoarding"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
@@ -58,6 +65,28 @@ let project = Project(
                 .thirdParty(library: .Then),
                 .thirdParty(library: .Lottie)
             ]
+        ),
+    ],
+    schemes: [
+        
+        // MARK: Debug scheme
+        .scheme(
+            name: "FeatureOnboardingExample-Debug",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureOnboardingExample") ]
+            ),
+            runAction: .runAction(configuration: "Debug"),
+            archiveAction: .archiveAction(configuration: "Debug")
+        ),
+        
+        // MARK: Release scheme
+        .scheme(
+            name: "FeatureOnboardingExample-Release",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureOnboardingExample") ]
+            ),
+            runAction: .runAction(configuration: "Release"),
+            archiveAction: .archiveAction(configuration: "Release")
         ),
     ]
 )
