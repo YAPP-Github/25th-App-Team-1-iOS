@@ -48,6 +48,12 @@ final class CreateAlarmSoundOptionView: UIView {
     
     weak var listener: CreateAlarmSoundOptionViewListener?
     
+    private var selectedIndex: Int? {
+        didSet {
+            soundListTableView.reloadData()
+        }
+    }
+    
     private let containerView = UIView()
     private let titleLabel = UILabel()
     private let vibrateLabel = UILabel()
@@ -140,7 +146,7 @@ private extension CreateAlarmSoundOptionView {
             $0.delegate = self
             $0.separatorStyle = .none
             $0.backgroundColor = .clear
-            $0.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+            $0.register(SoundOptionItemCell.self, forCellReuseIdentifier: "SoundOptionItemCell")
         }
         
         doneButton.do {
@@ -237,10 +243,8 @@ extension CreateAlarmSoundOptionView: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell") else { return .init() }
-        cell.selectionStyle = .none
-        cell.textLabel?.displayText = soundList[indexPath.row].displayText(font: .body1Medium, color: R.Color.white100)
-        cell.backgroundColor = .clear
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "SoundOptionItemCell") as? SoundOptionItemCell else { return .init() }
+        cell.configure(title: soundList[indexPath.row], isSelected: indexPath.row == selectedIndex)
         return cell
     }
 }
@@ -248,5 +252,8 @@ extension CreateAlarmSoundOptionView: UITableViewDataSource {
 extension CreateAlarmSoundOptionView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 44
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.selectedIndex = indexPath.row
     }
 }
