@@ -17,6 +17,7 @@ protocol AuthorizationDeniedViewListener: AnyObject {
 
 final class AuthorizationDeniedView: UIView {
     enum Action {
+        case backButtonTapped
         case laterButtonTapped
         case settingButtonTapped
     }
@@ -36,6 +37,7 @@ final class AuthorizationDeniedView: UIView {
     
     weak var listener: AuthorizationDeniedViewListener?
     
+    private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel = UILabel()
     private let deniedImageView = UIImageView()
     private let buttonStackView = UIStackView()
@@ -46,6 +48,9 @@ final class AuthorizationDeniedView: UIView {
 private extension AuthorizationDeniedView {
     func setupUI() {
         backgroundColor = R.Color.gray900
+        navigationBar.do {
+            $0.listener = self
+        }
         titleLabel.do {
             $0.displayText = """
             알람을 허용하지 않으면 
@@ -80,7 +85,7 @@ private extension AuthorizationDeniedView {
             }
         }
         
-        [titleLabel, deniedImageView, buttonStackView].forEach {
+        [navigationBar, titleLabel, deniedImageView, buttonStackView].forEach {
             addSubview($0)
         }
         [laterButton, settingButton].forEach {
@@ -90,8 +95,13 @@ private extension AuthorizationDeniedView {
     }
     
     func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(40)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
         }
         
@@ -108,3 +118,11 @@ private extension AuthorizationDeniedView {
     }
 }
 
+extension AuthorizationDeniedView: OnBoardingNavBarViewListener {
+    func action(_ action: OnBoardingNavBarView.Action) {
+        switch action {
+        case .backButtonClicked:
+            listener?.action(.backButtonTapped)
+        }
+    }
+}

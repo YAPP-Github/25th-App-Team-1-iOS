@@ -189,6 +189,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: AuthorizationDeniedListenerRequest) {
         switch request {
+        case .back:
+            router?.request(.detachAuthorizationDenied)
         case .later:
             router?.request(.routeToMissionGuide)
         case .allowed:
