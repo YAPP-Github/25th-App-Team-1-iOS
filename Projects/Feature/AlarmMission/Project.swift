@@ -1,69 +1,72 @@
 //
 //  Project.swift
 //
-//  Created by 손병근 on 2025/01/04
+//  Created by choijunios on 2025/01/20
 //
 
 import ProjectDescription
 import DependencyPlugin
 
 let project = Project(
-    name: "FeatureOnboarding",
+    name: "AlarmMission",
     targets: [
         
         // Example
         .target(
-            name: "FeatureOnboardingExample",
+            name: "FeatureAlarmMissionExample",
             destinations: .iOS,
             product: .app,
-            productName: "OrbitOnboardingDemo",
             bundleId: Project.Environment.bundleId(suffix: "feature.example"),
             deploymentTargets: Project.Environment.deploymentTarget,
             infoPlist: .app_plist(with: [
-                "CFBundleShortVersionString": "1.0.1"
+                "UIUserInterfaceStyle": "Light",
+                "UISupportedInterfaceOrientations": [
+                    "UIInterfaceOrientationPortrait"
+                ],
+                "CFBundleDisplayName": "Orbit_ShakeMission",
+                "CFBundleShortVersionString": "1.1.0"
             ]),
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
-                .feature(implements: .Onboarding),
-                .thirdParty(library: .RIBs)
-            ],
-            settings: .settings(configurations: [
-                .debug(name: "Debug"),
-                .release(name: "Release")
-            ])
+                .feature(implements: .AlarmMission),
+            ]
         ),
 
 
         // Tests
         .target(
-            name: "FeatureOnboardingTests",
+            name: "FeatureAlarmMissionTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: Project.Environment.bundleId(suffix: "feature.onboarding.tests"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.AlarmMission.tests"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Tests/**"],
             dependencies: [
-                .feature(implements: .Onboarding),
+                .feature(implements: .AlarmMission),
             ]
         ),
 
 
         // Feature
         .target(
-            name: "FeatureOnboarding",
+            name: "FeatureAlarmMission",
             destinations: .iOS,
             product: .staticFramework,
-            bundleId: Project.Environment.bundleId(suffix: "feature.onBoarding"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.AlarmMission"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
+                
+                // Internal
                 .feature(implements: .Resources),
                 .feature(implements: .DesignSystem),
+                
+                // Third party
                 .thirdParty(library: .RIBs),
-                .thirdParty(library: .SnapKit),
                 .thirdParty(library: .Then),
-                .thirdParty(library: .Lottie)
+                .thirdParty(library: .SnapKit),
+                .thirdParty(library: .Lottie),
             ]
         ),
     ],
@@ -71,9 +74,9 @@ let project = Project(
         
         // MARK: Debug scheme
         .scheme(
-            name: "FeatureOnboardingExample-Debug",
+            name: "FeatureAlarmMissionExample-Debug",
             buildAction: .buildAction(
-                targets: [ .target("FeatureOnboardingExample") ]
+                targets: [ .target("FeatureAlarmMissionExample") ]
             ),
             runAction: .runAction(configuration: "Debug"),
             archiveAction: .archiveAction(configuration: "Debug")
@@ -81,9 +84,9 @@ let project = Project(
         
         // MARK: Release scheme
         .scheme(
-            name: "FeatureOnboardingExample-Release",
+            name: "FeatureAlarmMissionExample-Release",
             buildAction: .buildAction(
-                targets: [ .target("FeatureOnboardingExample") ]
+                targets: [ .target("FeatureAlarmMissionExample") ]
             ),
             runAction: .runAction(configuration: "Release"),
             archiveAction: .archiveAction(configuration: "Release")
