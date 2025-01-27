@@ -15,7 +15,33 @@ protocol MainPagePresentableListener: AnyObject {
     // interactor class.
 }
 
-final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable {
+final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable, MainPageViewListener {
 
+    private(set) var mainView: MainPageView!
     weak var listener: MainPagePresentableListener?
+    
+    override func loadView() {
+        let mainView = MainPageView()
+        self.mainView = mainView
+        self.view = mainView
+        mainView.listener = self
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+}
+
+
+// MARK: MainPageViewListener
+extension MainPageViewController {
+    
+    func action(_ action: MainPageView.Action) {
+    
+    }
+}
+
+
+#Preview {
+    MainPageViewController()
 }
