@@ -19,8 +19,8 @@ final class CreateAlarmSoundOptionView: UIView {
     enum Action {
         case isVibrateOnChanged(Bool)
         case isSoundOnChanged(Bool)
-        case frequencyChanged(SnoozeFrequency)
-        case countChanged(SnoozeCount)
+        case volumeChanged(Float)
+        case soundSelected(String)
         case doneButtonTapped
     }
     
@@ -87,6 +87,11 @@ final class CreateAlarmSoundOptionView: UIView {
             break
         }
     }
+    
+    @objc
+    private func volumeChanged(slider: UISlider) {
+        listener?.action(.volumeChanged(slider.value))
+    }
 }
 
 private extension CreateAlarmSoundOptionView {
@@ -139,6 +144,7 @@ private extension CreateAlarmSoundOptionView {
         soundSlider.do {
             $0.thumbTintColor = R.Color.white100
             $0.tintColor = R.Color.main100
+            $0.addTarget(self, action: #selector(volumeChanged), for: .valueChanged)
         }
         
         soundListTableView.do {

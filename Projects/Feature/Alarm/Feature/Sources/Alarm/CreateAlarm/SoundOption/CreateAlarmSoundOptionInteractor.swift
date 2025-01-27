@@ -33,13 +33,23 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
         presenter.listener = self
     }
 
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
+    private var isVibrateOn: Bool = true
+    private var isSoundOn: Bool = true
+    private var volume: Float = 0.7
+    private var selectedSound: String?
+    
+    func request(_ request: CreateAlarmSoundOptionPresentableListenerRequest) {
+        switch request {
+        case let .isVibrateOnChanged(isVibrateOn):
+            self.isVibrateOn = isVibrateOn
+        case let .isSoundOnChanged(isSoundOn):
+            self.isSoundOn = isSoundOn
+        case let .volumeChanged(volume):
+            self.volume = volume
+        case let .soundSelected(sound):
+            self.selectedSound = sound
+        case .done:
+            print("isVibrateOn: \(isVibrateOn)\nisSoundOn: \(isSoundOn)\nvolume: \(volume)\nselectedSound: \(selectedSound ?? "none")")
+        }
     }
 }
