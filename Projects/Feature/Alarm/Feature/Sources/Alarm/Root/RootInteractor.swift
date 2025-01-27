@@ -87,6 +87,7 @@ extension RootInteractor {
     }
 }
 
+// MARK: CreateAlarmSnoozeOptionListenerRequest
 extension RootInteractor {
     func request(_ request: CreateAlarmSnoozeOptionListenerRequest) {
         
@@ -96,6 +97,16 @@ extension RootInteractor {
         case let .done(frequency, count):
             router?.request(.detachSnoozeOption)
             print("frequency: \(frequency.rawValue), count: \(count.rawValue)")
+        }
+    }
+}
+
+// MARK: CreateAlarmSoundOptionListenerRequest
+extension RootInteractor {
+    func request(_ request: CreateAlarmSoundOptionListenerRequest) {
+        switch request {
+        case .done:
+            router?.request(.detachSoundOption)
         }
     }
 }

@@ -22,8 +22,12 @@ protocol CreateAlarmSoundOptionPresentable: Presentable {
     func request(_ request: CreateAlarmSoundOptionPresentableRequest)
 }
 
+enum CreateAlarmSoundOptionListenerRequest {
+    case done
+}
+
 protocol CreateAlarmSoundOptionListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: CreateAlarmSoundOptionListenerRequest)
 }
 
 final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmSoundOptionPresentable>, CreateAlarmSoundOptionInteractable, CreateAlarmSoundOptionPresentableListener {
@@ -62,6 +66,7 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
             self.selectedSound = sound
         case .done:
             print("isVibrateOn: \(isVibrateOn)\nisSoundOn: \(isSoundOn)\nvolume: \(volume)\nselectedSound: \(selectedSound ?? "none")")
+            listener?.request(.done)
         }
     }
 }
