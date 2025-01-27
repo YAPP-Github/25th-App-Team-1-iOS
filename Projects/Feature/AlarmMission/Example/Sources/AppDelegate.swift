@@ -3,7 +3,7 @@
 //
 
 import UIKit
-@testable import FeatureAlarmMission
+import FeatureAlarmMission
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, ShakeMissionMainListener {
@@ -26,7 +26,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ShakeMissionMainListener 
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        
         
         return true
     }

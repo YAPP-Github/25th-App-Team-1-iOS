@@ -25,12 +25,12 @@ extension InfoPlist {
     
     private static let app_plist: [String: ProjectDescription.Plist.Value] = [
         
-        "NSAppTransportSecurity" : [
-            "NSAllowsArbitraryLoads" : true
+        "NSAppTransportSecurity": [
+            "NSAllowsArbitraryLoads": true
         ],
         "UILaunchStoryboardName": "LaunchScreen.storyboard",
-        "CFBundleDisplayName" : "$(BUNDLE_DISPLAY_NAME)",
-        
+        "CFBundleDisplayName": "$(BUNDLE_DISPLAY_NAME)",
+        "UIRequiresFullScreen": true,
         
         // ※ SceneDelegate 사용시 아래 코드 활성화
         
