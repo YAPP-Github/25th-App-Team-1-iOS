@@ -62,7 +62,7 @@ private extension OnboardingFortuneGuideView {
         animationView.do {
             $0.loopMode = .loop
             $0.animationSpeed = 1.0
-            $0.contentMode = .scaleAspectFit
+            $0.contentMode = .scaleAspectFill
         }
         
         startButton.do {
@@ -87,8 +87,9 @@ private extension OnboardingFortuneGuideView {
         }
         
         animationView.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
+            $0.center.equalToSuperview()
+            $0.width.equalToSuperview()
+            $0.height.equalToSuperview()
         }
         
         startButton.snp.makeConstraints {
