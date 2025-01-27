@@ -52,7 +52,7 @@ final class MainPageView: UIView {
         }
         
         if hillView.layer.sublayers == nil {
-            setupHillView(ridgeHeight: 50)
+            setupHillView(ridgeHeight: 40)
         }
     }
 }
@@ -122,12 +122,8 @@ private extension MainPageView {
         let cgPath = CGMutablePath()
         cgPath.move(to: .init(x: 0, y: ridgeHeight))
         cgPath.addQuadCurve(
-            to: .init(x: hillWidth/2, y: 0),
-            control: .init(x: 0, y: 0)
-        )
-        cgPath.addQuadCurve(
             to: .init(x: hillWidth, y: ridgeHeight),
-            control: .init(x: hillWidth, y: 0)
+            control: .init(x: hillWidth/2, y: -ridgeHeight)
         )
         cgPath.addLine(to: .init(x: hillWidth, y: hillHeight))
         cgPath.addLine(to: .init(x: 0, y: hillHeight))
