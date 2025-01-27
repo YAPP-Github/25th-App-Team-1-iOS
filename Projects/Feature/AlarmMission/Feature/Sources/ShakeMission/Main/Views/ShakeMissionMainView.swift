@@ -186,7 +186,7 @@ private extension ShakeMissionMainView {
         startMissionButton.setContentCompressionResistancePriority(.required, for: .vertical)
         startMissionButton.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(self.safeAreaInsets).inset(20)
-            make.bottom.equalTo(rejectMissionButton.snp.top).offset(-8)
+            make.bottom.equalTo(rejectMissionButton.snp.top).offset(-22)
         }
         
         
