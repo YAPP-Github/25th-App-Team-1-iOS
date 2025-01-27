@@ -5,6 +5,10 @@ public class R {
         public static let svgBtnAdd = UIImage(named: "svg_btn_add", in: .resources, compatibleWith: nil)
     }
     
+    public struct GIF {
+        public static let onboarding1 = Bundle.resources.url(forResource: "onboarding_1", withExtension: "gif")!
+    }
+    
     public struct Sound {
         public static let alarm = Bundle.resources.url(forResource: "crowded_cafe", withExtension: "caf")!
     }

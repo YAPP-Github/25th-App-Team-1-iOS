@@ -61,7 +61,7 @@ private extension OnboardingFortuneGuideView {
         
         animationView.do {
             $0.loopMode = .loop
-            $0.animationSpeed = 0.5
+            $0.animationSpeed = 1.0
             $0.contentMode = .scaleAspectFit
         }
         
