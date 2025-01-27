@@ -76,7 +76,7 @@ final class CreateAlarmSnoozeOptionView: UIView {
         doneButton.snp.remakeConstraints {
             $0.top.equalTo(countView.snp.bottom).offset(40)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
         }
     }
     
@@ -89,7 +89,7 @@ final class CreateAlarmSnoozeOptionView: UIView {
         doneButton.snp.remakeConstraints {
             $0.top.equalTo(guideView.snp.bottom).offset(23)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalTo(safeAreaLayoutGuide)
         }
     }
     
@@ -156,7 +156,7 @@ private extension CreateAlarmSnoozeOptionView {
     
     func layout() {
         containerView.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
+            $0.bottom.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
         titleLabel.snp.makeConstraints {
@@ -178,6 +178,7 @@ private extension CreateAlarmSnoozeOptionView {
             $0.top.equalTo(frequencyView.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview()
         }
+        
         guideView.snp.makeConstraints {
             $0.top.equalTo(countView.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
@@ -191,7 +192,7 @@ private extension CreateAlarmSnoozeOptionView {
         doneButton.snp.makeConstraints {
             $0.top.equalTo(guideView.snp.bottom).offset(23)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalTo(safeAreaLayoutGuide)
         }
     }
 }
