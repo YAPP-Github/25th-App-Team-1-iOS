@@ -12,9 +12,14 @@ protocol CreateAlarmSoundOptionRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum CreateAlarmSoundOptionPresentableRequest {
+    case disableAlarmSound
+    case setOptions(volume: Float, selectedSound: String?)
+}
+
 protocol CreateAlarmSoundOptionPresentable: Presentable {
     var listener: CreateAlarmSoundOptionPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: CreateAlarmSoundOptionPresentableRequest)
 }
 
 protocol CreateAlarmSoundOptionListener: AnyObject {
@@ -40,10 +45,17 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
     
     func request(_ request: CreateAlarmSoundOptionPresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            presenter.request(.setOptions(volume: volume, selectedSound: selectedSound))
         case let .isVibrateOnChanged(isVibrateOn):
             self.isVibrateOn = isVibrateOn
         case let .isSoundOnChanged(isSoundOn):
             self.isSoundOn = isSoundOn
+            if isSoundOn {
+                presenter.request(.setOptions(volume: volume, selectedSound: selectedSound))
+            } else {
+                presenter.request(.disableAlarmSound)
+            }
         case let .volumeChanged(volume):
             self.volume = volume
         case let .soundSelected(sound):

@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum CreateAlarmSoundOptionPresentableListenerRequest {
+    case viewDidLoad
     case isVibrateOnChanged(Bool)
     case isSoundOnChanged(Bool)
     case volumeChanged(Float)
@@ -27,6 +28,20 @@ final class CreateAlarmSoundOptionViewController: UIViewController, CreateAlarmS
     override func loadView() {
         view = mainView
         mainView.listener = self
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        listener?.request(.viewDidLoad)
+    }
+    
+    func request(_ request: CreateAlarmSoundOptionPresentableRequest) {
+        switch request {
+        case .disableAlarmSound:
+            mainView.disableAlarmSound()
+        case let .setOptions(volume, selectedSound):
+            mainView.setOptions(vloume: volume, selectedSound: selectedSound)
+        }
     }
     
     private let mainView = CreateAlarmSoundOptionView()

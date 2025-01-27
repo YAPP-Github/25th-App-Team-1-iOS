@@ -32,6 +32,10 @@ final class SoundOptionItemCell: UITableViewCell {
         }
     }
     
+    func setButtonState(_ isEnabled: Bool) {
+        optionButton.isEnabled = isEnabled
+    }
+    
     // MARK: - Internal
     func configure(title: String, isSelected: Bool) {
         self.isSelected = isSelected
@@ -56,7 +60,6 @@ private extension SoundOptionItemCell {
         optionButton.snp.makeConstraints {
             $0.leading.equalTo(24)
             $0.centerY.equalToSuperview()
-            $0.size.equalTo(20)
         }
         
         titleLabel.snp.makeConstraints {

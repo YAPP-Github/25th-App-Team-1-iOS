@@ -29,8 +29,24 @@ final class AlarmOptionButton: UIButton {
     
     override var isSelected: Bool {
         didSet {
-            innerCircleView.isHidden = !isSelected
+            updateButtonColor()
+        }
+    }
+    
+    override var isEnabled: Bool {
+        didSet {
+            updateButtonColor()
+        }
+    }
+    
+    private func updateButtonColor() {
+        innerCircleView.isHidden = !isSelected
+        if isEnabled {
             outerCircleView.backgroundColor = isSelected ? R.Color.main30 : R.Color.gray600
+            innerCircleView.backgroundColor = R.Color.main100
+        } else {
+            outerCircleView.backgroundColor = R.Color.gray700
+            innerCircleView.backgroundColor = R.Color.gray600
         }
     }
 }

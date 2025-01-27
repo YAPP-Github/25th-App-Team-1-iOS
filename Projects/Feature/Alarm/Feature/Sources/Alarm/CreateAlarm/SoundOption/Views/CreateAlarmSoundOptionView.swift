@@ -46,7 +46,26 @@ final class CreateAlarmSoundOptionView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Internal
     weak var listener: CreateAlarmSoundOptionViewListener?
+    
+    func disableAlarmSound() {
+        self.isSoundOn = false
+        soundListTableView.reloadData()
+        soundSlider.tintColor = R.Color.gray500
+    }
+    
+    func setOptions(vloume: Float, selectedSound: String?) {
+        isSoundOn = true
+        soundSlider.tintColor = R.Color.main100
+        soundSlider.value = vloume
+        if let selectedSoundIndex = soundList.firstIndex(of: selectedSound ?? "") {
+            self.selectedIndex = selectedSoundIndex
+        }
+        soundListTableView.reloadData()
+    }
+    
+    private var isSoundOn: Bool = true
     
     private var selectedIndex: Int? {
         didSet {
@@ -251,6 +270,7 @@ extension CreateAlarmSoundOptionView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "SoundOptionItemCell") as? SoundOptionItemCell else { return .init() }
         cell.configure(title: soundList[indexPath.row], isSelected: indexPath.row == selectedIndex)
+        cell.setButtonState(isSoundOn)
         return cell
     }
 }
