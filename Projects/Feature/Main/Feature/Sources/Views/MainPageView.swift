@@ -23,8 +23,8 @@ final class MainPageView: UIView {
     
     // Action
     enum Action {
-        
-        
+        case fortuneNotiButtonClicked
+        case applicationSettingButtonClicked
     }
     
     
@@ -51,7 +51,7 @@ final class MainPageView: UIView {
     
     // - Buttons
     private let fortuneNotiButton: IconButton = .init()
-    private let settingButton: IconButton = .init()
+    private let applicationSettingButton: IconButton = .init()
     private let buttonStack: UIStackView = .init().then {
         $0.axis = .horizontal
         $0.spacing = 12
@@ -110,9 +110,19 @@ private extension MainPageView {
         
         
         // buttons
+        // - set initial image
         fortuneNotiButton.update(image: FeatureResourcesAsset.letter.image)
-        settingButton.update(image: FeatureResourcesAsset.settingsFill.image)
-        [fortuneNotiButton, settingButton].forEach {
+        applicationSettingButton.update(image: FeatureResourcesAsset.settingsFill.image)
+        // - button action
+        fortuneNotiButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.action(.fortuneNotiButtonClicked)
+        }
+        applicationSettingButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.action(.applicationSettingButtonClicked)
+        }
+        [fortuneNotiButton, applicationSettingButton].forEach {
             buttonStack.addArrangedSubview($0)
         }
         addSubview(buttonStack)
@@ -223,7 +233,8 @@ private extension MainPageView {
 // MARK: Public interface
 extension MainPageView {
     
-    func update(orbitState: OrbitRenderState) {
+    @discardableResult
+    func update(orbitState: OrbitRenderState) -> Self {
         // Orbit animation
         let animFilePath = orbitState.orbitMotionLottieFilePath
         orbitView.animation = .filepath(animFilePath)
@@ -240,23 +251,35 @@ extension MainPageView {
             color: R.Color.white100
         )
         
-        guard let attrStr = fortuneBaseLabel.attributedText else { return }
+        guard let attrStr = fortuneBaseLabel.attributedText else { return self }
         let attrubute = attrStr.attribute(.paragraphStyle, at: 0, effectiveRange: nil)
-        guard let paragraphStyle = attrubute as? NSParagraphStyle else { return }
-        guard let mutableParagraphStyle = paragraphStyle.mutableCopy() as? NSMutableParagraphStyle else { return }
+        guard let paragraphStyle = attrubute as? NSParagraphStyle else { return self }
+        guard let mutableParagraphStyle = paragraphStyle.mutableCopy() as? NSMutableParagraphStyle else { return self }
         mutableParagraphStyle.alignment = .center
         
         let mutableAttrStr = NSMutableAttributedString(attributedString: attrStr)
         mutableAttrStr.addAttribute(.paragraphStyle, value: mutableParagraphStyle, range: .init(location: 0, length: mutableAttrStr.length))
         fortuneBaseLabel.attributedText = mutableAttrStr
+        
+        return self
     }
     
     
-    func update(fortuneDeliveryTimeText text: String) {
+    @discardableResult
+    func update(fortuneDeliveryTimeText text: String) -> Self {
         fortuneDeliveryTimeLabel.displayText = text.displayText(
             font: .label1Medium,
             color: R.Color.white70
         )
+        return self
+    }
+    
+    
+    @discardableResult
+    func update(turnOnFortuneNoti: Bool) -> Self {
+        let notiIconImage = turnOnFortuneNoti ? FeatureResourcesAsset.letterNotificationOn.image : FeatureResourcesAsset.letter.image
+        fortuneNotiButton.update(image: notiIconImage)
+        return self
     }
 }
  
