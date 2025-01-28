@@ -56,7 +56,7 @@ struct RootService: RootServiceable {
                 
                 let trigger = UNCalendarNotificationTrigger(dateMatching: weekdayDateComponents, repeats: true)
                 
-                let identifier = "\(alarm.id.uuidString)-\(weekday.rawValue)"
+                let identifier = "\(alarm.id.uuidString)-\(weekday.intValue)"
                 let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
                 
                 center.add(request) { error in
@@ -83,8 +83,8 @@ struct RootService: RootServiceable {
         }
         
         // 반복 간격이 있는 경우 (3분 또는 5분)
-        if alarm.repetitionInterval != .none {
-            let timeInterval = TimeInterval(alarm.repetitionInterval.rawValue * 60)
+        if let snoozeFrequency = alarm.snoozeFrequency {
+            let timeInterval = TimeInterval(snoozeFrequency.minutes * 60)
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: true)
             
             let identifier = "\(alarm.id.uuidString)-repeat"

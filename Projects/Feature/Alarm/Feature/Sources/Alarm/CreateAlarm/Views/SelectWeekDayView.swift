@@ -10,19 +10,6 @@ import SnapKit
 import Then
 import FeatureResources
 
-enum DayOfWeek {
-    case sunday
-    case monday
-    case tuesday
-    case wednesday
-    case thursday
-    case friday
-    case saturday
-    
-    static let weekdays = Set([monday, tuesday, wednesday, thursday, friday])
-    static let weekends = Set([sunday, saturday])
-}
-
 protocol SelectWeekDayViewListener: AnyObject {
     func action(_ action: SelectWeekDayView.Action)
 }

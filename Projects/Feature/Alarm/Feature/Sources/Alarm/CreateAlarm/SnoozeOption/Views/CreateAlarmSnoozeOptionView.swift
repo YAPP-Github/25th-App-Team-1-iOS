@@ -11,22 +11,6 @@ import Then
 import FeatureResources
 import FeatureDesignSystem
 
-enum SnoozeFrequency: String, CaseIterable {
-    case oneMinute = "1분"
-    case threeMinutes = "3분"
-    case fiveMinutes = "5분"
-    case tenMinutes = "10분"
-    case fifteenMinutes = "15분"
-}
-
-enum SnoozeCount: String, CaseIterable {
-    case once = "1회"
-    case threeTimes = "3회"
-    case fiveTimes = "5회"
-    case tenTimes = "10회"
-    case unlimited = "무한"
-}
-
 protocol CreateAlarmSnoozeOptionViewListener: AnyObject {
     func action(_ action: CreateAlarmSnoozeOptionView.Action)
 }

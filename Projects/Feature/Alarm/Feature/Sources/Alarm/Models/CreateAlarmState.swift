@@ -14,14 +14,14 @@ enum Meridiem: String, Codable {
 }
 
 // 요일을 나타내는 열거형
-enum Weekday: String, Codable, CaseIterable {
-    case sunday = "일요일"
-    case monday = "월요일"
-    case tuesday = "화요일"
-    case wednesday = "수요일"
-    case thursday = "목요일"
-    case friday = "금요일"
-    case saturday = "토요일"
+enum DayOfWeek: Codable {
+    case sunday
+    case monday
+    case tuesday
+    case wednesday
+    case thursday
+    case friday
+    case saturday
     
     var intValue: Int {
         switch self {
@@ -34,13 +34,40 @@ enum Weekday: String, Codable, CaseIterable {
         case .saturday: return 6
         }
     }
+    
+    static let weekdays = Set([monday, tuesday, wednesday, thursday, friday])
+    static let weekends = Set([sunday, saturday])
 }
 
-// 반복 간격을 나타내는 열거형
-enum RepetitionInterval: Int, Codable {
-    case none = 0
-    case threeMinutes = 3
-    case fiveMinutes = 5
+enum SnoozeFrequency: String, CaseIterable, Codable {
+    case oneMinute = "1분"
+    case threeMinutes = "3분"
+    case fiveMinutes = "5분"
+    case tenMinutes = "10분"
+    case fifteenMinutes = "15분"
+    
+    var minutes: Int {
+        switch self {
+        case .oneMinute:
+            return 1
+        case .threeMinutes:
+            return 3
+        case .fiveMinutes:
+            return 5
+        case .tenMinutes:
+            return 10
+        case .fifteenMinutes:
+            return 15
+        }
+    }
+}
+
+enum SnoozeCount: String, CaseIterable, Codable {
+    case once = "1회"
+    case threeTimes = "3회"
+    case fiveTimes = "5회"
+    case tenTimes = "10회"
+    case unlimited = "무한"
 }
 
 // 알람을 나타내는 구조체
@@ -50,20 +77,23 @@ struct Alarm: Codable, Equatable {
     var meridiem: Meridiem
     var hour: Int // 1 ~ 12
     var minute: Int // 0 ~ 59
-    var repeatDays: Set<Weekday> // 반복할 요일
-    var repetitionInterval: RepetitionInterval
+    var repeatDays: Set<DayOfWeek> // 반복할 요일
+    var snoozeFrequency: SnoozeFrequency?
+    var snoozeCount: SnoozeCount?
     
     // 초기화 메서드
     init(meridiem: Meridiem,
          hour: Int,
          minute: Int,
-         repeatDays: Set<Weekday> = [],
-         repetitionInterval: RepetitionInterval = .none) {
+         repeatDays: Set<DayOfWeek> = [],
+         snoozeFrequency: SnoozeFrequency? = nil,
+         snoozeCount: SnoozeCount? = nil
+    ) {
         self.meridiem = meridiem
         self.hour = hour
         self.minute = minute
         self.repeatDays = repeatDays
-        self.repetitionInterval = repetitionInterval
+        self.snoozeFrequency = snoozeFrequency
     }
     
     // 에러 정의
