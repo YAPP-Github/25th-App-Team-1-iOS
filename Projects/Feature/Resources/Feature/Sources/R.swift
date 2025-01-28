@@ -114,6 +114,13 @@ public class R {
         case caption1Regular
         case caption2Regular
         
+        case ownglyphPHD_H0
+        case ownglyphPHD_H1
+        case ownglyphPHD_H2
+        case ownglyphPHD_H3
+        case ownglyphPHD_H4
+        case ownglyphPHD_H5
+        
         var size: CGFloat {
             switch self {
             case .displaySemiBold:
@@ -164,6 +171,18 @@ public class R {
                 return 12
             case .caption2Regular:
                 return 11
+            case .ownglyphPHD_H0:
+                return 36
+            case .ownglyphPHD_H1:
+                return 28
+            case .ownglyphPHD_H2:
+                return 22
+            case .ownglyphPHD_H3:
+                return 20
+            case .ownglyphPHD_H4:
+                return 18
+            case .ownglyphPHD_H5:
+                return 16
             }
         }
         
@@ -217,6 +236,18 @@ public class R {
                 return 1.334
             case .caption2Regular:
                 return 1.273
+            case .ownglyphPHD_H0:
+                return 1.4
+            case .ownglyphPHD_H1:
+                return 1.4
+            case .ownglyphPHD_H2:
+                return 1.5
+            case .ownglyphPHD_H3:
+                return 1.5
+            case .ownglyphPHD_H4:
+                return 1.3
+            case .ownglyphPHD_H5:
+                return 1.3
             }
         }
         
@@ -269,6 +300,18 @@ public class R {
             case .caption1Regular:
                 return -1
             case .caption2Regular:
+                return -1
+            case .ownglyphPHD_H0:
+                return -1
+            case .ownglyphPHD_H1:
+                return -1
+            case .ownglyphPHD_H2:
+                return -1
+            case .ownglyphPHD_H3:
+                return -1
+            case .ownglyphPHD_H4:
+                return -1
+            case .ownglyphPHD_H5:
                 return -1
             }
         }
@@ -323,8 +366,19 @@ public class R {
                 return FeatureResourcesFontFamily.Pretendard.regular.font(size: size)
             case .caption2Regular:
                 return FeatureResourcesFontFamily.Pretendard.regular.font(size: size)
+            case .ownglyphPHD_H0:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H1:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H2:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H3:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H4:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H5:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
             }
         }
     }
 }
-
