@@ -46,8 +46,10 @@ extension MainPageViewController {
     let vc = MainPageViewController()
     vc.loadView()
     vc.mainView
-        .update(orbitState: .luckScoreOverZero(userName: "준영"))
-        .update(fortuneDeliveryTimeText: "내일 오전 5:00 도착")
-        .update(turnOnFortuneNoti: true)
+        .update(.orbitState(.luckScoreOverZero(userName: "준영")))
+        .update(.fortuneDeliveryTimeText("내일 오전 5:00 도착"))
+        .update(.turnOnFortuneNoti(true))
+        .update(.turnOnFortuneIsDeliveredBubble(true))
+    
     return vc
 }

@@ -57,6 +57,8 @@ final class MainPageView: UIView {
         $0.spacing = 12
     }
     
+    private let fortuneDeliveredBubbleView: FortuneDeliveredBubbleView = .init()
+    
     
     init() {
         super.init(frame: .zero)
@@ -126,6 +128,11 @@ private extension MainPageView {
             buttonStack.addArrangedSubview($0)
         }
         addSubview(buttonStack)
+        
+        
+        // fortuneDeliveredBubbleView
+        fortuneNotiButton.alpha = 0
+        fortuneNotiButton.addSubview(fortuneDeliveredBubbleView)
     }
     
     
@@ -166,6 +173,13 @@ private extension MainPageView {
         buttonStack.snp.makeConstraints { make in
             make.top.equalTo(self.safeAreaLayoutGuide).offset(12.5)
             make.trailing.equalTo(self.safeAreaLayoutGuide).offset(-20)
+        }
+        
+        
+        // fortuneDeliveredBubbleView
+        fortuneDeliveredBubbleView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(fortuneNotiButton.snp.bottom).offset(2)
         }
     }
 }
@@ -233,53 +247,61 @@ private extension MainPageView {
 // MARK: Public interface
 extension MainPageView {
     
-    @discardableResult
-    func update(orbitState: OrbitRenderState) -> Self {
+    enum UpdateRequest {
+        case orbitState(OrbitRenderState)
+        case fortuneDeliveryTimeText(String)
+        case turnOnFortuneNoti(Bool)
+        case turnOnFortuneIsDeliveredBubble(Bool)
+    }
+    
+    @discardableResult func update(_ request: UpdateRequest) -> Self {
+        switch request {
+        case .orbitState(let orbitRenderState):
+            updateOrbitState(orbitRenderState)
+        case .fortuneDeliveryTimeText(let text):
+            fortuneDeliveryTimeLabel.displayText = text.displayText(
+                font: .label1Medium,
+                color: R.Color.white70
+            )
+        case .turnOnFortuneNoti(let isOn):
+            let notiIconImage = isOn ? FeatureResourcesAsset.letterNotificationOn.image : FeatureResourcesAsset.letter.image
+            fortuneNotiButton.update(image: notiIconImage)
+        case .turnOnFortuneIsDeliveredBubble(let isOn):
+            fortuneDeliveredBubbleView.alpha = isOn ? 1 : 0
+        }
+        return self
+    }
+}
+
+
+// MARK: Update orbit
+private extension MainPageView {
+    func updateOrbitState(_ state: OrbitRenderState) {
         // Orbit animation
-        let animFilePath = orbitState.orbitMotionLottieFilePath
+        let animFilePath = state.orbitMotionLottieFilePath
         orbitView.animation = .filepath(animFilePath)
         orbitView.play()
         
         
         // Bubble text
-        orbitSpeechBubbleSpeech.update(titleText: orbitState.bubbleSpeechKorText)
+        orbitSpeechBubbleSpeech.update(titleText: state.bubbleSpeechKorText)
         
         
         // Fortune base text
-        fortuneBaseLabel.displayText = orbitState.orbitFortuneBaseKorText.displayText(
+        fortuneBaseLabel.displayText = state.orbitFortuneBaseKorText.displayText(
             font: .heading2SemiBold,
             color: R.Color.white100
         )
         
-        guard let attrStr = fortuneBaseLabel.attributedText else { return self }
+        guard let attrStr = fortuneBaseLabel.attributedText else { return }
         let attrubute = attrStr.attribute(.paragraphStyle, at: 0, effectiveRange: nil)
-        guard let paragraphStyle = attrubute as? NSParagraphStyle else { return self }
-        guard let mutableParagraphStyle = paragraphStyle.mutableCopy() as? NSMutableParagraphStyle else { return self }
+        guard let paragraphStyle = attrubute as? NSParagraphStyle else { return }
+        guard let mutableParagraphStyle = paragraphStyle.mutableCopy() as? NSMutableParagraphStyle else { return }
         mutableParagraphStyle.alignment = .center
         
         let mutableAttrStr = NSMutableAttributedString(attributedString: attrStr)
         mutableAttrStr.addAttribute(.paragraphStyle, value: mutableParagraphStyle, range: .init(location: 0, length: mutableAttrStr.length))
         fortuneBaseLabel.attributedText = mutableAttrStr
-        
-        return self
-    }
-    
-    
-    @discardableResult
-    func update(fortuneDeliveryTimeText text: String) -> Self {
-        fortuneDeliveryTimeLabel.displayText = text.displayText(
-            font: .label1Medium,
-            color: R.Color.white70
-        )
-        return self
-    }
-    
-    
-    @discardableResult
-    func update(turnOnFortuneNoti: Bool) -> Self {
-        let notiIconImage = turnOnFortuneNoti ? FeatureResourcesAsset.letterNotificationOn.image : FeatureResourcesAsset.letter.image
-        fortuneNotiButton.update(image: notiIconImage)
-        return self
     }
 }
  
