@@ -49,6 +49,14 @@ final class MainPageView: UIView {
         $0.spacing = 8
     }
     
+    // - Buttons
+    private let fortuneNotiButton: IconButton = .init()
+    private let settingButton: IconButton = .init()
+    private let buttonStack: UIStackView = .init().then {
+        $0.axis = .horizontal
+        $0.spacing = 12
+    }
+    
     
     init() {
         super.init(frame: .zero)
@@ -93,12 +101,21 @@ private extension MainPageView {
         addSubview(orbitView)
         
         
-        // fortuneLabelStack
+        // labels
         fortuneBaseLabel.numberOfLines = 0
         [fortuneDeliveryTimeLabel, fortuneBaseLabel].forEach {
             fortuneLabelStack.addArrangedSubview($0)
         }
         addSubview(fortuneLabelStack)
+        
+        
+        // buttons
+        fortuneNotiButton.update(image: FeatureResourcesAsset.letter.image)
+        settingButton.update(image: FeatureResourcesAsset.settingsFill.image)
+        [fortuneNotiButton, settingButton].forEach {
+            buttonStack.addArrangedSubview($0)
+        }
+        addSubview(buttonStack)
     }
     
     
@@ -132,6 +149,13 @@ private extension MainPageView {
         fortuneLabelStack.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
             make.top.equalTo(orbitView.snp.bottom)
+        }
+        
+        
+        // buttonStack
+        buttonStack.snp.makeConstraints { make in
+            make.top.equalTo(self.safeAreaLayoutGuide).offset(12.5)
+            make.trailing.equalTo(self.safeAreaLayoutGuide).offset(-20)
         }
     }
 }
