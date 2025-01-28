@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "mainPage_bubbleArrow.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
