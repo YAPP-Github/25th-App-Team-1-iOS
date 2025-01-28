@@ -10,6 +10,7 @@ import UIKit
 import FeatureResources
 
 import SnapKit
+import Lottie
 
 protocol MainPageViewListener: AnyObject {
     
@@ -34,6 +35,9 @@ final class MainPageView: UIView {
     // - Background
     private var backgroudCloudLayer: CALayer?
     private let hillView = UIView()
+    
+    private let orbitSpeechBubbleSpeech = SpeechBubbleView()
+    private let orbitView = LottieAnimationView()
     
     
     
@@ -69,19 +73,39 @@ private extension MainPageView {
         // hillView
         addSubview(hillView)
         
+        // orbitSpeechBubbleView
+        addSubview(orbitSpeechBubbleSpeech)
+        
+        // orbitView
+        addSubview(orbitView)
     }
     
     
     func setupLayout() {
         
-        // Background
-        
         // hillView
         hillView.snp.makeConstraints { make in
-            make.top.equalTo(self.safeAreaLayoutGuide).inset(166)
+            make.top.equalTo(orbitView).inset(84)
             make.bottom.equalToSuperview()
             make.horizontalEdges.equalToSuperview()
         }
+        
+        
+        // orbitSpeechBubbleView
+        orbitSpeechBubbleSpeech.snp.makeConstraints { make in
+            make.bottom.equalTo(orbitView.snp.top)
+            make.centerX.equalTo(orbitView)
+        }
+        
+        
+        // orbitView
+        orbitView.snp.makeConstraints { make in
+            make.top.equalTo(self.safeAreaLayoutGuide).offset(82)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(140)
+            make.height.equalTo(140)
+        }
+        
     }
 }
 
@@ -142,6 +166,22 @@ private extension MainPageView {
         hillView.layer.addSublayer(gradientLayer)
         gradientLayer.frame = hillView.layer.bounds
     }
+}
+
+
+// MARK: Public interface
+extension MainPageView {
+    
+    func update(orbitState: OrbitRenderState) {
+        // Orbit animation
+        let animFilePath = orbitState.orbitMotionLottieFilePath
+        orbitView.animation = .filepath(animFilePath)
+        orbitView.play()
+        
+        // Bubble text
+        orbitSpeechBubbleSpeech.update(titleText: orbitState.bubbleSpeechKorText)
+    }
+    
 }
  
 
