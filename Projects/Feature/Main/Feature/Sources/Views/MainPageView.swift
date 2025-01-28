@@ -89,6 +89,7 @@ private extension MainPageView {
         
         
         // orbitView
+        orbitView.loopMode = .playOnce
         addSubview(orbitView)
         
         
