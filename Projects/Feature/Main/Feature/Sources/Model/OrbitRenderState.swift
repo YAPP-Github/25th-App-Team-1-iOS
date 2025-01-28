@@ -12,9 +12,9 @@ import FeatureResources
 enum OrbitRenderState {
     
     case beforeFortune
-    case luckScoreOver80
-    case luckScoreOver50
-    case luckScoreOverZero
+    case luckScoreOver80(userName: String)
+    case luckScoreOver50(userName: String)
+    case luckScoreOverZero(userName: String)
     
     /// 말풍선에 들어갈 텍스트 입니다.
     var bubbleSpeechKorText: String {
@@ -30,6 +30,7 @@ enum OrbitRenderState {
         }
     }
     
+    
     /// 오르비의 로티 모션 경로(filePath)입니다.
     var orbitMotionLottieFilePath: String {
         let lottileBundle = Bundle.resources
@@ -42,6 +43,21 @@ enum OrbitRenderState {
             return lottileBundle.path(forResource: "mainPage_LuckScoreOver80", ofType: "json")!
         case .luckScoreOverZero:
             return lottileBundle.path(forResource: "mainPage_LuckScoreOverZero", ofType: "json")!
+        }
+    }
+    
+    
+    /// 오르비가 전해주는 운세기반 텍스트입니다.
+    var orbitFortuneBaseKorText: String {
+        switch self {
+        case .beforeFortune:
+            "미래에서 운세 편지를\n작성 중이야!"
+        case .luckScoreOver80(let userName):
+            "오늘 \(userName)의 하루는\n누구보다 빛나!"
+        case .luckScoreOver50(let userName):
+            "오늘 \(userName)의 하루는\n최고야!"
+        case .luckScoreOverZero(let userName):
+            "오늘 \(userName)의 하루는\n주의가 필요해"
         }
     }
 }

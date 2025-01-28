@@ -10,6 +10,7 @@ import UIKit
 import FeatureResources
 
 import SnapKit
+import Then
 import Lottie
 
 protocol MainPageViewListener: AnyObject {
@@ -39,6 +40,14 @@ final class MainPageView: UIView {
     private let orbitSpeechBubbleSpeech = SpeechBubbleView()
     private let orbitView = LottieAnimationView()
     
+    // - Labels
+    private let fortuneDeliveryTimeLabel: UILabel = .init()
+    private let fortuneBaseLabel: UILabel = .init()
+    private let fortuneLabelStack: UIStackView = .init().then {
+        $0.axis = .vertical
+        $0.alignment = .center
+        $0.spacing = 8
+    }
     
     
     init() {
@@ -70,14 +79,25 @@ private extension MainPageView {
         // self
         self.layer.backgroundColor = UIColor(hex: "#1F3B64").cgColor
         
+        
         // hillView
         addSubview(hillView)
+        
         
         // orbitSpeechBubbleView
         addSubview(orbitSpeechBubbleSpeech)
         
+        
         // orbitView
         addSubview(orbitView)
+        
+        
+        // fortuneLabelStack
+        fortuneBaseLabel.numberOfLines = 0
+        [fortuneDeliveryTimeLabel, fortuneBaseLabel].forEach {
+            fortuneLabelStack.addArrangedSubview($0)
+        }
+        addSubview(fortuneLabelStack)
     }
     
     
@@ -106,6 +126,12 @@ private extension MainPageView {
             make.height.equalTo(140)
         }
         
+        
+        // fortuneLabelStack
+        fortuneLabelStack.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
+            make.top.equalTo(orbitView.snp.bottom)
+        }
     }
 }
 
@@ -178,10 +204,35 @@ extension MainPageView {
         orbitView.animation = .filepath(animFilePath)
         orbitView.play()
         
+        
         // Bubble text
         orbitSpeechBubbleSpeech.update(titleText: orbitState.bubbleSpeechKorText)
+        
+        
+        // Fortune base text
+        fortuneBaseLabel.displayText = orbitState.orbitFortuneBaseKorText.displayText(
+            font: .heading2SemiBold,
+            color: R.Color.white100
+        )
+        
+        guard let attrStr = fortuneBaseLabel.attributedText else { return }
+        let attrubute = attrStr.attribute(.paragraphStyle, at: 0, effectiveRange: nil)
+        guard let paragraphStyle = attrubute as? NSParagraphStyle else { return }
+        guard let mutableParagraphStyle = paragraphStyle.mutableCopy() as? NSMutableParagraphStyle else { return }
+        mutableParagraphStyle.alignment = .center
+        
+        let mutableAttrStr = NSMutableAttributedString(attributedString: attrStr)
+        mutableAttrStr.addAttribute(.paragraphStyle, value: mutableParagraphStyle, range: .init(location: 0, length: mutableAttrStr.length))
+        fortuneBaseLabel.attributedText = mutableAttrStr
     }
     
+    
+    func update(fortuneDeliveryTimeText text: String) {
+        fortuneDeliveryTimeLabel.displayText = text.displayText(
+            font: .label1Medium,
+            color: R.Color.white70
+        )
+    }
 }
  
 
