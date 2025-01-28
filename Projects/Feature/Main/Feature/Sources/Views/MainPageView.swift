@@ -131,7 +131,7 @@ private extension MainPageView {
         
         
         // fortuneDeliveredBubbleView
-        fortuneNotiButton.alpha = 0
+        fortuneDeliveredBubbleView.alpha = 0
         fortuneNotiButton.addSubview(fortuneDeliveredBubbleView)
     }
     
