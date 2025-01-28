@@ -43,5 +43,8 @@ extension MainPageViewController {
 
 
 #Preview {
-    MainPageViewController()
+    let vc = MainPageViewController()
+    vc.loadView()
+    vc.mainView.update(orbitState: .luckScoreOverZero)
+    return vc
 }
