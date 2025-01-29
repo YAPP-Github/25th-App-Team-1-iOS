@@ -52,13 +52,21 @@ final class MainPageView: UIView {
     // - Buttons
     private let fortuneNotiButton: IconButton = .init()
     private let applicationSettingButton: IconButton = .init()
-    private let buttonStack: UIStackView = .init().then {
+    private let toolButtonStack: UIStackView = .init().then {
         $0.axis = .horizontal
         $0.spacing = 12
     }
     
     private let fortuneDeliveredBubbleView: FortuneDeliveredBubbleView = .init()
     
+    // - ResizableContentView
+    private let resizableContentView = UIView()
+    private let resizableContentViewDockView = DockView()
+    private let resizableContentViewDockViewDrageArea = UIView()
+    private let resizableContentViewDragRecognizer = UIPanGestureRecognizer()
+    private var resizableContentViewScreenState: resizableContentViewScreenState = .half
+    private var resizableContentViewTopConstraintWhenHalf: Constraint?
+    private var resizableContentViewTopConstraintWhenFull: Constraint?
     
     init() {
         super.init(frame: .zero)
@@ -125,14 +133,18 @@ private extension MainPageView {
             listener?.action(.applicationSettingButtonClicked)
         }
         [fortuneNotiButton, applicationSettingButton].forEach {
-            buttonStack.addArrangedSubview($0)
+            toolButtonStack.addArrangedSubview($0)
         }
-        addSubview(buttonStack)
+        addSubview(toolButtonStack)
         
         
         // fortuneDeliveredBubbleView
         fortuneDeliveredBubbleView.alpha = 0
         fortuneNotiButton.addSubview(fortuneDeliveredBubbleView)
+        
+        
+        // ResizableContentView
+        setupResizableContentViewUI()
     }
     
     
@@ -170,7 +182,7 @@ private extension MainPageView {
         
         
         // buttonStack
-        buttonStack.snp.makeConstraints { make in
+        toolButtonStack.snp.makeConstraints { make in
             make.top.equalTo(self.safeAreaLayoutGuide).offset(12.5)
             make.trailing.equalTo(self.safeAreaLayoutGuide).offset(-20)
         }
@@ -181,6 +193,10 @@ private extension MainPageView {
             make.centerX.equalToSuperview()
             make.top.equalTo(fortuneNotiButton.snp.bottom).offset(2)
         }
+        
+        
+        // ResizableContentView
+        setupResizableContentViewLayout()
     }
 }
 
@@ -210,6 +226,7 @@ private extension MainPageView {
             size: preferedImageSize
         )
         self.backgroudCloudLayer = backgroudCloudLayer
+        backgroudCloudLayer.zPosition = 0.1
     }
     
     
@@ -302,6 +319,147 @@ private extension MainPageView {
         let mutableAttrStr = NSMutableAttributedString(attributedString: attrStr)
         mutableAttrStr.addAttribute(.paragraphStyle, value: mutableParagraphStyle, range: .init(location: 0, length: mutableAttrStr.length))
         fortuneBaseLabel.attributedText = mutableAttrStr
+    }
+}
+
+
+// MARK: setup for ResizableContentView
+private extension MainPageView {
+    
+    enum resizableContentViewScreenState {
+        case full, half
+    }
+    
+    enum ResizableContentViewConfig {
+        // UI
+        static let offsetFromBottomAnchorWhenHalf: CGFloat = 38
+        static let drageAreaHeightBelowContainer: CGFloat = 80
+        static let cornerRadiusWhenHalf: CGFloat = 16
+        static let cornerRadiusWhenFull: CGFloat = 0
+        
+        // Anim
+        static let transitionDuration: CGFloat = 0.35
+        
+        // Judgement
+        static let minVelocityForFullScreen: CGFloat = -1200
+        static let minVelocityForHalfScreen: CGFloat = 1200
+    }
+    
+    
+    func setupResizableContentViewUI() {
+        
+        // resizableContentView
+        resizableContentView.backgroundColor = R.Color.gray900
+        resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenHalf
+        resizableContentView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
+        self.addSubview(resizableContentView)
+        resizableContentView.layer.zPosition = 1
+        
+        
+        // resizableContentViewDockView
+        resizableContentView.addSubview(resizableContentViewDockView)
+        
+        
+        // resizableContentViewDockViewDrageArea
+        resizableContentViewDockViewDrageArea.backgroundColor = .clear
+        resizableContentView.addSubview(resizableContentViewDockViewDrageArea)
+        
+        
+        // setup gesture
+        setupResizableContentViewDrag()
+    }
+    
+    
+    func setupResizableContentViewLayout() {
+        
+        // resizableContentView
+        resizableContentView.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview()
+            
+            // When full
+            resizableContentViewTopConstraintWhenFull = make.top.equalToSuperview()
+                .constraint
+            
+            // When half
+            resizableContentViewTopConstraintWhenHalf = make.top
+                .equalTo(fortuneLabelStack.snp.bottom)
+                .offset(ResizableContentViewConfig.offsetFromBottomAnchorWhenHalf)
+                .constraint
+        }
+        resizableContentViewTopConstraintWhenFull?.deactivate()
+        
+        
+        // resizableContentViewDockView
+        resizableContentViewDockView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalTo(resizableContentView.snp.top)
+        }
+        
+        
+        // resizableContentViewDockViewDrageArea
+        resizableContentViewDockViewDrageArea.snp.makeConstraints { make in
+            make.top.equalTo(resizableContentViewDockView)
+            make.bottom.equalTo(resizableContentView.snp.top).offset(80)
+            make.horizontalEdges.equalToSuperview()
+            
+            make.bottom.greaterThanOrEqualTo(self.safeAreaLayoutGuide.snp.top)
+                .offset(ResizableContentViewConfig.drageAreaHeightBelowContainer)
+                .priority(.high)
+        }
+    }
+    
+    
+    func setupResizableContentViewDrag() {
+        resizableContentViewDockViewDrageArea.addGestureRecognizer(resizableContentViewDragRecognizer)
+        resizableContentViewDragRecognizer.addTarget(self, action: #selector(resizeDragOccurred(_:)))
+    }
+    
+    
+    @objc
+    func resizeDragOccurred(_ recognizer: UIPanGestureRecognizer) {
+        let panGestureVelocity = recognizer.velocity(in: self)
+        if panGestureVelocity.y < ResizableContentViewConfig.minVelocityForFullScreen {
+            // 풀스크린 변환 조건 충족
+            if self.resizableContentViewScreenState == .half {
+                resizableContentViewDragRecognizer.isEnabled = false
+                self.resizableContentViewScreenState = .full
+                UIView.animate(withDuration: ResizableContentViewConfig.transitionDuration) {
+                    self.resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenFull
+                    
+                    // 레이아웃 조정
+                    self.resizableContentViewTopConstraintWhenFull?.activate()
+                    self.resizableContentViewTopConstraintWhenHalf?.deactivate()
+                    
+
+                    self.layoutIfNeeded()
+                } completion: { _ in
+                    self.resizableContentViewDragRecognizer.isEnabled = true
+                }
+            }
+            return
+        }
+        
+        
+        if panGestureVelocity.y > ResizableContentViewConfig.minVelocityForHalfScreen {
+            // 하프스크린 변환 조건 충족
+            if self.resizableContentViewScreenState == .full {
+                self.resizableContentViewScreenState = .half
+                self.resizableContentViewDragRecognizer.isEnabled = false
+                UIView.animate(withDuration: ResizableContentViewConfig.transitionDuration) {
+                    self.resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenHalf
+                    
+                    // 레이아웃 조정
+                    self.resizableContentViewTopConstraintWhenFull?.deactivate()
+                    self.resizableContentViewTopConstraintWhenHalf?.activate()
+                    
+                    self.layoutIfNeeded()
+                } completion: { _ in
+                    self.resizableContentViewDragRecognizer.isEnabled = true
+                }
+            }
+        }
+        
     }
 }
  
