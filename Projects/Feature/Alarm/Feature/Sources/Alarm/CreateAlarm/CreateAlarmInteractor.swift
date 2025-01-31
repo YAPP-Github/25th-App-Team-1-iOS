@@ -67,7 +67,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         case let .minuteChanged(minute):
             alarm.minute = minute
         case let .selectedDaysChanged(set):
-            print(set)
+            alarm.repeatDays = set
         case .selectSnooze:
             listener?.request(.snoozeOption(alarm.snoozeFrequency, alarm.snoozeCount))
         case .selectSound:
