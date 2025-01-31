@@ -117,6 +117,22 @@ final class MainPageView: UIView, UITableViewDelegate, UITableViewDataSource {
 }
 
 
+// MARK: Public interface
+extension MainPageView {
+    
+    enum Request {
+        
+    }
+    
+    func update(_ request: Request) {
+        
+        switch request {
+            
+        }
+    }
+}
+
+
 // MARK: Setup
 private extension MainPageView {
     
@@ -572,12 +588,6 @@ extension MainPageView {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
-        
-        // Test
-        cell
-            .update(dayText: "일, 월, 금", isEveryWeek: true)
-            .update(hour: 1, minute: 6, meridiem: .am)
-            .update(state: .active)
         
         return cell
     }

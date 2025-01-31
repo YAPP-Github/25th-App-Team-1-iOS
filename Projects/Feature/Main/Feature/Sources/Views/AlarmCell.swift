@@ -40,6 +40,7 @@ final class AlarmCell: UITableViewCell {
         $0.axis = .horizontal
         $0.spacing = 4
     }
+    private let holidayImage: UIImageView = .init()
     private let meridiemLabel: UILabel = .init()
     private let hourAndMinuteLabel: UILabel = .init()
     private let clockLabelStack: UIStackView = .init().then {
@@ -95,8 +96,14 @@ private extension AlarmCell {
         )
         
         
+        // holidayImage
+        holidayImage.image = FeatureResourcesAsset.holiday.image
+        holidayImage.contentMode = .scaleAspectFit
+        holidayImage.tintColor = R.Color.gray300
+        
+        
         // dayLabelStack
-        [everyWeekLabel, dayLabel, UIView()].forEach {
+        [everyWeekLabel, dayLabel, holidayImage, UIView()].forEach {
             dayLabelStack.addArrangedSubview($0)
         }
         
@@ -127,6 +134,13 @@ private extension AlarmCell {
     
     func setupLayout() {
         
+        // holidayImage
+        holidayImage.snp.makeConstraints { make in
+            make.width.equalTo(12)
+            make.height.equalTo(12)
+        }
+        
+        
         // containerView
         containerView.snp.makeConstraints { make in
             make.verticalEdges.equalToSuperview().inset(20)
@@ -139,41 +153,39 @@ private extension AlarmCell {
 // MARK: Public interface
 extension AlarmCell {
     @discardableResult
-    func update(dayText: String, isEveryWeek: Bool) -> Self {
+    func update(renderObject: AlarmCellRO) -> Self {
+        // day
+        let iterationType = renderObject.iterationType
+        var dayText = ""
+        switch iterationType {
+        case .everyDays(let days):
+            everyWeekLabel.isHidden = false
+            holidayImage.isHidden = !days.isRestOnHoliday
+            dayText = days.sorted(by: {$0.rawValue<$1.rawValue})
+                .map({$0.korOneWord}).joined(separator: ",")
+        case .specificDay(let month, let day):
+            everyWeekLabel.isHidden = true
+            holidayImage.isHidden = true
+            dayText = "\(month)월 \(day)일"
+        }
         dayLabel.displayText = dayText.displayText(
             font: .label1SemiBold,
             color: R.Color.gray300
         )
-        everyWeekLabel.isHidden = !isEveryWeek
-        return self
-    }
-    
-    enum Meridiem {
-        case am, pm
-        var korText: String {
-            switch self {
-            case .am:
-                "오전"
-            case .pm:
-                "오후"
-            }
-        }
-    }
-    
-    @discardableResult
-    func update(hour: Int, minute: Int?, meridiem: Meridiem) -> Self {
-        meridiemLabel.displayText = meridiem.korText.displayText(
+        
+        // time
+        meridiemLabel.displayText = renderObject.meridiem.korText.displayText(
             font: .title2Medium,
             color: R.Color.white100
         )
         var hourText = "00"
-        if hour < 10 {
-            hourText = "0\(hour)"
+        if renderObject.hour < 10 {
+            hourText = "0\(renderObject.hour)"
         } else {
-            hourText = "\(hour)"
+            hourText = "\(renderObject.hour)"
         }
         var minuteText = "00"
-        if let minute {
+        if let minute = renderObject.minute {
             if minute < 10 {
                 minuteText = "0\(minute)"
             } else {
@@ -185,7 +197,6 @@ extension AlarmCell {
         )
         return self
     }
-    
     
     enum AlarmCellState {
         case active
@@ -210,7 +221,6 @@ extension AlarmCell {
         }
     }
     
-    
     @discardableResult
     func update(state: AlarmCellState, animated: Bool = true) -> Self {
         // State
@@ -228,6 +238,7 @@ extension AlarmCell {
             font: .label1SemiBold,
             color: state.dayLabelColor
         )
+        holidayImage.tintColor = state.dayLabelColor
         
         // clock label
         meridiemLabel.displayText = meridiemLabel.displayText?.string.displayText(
@@ -247,9 +258,33 @@ extension AlarmCell {
 
 
 // MARK: Previews
-#Preview {
+#Preview("공휴일 미포함") {
     AlarmCell()
-        .update(dayText: "일, 월, 금", isEveryWeek: true)
-        .update(hour: 1, minute: 6, meridiem: .am)
+        .update(renderObject: .init(
+            iterationType: .everyDays(days: [.mon,.thu,.wed,.fri,.tue]),
+            meridiem: .am,
+            hour: 1,
+            minute: 5
+        ))
+        .update(state: .active)
+}
+#Preview("공휴일 포함") {
+    AlarmCell()
+        .update(renderObject: .init(
+            iterationType: .everyDays(days: [.mon,.sun,.tue]),
+            meridiem: .am,
+            hour: 1,
+            minute: 5
+        ))
+        .update(state: .active)
+}
+#Preview("반복없는 특정일") {
+    AlarmCell()
+        .update(renderObject: .init(
+            iterationType: .specificDay(month: 1, day: 2),
+            meridiem: .am,
+            hour: 1,
+            minute: 5
+        ))
         .update(state: .active)
 }
