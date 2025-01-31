@@ -20,7 +20,7 @@ protocol MainPageViewListener: AnyObject {
 }
 
 
-final class MainPageView: UIView, UITableViewDelegate, UITableViewDataSource {
+final class MainPageView: UIView, UITableViewDelegate {
     
     // Action
     enum Action {
@@ -94,6 +94,8 @@ final class MainPageView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     // - TableView
     private let alarmTableView: UITableView = .init()
+    private var alarmTableDiffableDataSource: UITableViewDiffableDataSource<Int, String>!
+    private var alarmCellROs: [AlarmCellRO] = []
     
     
     init() {
@@ -112,22 +114,6 @@ final class MainPageView: UIView, UITableViewDelegate, UITableViewDataSource {
         
         if hillView.layer.sublayers == nil {
             setupHillView(ridgeHeight: 40)
-        }
-    }
-}
-
-
-// MARK: Public interface
-extension MainPageView {
-    
-    enum Request {
-        
-    }
-    
-    func update(_ request: Request) {
-        
-        switch request {
-            
         }
     }
 }
@@ -368,6 +354,7 @@ extension MainPageView {
         case fortuneDeliveryTimeText(String)
         case turnOnFortuneNoti(Bool)
         case turnOnFortuneIsDeliveredBubble(Bool)
+        case presentAlarmCell(list: [AlarmCellRO])
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -384,6 +371,8 @@ extension MainPageView {
             fortuneNotiButton.update(image: notiIconImage)
         case .turnOnFortuneIsDeliveredBubble(let isOn):
             fortuneDeliveredBubbleView.alpha = isOn ? 1 : 0
+        case .presentAlarmCell(let list):
+            presentAlarmROs(list)
         }
         return self
     }
@@ -565,13 +554,32 @@ private extension MainPageView {
 
 // MARK: TableView
 extension MainPageView {
-    
     typealias Cell = AlarmCell
     
+    func presentAlarmROs(_ ro: [AlarmCellRO]) {
+        self.alarmCellROs = ro
+        print(ro)
+        let identifiers = ro.map({ $0.id })
+        var snapShot = NSDiffableDataSourceSnapshot<Int, String>()
+        snapShot.appendSections([0])
+        snapShot.appendItems(identifiers)
+        self.alarmTableDiffableDataSource.apply(snapShot)
+    }
+    
     func setupAlarmTableView() {
+        // alarmTableDiffableDataSource
+        let diffableDataSource = UITableViewDiffableDataSource<Int, String>(
+            tableView: alarmTableView) { [weak self] tableView, indexPath, itemIdentifier in
+                guard let self, let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
+                let renderObject = alarmCellROs[indexPath.item]
+                return cell.update(renderObject: renderObject)
+            }
+        self.alarmTableDiffableDataSource = diffableDataSource
+        
+        // alarmTableView
         alarmTableView.backgroundColor = .clear
         alarmTableView.delegate = self
-        alarmTableView.dataSource = self
+        alarmTableView.dataSource = diffableDataSource
         alarmTableView.rowHeight = UIView.noIntrinsicMetric
         alarmTableView.estimatedRowHeight = 102
         alarmTableView.separatorStyle = .singleLine
@@ -579,17 +587,6 @@ extension MainPageView {
         alarmTableView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
         alarmTableView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
         resizableContentView.addSubview(alarmTableView)
-    }
-    
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
-        
-        return cell
     }
 }
  

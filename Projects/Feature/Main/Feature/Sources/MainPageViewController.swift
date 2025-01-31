@@ -45,11 +45,23 @@ extension MainPageViewController {
 #Preview {
     let vc = MainPageViewController()
     vc.loadView()
+    
+    let testLists = (0..<10).map { _ in
+        AlarmCellRO(
+            iterationType: .specificDay(month: 1, day: 2),
+            meridiem: .am,
+            hour: 1,
+            minute: 5,
+            isActive: true
+        )
+    }
+    
     vc.mainView
         .update(.orbitState(.luckScoreOverZero(userName: "준영")))
         .update(.fortuneDeliveryTimeText("내일 오전 5:00 도착"))
         .update(.turnOnFortuneNoti(true))
         .update(.turnOnFortuneIsDeliveredBubble(true))
+        .update(.presentAlarmCell(list: testLists))
     
     return vc
 }

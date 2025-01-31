@@ -76,7 +76,7 @@ final class AlarmCell: UITableViewCell {
     required init?(coder: NSCoder) { nil }
     
     @objc func switchChanged(_ sender: UISwitch) {
-        update(state: sender.isOn ? .active : .inactive, animated: true)
+        listener?.action(.cellStateChanged(state: sender.isOn ? .active : .inactive))
     }
 }
 
@@ -153,7 +153,13 @@ private extension AlarmCell {
 // MARK: Public interface
 extension AlarmCell {
     @discardableResult
-    func update(renderObject: AlarmCellRO) -> Self {
+    func update(renderObject: AlarmCellRO, animated: Bool = true) -> Self {
+        // State
+        self.state = renderObject.isActive ? .active : .inactive
+        
+        // Toggle
+        toggleView.setOn(state == .active, animated: animated)
+        
         // day
         let iterationType = renderObject.iterationType
         var dayText = ""
@@ -168,15 +174,20 @@ extension AlarmCell {
             holidayImage.isHidden = true
             dayText = "\(month)월 \(day)일"
         }
+        everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
+            font: .label1SemiBold,
+            color: state.dayLabelColor
+        )
         dayLabel.displayText = dayText.displayText(
             font: .label1SemiBold,
-            color: R.Color.gray300
+            color: state.dayLabelColor
         )
+        holidayImage.tintColor = state.dayLabelColor
         
-        // time
+        // clock
         meridiemLabel.displayText = renderObject.meridiem.korText.displayText(
             font: .title2Medium,
-            color: R.Color.white100
+            color: state.clockLabelColor
         )
         var hourText = "00"
         if renderObject.hour < 10 {
@@ -193,7 +204,8 @@ extension AlarmCell {
             }
         }
         hourAndMinuteLabel.displayText = "\(hourText):\(minuteText)".displayText(
-            font: .title2Medium, color: R.Color.white100
+            font: .title2Medium,
+            color: state.clockLabelColor
         )
         return self
     }
@@ -220,40 +232,6 @@ extension AlarmCell {
             }
         }
     }
-    
-    @discardableResult
-    func update(state: AlarmCellState, animated: Bool = true) -> Self {
-        // State
-        self.state = state
-        
-        // Toggle
-        toggleView.setOn(state == .active, animated: animated)
-        
-        // dayLabel
-        everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
-            font: .label1SemiBold,
-            color: state.dayLabelColor
-        )
-        dayLabel.displayText = dayLabel.displayText?.string.displayText(
-            font: .label1SemiBold,
-            color: state.dayLabelColor
-        )
-        holidayImage.tintColor = state.dayLabelColor
-        
-        // clock label
-        meridiemLabel.displayText = meridiemLabel.displayText?.string.displayText(
-            font: .title2Medium,
-            color: state.clockLabelColor
-        )
-        hourAndMinuteLabel.displayText = hourAndMinuteLabel.displayText?.string.displayText(
-            font: .title2Medium,
-            color: state.clockLabelColor
-        )
-        
-        return self
-    }
-    
-    
 }
 
 
@@ -264,9 +242,9 @@ extension AlarmCell {
             iterationType: .everyDays(days: [.mon,.thu,.wed,.fri,.tue]),
             meridiem: .am,
             hour: 1,
-            minute: 5
+            minute: 5,
+            isActive: true
         ))
-        .update(state: .active)
 }
 #Preview("공휴일 포함") {
     AlarmCell()
@@ -274,9 +252,9 @@ extension AlarmCell {
             iterationType: .everyDays(days: [.mon,.sun,.tue]),
             meridiem: .am,
             hour: 1,
-            minute: 5
+            minute: 5,
+            isActive: true
         ))
-        .update(state: .active)
 }
 #Preview("반복없는 특정일") {
     AlarmCell()
@@ -284,7 +262,7 @@ extension AlarmCell {
             iterationType: .specificDay(month: 1, day: 2),
             meridiem: .am,
             hour: 1,
-            minute: 5
+            minute: 5,
+            isActive: false
         ))
-        .update(state: .active)
 }
