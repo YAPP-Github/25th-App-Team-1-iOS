@@ -84,9 +84,15 @@ private extension DSDefaultIconButton {
 extension DSDefaultIconButton {
     
     public struct ButtonStyle {
-        let type: ButtonType
-        let image: UIImage
-        let size: ButtonSize
+        public let type: ButtonType
+        public let image: UIImage
+        public let size: ButtonSize
+        
+        public init(type: ButtonType, image: UIImage, size: ButtonSize) {
+            self.type = type
+            self.image = image
+            self.size = size
+        }
     }
     
     
