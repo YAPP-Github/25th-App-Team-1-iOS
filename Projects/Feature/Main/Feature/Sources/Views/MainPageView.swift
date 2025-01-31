@@ -51,8 +51,16 @@ final class MainPageView: UIView, UITableViewDelegate {
     }
     
     // - Buttons
-    private let fortuneNotiButton: IconButton = .init()
-    private let applicationSettingButton: IconButton = .init()
+    private let fortuneNotiButton: DSDefaultIconButton = .init(style: .init(
+        type: .default,
+        image: FeatureResourcesAsset.letter.image,
+        size: .small
+    ))
+    private let applicationSettingButton: DSDefaultIconButton = .init(style: .init(
+        type: .default,
+        image: FeatureResourcesAsset.settingsFill.image,
+        size: .small
+    ))
     private let toolButtonStack: UIStackView = .init().then {
         $0.axis = .horizontal
         $0.spacing = 12
@@ -151,8 +159,6 @@ private extension MainPageView {
         
         // buttons
         // - set initial image
-        fortuneNotiButton.update(image: FeatureResourcesAsset.letter.image)
-        applicationSettingButton.update(image: FeatureResourcesAsset.settingsFill.image)
         // - button action
         fortuneNotiButton.buttonAction = { [weak self] in
             guard let self else { return }

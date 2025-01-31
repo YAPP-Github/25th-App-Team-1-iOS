@@ -56,6 +56,14 @@ final public class DSDefaultIconButton: TouchDetectingView {
 }
 
 
+// MARK: Public interface
+public extension DSDefaultIconButton {
+    func update(image: UIImage) {
+        self.imageView.image = image
+    }
+}
+
+
 // MARK: Setup
 private extension DSDefaultIconButton {
     func setupUI() {
