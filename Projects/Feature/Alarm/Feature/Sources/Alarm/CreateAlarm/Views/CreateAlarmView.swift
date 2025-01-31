@@ -152,7 +152,6 @@ extension CreateAlarmView: OnBoardingNavBarViewListener {
 
 extension CreateAlarmView: AlarmPickerListener {
     func latestSelection(meridiem: String, hour: Int, minute: Int) {
-        print("alarmPicker latestSelection: \(meridiem), \(hour), \(minute)")
         if meridiem == "오전" {
             listener?.action(.meridiemChanged(.ante))
         } else {

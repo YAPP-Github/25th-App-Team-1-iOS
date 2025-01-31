@@ -14,6 +14,7 @@ protocol CreateAlarmSoundOptionRouting: ViewableRouting {
 
 enum CreateAlarmSoundOptionPresentableRequest {
     case disableAlarmSound
+    case updateVibrationState(Bool)
     case setOptions(volume: Float, selectedSound: String?)
 }
 
@@ -37,19 +38,30 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: CreateAlarmSoundOptionPresentable) {
+    init(
+        presenter: CreateAlarmSoundOptionPresentable,
+        isVibrateOn: Bool,
+        isSoundOn: Bool,
+        volume: Float,
+        selectedSound: String?
+    ) {
+        self.isVibrateOn = isVibrateOn
+        self.isSoundOn = isSoundOn
+        self.volume = volume
+        self.selectedSound = selectedSound
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
-    private var isVibrateOn: Bool = true
-    private var isSoundOn: Bool = true
-    private var volume: Float = 0.7
+    private var isVibrateOn: Bool
+    private var isSoundOn: Bool
+    private var volume: Float
     private var selectedSound: String?
     
     func request(_ request: CreateAlarmSoundOptionPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
+            presenter.request(.updateVibrationState(isVibrateOn))
             presenter.request(.setOptions(volume: volume, selectedSound: selectedSound))
         case let .isVibrateOnChanged(isVibrateOn):
             self.isVibrateOn = isVibrateOn
@@ -65,7 +77,6 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
         case let .soundSelected(sound):
             self.selectedSound = sound
         case .done:
-            print("isVibrateOn: \(isVibrateOn)\nisSoundOn: \(isSoundOn)\nvolume: \(volume)\nselectedSound: \(selectedSound ?? "none")")
             listener?.request(.done(isVibrateOn: isVibrateOn, isSoundOn: isSoundOn, volume: volume, selectedSound: selectedSound))
         }
     }

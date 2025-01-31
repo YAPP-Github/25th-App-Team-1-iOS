@@ -53,8 +53,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToSnoozeOption(snoozeFrequency: snoozeFrequency, snoozeCount: snoozeCount)
         case .detachSnoozeOption:
             detachSnoozeOption()
-        case .routeToSoundOption:
-            routeToSoundOption()
+        case let .routeToSoundOption(isVibrateOn, isSoundOn, volume, selectedSound):
+            routeToSoundOption(isVibrateOn: isVibrateOn, isSoundOn: isSoundOn, volume: volume, selectedSound: selectedSound)
         case .detachSoundOption:
             detachSoundOption()
         }
@@ -128,9 +128,15 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         router.viewControllable.uiviewController.dismiss(animated: true)
     }
     
-    func routeToSoundOption() {
+    func routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?) {
         guard soundOptionRouter == nil else { return }
-        let router = soundOptionBuilder.build(withListener: interactor)
+        let router = soundOptionBuilder.build(
+            withListener: interactor,
+            isVibrateOn: isVibrateOn,
+            isSoundOn: isSoundOn,
+            volume: volume,
+            selectedSound: selectedSound
+        )
         self.soundOptionRouter = router
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext

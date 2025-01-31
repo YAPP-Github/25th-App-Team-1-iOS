@@ -49,6 +49,10 @@ final class CreateAlarmSoundOptionView: UIView {
     // MARK: - Internal
     weak var listener: CreateAlarmSoundOptionViewListener?
     
+    func updateVibrationState(isEnabled: Bool) {
+        vibrateOnOffSwitch.isOn = isEnabled
+    }
+    
     func disableAlarmSound() {
         self.isSoundOn = false
         soundListTableView.reloadData()
@@ -86,13 +90,6 @@ final class CreateAlarmSoundOptionView: UIView {
     private let soundListTableView = UITableView()
     
     private let doneButton = DSDefaultCTAButton(initialState: .active, style: .init(type: .secondary))
-    
-    // MARK: Internal
-    func disableOptions() {
-    }
-    
-    func enableOptions() {
-    }
     
     @objc
     private func onOffSwitchChanged(toggle: UISwitch) {
@@ -196,7 +193,7 @@ private extension CreateAlarmSoundOptionView {
     
     func layout() {
         containerView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualTo(safeAreaLayoutGuide).offset(52)
+            $0.top.equalTo(safeAreaLayoutGuide).offset(52)
             $0.bottom.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
         }
@@ -247,7 +244,6 @@ private extension CreateAlarmSoundOptionView {
         
         soundListTableView.snp.makeConstraints {
             $0.top.equalTo(soundSlider.snp.bottom).offset(20)
-            $0.height.equalTo(367)
             $0.horizontalEdges.equalToSuperview()
         }
         

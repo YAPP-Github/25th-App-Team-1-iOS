@@ -15,7 +15,7 @@ enum RootRouterRequest {
     case detachCreateAlarm
     case routeToSnoozeOption(SnoozeFrequency?, SnoozeCount?)
     case detachSnoozeOption
-    case routeToSoundOption
+    case routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?)
     case detachSoundOption
 }
 
@@ -83,8 +83,8 @@ extension RootInteractor {
             router?.request(.detachCreateAlarm)
         case let .snoozeOption(snoozeOption, snoozeCount):
             router?.request(.routeToSnoozeOption(snoozeOption, snoozeCount))
-        case .soundOption:
-            router?.request(.routeToSoundOption)
+        case let .soundOption(isVibrateOn, isSoundOn, volume, selectedSound):
+            router?.request(.routeToSoundOption(isVibrateOn: isVibrateOn, isSoundOn: isSoundOn, volume: volume, selectedSound: selectedSound))
         case let .done(alarm):
             router?.request(.detachCreateAlarm)
             service.createAlarm(alarm)

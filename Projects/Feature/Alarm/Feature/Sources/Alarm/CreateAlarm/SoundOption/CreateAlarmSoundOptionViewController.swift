@@ -39,6 +39,8 @@ final class CreateAlarmSoundOptionViewController: UIViewController, CreateAlarmS
         switch request {
         case .disableAlarmSound:
             mainView.disableAlarmSound()
+        case let .updateVibrationState(isEnabled):
+            mainView.updateVibrationState(isEnabled: isEnabled)
         case let .setOptions(volume, selectedSound):
             mainView.setOptions(vloume: volume, selectedSound: selectedSound)
         }

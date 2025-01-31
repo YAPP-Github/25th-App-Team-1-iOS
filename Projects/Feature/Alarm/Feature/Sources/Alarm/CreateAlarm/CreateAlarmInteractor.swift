@@ -24,7 +24,7 @@ protocol CreateAlarmPresentable: Presentable {
 enum CreateAlarmListenerRequest {
     case back
     case snoozeOption(SnoozeFrequency?, SnoozeCount?)
-    case soundOption
+    case soundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?)
     case done(Alarm)
 }
 
@@ -74,7 +74,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         case .selectSnooze:
             listener?.request(.snoozeOption(alarm.snoozeFrequency, alarm.snoozeCount))
         case .selectSound:
-            listener?.request(.soundOption)
+            listener?.request(.soundOption(isVibrateOn: alarm.isVibrationOn, isSoundOn: alarm.isSoundOn, volume: alarm.volume, selectedSound: alarm.selectedSound))
         case .done:
             createAlarm()
         }

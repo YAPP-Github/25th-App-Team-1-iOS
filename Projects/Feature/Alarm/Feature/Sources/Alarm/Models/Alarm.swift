@@ -87,10 +87,10 @@ struct Alarm: Equatable {
          repeatDays: Set<DayOfWeek> = [],
          snoozeFrequency: SnoozeFrequency? = nil,
          snoozeCount: SnoozeCount? = nil,
-         isVibrateOn: Bool = false,
-         isSoundOn: Bool = false,
-         volume: Float = 0.0,
-         selectedSound: String? = nil
+         isVibrateOn: Bool = true,
+         isSoundOn: Bool = true,
+         volume: Float = 0.7,
+         selectedSound: String? = "알림음1"
     ) {
         self.meridiem = meridiem
         self.hour = hour
