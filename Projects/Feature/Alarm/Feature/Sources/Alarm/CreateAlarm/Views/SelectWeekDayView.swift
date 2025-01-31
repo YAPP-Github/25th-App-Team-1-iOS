@@ -41,7 +41,15 @@ final class SelectWeekDayView: UIView {
            let snoozeCount = alarm.snoozeCount {
             snoozeValueButton.setAttributedTitle("\(snoozeFrequency.rawValue), \(snoozeCount.rawValue)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
-            snoozeValueButton.setAttributedTitle("없음".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+            snoozeValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+        }
+        
+        if alarm.isSoundOn {
+            var soundTitle = alarm.isVibrationOn ? "진동, " : ""
+            soundTitle.append(alarm.selectedSound ?? "")
+            soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+        } else {
+            soundValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         }
     }
     

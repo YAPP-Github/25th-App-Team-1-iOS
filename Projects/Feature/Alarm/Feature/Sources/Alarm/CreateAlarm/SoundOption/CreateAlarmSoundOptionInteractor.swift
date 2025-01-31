@@ -23,7 +23,7 @@ protocol CreateAlarmSoundOptionPresentable: Presentable {
 }
 
 enum CreateAlarmSoundOptionListenerRequest {
-    case done
+    case done(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?)
 }
 
 protocol CreateAlarmSoundOptionListener: AnyObject {
@@ -66,7 +66,7 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
             self.selectedSound = sound
         case .done:
             print("isVibrateOn: \(isVibrateOn)\nisSoundOn: \(isSoundOn)\nvolume: \(volume)\nselectedSound: \(selectedSound ?? "none")")
-            listener?.request(.done)
+            listener?.request(.done(isVibrateOn: isVibrateOn, isSoundOn: isSoundOn, volume: volume, selectedSound: selectedSound))
         }
     }
 }

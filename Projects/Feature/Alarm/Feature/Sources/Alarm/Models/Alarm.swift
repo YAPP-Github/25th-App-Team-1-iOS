@@ -75,6 +75,10 @@ struct Alarm: Equatable {
     var repeatDays: Set<DayOfWeek> // 반복할 요일
     var snoozeFrequency: SnoozeFrequency?
     var snoozeCount: SnoozeCount?
+    var isVibrationOn: Bool
+    var isSoundOn: Bool
+    var volume: Float
+    var selectedSound: String?
     
     // 초기화 메서드
     init(meridiem: MeridiemItem,
@@ -82,13 +86,21 @@ struct Alarm: Equatable {
          minute: Int,
          repeatDays: Set<DayOfWeek> = [],
          snoozeFrequency: SnoozeFrequency? = nil,
-         snoozeCount: SnoozeCount? = nil
+         snoozeCount: SnoozeCount? = nil,
+         isVibrateOn: Bool = false,
+         isSoundOn: Bool = false,
+         volume: Float = 0.0,
+         selectedSound: String? = nil
     ) {
         self.meridiem = meridiem
         self.hour = hour
         self.minute = minute
         self.repeatDays = repeatDays
         self.snoozeFrequency = snoozeFrequency
+        self.isVibrationOn = isVibrateOn
+        self.isSoundOn = isSoundOn
+        self.volume = volume
+        self.selectedSound = selectedSound
     }
     
     // 에러 정의

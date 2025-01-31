@@ -22,6 +22,7 @@ protocol CreateAlarmPresentable: Presentable {
 }
 
 enum CreateAlarmListenerRequest {
+    case back
     case snoozeOption(SnoozeFrequency?, SnoozeCount?)
     case soundOption
     case done(Alarm)
@@ -60,6 +61,8 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         switch request {
         case .viewDidLoad:
             start()
+        case .back:
+            listener?.request(.back)
         case let .meridiemChanged(meridiem):
             alarm.meridiem = meridiem
         case let .hourChanged(hour):
@@ -84,6 +87,18 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
                 guard let self else { return }
                 alarm.snoozeFrequency = options.0
                 alarm.snoozeCount = options.1
+                presenter.request(.alarmUpdated(alarm))
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        createAlarmStream.soundOptionChanged
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] options in
+                guard let self else { return }
+                alarm.isVibrationOn = options.isVibrateOn
+                alarm.isSoundOn = options.isSoundOn
+                alarm.volume = options.volume
+                alarm.selectedSound = options.selectedSound
                 presenter.request(.alarmUpdated(alarm))
             })
             .disposeOnDeactivate(interactor: self)

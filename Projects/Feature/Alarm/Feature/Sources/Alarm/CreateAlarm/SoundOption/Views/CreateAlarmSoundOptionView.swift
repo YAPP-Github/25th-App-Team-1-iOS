@@ -281,5 +281,7 @@ extension CreateAlarmSoundOptionView: UITableViewDelegate {
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.selectedIndex = indexPath.row
+        let selectedSound = soundList[indexPath.row]
+        listener?.action(.soundSelected(selectedSound))
     }
 }

@@ -17,6 +17,7 @@ protocol CreateAlarmViewListener: AnyObject {
 
 final class CreateAlarmView: UIView {
     enum Action {
+        case backButtonTapped
         case meridiemChanged(MeridiemItem)
         case hourChanged(Int)
         case minuteChanged(Int)
@@ -144,7 +145,7 @@ extension CreateAlarmView: OnBoardingNavBarViewListener {
     func action(_ action: OnBoardingNavBarView.Action) {
         switch action {
         case .backButtonClicked:
-            print("BackButtonTapped")
+            listener?.action(.backButtonTapped)
         }
     }
 }

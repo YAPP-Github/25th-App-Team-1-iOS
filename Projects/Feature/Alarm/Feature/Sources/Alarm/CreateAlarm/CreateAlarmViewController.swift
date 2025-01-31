@@ -12,6 +12,7 @@ import FeatureDesignSystem
 
 enum CreateAlarmPresentableListenerRequest {
     case viewDidLoad
+    case back
     case meridiemChanged(MeridiemItem)
     case hourChanged(Int)
     case minuteChanged(Int)
@@ -57,6 +58,8 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
 extension CreateAlarmViewController: CreateAlarmViewListener {
     func action(_ action: CreateAlarmView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.request(.back)
         case let .meridiemChanged(meridiem):
             listener?.request(.meridiemChanged(meridiem))
         case let .hourChanged(hour):
