@@ -13,17 +13,17 @@ enum AlarmCreateEditMode {
 }
 
 protocol CreateAlarmDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var createAlarmStream: CreateAlarmStream { get }
 }
 
 final class CreateAlarmComponent: Component<CreateAlarmDependency> {
     fileprivate let mode: AlarmCreateEditMode
-    
+    fileprivate let createAlarmStream: CreateAlarmStream
     init(dependency: CreateAlarmDependency,
          mode: AlarmCreateEditMode
     ) {
         self.mode = mode
+        self.createAlarmStream = dependency.createAlarmStream
         super.init(dependency: dependency)
     }
 }
@@ -43,7 +43,11 @@ final class CreateAlarmBuilder: Builder<CreateAlarmDependency>, CreateAlarmBuild
     func build(withListener listener: CreateAlarmListener, mode: AlarmCreateEditMode) -> CreateAlarmRouting {
         let component = CreateAlarmComponent(dependency: dependency, mode: mode)
         let viewController = CreateAlarmViewController()
-        let interactor = CreateAlarmInteractor(presenter: viewController, mode: component.mode)
+        let interactor = CreateAlarmInteractor(
+            presenter: viewController,
+            mode: component.mode,
+            createAlarmStream: component.createAlarmStream
+        )
         interactor.listener = listener
         return CreateAlarmRouter(interactor: interactor, viewController: viewController)
     }

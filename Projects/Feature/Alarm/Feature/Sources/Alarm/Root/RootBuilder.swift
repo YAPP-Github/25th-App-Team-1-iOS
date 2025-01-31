@@ -20,8 +20,12 @@ final class RootComponent: Component<RootDependency> {
     }
     fileprivate var service: RootServiceable
     
-    var mutableStream: AlarmListMutableStream {
+    var alarmListMutableStream: AlarmListMutableStream {
         return shared { MutableAlarmListStreamImpl() }
+    }
+    
+    var createAlarmMutableStream: CreateAlarmMutableStream {
+        return shared { CreateAlarmMutableStreamImpl() }
     }
     
     init(dependency: any RootDependency,
@@ -48,7 +52,8 @@ final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let component = RootComponent(dependency: dependency)
         let interactor = RootInteractor(
             service: component.service,
-            stream: component.mutableStream
+            alarmListMutableStream: component.alarmListMutableStream,
+            createAlarmMutableStream: component.createAlarmMutableStream
         )
         interactor.listener = listener
         let alarmListBuilder = AlarmListBuilder(dependency: component)

@@ -13,7 +13,7 @@ enum RootRouterRequest {
     case routeToAlarmList
     case routeToCreateAlarm(mode: AlarmCreateEditMode)
     case detachCreateAlarm
-    case routeToSnoozeOption
+    case routeToSnoozeOption(SnoozeFrequency?, SnoozeCount?)
     case detachSnoozeOption
     case routeToSoundOption
     case detachSoundOption
@@ -36,10 +36,12 @@ final class RootInteractor: Interactor, RootInteractable {
     // in constructor.
     init(
         service: RootServiceable,
-        stream: AlarmListMutableStream
+        alarmListMutableStream: AlarmListMutableStream,
+        createAlarmMutableStream: CreateAlarmMutableStream
     ) {
         self.service = service
-        self.stream = stream
+        self.alarmListMutableStream = alarmListMutableStream
+        self.createAlarmMutableStream = createAlarmMutableStream
     }
 
     override func didBecomeActive() {
@@ -55,7 +57,8 @@ final class RootInteractor: Interactor, RootInteractable {
     }
     
     private let service: RootServiceable
-    private let stream: AlarmListMutableStream
+    private let alarmListMutableStream: AlarmListMutableStream
+    private let createAlarmMutableStream: CreateAlarmMutableStream
     
     private func start() {
         router?.request(.routeToAlarmList)
@@ -76,8 +79,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: CreateAlarmListenerRequest) {
         switch request {
-        case .snoozeOption:
-            router?.request(.routeToSnoozeOption)
+        case let .snoozeOption(snoozeOption, snoozeCount):
+            router?.request(.routeToSnoozeOption(snoozeOption, snoozeCount))
         case .soundOption:
             router?.request(.routeToSoundOption)
         case let .done(alarm):
@@ -92,11 +95,12 @@ extension RootInteractor {
     func request(_ request: CreateAlarmSnoozeOptionListenerRequest) {
         
         switch request {
-        case .cancel:
+        case .offSnooze:
             router?.request(.detachSnoozeOption)
+            createAlarmMutableStream.mutableSnoozeOption.onNext((nil, nil))
         case let .done(frequency, count):
             router?.request(.detachSnoozeOption)
-            print("frequency: \(frequency.rawValue), count: \(count.rawValue)")
+            createAlarmMutableStream.mutableSnoozeOption.onNext((frequency, count))
         }
     }
 }

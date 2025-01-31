@@ -49,8 +49,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToCreateAlarm(mode: mode)
         case .detachCreateAlarm:
             detachCreateAlarm()
-        case .routeToSnoozeOption:
-            routeToSnoozeOption()
+        case let .routeToSnoozeOption(snoozeFrequency, snoozeCount):
+            routeToSnoozeOption(snoozeFrequency: snoozeFrequency, snoozeCount: snoozeCount)
         case .detachSnoozeOption:
             detachSnoozeOption()
         case .routeToSoundOption:
@@ -111,9 +111,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         navigationController.popViewController(animated: true)
     }
     
-    func routeToSnoozeOption() {
+    func routeToSnoozeOption(snoozeFrequency: SnoozeFrequency?, snoozeCount: SnoozeCount?) {
         guard snoozeOptionRouter == nil else { return }
-        let router = snoozeOptionBuilder.build(withListener: interactor)
+        let router = snoozeOptionBuilder.build(withListener: interactor, snoozeFrequency: snoozeFrequency, snoozeCount: snoozeCount)
         self.snoozeOptionRouter = router
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext

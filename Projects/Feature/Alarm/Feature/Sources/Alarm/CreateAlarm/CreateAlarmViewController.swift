@@ -8,10 +8,11 @@
 import RIBs
 import RxSwift
 import UIKit
+import FeatureDesignSystem
 
 enum CreateAlarmPresentableListenerRequest {
     case viewDidLoad
-    case meridiemChanged(Meridiem)
+    case meridiemChanged(MeridiemItem)
     case hourChanged(Int)
     case minuteChanged(Int)
     case selectedDaysChanged(Set<DayOfWeek>)
@@ -41,8 +42,8 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
     
     func request(_ request: CreateAlarmPresentableRequest) {
         switch request {
-        case let .initialState(alarm):
-            mainView.update(state: .initial(alarm))
+        case let .alarmUpdated(alarm):
+            mainView.update(state: .alarmUpdated(alarm))
         }
     }
     

@@ -23,7 +23,7 @@ protocol CreateAlarmSnoozeOptionPresentable: Presentable {
 }
 
 enum CreateAlarmSnoozeOptionListenerRequest {
-    case cancel
+    case offSnooze
     case done(SnoozeFrequency, SnoozeCount)
 }
 
@@ -38,24 +38,20 @@ final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarm
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: CreateAlarmSnoozeOptionPresentable) {
+    init(
+        presenter: CreateAlarmSnoozeOptionPresentable,
+        snoozeFrequency: SnoozeFrequency?,
+        snoozeCount: SnoozeCount?
+    ) {
+        self.frequency = snoozeFrequency ?? .fiveMinutes
+        self.count = snoozeCount ?? .fiveTimes
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
-    
     private var isSnoozeOn: Bool = true
-    private var frequency: SnoozeFrequency = .fiveMinutes
-    private var count: SnoozeCount = .fiveTimes
+    private var frequency: SnoozeFrequency
+    private var count: SnoozeCount
     
     func request(_ request: CreateAlarmSnoozeOptionPresentableListenerRequest) {
         switch request {
@@ -75,6 +71,10 @@ final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarm
             self.count = count
             presenter.request(.enableOptions(frequency, count))
         case .done:
+            guard isSnoozeOn else {
+                listener?.request(.offSnooze)
+                return
+            }
             listener?.request(.done(frequency, count))
         }
     }

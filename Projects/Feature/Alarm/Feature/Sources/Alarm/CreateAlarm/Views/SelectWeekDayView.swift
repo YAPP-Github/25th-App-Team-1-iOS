@@ -33,6 +33,17 @@ final class SelectWeekDayView: UIView {
     
     // MARK: - Internal
     weak var listener: SelectWeekDayViewListener?
+    func update(alarm: Alarm) {
+        self.selectedDays = alarm.repeatDays
+        updateButtons()
+        
+        if let snoozeFrequency = alarm.snoozeFrequency,
+           let snoozeCount = alarm.snoozeCount {
+            snoozeValueButton.setAttributedTitle("\(snoozeFrequency.rawValue), \(snoozeCount.rawValue)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+        } else {
+            snoozeValueButton.setAttributedTitle("없음".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+        }
+    }
     
     // MARK: - Properties
     private var selectedDays = Set<DayOfWeek>()

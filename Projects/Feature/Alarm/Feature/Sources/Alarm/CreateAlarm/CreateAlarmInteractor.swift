@@ -13,7 +13,7 @@ protocol CreateAlarmRouting: ViewableRouting {
 }
 
 enum CreateAlarmPresentableRequest {
-    case initialState(Alarm)
+    case alarmUpdated(Alarm)
 }
 
 protocol CreateAlarmPresentable: Presentable {
@@ -22,7 +22,7 @@ protocol CreateAlarmPresentable: Presentable {
 }
 
 enum CreateAlarmListenerRequest {
-    case snoozeOption
+    case snoozeOption(SnoozeFrequency?, SnoozeCount?)
     case soundOption
     case done(Alarm)
 }
@@ -38,15 +38,23 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
     
     init(
         presenter: CreateAlarmPresentable,
-        mode: AlarmCreateEditMode
+        mode: AlarmCreateEditMode,
+        createAlarmStream: CreateAlarmStream
     ) {
         self.mode = mode
+        self.createAlarmStream = createAlarmStream
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
     private let mode: AlarmCreateEditMode
+    private let createAlarmStream: CreateAlarmStream
     private var alarm: Alarm = .default
+    
+    override func didBecomeActive() {
+        super.didBecomeActive()
+        bind()
+    }
     
     func request(_ request: CreateAlarmPresentableListenerRequest) {
         switch request {
@@ -61,7 +69,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         case let .selectedDaysChanged(set):
             print(set)
         case .selectSnooze:
-            listener?.request(.snoozeOption)
+            listener?.request(.snoozeOption(alarm.snoozeFrequency, alarm.snoozeCount))
         case .selectSound:
             listener?.request(.soundOption)
         case .done:
@@ -69,13 +77,25 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         }
     }
     
+    private func bind() {
+        createAlarmStream.snoozeOptionChanged
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] options in
+                guard let self else { return }
+                alarm.snoozeFrequency = options.0
+                alarm.snoozeCount = options.1
+                presenter.request(.alarmUpdated(alarm))
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+    
     private func start() {
         switch mode {
         case .create:
-            presenter.request(.initialState(alarm))
+            presenter.request(.alarmUpdated(alarm))
         case let .edit(alarm):
             self.alarm = alarm
-            presenter.request(.initialState(alarm))
+            presenter.request(.alarmUpdated(alarm))
         }
     }
     

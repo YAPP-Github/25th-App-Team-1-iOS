@@ -9,7 +9,7 @@ import Foundation
 import FeatureDesignSystem
 
 // 요일을 나타내는 열거형
-enum DayOfWeek: Codable {
+enum DayOfWeek {
     case sunday
     case monday
     case tuesday
@@ -34,7 +34,7 @@ enum DayOfWeek: Codable {
     static let weekends = Set([sunday, saturday])
 }
 
-enum SnoozeFrequency: String, CaseIterable, Codable {
+enum SnoozeFrequency: String, CaseIterable {
     case oneMinute = "1분"
     case threeMinutes = "3분"
     case fiveMinutes = "5분"
@@ -57,7 +57,7 @@ enum SnoozeFrequency: String, CaseIterable, Codable {
     }
 }
 
-enum SnoozeCount: String, CaseIterable, Codable {
+enum SnoozeCount: String, CaseIterable {
     case once = "1회"
     case threeTimes = "3회"
     case fiveTimes = "5회"
@@ -66,8 +66,8 @@ enum SnoozeCount: String, CaseIterable, Codable {
 }
 
 // 알람을 나타내는 구조체
-struct Alarm: Codable, Equatable {
-    static let `default` = Alarm(meridiem: .pm, hour: 4, minute: 37)
+struct Alarm: Equatable {
+    static let `default` = Alarm(meridiem: .ante, hour: 4, minute: 37)
     var id: UUID = UUID()
     var meridiem: MeridiemItem
     var hour: Int // 1 ~ 12

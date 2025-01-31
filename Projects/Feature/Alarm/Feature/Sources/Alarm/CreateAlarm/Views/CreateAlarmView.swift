@@ -17,7 +17,7 @@ protocol CreateAlarmViewListener: AnyObject {
 
 final class CreateAlarmView: UIView {
     enum Action {
-        case meridiemChanged(Meridiem)
+        case meridiemChanged(MeridiemItem)
         case hourChanged(Int)
         case minuteChanged(Int)
         case selectWeekday(Set<DayOfWeek>)
@@ -27,7 +27,7 @@ final class CreateAlarmView: UIView {
     }
     
     enum State {
-        case initial(Alarm)
+        case alarmUpdated(Alarm)
     }
     
     init() {
@@ -45,7 +45,7 @@ final class CreateAlarmView: UIView {
     
     func update(state: State) {
         switch state {
-        case let .initial(alarm):
+        case let .alarmUpdated(alarm):
             updateView(with: alarm)
         }
     }
@@ -85,6 +85,7 @@ final class CreateAlarmView: UIView {
             hour: alarm.hour,
             minute: alarm.minute
         )
+        selectWeekDayView.update(alarm: alarm)
     }
     
     @objc
@@ -151,8 +152,12 @@ extension CreateAlarmView: OnBoardingNavBarViewListener {
 extension CreateAlarmView: AlarmPickerListener {
     func latestSelection(meridiem: String, hour: Int, minute: Int) {
         print("alarmPicker latestSelection: \(meridiem), \(hour), \(minute)")
-        guard let meridiem = Meridiem(rawValue: meridiem) else { return }
-        listener?.action(.meridiemChanged(meridiem))
+        if meridiem == "오전" {
+            listener?.action(.meridiemChanged(.ante))
+        } else {
+            listener?.action(.meridiemChanged(.post))
+        }
+        
         listener?.action(.hourChanged(hour))
         listener?.action(.minuteChanged(minute))
     }
