@@ -8,6 +8,7 @@
 import UIKit
 
 import FeatureResources
+import FeatureDesignSystem
 
 import SnapKit
 import Then
@@ -67,6 +68,30 @@ final class MainPageView: UIView {
     private var resizableContentViewScreenState: resizableContentViewScreenState = .half
     private var resizableContentViewTopConstraintWhenHalf: Constraint?
     private var resizableContentViewTopConstraintWhenFull: Constraint?
+    
+    // - Alarm
+    private let alarmToolBarTitleLabel: UILabel = .init()
+    private let addAlarmButton: DSDefaultIconButton = .init(style: .init(
+        type: .default,
+        image: FeatureResourcesAsset.plus.image,
+        size: .small
+    ))
+    private let configAlarmButton: DSDefaultIconButton = .init(style: .init(
+        type: .default,
+        image: FeatureResourcesAsset.more.image,
+        size: .small
+    ))
+    private let alarmToolBarButtonStack: UIStackView = .init().then {
+        $0.axis = .horizontal
+        $0.spacing = 4
+    }
+    private let alarmToolBarContainerStack: UIStackView = .init().then {
+        $0.axis = .horizontal
+        $0.distribution = .fill
+        $0.alignment = .center
+    }
+    private let alarmToolBarContainerView: UIView = .init()
+    
     
     init() {
         super.init(frame: .zero)
@@ -145,6 +170,30 @@ private extension MainPageView {
         
         // ResizableContentView
         setupResizableContentViewUI()
+        
+        
+        // alarmToolBar
+        alarmToolBarTitleLabel.displayText = "알림".displayText(
+            font: .heading2SemiBold,
+            color: R.Color.white100
+        )
+        
+        
+        // alarmToolBarButtonStack
+        [addAlarmButton, configAlarmButton].forEach {
+            alarmToolBarButtonStack.addArrangedSubview($0)
+        }
+        
+        
+        // alarmToolBarContainerStack
+        [alarmToolBarTitleLabel, UIView(), alarmToolBarButtonStack].forEach {
+            alarmToolBarContainerStack.addArrangedSubview($0)
+        }
+        alarmToolBarContainerView.addSubview(alarmToolBarContainerStack)
+        
+        
+        // alarmToolBarContainerView
+        resizableContentView.addSubview(alarmToolBarContainerView)
     }
     
     
@@ -197,6 +246,25 @@ private extension MainPageView {
         
         // ResizableContentView
         setupResizableContentViewLayout()
+        
+        
+        // alarmToolBarContainerStack
+        alarmToolBarContainerStack.snp.makeConstraints { make in
+            make.verticalEdges.equalToSuperview().inset(8)
+            make.leading.equalToSuperview().inset(20)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        
+        
+        // alarmToolBarContainerView
+        alarmToolBarContainerView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(14)
+                .priority(.high)
+            make.top.greaterThanOrEqualTo(self.safeAreaLayoutGuide)
+                .inset(14)
+                .priority(.required)
+            make.horizontalEdges.equalToSuperview()
+        }
     }
 }
 
