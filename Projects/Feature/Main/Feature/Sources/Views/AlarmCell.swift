@@ -18,6 +18,10 @@ protocol AlarmCellListener: AnyObject {
 
 final class AlarmCell: UITableViewCell {
     
+    // Id
+    static let identifier = String(describing: AlarmCell.self)
+    
+    
     // Action
     enum Action {
         case cellStateChanged(state: AlarmCellState)

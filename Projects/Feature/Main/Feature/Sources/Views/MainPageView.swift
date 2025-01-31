@@ -20,7 +20,7 @@ protocol MainPageViewListener: AnyObject {
 }
 
 
-final class MainPageView: UIView {
+final class MainPageView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     // Action
     enum Action {
@@ -91,6 +91,9 @@ final class MainPageView: UIView {
         $0.alignment = .center
     }
     private let alarmToolBarContainerView: UIView = .init()
+    
+    // - TableView
+    private let alarmTableView: UITableView = .init()
     
     
     init() {
@@ -194,6 +197,10 @@ private extension MainPageView {
         
         // alarmToolBarContainerView
         resizableContentView.addSubview(alarmToolBarContainerView)
+        
+        
+        // alarmTableView
+        setupAlarmTableView()
     }
     
     
@@ -264,6 +271,14 @@ private extension MainPageView {
                 .inset(14)
                 .priority(.required)
             make.horizontalEdges.equalToSuperview()
+        }
+        
+        
+        // alarmTableView
+        alarmTableView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.top.equalTo(alarmToolBarContainerView.snp.bottom)
+            make.bottom.equalToSuperview()
         }
     }
 }
@@ -528,6 +543,43 @@ private extension MainPageView {
             }
         }
         
+    }
+}
+
+
+// MARK: TableView
+extension MainPageView {
+    
+    typealias Cell = AlarmCell
+    
+    func setupAlarmTableView() {
+        alarmTableView.backgroundColor = .clear
+        alarmTableView.delegate = self
+        alarmTableView.dataSource = self
+        alarmTableView.rowHeight = UIView.noIntrinsicMetric
+        alarmTableView.estimatedRowHeight = 102
+        alarmTableView.separatorStyle = .singleLine
+        alarmTableView.separatorColor = R.Color.gray800
+        alarmTableView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
+        alarmTableView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
+        resizableContentView.addSubview(alarmTableView)
+    }
+    
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        10
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
+        
+        // Test
+        cell
+            .update(dayText: "일, 월, 금", isEveryWeek: true)
+            .update(hour: 1, minute: 6, meridiem: .am)
+            .update(state: .active)
+        
+        return cell
     }
 }
  
