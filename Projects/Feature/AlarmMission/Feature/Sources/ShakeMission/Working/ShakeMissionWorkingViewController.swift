@@ -104,7 +104,7 @@ extension ShakeMissionWorkingViewController {
         case .hapticGeneratorAction(let action):
             switch action {
             case .prepare:
-                self.impactFeedBackGenerator = .init(style: .medium)
+                self.impactFeedBackGenerator = .init(style: .heavy)
                 self.impactFeedBackGenerator?.prepare()
             case .occur:
                 self.impactFeedBackGenerator?.impactOccurred()
