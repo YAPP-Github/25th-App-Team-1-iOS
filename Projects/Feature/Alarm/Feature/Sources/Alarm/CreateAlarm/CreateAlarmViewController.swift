@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum CreateAlarmPresentableListenerRequest {
+    case viewDidLoad
     case meridiemChanged(Meridiem)
     case hourChanged(Int)
     case minuteChanged(Int)
@@ -35,6 +36,14 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigation()
+        listener?.request(.viewDidLoad)
+    }
+    
+    func request(_ request: CreateAlarmPresentableRequest) {
+        switch request {
+        case let .initialState(alarm):
+            mainView.update(state: .initial(alarm))
+        }
     }
     
     private let mainView = CreateAlarmView()

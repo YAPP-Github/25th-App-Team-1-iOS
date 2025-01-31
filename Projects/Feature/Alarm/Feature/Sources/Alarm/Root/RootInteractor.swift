@@ -11,7 +11,7 @@ import RxSwift
 enum RootRouterRequest {
     case cleanupViews
     case routeToAlarmList
-    case routeToCreateAlarm
+    case routeToCreateAlarm(mode: AlarmCreateEditMode)
     case detachCreateAlarm
     case routeToSnoozeOption
     case detachSnoozeOption
@@ -67,7 +67,7 @@ extension RootInteractor {
     func request(_ request: AlarmListListenerRequest) {
         switch request {
         case .addAlarm:
-            router?.request(.routeToCreateAlarm)
+            router?.request(.routeToCreateAlarm(mode: .create))
         }
     }
 }

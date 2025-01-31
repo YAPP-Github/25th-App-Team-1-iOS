@@ -5,7 +5,7 @@
 //  Created by choijunios on 1/6/25.
 //
 
-public enum MeridiemItem: CaseIterable {
+public enum MeridiemItem: CaseIterable, Codable {
     case ante
     case post
     

@@ -6,12 +6,7 @@
 //
 
 import Foundation
-
-// 오전/오후를 나타내는 열거형
-enum Meridiem: String, Codable {
-    case am = "AM"
-    case pm = "PM"
-}
+import FeatureDesignSystem
 
 // 요일을 나타내는 열거형
 enum DayOfWeek: Codable {
@@ -74,7 +69,7 @@ enum SnoozeCount: String, CaseIterable, Codable {
 struct Alarm: Codable, Equatable {
     static let `default` = Alarm(meridiem: .pm, hour: 4, minute: 37)
     var id: UUID = UUID()
-    var meridiem: Meridiem
+    var meridiem: MeridiemItem
     var hour: Int // 1 ~ 12
     var minute: Int // 0 ~ 59
     var repeatDays: Set<DayOfWeek> // 반복할 요일
@@ -82,7 +77,7 @@ struct Alarm: Codable, Equatable {
     var snoozeCount: SnoozeCount?
     
     // 초기화 메서드
-    init(meridiem: Meridiem,
+    init(meridiem: MeridiemItem,
          hour: Int,
          minute: Int,
          repeatDays: Set<DayOfWeek> = [],
@@ -114,7 +109,7 @@ struct Alarm: Codable, Equatable {
     // 알람 시간의 DateComponents 변환 메서드 (필요 시 사용)
     func toDateComponents() -> DateComponents {
         var components = DateComponents()
-        components.hour = meridiem == .am ? hour % 12 : (hour % 12) + 12
+        components.hour = meridiem == .ante ? hour % 12 : (hour % 12) + 12
         components.minute = minute
         return components
     }

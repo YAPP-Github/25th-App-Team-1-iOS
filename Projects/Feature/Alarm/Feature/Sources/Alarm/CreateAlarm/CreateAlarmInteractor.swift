@@ -12,9 +12,13 @@ protocol CreateAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum CreateAlarmPresentableRequest {
+    case initialState(Alarm)
+}
+
 protocol CreateAlarmPresentable: Presentable {
     var listener: CreateAlarmPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: CreateAlarmPresentableRequest)
 }
 
 enum CreateAlarmListenerRequest {
@@ -32,15 +36,22 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
     weak var router: CreateAlarmRouting?
     weak var listener: CreateAlarmListener?
     
-    override init(presenter: CreateAlarmPresentable) {
+    init(
+        presenter: CreateAlarmPresentable,
+        mode: AlarmCreateEditMode
+    ) {
+        self.mode = mode
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
+    private let mode: AlarmCreateEditMode
     private var alarm: Alarm = .default
     
     func request(_ request: CreateAlarmPresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            start()
         case let .meridiemChanged(meridiem):
             alarm.meridiem = meridiem
         case let .hourChanged(hour):
@@ -55,6 +66,16 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
             listener?.request(.soundOption)
         case .done:
             createAlarm()
+        }
+    }
+    
+    private func start() {
+        switch mode {
+        case .create:
+            presenter.request(.initialState(alarm))
+        case let .edit(alarm):
+            self.alarm = alarm
+            presenter.request(.initialState(alarm))
         }
     }
     

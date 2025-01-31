@@ -45,8 +45,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             cleanupViews()
         case .routeToAlarmList:
             routeToAlarmList()
-        case .routeToCreateAlarm:
-            routeToCreateAlarm()
+        case let .routeToCreateAlarm(mode):
+            routeToCreateAlarm(mode: mode)
         case .detachCreateAlarm:
             detachCreateAlarm()
         case .routeToSnoozeOption:
@@ -95,9 +95,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         viewController.uiviewController.present(navigationController, animated: true)
     }
     
-    func routeToCreateAlarm() {
+    func routeToCreateAlarm(mode: AlarmCreateEditMode) {
         guard createAlarmRouter == nil else { return }
-        let router = createAlarmBuilder.build(withListener: interactor)
+        let router = createAlarmBuilder.build(withListener: interactor, mode: mode)
         self.createAlarmRouter = router
         attachChild(router)
         let createAlarmViewController = router.viewControllable.uiviewController

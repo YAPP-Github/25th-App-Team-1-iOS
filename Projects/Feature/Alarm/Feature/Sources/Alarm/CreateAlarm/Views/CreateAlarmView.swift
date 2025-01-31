@@ -26,6 +26,10 @@ final class CreateAlarmView: UIView {
         case doneButtonTapped
     }
     
+    enum State {
+        case initial(Alarm)
+    }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -34,6 +38,16 @@ final class CreateAlarmView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Internal
+    weak var listener: CreateAlarmViewListener?
+    
+    func update(state: State) {
+        switch state {
+        case let .initial(alarm):
+            updateView(with: alarm)
+        }
     }
     
     private let alarmPicker: AlarmPicker = .init(
@@ -65,7 +79,13 @@ final class CreateAlarmView: UIView {
     private let selectWeekDayView = SelectWeekDayView()
     private let doneButton = DSDefaultCTAButton()
     
-    weak var listener: CreateAlarmViewListener?
+    private func updateView(with alarm: Alarm) {
+        alarmPicker.update(
+            meridiem: alarm.meridiem,
+            hour: alarm.hour,
+            minute: alarm.minute
+        )
+    }
     
     @objc
     private func doneButtonTapped() {
