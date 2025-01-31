@@ -25,18 +25,20 @@ public final class OnBoardingNavBarView: UIView {
         case backButtonClicked
     }
     
-    
     // Listener
     public weak var listener: OnBoardingNavBarViewListener?
-    
     
     // Sub view
     private let backButton: UIButton = .init().then {
         let buttonImage =  FeatureResourcesAsset.chevronLeft.image
         $0.setImage(buttonImage, for: .normal)
     }
+    private let titleLabel = UILabel()
     fileprivate let stageIndexView: StageIndexView = .init()
         
+    public override var intrinsicContentSize: CGSize {
+        return .init(width: UIView.noIntrinsicMetric, height: 56)
+    }
          
     public init() {
         super.init(frame: .zero)
@@ -46,7 +48,12 @@ public final class OnBoardingNavBarView: UIView {
     }
     required init?(coder: NSCoder) { nil }
     
+    public func update(title: String) {
+        titleLabel.displayText = title.displayText(font: .body1SemiBold, color: R.Color.white100)
+    }
+    
     public func setIndex(_ currentStage: Int, of stageCount: Int) {
+        stageIndexView.isHidden = false
         stageIndexView.update(currentStage: currentStage, stageCount: stageCount)
     }
     
@@ -65,7 +72,7 @@ public final class OnBoardingNavBarView: UIView {
     
     private func setupUI() {
         self.backgroundColor = .clear
-        
+        stageIndexView.isHidden = true
         backButton.addTarget(self,
             action: #selector(backButtonClicked),
             for: .touchUpInside)
@@ -73,18 +80,22 @@ public final class OnBoardingNavBarView: UIView {
     
     
     private func setupLayout() {
+        [backButton, titleLabel, stageIndexView].forEach {
+            addSubview($0)
+        }
         
-        let stackView: UIStackView = .init(arrangedSubviews: [
-            backButton, UIView(), stageIndexView
-        ])
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.alignment = .center
+        backButton.snp.makeConstraints {
+            $0.leading.equalTo(20)
+            $0.size.equalTo(32)
+            $0.centerY.equalToSuperview()
+        }
+        titleLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
         
-        addSubview(stackView)
-        stackView.snp.makeConstraints { make in
-            make.verticalEdges.equalToSuperview().inset(12)
-            make.horizontalEdges.equalToSuperview().inset(20)
+        stageIndexView.snp.makeConstraints {
+            $0.trailing.equalTo(-20)
+            $0.centerY.equalToSuperview()
         }
     }
     

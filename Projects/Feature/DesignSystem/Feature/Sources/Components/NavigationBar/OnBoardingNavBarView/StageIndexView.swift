@@ -17,7 +17,6 @@ final class StageIndexView: UIView {
         CGSize(width: 54, height: 30)
     }
     
-    
     init() {
         super.init(frame: .zero)
         
@@ -25,9 +24,7 @@ final class StageIndexView: UIView {
     }
     required init?(coder: NSCoder) { nil }
     
-    
     public func update(currentStage: Int, stageCount: Int) {
-        
         // indexLabel
         indexLabel.displayText = "\(currentStage)/\(stageCount)"
             .displayText(font: .body1Medium, color: R.Color.gray200)
