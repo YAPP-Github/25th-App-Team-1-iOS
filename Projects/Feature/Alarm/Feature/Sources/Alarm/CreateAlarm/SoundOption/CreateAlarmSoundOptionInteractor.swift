@@ -63,6 +63,9 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
         case .viewDidLoad:
             presenter.request(.updateVibrationState(isVibrateOn))
             presenter.request(.setOptions(volume: volume, selectedSound: selectedSound))
+            if isSoundOn == false {
+                presenter.request(.disableAlarmSound)
+            }
         case let .isVibrateOnChanged(isVibrateOn):
             self.isVibrateOn = isVibrateOn
         case let .isSoundOnChanged(isSoundOn):

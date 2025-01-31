@@ -55,6 +55,7 @@ final class CreateAlarmSoundOptionView: UIView {
     
     func disableAlarmSound() {
         self.isSoundOn = false
+        self.soundOnOffSwitch.isOn = false
         soundListTableView.reloadData()
         soundSlider.tintColor = R.Color.gray500
     }
