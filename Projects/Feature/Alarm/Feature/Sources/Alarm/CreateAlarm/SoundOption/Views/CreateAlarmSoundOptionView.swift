@@ -93,6 +93,9 @@ final class CreateAlarmSoundOptionView: UIView {
     
     @objc
     private func volumeChanged(slider: UISlider) {
+        if slider.value < 0.1 {
+            slider.value = 0.1
+        }
         listener?.action(.volumeChanged(slider.value))
     }
 }
