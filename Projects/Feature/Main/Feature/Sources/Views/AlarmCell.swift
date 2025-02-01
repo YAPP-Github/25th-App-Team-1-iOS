@@ -162,23 +162,20 @@ extension AlarmCell {
         
         // day
         let iterationType = renderObject.iterationType
-        var dayText = ""
         switch iterationType {
         case .everyDays(let days):
             everyWeekLabel.isHidden = false
             holidayImage.isHidden = !days.isRestOnHoliday
-            dayText = days.sorted(by: {$0.rawValue<$1.rawValue})
-                .map({$0.korOneWord}).joined(separator: ",")
         case .specificDay(let month, let day):
             everyWeekLabel.isHidden = true
             holidayImage.isHidden = true
-            dayText = "\(month)월 \(day)일"
         }
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
         )
-        dayLabel.displayText = dayText.displayText(
+        let dayDisplayText = iterationType.dayDisplayText
+        dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
         )
@@ -189,21 +186,7 @@ extension AlarmCell {
             font: .title2Medium,
             color: state.clockLabelColor
         )
-        var hourText = "00"
-        if renderObject.hour < 10 {
-            hourText = "0\(renderObject.hour)"
-        } else {
-            hourText = "\(renderObject.hour)"
-        }
-        var minuteText = "00"
-        if let minute = renderObject.minute {
-            if minute < 10 {
-                minuteText = "0\(minute)"
-            } else {
-                minuteText = "\(minute)"
-            }
-        }
-        hourAndMinuteLabel.displayText = "\(hourText):\(minuteText)".displayText(
+        hourAndMinuteLabel.displayText = renderObject.hourAndMinuteDisplayText.displayText(
             font: .title2Medium,
             color: state.clockLabelColor
         )

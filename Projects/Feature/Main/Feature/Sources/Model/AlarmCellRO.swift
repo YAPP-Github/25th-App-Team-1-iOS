@@ -32,4 +32,22 @@ struct AlarmCellRO: Identifiable {
         self.minute = minute
         self.isActive = isActive
     }
+    
+    var hourAndMinuteDisplayText: String {
+        var hourText = "00"
+        if hour < 10 {
+            hourText = "0\(hour)"
+        } else {
+            hourText = "\(hour)"
+        }
+        var minuteText = "00"
+        if let minute = minute {
+            if minute < 10 {
+                minuteText = "0\(minute)"
+            } else {
+                minuteText = "\(minute)"
+            }
+        }
+        return "\(hourText):\(minuteText)"
+    }
 }
