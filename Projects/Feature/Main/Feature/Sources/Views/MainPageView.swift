@@ -19,7 +19,7 @@ protocol MainPageViewListener: AnyObject {
 }
 
 
-final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener {
+final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener, AlarmDeletionViewListener {
     
     // Action
     enum Action {
@@ -105,6 +105,10 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener {
     private let alarmTableView: UITableView = .init()
     private var alarmTableDiffableDataSource: UITableViewDiffableDataSource<Int, String>!
     private var alarmCellROs: [AlarmCellRO] = []
+    
+    // - AlarmDeletionView
+    private var alarmDeletionView: AlarmDeletionView?
+    private var isDeletionViewPresenting: Bool = false
     
     
     init() {
@@ -571,6 +575,7 @@ extension MainPageView {
         let diffableDataSource = AlarmDiffableDataSource(
             tableView: alarmTableView) { [weak self] tableView, indexPath, itemIdentifier in
                 guard let self, let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
+                cell.listener = self
                 let renderObject = alarmCellROs[indexPath.item]
                 return cell.update(renderObject: renderObject)
             }
@@ -598,7 +603,7 @@ extension MainPageView {
             completionHandler(true)
         }
         deleteAction.backgroundColor = R.Color.gray500
-        deleteAction.image = FeatureResourcesAsset.trashFill.image
+        deleteAction.image = FeatureResourcesAsset.trashFill.image.withTintColor(R.Color.white100)
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         // Swipe to commit
         configuration.performsFirstActionWithFullSwipe = true
@@ -616,10 +621,54 @@ extension MainPageView {
                 alarmId: cellId,
                 isActive: (willMoveTo == .active)
             ))
+        case .cellIsLongPressed(let cellId):
+            guard isDeletionViewPresenting == false else { return }
+            isDeletionViewPresenting = true
+            guard let ro = alarmCellROs.first(where: { $0.id==cellId }) else { return }
+            presentAlarmDeletionView(renderObject: ro)
         }
     }
 }
  
+
+// MARK: Alarm deleltion
+private extension MainPageView {
+    func presentAlarmDeletionView(renderObject ro: AlarmCellRO) {
+        let deletionView = AlarmDeletionView()
+        deletionView.listener = self
+        deletionView.update(renderObject: ro)
+        addSubview(deletionView)
+        deletionView.layer.zPosition = 200
+        deletionView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        self.alarmDeletionView = deletionView
+        deletionView.present()
+    }
+    
+    func dismissAlarmDeletionView() {
+        guard let deletionView = self.alarmDeletionView else { return }
+        deletionView.dismiss { [weak self] in
+            guard let self else { return }
+            alarmDeletionView?.removeFromSuperview()
+            alarmDeletionView = nil
+            isDeletionViewPresenting = false
+        }
+    }
+}
+
+
+// MARK: AlarmDeletionViewListener
+extension MainPageView {
+    func action(_ action: AlarmDeletionView.Action) {
+        switch action {
+        case .deleteButtonClicked(let cellId):
+            dismissAlarmDeletionView()
+            listener?.action(.alarmWillDelete(alarmId: cellId))
+        }
+    }
+}
+
 
 #Preview {
     MainPageView()
