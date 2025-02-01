@@ -10,9 +10,11 @@ import RxSwift
 import UIKit
 
 protocol MainPagePresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    func request(_ request: MainPageViewPresenterRequest)
+}
+
+enum MainPageViewPresenterRequest {
+    case changeAlarmState(alarmId: String, changeToActive: Bool)
 }
 
 final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable, MainPageViewListener {
@@ -33,11 +35,38 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
 }
 
 
+// MARK: Public interface
+extension MainPageViewController {
+    enum UpdateRequest {
+        // Alarm엔티티 전달
+        case presentAlarmList(alarms: [Any])
+    }
+    
+    func update(_ request: UpdateRequest) {
+        switch request {
+        case .presentAlarmList(let alarms):
+            // 엔티티를 RO로 변경
+            break
+        }
+    }
+}
+
+
 // MARK: MainPageViewListener
 extension MainPageViewController {
     
     func action(_ action: MainPageView.Action) {
-    
+        switch action {
+        case .fortuneNotiButtonClicked:
+            break
+        case .applicationSettingButtonClicked:
+            break
+        case .alarmStateWillChange(let alarmId, let isActive):
+            listener?.request(.changeAlarmState(
+                alarmId: alarmId,
+                changeToActive: isActive
+            ))
+        }
     }
 }
 

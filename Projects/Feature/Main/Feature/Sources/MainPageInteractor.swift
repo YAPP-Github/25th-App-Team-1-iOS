@@ -43,3 +43,13 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
         // TODO: Pause any business logic.
     }
 }
+
+
+extension MainPageInteractor {
+    func request(_ request: MainPageViewPresenterRequest) {
+        switch request {
+        case .changeAlarmState(let alarmId, let changeToActive):
+            <#code#>
+        }
+    }
+}

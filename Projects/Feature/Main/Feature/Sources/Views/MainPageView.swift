@@ -15,17 +15,17 @@ import Then
 import Lottie
 
 protocol MainPageViewListener: AnyObject {
-    
     func action(_ action: MainPageView.Action)
 }
 
 
-final class MainPageView: UIView, UITableViewDelegate {
+final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener {
     
     // Action
     enum Action {
         case fortuneNotiButtonClicked
         case applicationSettingButtonClicked
+        case alarmStateWillChange(alarmId: String, isActive: Bool)
     }
     
     
@@ -580,6 +580,20 @@ extension MainPageView {
         alarmTableView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
         alarmTableView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
         resizableContentView.addSubview(alarmTableView)
+    }
+}
+
+
+// MARK: AlarmCellListener
+extension MainPageView {
+    func action(_ action: AlarmCell.Action) {
+        switch action {
+        case .toggleIsTapped(let cellId, let willMoveTo):
+            listener?.action(.alarmStateWillChange(
+                alarmId: cellId,
+                isActive: (willMoveTo == .active)
+            ))
+        }
     }
 }
  
