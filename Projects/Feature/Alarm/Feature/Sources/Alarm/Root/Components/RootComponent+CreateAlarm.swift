@@ -8,5 +8,7 @@
 import Foundation
 
 extension RootComponent: CreateAlarmDependency {
-    
+    var createAlarmStream: CreateAlarmStream {
+        createAlarmMutableStream
+    }
 }

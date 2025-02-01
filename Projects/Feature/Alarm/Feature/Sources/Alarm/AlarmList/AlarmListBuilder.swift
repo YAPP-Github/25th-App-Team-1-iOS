@@ -8,7 +8,7 @@
 import RIBs
 
 protocol AlarmListDependency: Dependency {
-    var stream: AlarmListStream { get }
+    var alarmListStream: AlarmListStream { get }
 }
 
 final class AlarmListComponent: Component<AlarmListDependency> {
