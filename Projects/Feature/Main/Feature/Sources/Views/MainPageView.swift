@@ -179,8 +179,16 @@ private extension MainPageView {
         fortuneNotiButton.addSubview(fortuneDeliveredBubbleView)
         
         
-        // ResizableContentView
-        setupResizableContentViewUI()
+        // resizableContentView
+        resizableContentView.backgroundColor = R.Color.gray900
+        resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenHalf
+        resizableContentView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
+        self.addSubview(resizableContentView)
+        resizableContentView.layer.zPosition = 1
+        
+        
+        // resizableContentViewDockView
+        resizableContentView.addSubview(resizableContentViewDockView)
         
         
         // alarmToolBar
@@ -205,6 +213,12 @@ private extension MainPageView {
         
         // alarmToolBarContainerView
         resizableContentView.addSubview(alarmToolBarContainerView)
+        
+        
+        // resizableContentViewDockViewDrageArea
+        resizableContentViewDockViewDrageArea.backgroundColor = .clear
+        resizableContentView.addSubview(resizableContentViewDockViewDrageArea)
+        setupResizableContentViewDrag()
         
         
         // alarmTableView
@@ -427,7 +441,7 @@ private extension MainPageView {
     enum ResizableContentViewConfig {
         // UI
         static let offsetFromBottomAnchorWhenHalf: CGFloat = 38
-        static let drageAreaHeightBelowContainer: CGFloat = 80
+        static let drageAreaOffsetOverDock: CGFloat = 50
         static let cornerRadiusWhenHalf: CGFloat = 16
         static let cornerRadiusWhenFull: CGFloat = 0
         
@@ -438,31 +452,7 @@ private extension MainPageView {
         static let minVelocityForFullScreen: CGFloat = -1200
         static let minVelocityForHalfScreen: CGFloat = 1200
     }
-    
-    
-    func setupResizableContentViewUI() {
-        
-        // resizableContentView
-        resizableContentView.backgroundColor = R.Color.gray900
-        resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenHalf
-        resizableContentView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
-        self.addSubview(resizableContentView)
-        resizableContentView.layer.zPosition = 1
-        
-        
-        // resizableContentViewDockView
-        resizableContentView.addSubview(resizableContentViewDockView)
-        
-        
-        // resizableContentViewDockViewDrageArea
-        resizableContentViewDockViewDrageArea.backgroundColor = .clear
-        resizableContentView.addSubview(resizableContentViewDockViewDrageArea)
-        
-        
-        // setup gesture
-        setupResizableContentViewDrag()
-    }
-    
+
     
     func setupResizableContentViewLayout() {
         
@@ -494,12 +484,10 @@ private extension MainPageView {
         // resizableContentViewDockViewDrageArea
         resizableContentViewDockViewDrageArea.snp.makeConstraints { make in
             make.top.equalTo(resizableContentViewDockView)
-            make.bottom.equalTo(resizableContentView.snp.top).offset(80)
+                .offset(-ResizableContentViewConfig.drageAreaOffsetOverDock)
+            make.bottom.equalTo(alarmToolBarContainerView.snp.top)
             make.horizontalEdges.equalToSuperview()
-            
             make.bottom.greaterThanOrEqualTo(self.safeAreaLayoutGuide.snp.top)
-                .offset(ResizableContentViewConfig.drageAreaHeightBelowContainer)
-                .priority(.high)
         }
     }
     
@@ -562,10 +550,9 @@ private extension MainPageView {
 extension MainPageView {
     typealias Cell = AlarmCell
     
-    func presentAlarmROs(_ ro: [AlarmCellRO]) {
-        self.alarmCellROs = ro
-        print(ro)
-        let identifiers = ro.map({ $0.id })
+    func presentAlarmROs(_ ros: [AlarmCellRO]) {
+        self.alarmCellROs = ros
+        let identifiers = ros.map({ $0.id })
         var snapShot = NSDiffableDataSourceSnapshot<Int, String>()
         snapShot.appendSections([0])
         snapShot.appendItems(identifiers)
