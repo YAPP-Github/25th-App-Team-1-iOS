@@ -25,11 +25,16 @@ final class AlarmCell: UITableViewCell {
     // Action
     enum Action {
         case toggleIsTapped(cellId: String, willMoveTo: AlarmCellState)
+        case cellIsLongPressed(cellId: String)
     }
     
     
     // Listener
     weak var listener: AlarmCellListener?
+    
+    
+    // Gesture
+    private let longPressGesture: UILongPressGestureRecognizer = .init()
     
     
     // Suv view
@@ -70,19 +75,9 @@ final class AlarmCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         setupLayout()
-        
-        // MARK: Temp
-        toggleView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
+        setupGesture()
     }
     required init?(coder: NSCoder) { nil }
-    
-    @objc func switchChanged(_ sender: UISwitch) {
-        guard let cellId = self.currentRO?.id else { return }
-        listener?.action(.toggleIsTapped(
-            cellId: cellId,
-            willMoveTo: sender.isOn ? .active : .inactive
-        ))
-    }
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -156,6 +151,28 @@ private extension AlarmCell {
             make.verticalEdges.equalToSuperview().inset(20)
             make.horizontalEdges.equalToSuperview().inset(22)
         }
+    }
+    
+    func setupGesture() {
+        // longPressGesture
+        contentView.addGestureRecognizer(longPressGesture)
+        longPressGesture.addTarget(self, action: #selector(onLongPress(_:)))
+        longPressGesture.minimumPressDuration = 0.5
+        
+        // Toggle
+        toggleView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
+    }
+    @objc
+    func onLongPress(_ sender: UILongPressGestureRecognizer) {
+        guard let cellId = self.currentRO?.id else { return }
+        listener?.action(.cellIsLongPressed(cellId: cellId))
+    }
+    @objc func switchChanged(_ sender: UISwitch) {
+        guard let cellId = self.currentRO?.id else { return }
+        listener?.action(.toggleIsTapped(
+            cellId: cellId,
+            willMoveTo: sender.isOn ? .active : .inactive
+        ))
     }
 }
 
