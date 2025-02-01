@@ -15,6 +15,7 @@ protocol MainPagePresentableListener: AnyObject {
 
 enum MainPageViewPresenterRequest {
     case changeAlarmState(alarmId: String, changeToActive: Bool)
+    case deleteAlarm(alarmId: String)
 }
 
 final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable, MainPageViewListener {
@@ -66,6 +67,9 @@ extension MainPageViewController {
                 alarmId: alarmId,
                 changeToActive: isActive
             ))
+        case .alarmWillDelete(let alarmId):
+            listener?.request(.deleteAlarm(alarmId: alarmId))
+            break
         }
     }
 }

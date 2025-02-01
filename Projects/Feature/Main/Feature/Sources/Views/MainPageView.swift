@@ -26,6 +26,7 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener {
         case fortuneNotiButtonClicked
         case applicationSettingButtonClicked
         case alarmStateWillChange(alarmId: String, isActive: Bool)
+        case alarmWillDelete(alarmId: String)
     }
     
     
@@ -550,6 +551,12 @@ private extension MainPageView {
 extension MainPageView {
     typealias Cell = AlarmCell
     
+    class AlarmDiffableDataSource: UITableViewDiffableDataSource<Int, String> {
+        override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+            return true
+        }
+    }
+    
     func presentAlarmROs(_ ros: [AlarmCellRO]) {
         self.alarmCellROs = ros
         let identifiers = ros.map({ $0.id })
@@ -561,7 +568,7 @@ extension MainPageView {
     
     func setupAlarmTableView() {
         // alarmTableDiffableDataSource
-        let diffableDataSource = UITableViewDiffableDataSource<Int, String>(
+        let diffableDataSource = AlarmDiffableDataSource(
             tableView: alarmTableView) { [weak self] tableView, indexPath, itemIdentifier in
                 guard let self, let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
                 let renderObject = alarmCellROs[indexPath.item]
@@ -580,6 +587,22 @@ extension MainPageView {
         alarmTableView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
         alarmTableView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
         resizableContentView.addSubview(alarmTableView)
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "") { [weak self] (action, view, completionHandler) in
+            guard let self else { return }
+            let renderObject = alarmCellROs[indexPath.item]
+            let cellId = renderObject.id
+            listener?.action(.alarmWillDelete(alarmId: cellId))
+            completionHandler(true)
+        }
+        deleteAction.backgroundColor = R.Color.gray500
+        deleteAction.image = FeatureResourcesAsset.trashFill.image
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        // Swipe to commit
+        configuration.performsFirstActionWithFullSwipe = true
+        return configuration
     }
 }
 

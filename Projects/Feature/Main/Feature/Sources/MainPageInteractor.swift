@@ -49,7 +49,9 @@ extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
         case .changeAlarmState(let alarmId, let changeToActive):
-            <#code#>
+            break
+        case .deleteAlarm(let alarmId):
+            break
         }
     }
 }
