@@ -454,8 +454,8 @@ private extension MainPageView {
         static let transitionDuration: CGFloat = 0.35
         
         // Judgement
-        static let minVelocityForFullScreen: CGFloat = -1200
-        static let minVelocityForHalfScreen: CGFloat = 1200
+        static let minVelocityForFullScreen: CGFloat = -500
+        static let minVelocityForHalfScreen: CGFloat = 500
     }
 
     
