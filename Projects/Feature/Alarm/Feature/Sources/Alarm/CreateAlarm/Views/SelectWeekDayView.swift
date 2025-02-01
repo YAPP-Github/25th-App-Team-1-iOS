@@ -44,12 +44,14 @@ final class SelectWeekDayView: UIView {
             snoozeValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         }
         
-        if alarm.isSoundOn {
+        if alarm.isSoundOn,
+           let title = alarm.selectedSound?.title {
             var soundTitle = alarm.isVibrationOn ? "진동, " : ""
-            soundTitle.append(alarm.selectedSound?.title ?? "")
+            soundTitle.append(title)
             soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
-            soundValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+            let soundTitle = alarm.isVibrationOn ? "진동" : "안 함"
+            soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         }
     }
     
