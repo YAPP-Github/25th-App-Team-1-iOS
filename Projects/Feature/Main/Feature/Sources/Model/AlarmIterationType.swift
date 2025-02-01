@@ -18,4 +18,22 @@ enum AlarmIterationType {
             return "\(month)월 \(day)일"
         }
     }
+    
+    var showIsEveryWeekImage: Bool {
+        switch self {
+        case .everyDays:
+            true
+        case .specificDay:
+            false
+        }
+    }
+    
+    var showHolidayBadge: Bool {
+        switch self {
+        case .everyDays(let days):
+            return days.isRestOnHoliday
+        case .specificDay:
+            return false
+        }
+    }
 }

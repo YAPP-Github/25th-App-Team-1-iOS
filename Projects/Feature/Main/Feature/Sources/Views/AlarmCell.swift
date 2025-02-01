@@ -24,7 +24,7 @@ final class AlarmCell: UITableViewCell {
     
     // Action
     enum Action {
-        case cellStateChanged(state: AlarmCellState)
+        case toggleIsTapped(cellId: String, willMoveTo: AlarmCellState)
     }
     
     
@@ -62,6 +62,7 @@ final class AlarmCell: UITableViewCell {
     }
     
     // State
+    private var currentRO: AlarmCellRO?
     private var state: AlarmCellState = .active
     
     
@@ -76,7 +77,16 @@ final class AlarmCell: UITableViewCell {
     required init?(coder: NSCoder) { nil }
     
     @objc func switchChanged(_ sender: UISwitch) {
-        listener?.action(.cellStateChanged(state: sender.isOn ? .active : .inactive))
+        guard let cellId = self.currentRO?.id else { return }
+        listener?.action(.toggleIsTapped(
+            cellId: cellId,
+            willMoveTo: sender.isOn ? .active : .inactive
+        ))
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.currentRO = nil
     }
 }
 
@@ -156,20 +166,15 @@ extension AlarmCell {
     func update(renderObject: AlarmCellRO, animated: Bool = true) -> Self {
         // State
         self.state = renderObject.isActive ? .active : .inactive
+        self.currentRO = renderObject
         
         // Toggle
         toggleView.setOn(state == .active, animated: animated)
         
         // day
         let iterationType = renderObject.iterationType
-        switch iterationType {
-        case .everyDays(let days):
-            everyWeekLabel.isHidden = false
-            holidayImage.isHidden = !days.isRestOnHoliday
-        case .specificDay(let month, let day):
-            everyWeekLabel.isHidden = true
-            holidayImage.isHidden = true
-        }
+        everyWeekLabel.isHidden = !iterationType.showIsEveryWeekImage
+        holidayImage.isHidden = !iterationType.showHolidayBadge
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
