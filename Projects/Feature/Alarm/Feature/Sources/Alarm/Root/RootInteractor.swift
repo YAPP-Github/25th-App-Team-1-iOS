@@ -57,7 +57,7 @@ final class RootInteractor: Interactor, RootInteractable {
         // TODO: Pause any business logic.
     }
     
-    private let service: RootServiceable
+    private var service: RootServiceable
     private let alarmListMutableStream: AlarmListMutableStream
     private let createAlarmMutableStream: CreateAlarmMutableStream
     
@@ -95,7 +95,7 @@ extension RootInteractor {
             )
         case let .done(alarm):
             router?.request(.detachCreateAlarm)
-            service.createAlarm(alarm)
+            service.scheduleTimer(with: alarm)
         }
     }
 }

@@ -68,7 +68,16 @@ enum SnoozeCount: String, CaseIterable {
 
 // 알람을 나타내는 구조체
 struct Alarm: Equatable {
-    static let `default` = Alarm(meridiem: .ante, hour: 4, minute: 37)
+    static func defaultAlarm() -> Alarm {
+        let current = Calendar.current
+        let currentDate = Date()
+        let hour = current.component(.hour, from: currentDate)
+        let meridiem: MeridiemItem = hour >= 12 ? .post : .ante
+        let calculatedHour = hour % 12
+        let minute = current.component(.minute, from: currentDate)
+        
+        return .init(meridiem: meridiem, hour: calculatedHour, minute: minute)
+    }
     var id: UUID = UUID()
     var meridiem: MeridiemItem
     var hour: Int // 1 ~ 12
@@ -122,6 +131,9 @@ struct Alarm: Equatable {
     // 알람 시간의 DateComponents 변환 메서드 (필요 시 사용)
     func toDateComponents() -> DateComponents {
         var components = DateComponents()
+        components.year = Calendar.current.component(.year, from: Date())
+        components.month = Calendar.current.component(.month, from: Date())
+        components.day = Calendar.current.component(.day, from: Date())
         components.hour = meridiem == .ante ? hour % 12 : (hour % 12) + 12
         components.minute = minute
         return components

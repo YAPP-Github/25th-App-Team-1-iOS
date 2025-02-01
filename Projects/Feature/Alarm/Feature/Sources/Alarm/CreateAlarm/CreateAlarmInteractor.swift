@@ -51,7 +51,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
 
     private let mode: AlarmCreateEditMode
     private let createAlarmStream: CreateAlarmStream
-    private var alarm: Alarm = .default
+    private var alarm: Alarm = .defaultAlarm()
     
     override func didBecomeActive() {
         super.didBecomeActive()
@@ -66,7 +66,6 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
             listener?.request(.back)
         case let .meridiemChanged(meridiem):
             alarm.meridiem = meridiem
-            print(meridiem.content)
         case let .hourChanged(hour):
             alarm.hour = hour
         case let .minuteChanged(minute):

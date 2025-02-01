@@ -10,9 +10,29 @@ import FeatureResources
 
 protocol RootServiceable {
     func createAlarm(_ alarm: Alarm)
+    mutating func scheduleTimer(with alarm: Alarm)
 }
 
 struct RootService: RootServiceable {
+    // MARK: Background
+    private var timer: Timer?
+    mutating func scheduleTimer(with alarm: Alarm) {
+        let calendar = Calendar.current
+        guard let date = calendar.date(from: alarm.toDateComponents()) else { return }
+        let currentDate = Date()
+        let timeInterval = date.timeIntervalSince(currentDate)
+        print(timeInterval)
+        // Timer를 스케줄링
+        timer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { _ in
+            guard let sound = alarm.selectedSound?.alarm else { return }
+            VolumeManager.setVolume(alarm.volume) // 설정한 볼륨값 0.0~1.0으로 설정
+            AlarmManager.shared.playAlarmSound(with: sound)
+        }
+        
+        RunLoop.current.add(timer!, forMode: .common)
+    }
+    
+    // MARK: Notification
     func createAlarm(_ alarm: Alarm) {
         requestNotificationAuthorization { granted, error in
             if granted {
@@ -44,8 +64,8 @@ struct RootService: RootServiceable {
         }
         
         // 알림 트리거 구성
-        var dateComponents = alarm.toDateComponents()
-        print(dateComponents)
+        let dateComponents = alarm.toDateComponents()
+        
         // 요일에 따라 트리거 설정
         if !alarm.repeatDays.isEmpty {
             for weekday in alarm.repeatDays {
@@ -107,6 +127,7 @@ struct RootService: RootServiceable {
 }
 
 extension RootService {
+    @discardableResult
     func copySoundFileToLibrary(with sound: R.AlarmSound) -> UNNotificationSound? {
         // 다른 번들에서 사운드 파일 URL 가져오기
         let soundURL = sound.alarm
