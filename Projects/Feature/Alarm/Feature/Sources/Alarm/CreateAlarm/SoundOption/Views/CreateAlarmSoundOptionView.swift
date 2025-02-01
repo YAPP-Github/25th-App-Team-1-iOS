@@ -20,21 +20,9 @@ final class CreateAlarmSoundOptionView: UIView {
         case isVibrateOnChanged(Bool)
         case isSoundOnChanged(Bool)
         case volumeChanged(Float)
-        case soundSelected(String)
+        case soundSelected(R.AlarmSound)
         case doneButtonTapped
     }
-    
-    var soundList: [String] = [
-        "알림음1",
-        "알림음2",
-        "알림음3",
-        "알림음4",
-        "알림음5",
-        "알림음6",
-        "알림음7",
-        "알림음8",
-        "알림음9",
-    ]
     
     init() {
         super.init(frame: .zero)
@@ -60,19 +48,17 @@ final class CreateAlarmSoundOptionView: UIView {
         soundSlider.tintColor = R.Color.gray500
     }
     
-    func setOptions(vloume: Float, selectedSound: String?) {
+    func setOptions(vloume: Float, selectedSound: R.AlarmSound?) {
         isSoundOn = true
         soundSlider.tintColor = R.Color.main100
         soundSlider.value = vloume
-        if let selectedSoundIndex = soundList.firstIndex(of: selectedSound ?? "") {
-            self.selectedIndex = selectedSoundIndex
-        }
+        self.selectedSound = selectedSound
         soundListTableView.reloadData()
     }
     
     private var isSoundOn: Bool = true
     
-    private var selectedIndex: Int? {
+    private var selectedSound: R.AlarmSound? {
         didSet {
             soundListTableView.reloadData()
         }
@@ -261,12 +247,13 @@ extension CreateAlarmSoundOptionView: UITableViewDataSource {
         1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return soundList.count
+        return R.AlarmSound.allCases.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "SoundOptionItemCell") as? SoundOptionItemCell else { return .init() }
-        cell.configure(title: soundList[indexPath.row], isSelected: indexPath.row == selectedIndex)
+        let currentSound = R.AlarmSound.allCases[indexPath.row]
+        cell.configure(title: currentSound.title, isSelected: selectedSound == currentSound)
         cell.setButtonState(isSoundOn)
         return cell
     }
@@ -277,8 +264,8 @@ extension CreateAlarmSoundOptionView: UITableViewDelegate {
         return 44
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.selectedIndex = indexPath.row
-        let selectedSound = soundList[indexPath.row]
+        let selectedSound = R.AlarmSound.allCases[indexPath.row]
+        self.selectedSound = selectedSound
         listener?.action(.soundSelected(selectedSound))
     }
 }

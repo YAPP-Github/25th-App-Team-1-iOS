@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import FeatureResources
 
 protocol CreateAlarmSoundOptionDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
@@ -16,9 +17,9 @@ final class CreateAlarmSoundOptionComponent: Component<CreateAlarmSoundOptionDep
     fileprivate let isVibrateOn: Bool
     fileprivate let isSoundOn: Bool
     fileprivate let volume: Float
-    fileprivate let selectedSound: String?
+    fileprivate let selectedSound: R.AlarmSound?
     
-    init(dependency: CreateAlarmSoundOptionDependency, isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?) {
+    init(dependency: CreateAlarmSoundOptionDependency, isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?) {
         self.isVibrateOn = isVibrateOn
         self.isSoundOn = isSoundOn
         self.volume = volume
@@ -35,7 +36,7 @@ protocol CreateAlarmSoundOptionBuildable: Buildable {
         isVibrateOn: Bool,
         isSoundOn: Bool,
         volume: Float,
-        selectedSound: String?
+        selectedSound: R.AlarmSound?
     ) -> CreateAlarmSoundOptionRouting
 }
 
@@ -50,7 +51,7 @@ final class CreateAlarmSoundOptionBuilder: Builder<CreateAlarmSoundOptionDepende
         isVibrateOn: Bool,
         isSoundOn: Bool,
         volume: Float,
-        selectedSound: String?
+        selectedSound: R.AlarmSound?
     ) -> CreateAlarmSoundOptionRouting {
         let component = CreateAlarmSoundOptionComponent(
             dependency: dependency,

@@ -7,6 +7,7 @@
 
 import RIBs
 import UIKit
+import FeatureResources
 
 protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener, CreateAlarmSnoozeOptionListener, CreateAlarmSoundOptionListener {
     var router: RootRouting? { get set }
@@ -128,7 +129,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         router.viewControllable.uiviewController.dismiss(animated: true)
     }
     
-    func routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?) {
+    func routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?) {
         guard soundOptionRouter == nil else { return }
         let router = soundOptionBuilder.build(
             withListener: interactor,

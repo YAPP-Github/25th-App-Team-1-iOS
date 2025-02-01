@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import FeatureResources
 
 protocol CreateAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -24,7 +25,7 @@ protocol CreateAlarmPresentable: Presentable {
 enum CreateAlarmListenerRequest {
     case back
     case snoozeOption(SnoozeFrequency?, SnoozeCount?)
-    case soundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?)
+    case soundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?)
     case done(Alarm)
 }
 
@@ -65,6 +66,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
             listener?.request(.back)
         case let .meridiemChanged(meridiem):
             alarm.meridiem = meridiem
+            print(meridiem.content)
         case let .hourChanged(hour):
             alarm.hour = hour
         case let .minuteChanged(minute):
@@ -74,7 +76,12 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         case .selectSnooze:
             listener?.request(.snoozeOption(alarm.snoozeFrequency, alarm.snoozeCount))
         case .selectSound:
-            listener?.request(.soundOption(isVibrateOn: alarm.isVibrationOn, isSoundOn: alarm.isSoundOn, volume: alarm.volume, selectedSound: alarm.selectedSound))
+            listener?.request(.soundOption(
+                isVibrateOn: alarm.isVibrationOn,
+                isSoundOn: alarm.isSoundOn,
+                volume: alarm.volume,
+                selectedSound: alarm.selectedSound
+            ))
         case .done:
             createAlarm()
         }

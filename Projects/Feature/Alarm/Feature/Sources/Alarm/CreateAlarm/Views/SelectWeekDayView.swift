@@ -46,7 +46,7 @@ final class SelectWeekDayView: UIView {
         
         if alarm.isSoundOn {
             var soundTitle = alarm.isVibrationOn ? "진동, " : ""
-            soundTitle.append(alarm.selectedSound ?? "")
+            soundTitle.append(alarm.selectedSound?.title ?? "")
             soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
             soundValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)

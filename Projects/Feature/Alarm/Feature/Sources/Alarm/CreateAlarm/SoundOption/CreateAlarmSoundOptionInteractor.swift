@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import FeatureResources
 
 protocol CreateAlarmSoundOptionRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -15,7 +16,7 @@ protocol CreateAlarmSoundOptionRouting: ViewableRouting {
 enum CreateAlarmSoundOptionPresentableRequest {
     case disableAlarmSound
     case updateVibrationState(Bool)
-    case setOptions(volume: Float, selectedSound: String?)
+    case setOptions(volume: Float, selectedSound: R.AlarmSound?)
 }
 
 protocol CreateAlarmSoundOptionPresentable: Presentable {
@@ -24,7 +25,7 @@ protocol CreateAlarmSoundOptionPresentable: Presentable {
 }
 
 enum CreateAlarmSoundOptionListenerRequest {
-    case done(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?)
+    case done(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?)
 }
 
 protocol CreateAlarmSoundOptionListener: AnyObject {
@@ -43,7 +44,7 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
         isVibrateOn: Bool,
         isSoundOn: Bool,
         volume: Float,
-        selectedSound: String?
+        selectedSound: R.AlarmSound?
     ) {
         self.isVibrateOn = isVibrateOn
         self.isSoundOn = isSoundOn
@@ -56,7 +57,7 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
     private var isVibrateOn: Bool
     private var isSoundOn: Bool
     private var volume: Float
-    private var selectedSound: String?
+    private var selectedSound: R.AlarmSound?
     
     func request(_ request: CreateAlarmSoundOptionPresentableListenerRequest) {
         switch request {

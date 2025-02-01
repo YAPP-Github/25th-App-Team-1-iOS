@@ -7,6 +7,7 @@
 
 import Foundation
 import FeatureDesignSystem
+import FeatureResources
 
 // 요일을 나타내는 열거형
 enum DayOfWeek {
@@ -78,7 +79,7 @@ struct Alarm: Equatable {
     var isVibrationOn: Bool
     var isSoundOn: Bool
     var volume: Float
-    var selectedSound: String?
+    var selectedSound: R.AlarmSound?
     
     // 초기화 메서드
     init(meridiem: MeridiemItem,
@@ -90,7 +91,7 @@ struct Alarm: Equatable {
          isVibrateOn: Bool = true,
          isSoundOn: Bool = true,
          volume: Float = 0.7,
-         selectedSound: String? = "알림음1"
+         selectedSound: R.AlarmSound? = nil
     ) {
         self.meridiem = meridiem
         self.hour = hour

@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import FeatureResources
 
 enum RootRouterRequest {
     case cleanupViews
@@ -15,7 +16,7 @@ enum RootRouterRequest {
     case detachCreateAlarm
     case routeToSnoozeOption(SnoozeFrequency?, SnoozeCount?)
     case detachSnoozeOption
-    case routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: String?)
+    case routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?)
     case detachSoundOption
 }
 
@@ -84,7 +85,14 @@ extension RootInteractor {
         case let .snoozeOption(snoozeOption, snoozeCount):
             router?.request(.routeToSnoozeOption(snoozeOption, snoozeCount))
         case let .soundOption(isVibrateOn, isSoundOn, volume, selectedSound):
-            router?.request(.routeToSoundOption(isVibrateOn: isVibrateOn, isSoundOn: isSoundOn, volume: volume, selectedSound: selectedSound))
+            router?.request(
+                .routeToSoundOption(
+                    isVibrateOn: isVibrateOn,
+                    isSoundOn: isSoundOn,
+                    volume: volume,
+                    selectedSound: selectedSound
+                )
+            )
         case let .done(alarm):
             router?.request(.detachCreateAlarm)
             service.createAlarm(alarm)

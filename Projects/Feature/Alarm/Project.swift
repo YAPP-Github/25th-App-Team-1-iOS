@@ -16,7 +16,10 @@ let project = Project(
             resources: ["Example/Resources/**"],
             dependencies: [
                 .thirdParty(library: .RIBs),
-                .feature(implements: .Alarm)
+                .feature(implements: .Alarm),
+                .feature(implements: .Resources),
+                .feature(implements: .DesignSystem)
+                
             ]
         ),
         

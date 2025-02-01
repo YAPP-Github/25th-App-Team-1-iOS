@@ -8,13 +8,14 @@
 import RIBs
 import RxSwift
 import UIKit
+import FeatureResources
 
 enum CreateAlarmSoundOptionPresentableListenerRequest {
     case viewDidLoad
     case isVibrateOnChanged(Bool)
     case isSoundOnChanged(Bool)
     case volumeChanged(Float)
-    case soundSelected(String)
+    case soundSelected(R.AlarmSound)
     case done
 }
 protocol CreateAlarmSoundOptionPresentableListener: AnyObject {
