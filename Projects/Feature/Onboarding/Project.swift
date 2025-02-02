@@ -26,7 +26,7 @@ let project = Project(
             resources: ["Example/Resources/**"],
             dependencies: [
                 .feature(implements: .Onboarding),
-                .thirdParty(library: .RIBs)
+                .feature(implements: .ThirdPartyDependencies)
             ],
             settings: .settings(configurations: [
                 .debug(name: "Debug"),
