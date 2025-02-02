@@ -9,7 +9,7 @@ import Foundation
 
 public struct AlarmDays {
     public private(set) var days: Set<WeekDay>
-    init(days: Set<WeekDay> = []) {
+    public init(days: Set<WeekDay> = []) {
         self.days = days
     }
     
