@@ -60,10 +60,7 @@ let project = Project(
             dependencies: [
                 .feature(implements: .UIDependencies),
                 .feature(implements: .CommonDependencies),
-                .thirdParty(library: .RIBs),
-                .thirdParty(library: .SnapKit),
-                .thirdParty(library: .Then),
-                .thirdParty(library: .Lottie)
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
     ],

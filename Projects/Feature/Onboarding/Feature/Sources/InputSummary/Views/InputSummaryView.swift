@@ -9,8 +9,7 @@ import UIKit
 
 import FeatureUIDependencies
 
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 
 protocol InputSummaryViewListener: AnyObject {
     

@@ -7,8 +7,7 @@
 
 import Lottie
 import UIKit
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 import FeatureUIDependencies
 
 protocol OnboardingFortuneGuideViewListener: AnyObject {

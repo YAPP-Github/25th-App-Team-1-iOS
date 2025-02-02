@@ -41,6 +41,9 @@ public extension ModulePath {
         
         case CommonDependencies
         case CommonEntity
+        
+        case ThirdPartyDependencies
+        
         case AlarmMission
         
         public static let categoryName: String = "Feature"
@@ -55,7 +58,6 @@ public extension ModulePath {
 public extension ModulePath {
     
     enum ThirdParty: String, CaseIterable {
-        
         case RIBs
         case Then
         case SnapKit

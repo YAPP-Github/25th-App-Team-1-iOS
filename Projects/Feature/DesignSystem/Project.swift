@@ -52,8 +52,7 @@ let project = Project(
             dependencies: [
                 .feature(implements: .Resources),
                 .feature(implements: .CommonDependencies),
-                .thirdParty(library: .SnapKit),
-                .thirdParty(library: .Then)
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
     ]

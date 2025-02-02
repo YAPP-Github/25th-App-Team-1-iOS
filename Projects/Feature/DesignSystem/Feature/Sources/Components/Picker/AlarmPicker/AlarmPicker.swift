@@ -10,7 +10,7 @@ import UIKit
 import FeatureResources
 import FeatureCommonDependencies
 
-import SnapKit
+import FeatureThirdPartyDependencies
 import RxSwift
 
 public protocol AlarmPickerListener: AnyObject {

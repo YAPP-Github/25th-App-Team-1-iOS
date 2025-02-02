@@ -9,8 +9,7 @@ import UIKit
 
 import FeatureResources
 
-import Then
-import SnapKit
+import FeatureThirdPartyDependencies
 
 public protocol DSBoxButtonListener: AnyObject {
     

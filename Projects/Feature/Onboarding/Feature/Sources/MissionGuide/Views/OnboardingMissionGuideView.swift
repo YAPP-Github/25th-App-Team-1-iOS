@@ -5,10 +5,8 @@
 //  Created by ever on 1/15/25.
 //
 
-import Lottie
 import UIKit
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 import FeatureUIDependencies
 
 protocol OnboardingMissionGuideViewListener: AnyObject {
