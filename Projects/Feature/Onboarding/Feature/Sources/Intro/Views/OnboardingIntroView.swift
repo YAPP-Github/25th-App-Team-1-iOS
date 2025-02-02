@@ -9,8 +9,7 @@ import Lottie
 import UIKit
 import SnapKit
 import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol OnboardingIntroViewListener: AnyObject {
     func action(_ action: OnboardingIntroView.Action)

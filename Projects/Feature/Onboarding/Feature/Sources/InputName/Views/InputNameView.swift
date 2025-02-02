@@ -8,8 +8,7 @@
 import UIKit
 import SnapKit
 import Then
-import FeatureDesignSystem
-import FeatureResources
+import FeatureUIDependencies
 
 protocol InputNameViewListener: AnyObject {
     func action(_ action: InputNameView.Action)

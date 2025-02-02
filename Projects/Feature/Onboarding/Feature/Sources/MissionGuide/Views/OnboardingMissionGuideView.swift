@@ -9,8 +9,7 @@ import Lottie
 import UIKit
 import SnapKit
 import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol OnboardingMissionGuideViewListener: AnyObject {
     func action(_ action: OnboardingMissionGuideView.Action)

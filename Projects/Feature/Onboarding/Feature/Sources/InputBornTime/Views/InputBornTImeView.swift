@@ -8,8 +8,7 @@
 import UIKit
 import SnapKit
 import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol InputBornTImeViewListener: AnyObject {
     func action(_ action: InputBornTImeView.Action)

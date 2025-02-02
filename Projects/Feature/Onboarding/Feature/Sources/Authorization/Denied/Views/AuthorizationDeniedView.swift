@@ -8,8 +8,7 @@
 import UIKit
 import SnapKit
 import Then
-import FeatureDesignSystem
-import FeatureResources
+import FeatureUIDependencies
 
 protocol AuthorizationDeniedViewListener: AnyObject {
     func action(_ action:AuthorizationDeniedView.Action)

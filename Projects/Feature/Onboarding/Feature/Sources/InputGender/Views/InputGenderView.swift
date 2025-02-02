@@ -7,8 +7,7 @@
 
 import UIKit
 
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol InputGenderViewListener: AnyObject {
     func action(_ action: InputGenderView.Action)

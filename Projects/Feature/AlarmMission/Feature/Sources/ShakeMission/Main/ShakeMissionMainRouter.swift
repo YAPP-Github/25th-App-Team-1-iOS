@@ -9,7 +9,7 @@ import UIKit
 
 import RIBs
 
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol ShakeMissionMainInteractable: Interactable, ShakeMissionWorkingListener {
     var router: ShakeMissionMainRouting? { get set }
