@@ -38,6 +38,8 @@ public extension ModulePath {
         case UIDependencies
         case Resources
         case DesignSystem
+        
+        case CommonDependencies
         case CommonEntity
         case AlarmMission
         
