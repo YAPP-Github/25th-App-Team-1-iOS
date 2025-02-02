@@ -222,7 +222,7 @@ private extension MainPageView {
         
         // resizableContentViewDockViewDrageArea
         resizableContentViewDockViewDrageArea.backgroundColor = .clear
-        resizableContentView.addSubview(resizableContentViewDockViewDrageArea)
+        addSubview(resizableContentViewDockViewDrageArea)
         setupResizableContentViewDrag()
         
         
