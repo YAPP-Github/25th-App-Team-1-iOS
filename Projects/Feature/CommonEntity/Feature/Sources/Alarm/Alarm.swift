@@ -17,7 +17,7 @@ public struct Alarm: Equatable {
     public var soundOption: SoundOption
     
     // 초기화 메서드
-    init(
+    public init(
         meridiem: Meridiem,
         hour: Hour,
         minute: Minute,
