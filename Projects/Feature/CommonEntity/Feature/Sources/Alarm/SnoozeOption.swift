@@ -11,6 +11,12 @@ public struct SnoozeOption {
     public var isSnoozeOn: Bool
     public var frequency: SnoozeFrequency
     public var count: SnoozeCount
+    
+    public init(isSnoozeOn: Bool, frequency: SnoozeFrequency, count: SnoozeCount) {
+        self.isSnoozeOn = isSnoozeOn
+        self.frequency = frequency
+        self.count = count
+    }
 }
 
 public enum SnoozeFrequency: Int, CaseIterable {
