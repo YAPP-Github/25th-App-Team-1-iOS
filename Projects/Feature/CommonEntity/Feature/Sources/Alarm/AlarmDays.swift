@@ -22,5 +22,21 @@ public struct AlarmDays {
     public mutating func remove(_ day: WeekDay) {
         days.remove(day)
     }
+
+    public func contains(_ day: WeekDay) -> Bool {
+        days.contains(day)
+    }
     
+    public mutating func subtract(_ days: Set<WeekDay>) {
+        self.days.subtract(days)
+    }
+    
+    public mutating func formUnion(_ days: Set<WeekDay>) {
+        self.days.formUnion(days)
+    }
+    
+    public func isSubset(of days: Set<WeekDay>) -> Bool {
+        self.days.isSubset(of: days)
+    }
+
 }
