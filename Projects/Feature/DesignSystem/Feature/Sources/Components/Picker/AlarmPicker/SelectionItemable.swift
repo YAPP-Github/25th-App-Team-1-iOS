@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol PickerSelectionItemable {
+protocol PickerSelectionItemable {
     var content: String {get }
     var displayingText: String {get }
 }
