@@ -1,5 +1,5 @@
 //
-//  Alarm.swift
+//  AlarmDays.swift
 //  FeatureCommonEntity
 //
 //  Created by 손병근 on 2/1/25.
