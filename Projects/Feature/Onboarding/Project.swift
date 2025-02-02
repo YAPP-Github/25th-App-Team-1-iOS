@@ -58,8 +58,8 @@ let project = Project(
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
-                .feature(implements: .Resources),
-                .feature(implements: .DesignSystem),
+                .feature(implements: .UIDependencies),
+                .feature(implements: .CommonEntity),
                 .thirdParty(library: .RIBs),
                 .thirdParty(library: .SnapKit),
                 .thirdParty(library: .Then),

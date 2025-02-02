@@ -46,7 +46,7 @@ let project = Project(
             dependencies: [
                 
                 // Third party
-                .feature(implements: .Resources),
+                .feature(implements: .UIDependencies),
                 .thirdParty(library: .RIBs),
                 .thirdParty(library: .Then),
                 .thirdParty(library: .SnapKit)
