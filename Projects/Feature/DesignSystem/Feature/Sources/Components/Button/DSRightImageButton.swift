@@ -11,7 +11,12 @@ import FeatureResources
 
 public final class DSRightImageButton: TouchDetectingView {
     
+    // State
+    private var isPressing: Bool = false
+    
+    
     // Sub view
+    private let backgroundLayer = CALayer()
     private let titleLabel: UILabel = .init()
     private let imageView: UIImageView = .init()
     private let contentStack: UIStackView = .init().then {
@@ -25,6 +30,14 @@ public final class DSRightImageButton: TouchDetectingView {
     public var buttonAction: (() -> Void)?
     
     
+    public override var intrinsicContentSize: CGSize {
+        .init(
+            width: UIView.noIntrinsicMetric,
+            height: 42
+        )
+    }
+    
+    
     public init() {
         super.init(frame: .zero)
         setupUI()
@@ -32,11 +45,37 @@ public final class DSRightImageButton: TouchDetectingView {
     }
     required init?(coder: NSCoder) { nil }
     
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        if isPressing {
+            let size = CGSize(
+                width: self.layer.bounds.size.width-4,
+                height: self.layer.bounds.size.height-4
+            )
+            let point = CGPoint(x: 2, y: 2)
+            backgroundLayer.frame = .init(
+                origin: point,
+                size: size
+            )
+        } else {
+            backgroundLayer.frame = self.layer.bounds
+        }
+        CATransaction.commit()
+    }
+    
     
     private func setupUI() {
         // self
-        self.backgroundColor = R.Color.gray700
-        self.layer.cornerRadius = 12
+        self.backgroundColor = .clear
+        
+        
+        // backgroundLayer
+        backgroundLayer.backgroundColor = R.Color.gray700.cgColor
+        backgroundLayer.cornerRadius = 12
+        self.layer.addSublayer(backgroundLayer)
         
         
         // imageView
@@ -73,15 +112,23 @@ public final class DSRightImageButton: TouchDetectingView {
     }
     
     public override func onTouchIn() {
-        self.backgroundColor = R.Color.gray600
+        // Pressing
+        self.isPressing = true
+        setNeedsLayout()
+        
+        self.backgroundLayer.backgroundColor = R.Color.gray600.cgColor
         titleLabel.displayText = titleLabel.displayText?.string.displayText(
-            font: .body1SemiBold,
+            font: .body2Medium,
             color: R.Color.white80
         )
         imageView.tintColor = R.Color.white80
     }
     public override func onTouchOut() {
-        self.backgroundColor = R.Color.gray700
+        // Pressing
+        self.isPressing = false
+        setNeedsLayout()
+        
+        self.backgroundLayer.backgroundColor = R.Color.gray700.cgColor
         titleLabel.displayText = titleLabel.displayText?.string.displayText(
             font: .body1SemiBold,
             color: R.Color.white100

@@ -214,6 +214,7 @@ private extension MainPageView {
             case .idle:
                 break
             case .selected:
+                createAlarmOptionBottomListView()
                 break
             case .pressed:
                 return
@@ -628,25 +629,6 @@ extension MainPageView {
 }
 
 
-// MARK: AlarmCellListener
-extension MainPageView {
-    func action(_ action: AlarmCell.Action) {
-        switch action {
-        case .toggleIsTapped(let cellId, let willMoveTo):
-            listener?.action(.alarmStateWillChange(
-                alarmId: cellId,
-                isActive: (willMoveTo == .active)
-            ))
-        case .cellIsLongPressed(let cellId):
-            guard isDeletionViewPresenting == false else { return }
-            isDeletionViewPresenting = true
-            guard let ro = alarmCellROs.first(where: { $0.id==cellId }) else { return }
-            presentAlarmDeletionView(renderObject: ro)
-        }
-    }
-}
- 
-
 // MARK: Alarm deleltion
 private extension MainPageView {
     func presentAlarmDeletionView(renderObject ro: AlarmCellRO) {
@@ -674,6 +656,44 @@ private extension MainPageView {
 }
 
 
+// MARK: bottom list view
+private extension MainPageView {
+    func createAlarmOptionBottomListView() {
+        // List View
+        let listView = UIView()
+        listView.backgroundColor = R.Color.gray700
+        listView.layer.cornerRadius = 15
+        listView.layer.borderWidth = 1
+        listView.layer.borderColor = R.Color.gray600.cgColor
+        resizableContentView.addSubview(listView)
+        listView.snp.makeConstraints { make in
+            make.top.equalTo(alarmToolBarContainerView.snp.bottom)
+            make.right.equalToSuperview().inset(16)
+        }
+        
+        // Sub views
+        let editButton = DSRightImageButton()
+            .update(titleText: "편집")
+            .update(image: FeatureResourcesAsset.edit.image)
+        editButton.buttonAction = { [weak self] in
+            guard let self else { return }
+        }
+        
+        // containerView
+        let containerView: UIStackView = .init(arrangedSubviews: [
+            editButton
+        ])
+        containerView.axis = .vertical
+        containerView.alignment = .fill
+        containerView.spacing = 0
+        listView.addSubview(containerView)
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(6)
+        }
+    }
+}
+
+
 // MARK: AlarmDeletionViewListener
 extension MainPageView {
     func action(_ action: AlarmDeletionView.Action) {
@@ -681,6 +701,25 @@ extension MainPageView {
         case .deleteButtonClicked(let cellId):
             dismissAlarmDeletionView()
             listener?.action(.alarmWillDelete(alarmId: cellId))
+        }
+    }
+}
+
+
+// MARK: AlarmCellListener
+extension MainPageView {
+    func action(_ action: AlarmCell.Action) {
+        switch action {
+        case .toggleIsTapped(let cellId, let willMoveTo):
+            listener?.action(.alarmStateWillChange(
+                alarmId: cellId,
+                isActive: (willMoveTo == .active)
+            ))
+        case .cellIsLongPressed(let cellId):
+            guard isDeletionViewPresenting == false else { return }
+            isDeletionViewPresenting = true
+            guard let ro = alarmCellROs.first(where: { $0.id==cellId }) else { return }
+            presentAlarmDeletionView(renderObject: ro)
         }
     }
 }
