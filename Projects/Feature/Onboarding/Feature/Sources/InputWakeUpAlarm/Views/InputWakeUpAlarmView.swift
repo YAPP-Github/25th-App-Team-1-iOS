@@ -139,9 +139,8 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         // alarmPicker
         addSubview(alarmPicker)
         alarmPicker.snp.makeConstraints { make in
-            make.top.equalTo(labelStackView.snp.bottom).inset(-89)
-            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
-                .inset(20)
+            make.top.equalTo(labelStackView.snp.bottom).offset(79)
+            make.horizontalEdges.equalToSuperview().inset(20)
         }
         
         
@@ -150,8 +149,8 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         ctaButton.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
                 .inset(20)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
-                .inset(20.42)
+            make.bottom.equalTo(safeAreaLayoutGuide)
+                .inset(12)
         }
     }
 }

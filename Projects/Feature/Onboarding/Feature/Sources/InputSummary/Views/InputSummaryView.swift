@@ -169,7 +169,7 @@ private extension InputSummaryView {
         buttonStack.snp.makeConstraints { make in
             make.top.equalTo(inputSummaryStack.snp.bottom).inset(-24)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(44)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
         }
     }
     
