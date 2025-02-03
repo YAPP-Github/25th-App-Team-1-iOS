@@ -7,7 +7,7 @@
 
 import UIKit
 
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 import RIBs
 import RxSwift

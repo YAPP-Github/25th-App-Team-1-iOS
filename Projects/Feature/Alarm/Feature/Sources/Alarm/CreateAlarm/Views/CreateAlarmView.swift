@@ -6,8 +6,7 @@
 //
 
 import UIKit
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 
 protocol CreateAlarmViewListener: AnyObject {
     func action(_ action: CreateAlarmView.Action)

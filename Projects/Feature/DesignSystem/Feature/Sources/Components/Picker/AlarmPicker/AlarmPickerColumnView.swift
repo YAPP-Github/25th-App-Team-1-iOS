@@ -7,7 +7,7 @@
 
 import UIKit
 
-import SnapKit
+import FeatureThirdPartyDependencies
 import RxSwift
 import RxRelay
 

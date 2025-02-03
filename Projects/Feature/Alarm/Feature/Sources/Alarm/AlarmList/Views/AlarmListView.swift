@@ -6,9 +6,8 @@
 //
 
 import UIKit
-import SnapKit
-import Then
-import FeatureResources
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol AlarmListViewListener: AnyObject {
     func action(_ action: AlarmListView.Action)

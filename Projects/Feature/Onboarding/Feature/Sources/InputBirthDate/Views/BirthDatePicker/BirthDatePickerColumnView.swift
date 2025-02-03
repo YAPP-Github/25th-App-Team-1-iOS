@@ -7,10 +7,8 @@
 
 import UIKit
 
-import FeatureResources
-
-import Then
-import SnapKit
+import FeatureUIDependencies
+import FeatureThirdPartyDependencies
 import RxSwift
 import RxRelay
 

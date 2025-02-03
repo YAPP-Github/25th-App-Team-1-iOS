@@ -9,7 +9,7 @@ import UIKit
 
 import FeatureResources
 
-import SnapKit
+import FeatureThirdPartyDependencies
 
 final class AlarmPickerItemView: UIView {
     

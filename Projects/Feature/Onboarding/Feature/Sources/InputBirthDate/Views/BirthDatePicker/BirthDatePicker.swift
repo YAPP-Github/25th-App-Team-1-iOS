@@ -7,9 +7,9 @@
 
 import UIKit
 
-import FeatureResources
+import FeatureUIDependencies
 
-import SnapKit
+import FeatureThirdPartyDependencies
 import RxSwift
 
 protocol BirthDatePickerListener: AnyObject {

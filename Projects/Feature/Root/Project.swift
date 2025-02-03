@@ -46,7 +46,7 @@ let project = Project(
             dependencies: [
                 
                 // Third party
-                .thirdParty(library: .RIBs)
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
 
