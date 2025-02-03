@@ -111,6 +111,9 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener, AlarmD
     private var alarmDeletionView: AlarmDeletionView?
     private var isDeletionViewPresenting: Bool = false
     
+    // - alarmOptionBottomListView
+    private var alarmOptionBottomListView: UIView?
+    
     
     init() {
         super.init(frame: .zero)
@@ -212,9 +215,10 @@ private extension MainPageView {
             guard let self else { return }
             switch state {
             case .idle:
+                dismissAlarmOptionBottomListView()
                 break
             case .selected:
-                createAlarmOptionBottomListView()
+                presentAlarmOptionBottomListView()
                 break
             case .pressed:
                 return
@@ -658,7 +662,8 @@ private extension MainPageView {
 
 // MARK: bottom list view
 private extension MainPageView {
-    func createAlarmOptionBottomListView() {
+    func presentAlarmOptionBottomListView() {
+        guard alarmOptionBottomListView == nil else { return }
         // List View
         let listView = UIView()
         listView.backgroundColor = R.Color.gray700
@@ -670,6 +675,7 @@ private extension MainPageView {
             make.top.equalTo(alarmToolBarContainerView.snp.bottom)
             make.right.equalToSuperview().inset(16)
         }
+        self.alarmOptionBottomListView = listView
         
         // Sub views
         let editButton = DSRightImageButton()
@@ -690,6 +696,12 @@ private extension MainPageView {
         containerView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(6)
         }
+    }
+    
+    func dismissAlarmOptionBottomListView() {
+        guard let alarmOptionBottomListView else { return }
+        alarmOptionBottomListView.removeFromSuperview()
+        self.alarmOptionBottomListView = nil
     }
 }
 
