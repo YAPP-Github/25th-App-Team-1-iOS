@@ -85,10 +85,11 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener, AlarmD
         image: FeatureResourcesAsset.plus.image,
         size: .small
     ))
-    private let configAlarmButton: DSDefaultIconButton = .init(style: .init(
-        type: .default,
-        image: FeatureResourcesAsset.more.image,
-        size: .small
+    private let configAlarmButton: DSSelectableIconButton = .init(
+        initialState: .idle,
+        style: .init(
+            image: FeatureResourcesAsset.more.image,
+            size: .small
     ))
     private let alarmToolBarButtonStack: UIStackView = .init().then {
         $0.axis = .horizontal
@@ -204,6 +205,21 @@ private extension MainPageView {
         
         
         // alarmToolBarButtonStack
+        addAlarmButton.buttonAction = { [weak self] in
+            guard let self else { return }
+        }
+        configAlarmButton.buttonAction = { [weak self] state in
+            guard let self else { return }
+            switch state {
+            case .idle:
+                break
+            case .selected:
+                break
+            case .pressed:
+                return
+            }
+        }
+        
         [addAlarmButton, configAlarmButton].forEach {
             alarmToolBarButtonStack.addArrangedSubview($0)
         }
