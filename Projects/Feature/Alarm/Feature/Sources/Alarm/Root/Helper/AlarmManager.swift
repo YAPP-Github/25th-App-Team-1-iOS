@@ -27,17 +27,19 @@ final class AlarmManager: NSObject, AVAudioPlayerDelegate {
     }
     
     // 음원 재생
-    func playAlarmSound(with url: URL) {
-        
+    func playAlarmSound(with url: URL, loopCount: Int = -1) {
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.delegate = self
-            audioPlayer?.numberOfLoops = -1 // 반복 횟수 설정 (-1은 무한 반복)
+            audioPlayer?.numberOfLoops = loopCount // 반복 횟수 설정 (-1은 무한 반복)
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
-            print("음원 재생 시작")
         } catch {
             print("AVAudioPlayer 초기화 실패: \(error.localizedDescription)")
         }
+    }
+    
+    func stopPlayingSound() {
+        audioPlayer?.stop()
     }
 }

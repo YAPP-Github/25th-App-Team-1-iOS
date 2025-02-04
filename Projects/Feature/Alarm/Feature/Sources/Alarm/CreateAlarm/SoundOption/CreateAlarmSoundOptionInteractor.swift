@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import AVFoundation
 import FeatureResources
 import FeatureCommonDependencies
 
@@ -40,13 +41,16 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
     // in constructor.
     init(
         presenter: CreateAlarmSoundOptionPresentable,
+        service: CreateAlarmSoundOptionServiceable,
         soundOption: SoundOption
     ) {
+        self.service = service
         self.soundOption = soundOption
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
+    private let service: CreateAlarmSoundOptionServiceable
     private var soundOption: SoundOption
     
     func request(_ request: CreateAlarmSoundOptionPresentableListenerRequest) {
@@ -55,17 +59,26 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
             presenter.request(.updateOption(soundOption))
         case let .isVibrateOnChanged(isVibrateOn):
             soundOption.isVibrationOn = isVibrateOn
+            if isVibrateOn {
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            }
             presenter.request(.updateOption(soundOption))
         case let .isSoundOnChanged(isSoundOn):
             soundOption.isSoundOn = isSoundOn
+            if isSoundOn == false {
+                service.stopSound()
+            }
             presenter.request(.updateOption(soundOption))
         case let .volumeChanged(volume):
             soundOption.volume = volume
+            service.playSound(with: soundOption)
             presenter.request(.updateOption(soundOption))
         case let .soundSelected(sound):
             soundOption.selectedSound = sound
+            service.playSound(with: soundOption)
             presenter.request(.updateOption(soundOption))
         case .done:
+            service.stopSound()
             listener?.request(.done(soundOption))
         }
     }

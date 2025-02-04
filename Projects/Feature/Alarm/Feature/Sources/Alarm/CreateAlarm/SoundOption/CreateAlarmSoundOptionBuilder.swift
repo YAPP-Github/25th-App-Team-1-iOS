@@ -16,9 +16,11 @@ protocol CreateAlarmSoundOptionDependency: Dependency {
 
 final class CreateAlarmSoundOptionComponent: Component<CreateAlarmSoundOptionDependency> {
     fileprivate let soundOption: SoundOption
+    fileprivate let service: CreateAlarmSoundOptionServiceable
     
-    init(dependency: CreateAlarmSoundOptionDependency, soundOption: SoundOption) {
+    init(dependency: CreateAlarmSoundOptionDependency, soundOption: SoundOption, service: CreateAlarmSoundOptionServiceable = CreateAlarmSoundOptionService()) {
         self.soundOption = soundOption
+        self.service = service
         super.init(dependency: dependency)
     }
 }
@@ -38,7 +40,7 @@ final class CreateAlarmSoundOptionBuilder: Builder<CreateAlarmSoundOptionDepende
     func build(withListener listener: CreateAlarmSoundOptionListener, soundOption: SoundOption) -> CreateAlarmSoundOptionRouting {
         let component = CreateAlarmSoundOptionComponent(dependency: dependency, soundOption: soundOption)
         let viewController = CreateAlarmSoundOptionViewController()
-        let interactor = CreateAlarmSoundOptionInteractor(presenter: viewController, soundOption: soundOption)
+        let interactor = CreateAlarmSoundOptionInteractor(presenter: viewController, service: component.service, soundOption: soundOption)
         interactor.listener = listener
         return CreateAlarmSoundOptionRouter(interactor: interactor, viewController: viewController)
     }

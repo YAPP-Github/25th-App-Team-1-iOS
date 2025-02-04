@@ -52,6 +52,9 @@ final class CreateAlarmSoundOptionView: UIView {
     }
     
     private var isSoundOn: Bool = true
+    private var alarmSounds: [String] {
+        R.AlarmSound.allCases.sorted { $0.title < $1.title }.map { $0.title }
+    }
     
     private var selectedSound: String? {
         didSet {
@@ -245,13 +248,13 @@ extension CreateAlarmSoundOptionView: UITableViewDataSource {
         1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return R.AlarmSound.allCases.count
+        return alarmSounds.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "SoundOptionItemCell") as? SoundOptionItemCell else { return .init() }
-        let currentSound = R.AlarmSound.allCases[indexPath.row]
-        cell.configure(title: currentSound.title, isSelected: selectedSound == currentSound.title)
+        let title = alarmSounds[indexPath.row]
+        cell.configure(title: title, isSelected: selectedSound == title)
         cell.setButtonState(isSoundOn)
         return cell
     }
@@ -262,7 +265,7 @@ extension CreateAlarmSoundOptionView: UITableViewDelegate {
         return 44
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedSound = R.AlarmSound.allCases[indexPath.row].title
+        let selectedSound = alarmSounds[indexPath.row]
         self.selectedSound = selectedSound
         listener?.action(.soundSelected(selectedSound))
     }
