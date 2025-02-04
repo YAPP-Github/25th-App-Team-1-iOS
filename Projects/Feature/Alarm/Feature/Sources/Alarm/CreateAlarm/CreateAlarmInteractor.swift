@@ -48,17 +48,14 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         self.mode = mode
         switch mode {
         case .create:
-            let current = Calendar.current
-            let now = Date()
-            let hourValue = current.component(.hour, from: now)
-            let minuteValue = current.component(.minute, from: now)
-            let meridiem: Meridiem = hourValue < 12 ? .am : .pm
-            let hour = Hour(hourValue % 12)!
-            let minute = Minute(minuteValue)!
-            let repeatDays = AlarmDays(days: [])
-            let snoozeOption = SnoozeOption(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes)
-            let soundOption = SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: "")
-            self.alarm = .init(meridiem: meridiem, hour: hour, minute: minute, repeatDays: repeatDays, snoozeOption: snoozeOption, soundOption: soundOption)
+            self.alarm = .init(
+                meridiem: .am,
+                hour: Hour(6)!,
+                minute: Minute(0)!,
+                repeatDays: AlarmDays(days: []),
+                snoozeOption: SnoozeOption(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
+                soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: "")
+            )
         case .edit(let alarm):
             self.alarm = alarm
         }
