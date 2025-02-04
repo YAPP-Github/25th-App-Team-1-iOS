@@ -7,8 +7,7 @@
 
 import UIKit
 
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol InputBirthDateViewListener: AnyObject {
     
@@ -32,7 +31,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
     private let titleLabel: UILabel = .init()
     let birthDatePicker: BirthDatePicker = .init()
     private let ctaButton: DSDefaultCTAButton = .init(initialState: .active)
-    
+    private let policyAgreementLabel = PolicyAgreementLabel()
     
     // Listener
     weak var listener: InputBirthDateViewListener?
@@ -91,6 +90,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
         }
         ctaButton.update(title: "만들기")
         addSubview(ctaButton)
+        addSubview(policyAgreementLabel)
     }
     
     
@@ -117,13 +117,18 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
                 .inset(20)
         }
         
+        // policyAgreementLabel
+        policyAgreementLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(12)
+            make.horizontalEdges.equalToSuperview()
+        }
         
         // ctaButton
         ctaButton.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
                 .inset(20)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
-                .inset(20.42)
+            make.bottom.equalTo(policyAgreementLabel.snp.top)
+                .offset(-12)
         }
     }
 }

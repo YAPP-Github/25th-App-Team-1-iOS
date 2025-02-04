@@ -6,10 +6,8 @@
 //
 
 import UIKit
-import SnapKit
-import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol InputBornTImeViewListener: AnyObject {
     func action(_ action: InputBornTImeView.Action)
@@ -72,7 +70,6 @@ final class InputBornTImeView: UIView {
         )
     )
     private let errorLabel = UILabel()
-    private let termLabel = UILabel()
     private let nextButton = CTAButton(type: .system)
     private let iDontKnowButton = UIButton()
     
@@ -154,12 +151,6 @@ private extension InputBornTImeView {
                 timeChanged(textField)
             }
         }
-        
-        termLabel.do {
-            $0.displayText = "서비스 시작 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.".displayText(font: .caption1Regular, color: R.Color.gray500)
-            $0.textAlignment = .center
-            $0.numberOfLines = 0
-        }
         nextButton.do {
             $0.setAttributedTitle("다음".displayText(font: .headline1SemiBold, color: R.Color.gray900), for: .normal)
             $0.setAttributedTitle("다음".displayText(font: .headline1SemiBold, color: R.Color.gray600), for: .disabled)
@@ -179,7 +170,7 @@ private extension InputBornTImeView {
         }
         
         
-        [navigationBar, titleLabel, timeField, termLabel, nextButton, iDontKnowButton].forEach {
+        [navigationBar, titleLabel, timeField, nextButton, iDontKnowButton].forEach {
             addSubview($0)
         }
     }
@@ -200,16 +191,9 @@ private extension InputBornTImeView {
             $0.trailing.equalTo(-72.5)
         }
         
-        termLabel.snp.makeConstraints {
-            $0.leading.equalTo(20)
-            $0.trailing.equalTo(-20)
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
-        }
-        
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(termLabel.snp.top).offset(-14)
-            $0.leading.equalTo(20)
-            $0.trailing.equalTo(-20)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-22)
+            $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(54)
         }
         
@@ -232,8 +216,8 @@ private extension InputBornTImeView {
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
         else { return }
-        termLabel.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10 + -keyboardFrame.size.height)
+        nextButton.snp.updateConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-22 + -keyboardFrame.size.height)
         }
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
@@ -246,8 +230,8 @@ private extension InputBornTImeView {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double 
         else { return }
         
-        termLabel.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+        nextButton.snp.updateConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-22)
         }
         
         UIView.animate(withDuration: animationDuration) {

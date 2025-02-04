@@ -272,7 +272,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard let router = authorizationDeniedRouter else { return }
         authorizationDeniedRouter = nil
         detachChild(router)
-        viewController.uiviewController.dismiss(animated: true)
+        dismissOrPopViewController()
     }
     
     private func routeToMissionGuide() {
