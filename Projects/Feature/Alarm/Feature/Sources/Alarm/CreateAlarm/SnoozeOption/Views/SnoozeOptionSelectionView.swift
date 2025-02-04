@@ -12,13 +12,13 @@ import FeatureResources
 
 final class SnoozeOptionSelectionView: UIView {
     private let title: String
-    private let options: [String]
+    private let options: [SnoozeOptionSelectable]
     
-    var optionSelected: ((String) -> Void)?
+    var optionSelected: ((SnoozeOptionSelectable) -> Void)?
     
     init(
         title: String,
-        options: [String]
+        options: [SnoozeOptionSelectable]
     ) {
         self.title = title
         self.options = options
@@ -40,8 +40,8 @@ final class SnoozeOptionSelectionView: UIView {
         }
     }
     
-    func selectOption(_ option: String) {
-        guard let index = options.firstIndex(of: option) else { return }
+    func selectOption(_ option: SnoozeOptionSelectable) {
+        guard let index = options.firstIndex(where: { $0.isEqualTo(option) }) else { return }
         deselectAllButtons()
         [option1Button, option2Button, option3Button, option4Button, option5Button].forEach {
             $0.isEnabled = true
@@ -81,11 +81,11 @@ final class SnoozeOptionSelectionView: UIView {
     
     private func setupOptions() {
         guard options.count == 5 else { return }
-        option1Label.displayText = options[0].displayText(font: .body1Medium, color: R.Color.white100)
-        option2Label.displayText = options[1].displayText(font: .body1Medium, color: R.Color.white100)
-        option3Label.displayText = options[2].displayText(font: .body1Medium, color: R.Color.white100)
-        option4Label.displayText = options[3].displayText(font: .body1Medium, color: R.Color.white100)
-        option5Label.displayText = options[4].displayText(font: .body1Medium, color: R.Color.white100)
+        option1Label.displayText = options[0].title.displayText(font: .body1Medium, color: R.Color.white100)
+        option2Label.displayText = options[1].title.displayText(font: .body1Medium, color: R.Color.white100)
+        option3Label.displayText = options[2].title.displayText(font: .body1Medium, color: R.Color.white100)
+        option4Label.displayText = options[3].title.displayText(font: .body1Medium, color: R.Color.white100)
+        option5Label.displayText = options[4].title.displayText(font: .body1Medium, color: R.Color.white100)
     }
     
     private func deselectAllButtons() {

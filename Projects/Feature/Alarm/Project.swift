@@ -15,12 +15,9 @@ let project = Project(
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
-                .thirdParty(library: .RIBs),
-                .feature(implements: .Alarm),
+                .feature(implements: .UIDependencies),
                 .feature(implements: .ThirdPartyDependencies),
-                .feature(implements: .Alarm),
-                .feature(implements: .Resources),
-                .feature(implements: .DesignSystem)
+                .feature(implements: .Alarm)
             ]
         ),
         

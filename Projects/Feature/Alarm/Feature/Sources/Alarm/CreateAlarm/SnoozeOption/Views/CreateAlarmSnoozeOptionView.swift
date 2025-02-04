@@ -10,6 +10,7 @@ import SnapKit
 import Then
 import FeatureResources
 import FeatureDesignSystem
+import FeatureCommonDependencies
 
 protocol CreateAlarmSnoozeOptionViewListener: AnyObject {
     func action(_ action: CreateAlarmSnoozeOptionView.Action)
@@ -41,11 +42,11 @@ final class CreateAlarmSnoozeOptionView: UIView {
     
     private let frequencyView = SnoozeOptionSelectionView(
         title: "간격",
-        options: SnoozeFrequency.allCases.map { $0.rawValue }
+        options: SnoozeFrequency.allCases
     )
     private let countView = SnoozeOptionSelectionView(
         title: "횟수",
-        options: SnoozeCount.allCases.map { $0.rawValue }
+        options: SnoozeCount.allCases
     )
     
     private let guideView = UIView()
@@ -64,11 +65,12 @@ final class CreateAlarmSnoozeOptionView: UIView {
         }
     }
     
-    func enableOptions(frequency: SnoozeFrequency, count: SnoozeCount) {
-        frequencyView.selectOption(frequency.rawValue)
-        countView.selectOption(count.rawValue)
+    func updateOption(option: SnoozeOption) {
+        frequencyView.selectOption(option.frequency)
+        countView.selectOption(option.count)
         
-        guideLabel.displayText = "\(frequency.rawValue) 간격으로 \(count.rawValue) 울립니다.".displayText(font: .label1Medium, color: R.Color.main100)
+        guideLabel.displayText = "\(option.frequency.title) 간격으로 \(option.count.title) 울립니다."
+            .displayText(font: .label1Medium, color: R.Color.main100)
         guideView.isHidden = false
         doneButton.snp.remakeConstraints {
             $0.top.equalTo(guideView.snp.bottom).offset(23)
@@ -107,8 +109,7 @@ private extension CreateAlarmSnoozeOptionView {
         
         frequencyView.do {
             $0.optionSelected = { [weak self] option in
-                guard let self,
-                      let frequency = SnoozeFrequency(rawValue: option) else { return }
+                guard let self, let frequency = option as? SnoozeFrequency else { return }
                 listener?.action(.frequencyChanged(frequency))
             }
         }
@@ -116,7 +117,7 @@ private extension CreateAlarmSnoozeOptionView {
         countView.do {
             $0.optionSelected = { [weak self] option in
                 guard let self,
-                      let count = SnoozeCount(rawValue: option) else { return }
+                      let count = option as? SnoozeCount else { return }
                 listener?.action(.countChanged(count))
             }
         }

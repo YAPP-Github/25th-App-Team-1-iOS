@@ -15,7 +15,7 @@ enum CreateAlarmSoundOptionPresentableListenerRequest {
     case isVibrateOnChanged(Bool)
     case isSoundOnChanged(Bool)
     case volumeChanged(Float)
-    case soundSelected(R.AlarmSound)
+    case soundSelected(String)
     case done
 }
 protocol CreateAlarmSoundOptionPresentableListener: AnyObject {
@@ -38,12 +38,8 @@ final class CreateAlarmSoundOptionViewController: UIViewController, CreateAlarmS
     
     func request(_ request: CreateAlarmSoundOptionPresentableRequest) {
         switch request {
-        case .disableAlarmSound:
-            mainView.disableAlarmSound()
-        case let .updateVibrationState(isEnabled):
-            mainView.updateVibrationState(isEnabled: isEnabled)
-        case let .setOptions(volume, selectedSound):
-            mainView.setOptions(vloume: volume, selectedSound: selectedSound)
+        case let .updateOption(option):
+            mainView.updateOption(option: option)
         }
     }
     

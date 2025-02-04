@@ -9,14 +9,15 @@ import RIBs
 import RxSwift
 import UIKit
 import FeatureDesignSystem
+import FeatureCommonDependencies
 
 enum CreateAlarmPresentableListenerRequest {
     case viewDidLoad
     case back
-    case meridiemChanged(MeridiemItem)
-    case hourChanged(Int)
-    case minuteChanged(Int)
-    case selectedDaysChanged(Set<DayOfWeek>)
+    case meridiemChanged(Meridiem)
+    case hourChanged(Hour)
+    case minuteChanged(Minute)
+    case selectedDaysChanged(AlarmDays)
     case selectSnooze
     case selectSound
     case done

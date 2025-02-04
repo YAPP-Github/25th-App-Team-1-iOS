@@ -171,7 +171,7 @@ public extension AlarmPicker {
         
         if let meridiem {
             
-            let content = meridiem.toKoreanFormat
+            let content = meridiem.content
             meridiemColumnView.rx.setContent.accept(content)
         }
         

@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import FeatureCommonDependencies
 
 enum AlarmCreateEditMode {
     case create

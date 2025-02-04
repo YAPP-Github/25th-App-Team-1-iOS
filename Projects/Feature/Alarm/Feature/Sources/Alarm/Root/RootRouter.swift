@@ -8,6 +8,7 @@
 import RIBs
 import UIKit
 import FeatureResources
+import FeatureCommonDependencies
 
 protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener, CreateAlarmSnoozeOptionListener, CreateAlarmSoundOptionListener {
     var router: RootRouting? { get set }
@@ -50,12 +51,12 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToCreateAlarm(mode: mode)
         case .detachCreateAlarm:
             detachCreateAlarm()
-        case let .routeToSnoozeOption(snoozeFrequency, snoozeCount):
-            routeToSnoozeOption(snoozeFrequency: snoozeFrequency, snoozeCount: snoozeCount)
+        case let .routeToSnoozeOption(snoozeOption):
+            routeToSnoozeOption(snoozeOption: snoozeOption)
         case .detachSnoozeOption:
             detachSnoozeOption()
-        case let .routeToSoundOption(isVibrateOn, isSoundOn, volume, selectedSound):
-            routeToSoundOption(isVibrateOn: isVibrateOn, isSoundOn: isSoundOn, volume: volume, selectedSound: selectedSound)
+        case let .routeToSoundOption(soundOption):
+            routeToSoundOption(soundOption: soundOption)
         case .detachSoundOption:
             detachSoundOption()
         }
@@ -112,9 +113,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         navigationController.popViewController(animated: true)
     }
     
-    func routeToSnoozeOption(snoozeFrequency: SnoozeFrequency?, snoozeCount: SnoozeCount?) {
+    func routeToSnoozeOption(snoozeOption: SnoozeOption) {
         guard snoozeOptionRouter == nil else { return }
-        let router = snoozeOptionBuilder.build(withListener: interactor, snoozeFrequency: snoozeFrequency, snoozeCount: snoozeCount)
+        let router = snoozeOptionBuilder.build(withListener: interactor, snoozeOption: snoozeOption)
         self.snoozeOptionRouter = router
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
@@ -129,15 +130,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         router.viewControllable.uiviewController.dismiss(animated: true)
     }
     
-    func routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?) {
+    func routeToSoundOption(soundOption: SoundOption) {
         guard soundOptionRouter == nil else { return }
-        let router = soundOptionBuilder.build(
-            withListener: interactor,
-            isVibrateOn: isVibrateOn,
-            isSoundOn: isSoundOn,
-            volume: volume,
-            selectedSound: selectedSound
-        )
+        let router = soundOptionBuilder.build(withListener: interactor, soundOption: soundOption)
         self.soundOptionRouter = router
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext

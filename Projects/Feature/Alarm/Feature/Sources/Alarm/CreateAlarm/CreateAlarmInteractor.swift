@@ -5,9 +5,11 @@
 //  Created by ever on 12/30/24.
 //
 
+import Foundation
 import RIBs
 import RxSwift
 import FeatureResources
+import FeatureCommonDependencies
 
 protocol CreateAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -24,8 +26,8 @@ protocol CreateAlarmPresentable: Presentable {
 
 enum CreateAlarmListenerRequest {
     case back
-    case snoozeOption(SnoozeFrequency?, SnoozeCount?)
-    case soundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?)
+    case snoozeOption(SnoozeOption)
+    case soundOption(SoundOption)
     case done(Alarm)
 }
 
@@ -44,6 +46,22 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         createAlarmStream: CreateAlarmStream
     ) {
         self.mode = mode
+        switch mode {
+        case .create:
+            let current = Calendar.current
+            let now = Date()
+            let hourValue = current.component(.hour, from: now)
+            let minuteValue = current.component(.minute, from: now)
+            let meridiem: Meridiem = hourValue < 12 ? .am : .pm
+            let hour = Hour(hourValue % 12)!
+            let minute = Minute(minuteValue)!
+            let repeatDays = AlarmDays(days: [])
+            let snoozeOption = SnoozeOption(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes)
+            let soundOption = SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: "")
+            self.alarm = .init(meridiem: meridiem, hour: hour, minute: minute, repeatDays: repeatDays, snoozeOption: snoozeOption, soundOption: soundOption)
+        case .edit(let alarm):
+            self.alarm = alarm
+        }
         self.createAlarmStream = createAlarmStream
         super.init(presenter: presenter)
         presenter.listener = self
@@ -51,7 +69,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
 
     private let mode: AlarmCreateEditMode
     private let createAlarmStream: CreateAlarmStream
-    private var alarm: Alarm = .defaultAlarm()
+    private var alarm: Alarm
     
     override func didBecomeActive() {
         super.didBecomeActive()
@@ -73,14 +91,9 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         case let .selectedDaysChanged(set):
             alarm.repeatDays = set
         case .selectSnooze:
-            listener?.request(.snoozeOption(alarm.snoozeFrequency, alarm.snoozeCount))
+            listener?.request(.snoozeOption(alarm.snoozeOption))
         case .selectSound:
-            listener?.request(.soundOption(
-                isVibrateOn: alarm.isVibrationOn,
-                isSoundOn: alarm.isSoundOn,
-                volume: alarm.volume,
-                selectedSound: alarm.selectedSound
-            ))
+            listener?.request(.soundOption(alarm.soundOption))
         case .done:
             createAlarm()
         }
@@ -89,22 +102,18 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
     private func bind() {
         createAlarmStream.snoozeOptionChanged
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] options in
+            .subscribe(onNext: { [weak self] option in
                 guard let self else { return }
-                alarm.snoozeFrequency = options.0
-                alarm.snoozeCount = options.1
+                alarm.snoozeOption = option
                 presenter.request(.alarmUpdated(alarm))
             })
             .disposeOnDeactivate(interactor: self)
         
         createAlarmStream.soundOptionChanged
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] options in
+            .subscribe(onNext: { [weak self] option in
                 guard let self else { return }
-                alarm.isVibrationOn = options.isVibrateOn
-                alarm.isSoundOn = options.isSoundOn
-                alarm.volume = options.volume
-                alarm.selectedSound = options.selectedSound
+                alarm.soundOption = option
                 presenter.request(.alarmUpdated(alarm))
             })
             .disposeOnDeactivate(interactor: self)

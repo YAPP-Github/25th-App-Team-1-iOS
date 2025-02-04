@@ -7,14 +7,14 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
 
 protocol CreateAlarmSnoozeOptionRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
 enum CreateAlarmSnoozeOptionPresentableRequest {
-    case disableOptions
-    case enableOptions(SnoozeFrequency, SnoozeCount)
+    case updateOption(SnoozeOption)
 }
 
 protocol CreateAlarmSnoozeOptionPresentable: Presentable {
@@ -23,8 +23,7 @@ protocol CreateAlarmSnoozeOptionPresentable: Presentable {
 }
 
 enum CreateAlarmSnoozeOptionListenerRequest {
-    case offSnooze
-    case done(SnoozeFrequency, SnoozeCount)
+    case done(SnoozeOption)
 }
 
 protocol CreateAlarmSnoozeOptionListener: AnyObject {
@@ -40,42 +39,30 @@ final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarm
     // in constructor.
     init(
         presenter: CreateAlarmSnoozeOptionPresentable,
-        snoozeFrequency: SnoozeFrequency?,
-        snoozeCount: SnoozeCount?
+        snoozeOption: SnoozeOption
     ) {
-        self.frequency = snoozeFrequency ?? .fiveMinutes
-        self.count = snoozeCount ?? .fiveTimes
+        self.snoozeOption = snoozeOption
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
-    private var isSnoozeOn: Bool = true
-    private var frequency: SnoozeFrequency
-    private var count: SnoozeCount
+    private var snoozeOption: SnoozeOption
     
     func request(_ request: CreateAlarmSnoozeOptionPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
-            presenter.request(.enableOptions(frequency, count))
+            presenter.request(.updateOption(snoozeOption))
         case let .isOnChanged(isOn):
-            self.isSnoozeOn = isOn
-            if isSnoozeOn {
-                presenter.request(.enableOptions(frequency, count))
-            } else {
-                presenter.request(.disableOptions)
-            }
+            snoozeOption.isSnoozeOn = isOn
+            presenter.request(.updateOption(snoozeOption))
         case let .frequencyChanged(frequency):
-            self.frequency = frequency
-            presenter.request(.enableOptions(frequency, count))
+            snoozeOption.frequency = frequency
+            presenter.request(.updateOption(snoozeOption))
         case let .countChanged(count):
-            self.count = count
-            presenter.request(.enableOptions(frequency, count))
+            snoozeOption.count = count
+            presenter.request(.updateOption(snoozeOption))
         case .done:
-            guard isSnoozeOn else {
-                listener?.request(.offSnooze)
-                return
-            }
-            listener?.request(.done(frequency, count))
+            listener?.request(.done(snoozeOption))
         }
     }
 }

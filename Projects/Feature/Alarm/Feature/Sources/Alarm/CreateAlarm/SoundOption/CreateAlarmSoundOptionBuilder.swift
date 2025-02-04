@@ -7,6 +7,7 @@
 
 import RIBs
 import FeatureResources
+import FeatureCommonDependencies
 
 protocol CreateAlarmSoundOptionDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
@@ -14,16 +15,10 @@ protocol CreateAlarmSoundOptionDependency: Dependency {
 }
 
 final class CreateAlarmSoundOptionComponent: Component<CreateAlarmSoundOptionDependency> {
-    fileprivate let isVibrateOn: Bool
-    fileprivate let isSoundOn: Bool
-    fileprivate let volume: Float
-    fileprivate let selectedSound: R.AlarmSound?
+    fileprivate let soundOption: SoundOption
     
-    init(dependency: CreateAlarmSoundOptionDependency, isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?) {
-        self.isVibrateOn = isVibrateOn
-        self.isSoundOn = isSoundOn
-        self.volume = volume
-        self.selectedSound = selectedSound
+    init(dependency: CreateAlarmSoundOptionDependency, soundOption: SoundOption) {
+        self.soundOption = soundOption
         super.init(dependency: dependency)
     }
 }
@@ -31,13 +26,7 @@ final class CreateAlarmSoundOptionComponent: Component<CreateAlarmSoundOptionDep
 // MARK: - Builder
 
 protocol CreateAlarmSoundOptionBuildable: Buildable {
-    func build(
-        withListener listener: CreateAlarmSoundOptionListener,
-        isVibrateOn: Bool,
-        isSoundOn: Bool,
-        volume: Float,
-        selectedSound: R.AlarmSound?
-    ) -> CreateAlarmSoundOptionRouting
+    func build(withListener listener: CreateAlarmSoundOptionListener, soundOption: SoundOption) -> CreateAlarmSoundOptionRouting
 }
 
 final class CreateAlarmSoundOptionBuilder: Builder<CreateAlarmSoundOptionDependency>, CreateAlarmSoundOptionBuildable {
@@ -46,28 +35,10 @@ final class CreateAlarmSoundOptionBuilder: Builder<CreateAlarmSoundOptionDepende
         super.init(dependency: dependency)
     }
 
-    func build(
-        withListener listener: CreateAlarmSoundOptionListener,
-        isVibrateOn: Bool,
-        isSoundOn: Bool,
-        volume: Float,
-        selectedSound: R.AlarmSound?
-    ) -> CreateAlarmSoundOptionRouting {
-        let component = CreateAlarmSoundOptionComponent(
-            dependency: dependency,
-            isVibrateOn: isVibrateOn,
-            isSoundOn: isSoundOn,
-            volume: volume,
-            selectedSound: selectedSound
-        )
+    func build(withListener listener: CreateAlarmSoundOptionListener, soundOption: SoundOption) -> CreateAlarmSoundOptionRouting {
+        let component = CreateAlarmSoundOptionComponent(dependency: dependency, soundOption: soundOption)
         let viewController = CreateAlarmSoundOptionViewController()
-        let interactor = CreateAlarmSoundOptionInteractor(
-            presenter: viewController,
-            isVibrateOn: component.isVibrateOn,
-            isSoundOn: component.isSoundOn,
-            volume: component.volume,
-            selectedSound: component.selectedSound
-        )
+        let interactor = CreateAlarmSoundOptionInteractor(presenter: viewController, soundOption: soundOption)
         interactor.listener = listener
         return CreateAlarmSoundOptionRouter(interactor: interactor, viewController: viewController)
     }

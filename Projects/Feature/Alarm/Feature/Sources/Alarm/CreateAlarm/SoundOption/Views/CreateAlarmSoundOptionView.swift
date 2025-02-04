@@ -10,6 +10,7 @@ import SnapKit
 import Then
 import FeatureResources
 import FeatureDesignSystem
+import FeatureCommonDependencies
 
 protocol CreateAlarmSoundOptionViewListener: AnyObject {
     func action(_ action: CreateAlarmSoundOptionView.Action)
@@ -20,7 +21,7 @@ final class CreateAlarmSoundOptionView: UIView {
         case isVibrateOnChanged(Bool)
         case isSoundOnChanged(Bool)
         case volumeChanged(Float)
-        case soundSelected(R.AlarmSound)
+        case soundSelected(String)
         case doneButtonTapped
     }
     
@@ -37,28 +38,22 @@ final class CreateAlarmSoundOptionView: UIView {
     // MARK: - Internal
     weak var listener: CreateAlarmSoundOptionViewListener?
     
-    func updateVibrationState(isEnabled: Bool) {
-        vibrateOnOffSwitch.isOn = isEnabled
-    }
-    
-    func disableAlarmSound() {
-        self.isSoundOn = false
-        self.soundOnOffSwitch.isOn = false
-        soundListTableView.reloadData()
-        soundSlider.tintColor = R.Color.gray500
-    }
-    
-    func setOptions(vloume: Float, selectedSound: R.AlarmSound?) {
-        isSoundOn = true
-        soundSlider.tintColor = R.Color.main100
-        soundSlider.value = vloume
-        self.selectedSound = selectedSound
+    func updateOption(option: SoundOption) {
+        isSoundOn = option.isSoundOn
+        
+        vibrateOnOffSwitch.isOn = option.isVibrationOn
+        soundOnOffSwitch.isOn = option.isSoundOn
+        soundSlider.value = option.volume
+        
+        soundSlider.tintColor = option.isSoundOn ? R.Color.main100 : R.Color.gray500
+            
+        self.selectedSound = option.selectedSound
         soundListTableView.reloadData()
     }
     
     private var isSoundOn: Bool = true
     
-    private var selectedSound: R.AlarmSound? {
+    private var selectedSound: String? {
         didSet {
             soundListTableView.reloadData()
         }
@@ -256,7 +251,7 @@ extension CreateAlarmSoundOptionView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "SoundOptionItemCell") as? SoundOptionItemCell else { return .init() }
         let currentSound = R.AlarmSound.allCases[indexPath.row]
-        cell.configure(title: currentSound.title, isSelected: selectedSound == currentSound)
+        cell.configure(title: currentSound.title, isSelected: selectedSound == currentSound.title)
         cell.setButtonState(isSoundOn)
         return cell
     }
@@ -267,7 +262,7 @@ extension CreateAlarmSoundOptionView: UITableViewDelegate {
         return 44
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedSound = R.AlarmSound.allCases[indexPath.row]
+        let selectedSound = R.AlarmSound.allCases[indexPath.row].title
         self.selectedSound = selectedSound
         listener?.action(.soundSelected(selectedSound))
     }

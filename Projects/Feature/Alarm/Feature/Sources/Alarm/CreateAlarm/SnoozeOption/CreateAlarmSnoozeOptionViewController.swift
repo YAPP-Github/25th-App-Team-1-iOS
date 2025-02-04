@@ -8,6 +8,7 @@
 import RIBs
 import RxSwift
 import UIKit
+import FeatureCommonDependencies
 
 enum CreateAlarmSnoozeOptionPresentableListenerRequest {
     case viewDidLoad
@@ -37,10 +38,8 @@ final class CreateAlarmSnoozeOptionViewController: UIViewController, CreateAlarm
     
     func request(_ request: CreateAlarmSnoozeOptionPresentableRequest) {
         switch request {
-        case .disableOptions:
-            mainView.disableOptions()
-        case let .enableOptions(frequency, count):
-            mainView.enableOptions(frequency: frequency, count: count)
+        case let .updateOption(option):
+            mainView.updateOption(option: option)
         }
     }
     

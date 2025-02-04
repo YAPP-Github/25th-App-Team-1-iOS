@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import FeatureCommonDependencies
 
 protocol CreateAlarmSnoozeOptionDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
@@ -13,12 +14,10 @@ protocol CreateAlarmSnoozeOptionDependency: Dependency {
 }
 
 final class CreateAlarmSnoozeOptionComponent: Component<CreateAlarmSnoozeOptionDependency> {
-    fileprivate var snoozeFrequency: SnoozeFrequency?
-    fileprivate var snoozeCount: SnoozeCount?
+    fileprivate let snoozeOption: SnoozeOption
     
-    init(dependency: CreateAlarmSnoozeOptionDependency, snoozeFrequency: SnoozeFrequency?, snoozeCount: SnoozeCount?) {
-        self.snoozeFrequency = snoozeFrequency
-        self.snoozeCount = snoozeCount
+    init(dependency: CreateAlarmSnoozeOptionDependency, snoozeOption: SnoozeOption) {
+        self.snoozeOption = snoozeOption
         super.init(dependency: dependency)
     }
 }
@@ -26,36 +25,20 @@ final class CreateAlarmSnoozeOptionComponent: Component<CreateAlarmSnoozeOptionD
 // MARK: - Builder
 
 protocol CreateAlarmSnoozeOptionBuildable: Buildable {
-    func build(
-        withListener listener: CreateAlarmSnoozeOptionListener,
-        snoozeFrequency: SnoozeFrequency?,
-        snoozeCount: SnoozeCount?
-    ) -> CreateAlarmSnoozeOptionRouting
+    func build(withListener listener: CreateAlarmSnoozeOptionListener, snoozeOption: SnoozeOption) -> CreateAlarmSnoozeOptionRouting
 }
 
 final class CreateAlarmSnoozeOptionBuilder: Builder<CreateAlarmSnoozeOptionDependency>, CreateAlarmSnoozeOptionBuildable {
-
+    
     override init(dependency: CreateAlarmSnoozeOptionDependency) {
         super.init(dependency: dependency)
     }
-
-    func build(
-        withListener listener: CreateAlarmSnoozeOptionListener,
-        snoozeFrequency: SnoozeFrequency?,
-        snoozeCount: SnoozeCount?
-    ) -> CreateAlarmSnoozeOptionRouting {
-        let component = CreateAlarmSnoozeOptionComponent(
-            dependency: dependency,
-            snoozeFrequency: snoozeFrequency,
-            snoozeCount: snoozeCount
-        )
-        let viewController = CreateAlarmSnoozeOptionViewController()
-        let interactor = CreateAlarmSnoozeOptionInteractor(
-            presenter: viewController,
-            snoozeFrequency: component.snoozeFrequency,
-            snoozeCount: component.snoozeCount
-        )
-        interactor.listener = listener
-        return CreateAlarmSnoozeOptionRouter(interactor: interactor, viewController: viewController)
-    }
+    
+    func build(withListener listener: CreateAlarmSnoozeOptionListener, snoozeOption: SnoozeOption) -> CreateAlarmSnoozeOptionRouting {
+            let component = CreateAlarmSnoozeOptionComponent(dependency: dependency, snoozeOption: snoozeOption)
+            let viewController = CreateAlarmSnoozeOptionViewController()
+            let interactor = CreateAlarmSnoozeOptionInteractor(presenter: viewController, snoozeOption: snoozeOption)
+            interactor.listener = listener
+            return CreateAlarmSnoozeOptionRouter(interactor: interactor, viewController: viewController)
+        }
 }

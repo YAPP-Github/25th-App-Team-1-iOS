@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 import Then
 import FeatureResources
+import FeatureCommonDependencies
 
 protocol SelectWeekDayViewListener: AnyObject {
     func action(_ action: SelectWeekDayView.Action)
@@ -16,7 +17,7 @@ protocol SelectWeekDayViewListener: AnyObject {
 
 final class SelectWeekDayView: UIView {
     enum Action {
-        case selectWeekday(Set<DayOfWeek>)
+        case selectWeekday(AlarmDays)
         case snoozeButtonTapped
         case soundButtonTapped
     }
@@ -37,26 +38,24 @@ final class SelectWeekDayView: UIView {
         self.selectedDays = alarm.repeatDays
         updateButtons()
         
-        if let snoozeFrequency = alarm.snoozeFrequency,
-           let snoozeCount = alarm.snoozeCount {
-            snoozeValueButton.setAttributedTitle("\(snoozeFrequency.rawValue), \(snoozeCount.rawValue)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+        if alarm.snoozeOption.isSnoozeOn {
+            snoozeValueButton.setAttributedTitle("\(alarm.snoozeOption.frequency.toKoreanFormat), \(alarm.snoozeOption.count.toKoreanFormat)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
             snoozeValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         }
         
-        if alarm.isSoundOn,
-           let title = alarm.selectedSound?.title {
-            var soundTitle = alarm.isVibrationOn ? "진동, " : ""
-            soundTitle.append(title)
+        if alarm.soundOption.isSoundOn {
+            let selectedSound = alarm.soundOption.selectedSound
+            var soundTitle = alarm.soundOption.isVibrationOn ? "진동, \(selectedSound)" : selectedSound
             soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
-            let soundTitle = alarm.isVibrationOn ? "진동" : "안 함"
+            let soundTitle = alarm.soundOption.isVibrationOn ? "진동" : "안 함"
             soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         }
     }
     
     // MARK: - Properties
-    private var selectedDays = Set<DayOfWeek>()
+    private var selectedDays = AlarmDays()
     private var isWeekendDisabled = false
     
     // MARK: - Views
@@ -127,11 +126,11 @@ final class SelectWeekDayView: UIView {
     
     @objc
     private func weekdayToggleButtonTapped() {
-        let isWeekdaySelected = DayOfWeek.weekdays.isSubset(of: selectedDays)
+        let isWeekdaySelected = WeekDay.weekdays.isSubset(of: selectedDays.days)
         if isWeekdaySelected {
-            selectedDays.subtract(DayOfWeek.weekdays)
+            selectedDays.subtract(WeekDay.weekdays)
         } else {
-            selectedDays.formUnion(DayOfWeek.weekdays)
+            selectedDays.formUnion(WeekDay.weekdays)
         }
         updateButtons()
         listener?.action(.selectWeekday(selectedDays))
@@ -139,11 +138,11 @@ final class SelectWeekDayView: UIView {
     
     @objc
     private func weekendToggleButtonTapped() {
-        let isWeekendSelected = DayOfWeek.weekends.isSubset(of: selectedDays)
+        let isWeekendSelected = WeekDay.weekends.isSubset(of: selectedDays.days)
         if isWeekendSelected {
-            selectedDays.subtract(DayOfWeek.weekends)
+            selectedDays.subtract(WeekDay.weekends)
         } else {
-            selectedDays.formUnion(DayOfWeek.weekends)
+            selectedDays.formUnion(WeekDay.weekends)
         }
         updateButtons()
         listener?.action(.selectWeekday(selectedDays))
@@ -343,11 +342,11 @@ private extension SelectWeekDayView {
 }
 
 private extension SelectWeekDayView {
-    private func toggleDay(day: DayOfWeek) {
+    private func toggleDay(day: WeekDay) {
         if selectedDays.contains(day) {
             selectedDays.remove(day)
         } else {
-            selectedDays.insert(day)
+            selectedDays.add(day)
         }
         updateButtons()
     }
@@ -358,20 +357,12 @@ private extension SelectWeekDayView {
     }
     
     func updateDayOfWeekButtons() {
-        if isWeekendDisabled {
-            selectedDays.subtract(DayOfWeek.weekends)
-            sundayButton.update(state: .disabled)
-            sundayButton.isEnabled = false
-            
-            saturdayButton.update(state: .disabled)
-            saturdayButton.isEnabled = false
-        } else {
-            sundayButton.update(state: selectedDays.contains(.sunday) ? .selected : .normal)
-            sundayButton.isEnabled = true
-            
-            saturdayButton.update(state: selectedDays.contains(.saturday) ? .selected : .normal)
-            saturdayButton.isEnabled = true
-        }
+        sundayButton.update(state: selectedDays.contains(.sunday) ? .selected : .normal)
+        sundayButton.isEnabled = true
+        
+        saturdayButton.update(state: selectedDays.contains(.saturday) ? .selected : .normal)
+        saturdayButton.isEnabled = true
+        
         
         mondayButton.update(state: selectedDays.contains(.monday) ? .selected : .normal)
         tuesdayButton.update(state: selectedDays.contains(.tuesday) ? .selected : .normal)
@@ -382,11 +373,11 @@ private extension SelectWeekDayView {
     
     func updateToggleButtons() {
         // 평일 반복 버튼
-        let isWeekdaySelected = DayOfWeek.weekdays.isSubset(of: selectedDays)
+        let isWeekdaySelected = WeekDay.weekdays.isSubset(of: selectedDays.days)
         weekdayToggleButton.tintColor = isWeekdaySelected ? R.Color.main100 : R.Color.gray400
         
         // 주말 반복 버튼
-        let isWeekendSelected = DayOfWeek.weekends.isSubset(of: selectedDays)
+        let isWeekendSelected = WeekDay.weekends.isSubset(of: selectedDays.days)
         weekendToggleButton.tintColor = isWeekendSelected ? R.Color.main100 : R.Color.gray400
     }
 }

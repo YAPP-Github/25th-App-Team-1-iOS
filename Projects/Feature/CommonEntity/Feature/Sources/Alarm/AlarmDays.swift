@@ -27,6 +27,7 @@ public struct AlarmDays {
         days.contains(day)
     }
     
+    /// 특정 요일 리스트 제거
     public mutating func subtract(_ days: Set<WeekDay>) {
         self.days.subtract(days)
     }
@@ -38,5 +39,4 @@ public struct AlarmDays {
     public func isSubset(of days: Set<WeekDay>) -> Bool {
         self.days.isSubset(of: days)
     }
-
 }

@@ -8,15 +8,14 @@
 import RIBs
 import RxSwift
 import FeatureResources
+import FeatureCommonDependencies
 
 protocol CreateAlarmSoundOptionRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
 enum CreateAlarmSoundOptionPresentableRequest {
-    case disableAlarmSound
-    case updateVibrationState(Bool)
-    case setOptions(volume: Float, selectedSound: R.AlarmSound?)
+    case updateOption(SoundOption)
 }
 
 protocol CreateAlarmSoundOptionPresentable: Presentable {
@@ -25,7 +24,7 @@ protocol CreateAlarmSoundOptionPresentable: Presentable {
 }
 
 enum CreateAlarmSoundOptionListenerRequest {
-    case done(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?)
+    case done(SoundOption)
 }
 
 protocol CreateAlarmSoundOptionListener: AnyObject {
@@ -41,47 +40,33 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
     // in constructor.
     init(
         presenter: CreateAlarmSoundOptionPresentable,
-        isVibrateOn: Bool,
-        isSoundOn: Bool,
-        volume: Float,
-        selectedSound: R.AlarmSound?
+        soundOption: SoundOption
     ) {
-        self.isVibrateOn = isVibrateOn
-        self.isSoundOn = isSoundOn
-        self.volume = volume
-        self.selectedSound = selectedSound
+        self.soundOption = soundOption
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
-    private var isVibrateOn: Bool
-    private var isSoundOn: Bool
-    private var volume: Float
-    private var selectedSound: R.AlarmSound?
+    private var soundOption: SoundOption
     
     func request(_ request: CreateAlarmSoundOptionPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
-            presenter.request(.updateVibrationState(isVibrateOn))
-            presenter.request(.setOptions(volume: volume, selectedSound: selectedSound))
-            if isSoundOn == false {
-                presenter.request(.disableAlarmSound)
-            }
+            presenter.request(.updateOption(soundOption))
         case let .isVibrateOnChanged(isVibrateOn):
-            self.isVibrateOn = isVibrateOn
+            soundOption.isVibrationOn = isVibrateOn
+            presenter.request(.updateOption(soundOption))
         case let .isSoundOnChanged(isSoundOn):
-            self.isSoundOn = isSoundOn
-            if isSoundOn {
-                presenter.request(.setOptions(volume: volume, selectedSound: selectedSound))
-            } else {
-                presenter.request(.disableAlarmSound)
-            }
+            soundOption.isSoundOn = isSoundOn
+            presenter.request(.updateOption(soundOption))
         case let .volumeChanged(volume):
-            self.volume = volume
+            soundOption.volume = volume
+            presenter.request(.updateOption(soundOption))
         case let .soundSelected(sound):
-            self.selectedSound = sound
+            soundOption.selectedSound = sound
+            presenter.request(.updateOption(soundOption))
         case .done:
-            listener?.request(.done(isVibrateOn: isVibrateOn, isSoundOn: isSoundOn, volume: volume, selectedSound: selectedSound))
+            listener?.request(.done(soundOption))
         }
     }
 }
