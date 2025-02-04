@@ -77,6 +77,10 @@ public class R {
         }
     }
     
+    public struct GIF {
+        public static let onboarding1 = Bundle.resources.url(forResource: "onboarding_1", withExtension: "gif")!
+    }
+    
     public struct Color {
         public static let submain = UIColor(hex: "#FDFE96")
         public static let main100 = UIColor(hex: "#FEFF65")

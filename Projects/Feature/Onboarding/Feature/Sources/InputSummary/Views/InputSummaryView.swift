@@ -7,11 +7,9 @@
 
 import UIKit
 
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 
 protocol InputSummaryViewListener: AnyObject {
     
@@ -169,7 +167,7 @@ private extension InputSummaryView {
         buttonStack.snp.makeConstraints { make in
             make.top.equalTo(inputSummaryStack.snp.bottom).inset(-24)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(44)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
         }
     }
     

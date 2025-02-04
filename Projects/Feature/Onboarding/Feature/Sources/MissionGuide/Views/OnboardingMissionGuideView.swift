@@ -5,12 +5,9 @@
 //  Created by ever on 1/15/25.
 //
 
-import Lottie
 import UIKit
-import SnapKit
-import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol OnboardingMissionGuideViewListener: AnyObject {
     func action(_ action: OnboardingMissionGuideView.Action)
@@ -39,7 +36,6 @@ final class OnboardingMissionGuideView: UIView {
     private let welcomeLabel = UILabel()
     private let guideLabel = UILabel()
     private let animationView = LottieAnimationView(name: "onboarding_2", bundle: Bundle.resources)
-    private let countImageView = UIImageView()
     private let nextButton = DSDefaultCTAButton(initialState: .active)
 }
 
@@ -62,13 +58,8 @@ private extension OnboardingMissionGuideView {
         
         animationView.do {
             $0.loopMode = .loop
-            $0.animationSpeed = 0.5
-            $0.contentMode = .scaleAspectFit
-        }
-        
-        countImageView.do {
-            $0.image = FeatureResourcesAsset.svgOnboardingShake10.image
-            $0.contentMode = .scaleAspectFit
+            $0.animationSpeed = 1
+            $0.contentMode = .scaleAspectFill
         }
         
         nextButton.do {
@@ -78,7 +69,7 @@ private extension OnboardingMissionGuideView {
             }
         }
         
-        [welcomeLabel, guideLabel, animationView, countImageView, nextButton].forEach { addSubview($0) }
+        [welcomeLabel, guideLabel, animationView, nextButton].forEach { addSubview($0) }
     }
     
     func layout() {
@@ -98,14 +89,9 @@ private extension OnboardingMissionGuideView {
         }
         
         animationView.snp.makeConstraints {
-            $0.top.equalTo(guideLabel.snp.bottom).offset(71)
-            $0.leading.equalTo(48.85)
-            $0.bottom.equalTo(nextButton)
-        }
-        
-        countImageView.snp.makeConstraints {
-            $0.bottom.equalTo(nextButton.snp.top).offset(-40)
-            $0.centerX.equalToSuperview()
+            $0.center.equalToSuperview()
+            $0.width.equalToSuperview()
+            $0.height.equalToSuperview()
         }
     }
 }
