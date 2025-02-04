@@ -31,6 +31,7 @@ final class InputNameViewController: UIViewController, InputNamePresentable, Inp
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
+        mainView.update(.startEdit)
     }
     
     func request(_ request: InputNamePresentableRequest) {

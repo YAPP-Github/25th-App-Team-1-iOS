@@ -48,6 +48,8 @@ public class DSTextField: UIView {
             layer.borderColor = state.borderColor
         }
         
+        layer.borderWidth = state.borderWidth
+        
         if case .disabled = state {
             textField.isEnabled = false
             textField.text = nil
@@ -57,16 +59,27 @@ public class DSTextField: UIView {
     }
     
     private let textField = UITextField()
+    private let clearButton = UIButton(type: .system)
     
     @objc
     private func editingDidBegin() {
         state = .focused
+        if let text = textField.text, !text.isEmpty {
+            clearButton.alpha = 1
+        } else {
+            clearButton.alpha = 0
+        }
         update()
     }
     
     @objc
     private func editingDidChange(textField: UITextField) {
         editingChanged?(textField)
+        if let text = textField.text, !text.isEmpty {
+            clearButton.alpha = 1
+        } else {
+            clearButton.alpha = 0
+        }
     }
     
     @objc
@@ -76,7 +89,15 @@ public class DSTextField: UIView {
         } else {
             state = .completed
         }
+        clearButton.alpha = 0
         update()
+    }
+    
+    @objc
+    private func clearButtonTapped() {
+        clearButton.alpha = 0
+        textField.text = ""
+        editingChanged?(textField)
     }
 }
 
@@ -101,6 +122,13 @@ public extension DSTextField {
             case .disabled:
                 return UIColor.clear.cgColor
             }
+        }
+        
+        var borderWidth: CGFloat {
+            if case .focused = self {
+                return 3
+            }
+            return 1
         }
     }
     
@@ -136,9 +164,22 @@ private extension DSTextField {
             $0.addTarget(self, action: #selector(editingDidEnd), for: .editingDidEnd)
             $0.addTarget(self, action: #selector(editingDidChange), for: .editingChanged)
         }
+        
+        clearButton.do {
+            $0.setImage(FeatureResourcesAsset.svgCloseCircleFill.image.withRenderingMode(.alwaysOriginal), for: .normal)
+            $0.alpha = 0
+            $0.addTarget(self, action: #selector(clearButtonTapped), for: .touchUpInside)
+        }
         addSubview(textField)
+        addSubview(clearButton)
     }
     func layout() {
+        clearButton.snp.makeConstraints {
+            $0.trailing.equalTo(-16)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(20)
+        }
+        
         textField.snp.makeConstraints {
             $0.top.equalTo(14)
             $0.bottom.equalTo(-14)

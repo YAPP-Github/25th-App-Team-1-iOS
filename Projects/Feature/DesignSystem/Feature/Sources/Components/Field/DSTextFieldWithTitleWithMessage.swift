@@ -114,6 +114,7 @@ private extension DSTextFieldWithTitleWithMessage {
             $0.axis = .vertical
             $0.alignment = .fill
             $0.distribution = .fill
+            $0.spacing = 12
         }
         [titleLabel, textField, messageLabel].forEach {
             stackView.addArrangedSubview($0)
