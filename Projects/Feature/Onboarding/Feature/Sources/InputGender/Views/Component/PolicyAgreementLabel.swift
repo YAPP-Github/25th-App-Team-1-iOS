@@ -7,7 +7,7 @@
 
 import UIKit
 
-import FeatureResources
+import FeatureUIDependencies
 
 final class PolicyAgreementLabel: UILabel {
     

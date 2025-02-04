@@ -9,8 +9,7 @@ import UIKit
 
 import FeatureResources
 
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 
 public protocol OnBoardingNavBarViewListener: AnyObject {
     

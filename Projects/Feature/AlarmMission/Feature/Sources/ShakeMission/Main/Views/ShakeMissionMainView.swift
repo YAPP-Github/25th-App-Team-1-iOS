@@ -7,10 +7,8 @@
 
 import UIKit
 
-import FeatureDesignSystem
-import FeatureResources
-
-import SnapKit
+import FeatureUIDependencies
+import FeatureThirdPartyDependencies
 
 protocol ShakeMissionMainViewListener: AnyObject {
     

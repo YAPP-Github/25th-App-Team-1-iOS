@@ -7,8 +7,7 @@
 
 import UIKit
 
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 final class ExitButton: TouchDetectingView {
     

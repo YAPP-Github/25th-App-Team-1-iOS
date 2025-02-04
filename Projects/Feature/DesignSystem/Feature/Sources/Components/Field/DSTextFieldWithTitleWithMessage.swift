@@ -6,8 +6,7 @@
 //
 
 import UIKit
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 import FeatureResources
 
 public final class DSTextFieldWithTitleWithMessage: UIView {

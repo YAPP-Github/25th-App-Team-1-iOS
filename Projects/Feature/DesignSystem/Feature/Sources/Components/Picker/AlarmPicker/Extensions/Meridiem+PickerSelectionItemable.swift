@@ -5,7 +5,7 @@
 //  Created by 손병근 on 2/2/25.
 //
 
-import FeatureCommonEntity
+import FeatureCommonDependencies
 
 extension Meridiem: PickerSelectionItemable {
     var content: String {

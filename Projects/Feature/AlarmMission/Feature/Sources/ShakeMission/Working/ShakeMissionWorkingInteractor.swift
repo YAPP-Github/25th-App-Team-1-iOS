@@ -5,7 +5,7 @@
 //  Created by choijunios on 1/20/25.
 //
 
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 import RIBs
 import RxSwift
