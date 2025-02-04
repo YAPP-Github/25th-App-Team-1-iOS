@@ -46,7 +46,7 @@ final class SelectWeekDayView: UIView {
         
         if alarm.soundOption.isSoundOn {
             let selectedSound = alarm.soundOption.selectedSound
-            var soundTitle = alarm.soundOption.isVibrationOn ? "진동, \(selectedSound)" : selectedSound
+            let soundTitle = alarm.soundOption.isVibrationOn ? "진동, \(selectedSound)" : selectedSound
             soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
             let soundTitle = alarm.soundOption.isVibrationOn ? "진동" : "안 함"
@@ -56,7 +56,6 @@ final class SelectWeekDayView: UIView {
     
     // MARK: - Properties
     private var selectedDays = AlarmDays()
-    private var isWeekendDisabled = false
     
     // MARK: - Views
     private let weekdayRepeatLabel = UILabel()
@@ -95,8 +94,7 @@ final class SelectWeekDayView: UIView {
     
     @objc
     private func holidayToggleChanged(toggle: UISwitch) {
-        toggle.thumbTintColor = toggle.isOn ? R.Color.gray800 : R.Color.gray300
-        isWeekendDisabled = toggle.isOn
+        selectedDays.shoundTurnOffHolidayAlarm = toggle.isOn
         updateButtons()
         listener?.action(.selectWeekday(selectedDays))
     }
@@ -358,17 +356,12 @@ private extension SelectWeekDayView {
     
     func updateDayOfWeekButtons() {
         sundayButton.update(state: selectedDays.contains(.sunday) ? .selected : .normal)
-        sundayButton.isEnabled = true
-        
-        saturdayButton.update(state: selectedDays.contains(.saturday) ? .selected : .normal)
-        saturdayButton.isEnabled = true
-        
-        
         mondayButton.update(state: selectedDays.contains(.monday) ? .selected : .normal)
         tuesdayButton.update(state: selectedDays.contains(.tuesday) ? .selected : .normal)
         wednesdayButton.update(state: selectedDays.contains(.wednesday) ? .selected : .normal)
         thursdayButton.update(state: selectedDays.contains(.thursday) ? .selected : .normal)
         fridayButton.update(state: selectedDays.contains(.friday) ? .selected : .normal)
+        saturdayButton.update(state: selectedDays.contains(.saturday) ? .selected : .normal)
     }
     
     func updateToggleButtons() {
@@ -379,5 +372,13 @@ private extension SelectWeekDayView {
         // 주말 반복 버튼
         let isWeekendSelected = WeekDay.weekends.isSubset(of: selectedDays.days)
         weekendToggleButton.tintColor = isWeekendSelected ? R.Color.main100 : R.Color.gray400
+        
+        if selectedDays.days.isEmpty {
+            holidayToggle.isEnabled = false
+            holidayToggle.isOn = false
+        } else {
+            holidayToggle.isEnabled = true
+        }
+        holidayToggle.thumbTintColor = holidayToggle.isOn ? R.Color.gray800 : R.Color.gray300
     }
 }

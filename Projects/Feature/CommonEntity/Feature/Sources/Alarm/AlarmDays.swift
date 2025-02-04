@@ -9,8 +9,14 @@ import Foundation
 
 public struct AlarmDays {
     public private(set) var days: Set<WeekDay>
-    public init(days: Set<WeekDay> = []) {
+    public var shoundTurnOffHolidayAlarm: Bool
+    
+    public init(
+        days: Set<WeekDay> = [],
+        shoundTurnOffHolidayAlarm: Bool = false
+    ) {
         self.days = days
+        self.shoundTurnOffHolidayAlarm = shoundTurnOffHolidayAlarm
     }
     
     /// 특정 요일 추가
