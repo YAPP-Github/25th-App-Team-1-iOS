@@ -9,6 +9,7 @@ import FeatureCommonDependencies
 
 protocol SnoozeOptionSelectable {
     var title: String { get }
+    var value: String { get }
     func isEqualTo(_ other: SnoozeOptionSelectable) -> Bool
 }
 
@@ -16,6 +17,11 @@ extension SnoozeFrequency: SnoozeOptionSelectable {
     var title: String {
         toKoreanFormat
     }
+    
+    var value: String {
+        toKoreanFormat
+    }
+    
     func isEqualTo(_ other: any SnoozeOptionSelectable) -> Bool {
         guard let other = other as? SnoozeFrequency else {
             return false
@@ -26,8 +32,13 @@ extension SnoozeFrequency: SnoozeOptionSelectable {
 
 extension SnoozeCount: SnoozeOptionSelectable {
     var title: String {
-        toKoreanFormat
+        toKoreanTitleFormat
     }
+    
+    var value: String {
+        toKoreanValueFormat
+    }
+    
     func isEqualTo(_ other: any SnoozeOptionSelectable) -> Bool {
         guard let other = other as? SnoozeCount else {
             return false

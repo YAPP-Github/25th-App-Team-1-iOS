@@ -40,13 +40,12 @@ final class AlarmOptionButton: UIButton {
     }
     
     private func updateButtonColor() {
-        innerCircleView.isHidden = !isSelected
         if isEnabled {
             outerCircleView.backgroundColor = isSelected ? R.Color.main30 : R.Color.gray600
-            innerCircleView.backgroundColor = R.Color.main100
+            innerCircleView.backgroundColor = isSelected ? R.Color.main100 : R.Color.gray600
         } else {
             outerCircleView.backgroundColor = R.Color.gray700
-            innerCircleView.backgroundColor = R.Color.gray600
+            innerCircleView.backgroundColor = isSelected ? R.Color.gray600 : R.Color.gray700
         }
     }
 }
@@ -61,10 +60,9 @@ private extension AlarmOptionButton {
         }
         
         innerCircleView.do {
-            $0.backgroundColor = R.Color.main100
+            $0.backgroundColor = R.Color.gray600
             $0.layer.cornerRadius = 6
             $0.layer.masksToBounds = true
-            $0.isHidden = true
             $0.isUserInteractionEnabled = false
         }
         

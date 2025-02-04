@@ -35,9 +35,9 @@ final class SnoozeOptionSelectionView: UIView {
     // MARK: Internal
     func disableOptions() {
         [option1Button, option2Button, option3Button, option4Button, option5Button].forEach {
-            $0.isSelected = false
             $0.isEnabled = false
         }
+        lineView.backgroundColor = R.Color.gray700
     }
     
     func selectOption(_ option: SnoozeOptionSelectable) {
@@ -45,7 +45,9 @@ final class SnoozeOptionSelectionView: UIView {
         deselectAllButtons()
         [option1Button, option2Button, option3Button, option4Button, option5Button].forEach {
             $0.isEnabled = true
+            $0.isSelected = false
         }
+        lineView.backgroundColor = R.Color.gray600
         switch index {
         case 0:
             option1Button.isSelected = true

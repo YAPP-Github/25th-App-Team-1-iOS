@@ -54,28 +54,28 @@ final class CreateAlarmSnoozeOptionView: UIView {
     private let doneButton = DSDefaultCTAButton(initialState: .active, style: .init(type: .secondary))
     
     // MARK: Internal
-    func disableOptions() {
-        frequencyView.disableOptions()
-        countView.disableOptions()
-        guideView.isHidden = true
-        doneButton.snp.remakeConstraints {
-            $0.top.equalTo(countView.snp.bottom).offset(40)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
-        }
-    }
-    
     func updateOption(option: SnoozeOption) {
-        frequencyView.selectOption(option.frequency)
-        countView.selectOption(option.count)
-        
-        guideLabel.displayText = "\(option.frequency.title) 간격으로 \(option.count.title) 울립니다."
-            .displayText(font: .label1Medium, color: R.Color.main100)
-        guideView.isHidden = false
-        doneButton.snp.remakeConstraints {
-            $0.top.equalTo(guideView.snp.bottom).offset(23)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.bottom.equalTo(safeAreaLayoutGuide)
+        if option.isSnoozeOn {
+            frequencyView.selectOption(option.frequency)
+            countView.selectOption(option.count)
+            guideView.isHidden = false
+            guideLabel.displayText = "\(option.frequency.title) 간격으로 \(option.count.value) 울립니다."
+                .displayText(font: .label1Medium, color: R.Color.main100)
+            doneButton.snp.remakeConstraints {
+                $0.top.equalTo(guideView.snp.bottom).offset(23)
+                $0.horizontalEdges.equalToSuperview().inset(20)
+                $0.bottom.equalTo(safeAreaLayoutGuide)
+            }
+        } else {
+            frequencyView.disableOptions()
+            countView.disableOptions()
+            guideView.isHidden = true
+            
+            doneButton.snp.remakeConstraints {
+                $0.top.equalTo(countView.snp.bottom).offset(40)
+                $0.horizontalEdges.equalToSuperview().inset(20)
+                $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
+            }
         }
     }
     

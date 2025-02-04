@@ -39,7 +39,7 @@ final class SelectWeekDayView: UIView {
         updateButtons()
         
         if alarm.snoozeOption.isSnoozeOn {
-            snoozeValueButton.setAttributedTitle("\(alarm.snoozeOption.frequency.toKoreanFormat), \(alarm.snoozeOption.count.toKoreanFormat)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+            snoozeValueButton.setAttributedTitle("\(alarm.snoozeOption.frequency.toKoreanFormat), \(alarm.snoozeOption.count.toKoreanValueFormat)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
             snoozeValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         }
@@ -240,7 +240,6 @@ private extension SelectWeekDayView {
         }
  
         snoozeValueButton.do {
-            $0.setAttributedTitle("5분, 무한".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
             $0.addTarget(self, action: #selector(snoozeButtonTapped), for: .touchUpInside)
         }
         
@@ -249,7 +248,6 @@ private extension SelectWeekDayView {
         }
         
         soundValueButton.do {
-            $0.setAttributedTitle("진동, 알림음1".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
             $0.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
         }
         
