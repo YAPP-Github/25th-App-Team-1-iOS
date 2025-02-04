@@ -8,11 +8,18 @@
 import RIBs
 import RxSwift
 import UIKit
+import FeatureDesignSystem
+import FeatureCommonDependencies
 
 enum CreateAlarmPresentableListenerRequest {
+    case viewDidLoad
+    case back
     case meridiemChanged(Meridiem)
-    case hourChanged(Int)
-    case minuteChanged(Int)
+    case hourChanged(Hour)
+    case minuteChanged(Minute)
+    case selectedDaysChanged(AlarmDays)
+    case selectSnooze
+    case selectSound
     case done
 }
 
@@ -32,24 +39,40 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigation()
+        listener?.request(.viewDidLoad)
+    }
+    
+    func request(_ request: CreateAlarmPresentableRequest) {
+        switch request {
+        case let .alarmUpdated(alarm):
+            mainView.update(state: .alarmUpdated(alarm))
+        }
     }
     
     private let mainView = CreateAlarmView()
     
     private func setupNavigation() {
-        title = "알람추가"
+        navigationController?.isNavigationBarHidden = true
     }
 }
 
 extension CreateAlarmViewController: CreateAlarmViewListener {
     func action(_ action: CreateAlarmView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.request(.back)
         case let .meridiemChanged(meridiem):
             listener?.request(.meridiemChanged(meridiem))
         case let .hourChanged(hour):
             listener?.request(.hourChanged(hour))
         case let .minuteChanged(minute):
             listener?.request(.minuteChanged(minute))
+        case let .selectWeekday(set):
+            listener?.request(.selectedDaysChanged(set))
+        case .snoozeButtonTapped:
+            listener?.request(.selectSnooze)
+        case .soundButtonTapped:
+            listener?.request(.selectSound)
         case .doneButtonTapped:
             listener?.request(.done)
         }

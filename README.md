@@ -1,2 +1,2 @@
-### Onboarding 브랜치
+### Alarm 브랜치
 

@@ -9,8 +9,14 @@ import Foundation
 
 public struct AlarmDays {
     public private(set) var days: Set<WeekDay>
-    public init(days: Set<WeekDay> = []) {
+    public var shoundTurnOffHolidayAlarm: Bool
+    
+    public init(
+        days: Set<WeekDay> = [],
+        shoundTurnOffHolidayAlarm: Bool = false
+    ) {
         self.days = days
+        self.shoundTurnOffHolidayAlarm = shoundTurnOffHolidayAlarm
     }
     
     /// 특정 요일 추가
@@ -27,6 +33,7 @@ public struct AlarmDays {
         days.contains(day)
     }
     
+    /// 특정 요일 리스트 제거
     public mutating func subtract(_ days: Set<WeekDay>) {
         self.days.subtract(days)
     }
@@ -38,5 +45,4 @@ public struct AlarmDays {
     public func isSubset(of days: Set<WeekDay>) -> Bool {
         self.days.isSubset(of: days)
     }
-
 }

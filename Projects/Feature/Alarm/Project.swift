@@ -15,6 +15,7 @@ let project = Project(
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
+                .feature(implements: .UIDependencies),
                 .feature(implements: .ThirdPartyDependencies),
                 .feature(implements: .Alarm)
             ]

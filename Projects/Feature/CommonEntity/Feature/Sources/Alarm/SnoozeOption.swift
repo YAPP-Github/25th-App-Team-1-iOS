@@ -44,13 +44,23 @@ public enum SnoozeCount: Int, CaseIterable {
     case tenTimes = 10
     case unlimited = -1
     
-    public var toKoreanFormat: String {
+    public var toKoreanTitleFormat: String {
         return switch self {
         case .once: "1회"
         case .threeTimes: "3회"
         case .fiveTimes: "5회"
         case .tenTimes: "10회"
         case .unlimited: "무한"
+        }
+    }
+    
+    public var toKoreanValueFormat: String {
+        return switch self {
+        case .once: "1회"
+        case .threeTimes: "3회"
+        case .fiveTimes: "5회"
+        case .tenTimes: "10회"
+        case .unlimited: "무한번"
         }
     }
 }
