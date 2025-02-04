@@ -7,10 +7,8 @@
 
 import Lottie
 import UIKit
-import SnapKit
-import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol OnboardingFortuneGuideViewListener: AnyObject {
     func action(_ action: OnboardingFortuneGuideView.Action)

@@ -9,7 +9,7 @@ import UIKit
 
 import FeatureResources
 
-import SnapKit
+import FeatureThirdPartyDependencies
 
 public class DSTwoButtonAlert: UIView {
     
