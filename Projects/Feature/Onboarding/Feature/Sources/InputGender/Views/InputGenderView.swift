@@ -134,7 +134,7 @@ private extension InputGenderView {
         // buttonAndTextStack
         buttonAndTextStack.snp.makeConstraints { make in
             
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(10)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(12)
             make.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
     }

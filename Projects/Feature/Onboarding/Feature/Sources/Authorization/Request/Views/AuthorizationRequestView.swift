@@ -89,7 +89,7 @@ private extension AuthorizationRequestView {
         }
         
         yesButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.leading.equalTo(20)
             $0.trailing.equalTo(-20)
         }

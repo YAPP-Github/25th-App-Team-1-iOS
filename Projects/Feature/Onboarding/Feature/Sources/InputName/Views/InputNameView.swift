@@ -136,7 +136,7 @@ private extension InputNameView {
         }
         
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
     }

@@ -8,6 +8,7 @@
 import UIKit
 import FeatureThirdPartyDependencies
 import FeatureUIDependencies
+import Lottie
 
 protocol OnboardingMissionGuideViewListener: AnyObject {
     func action(_ action: OnboardingMissionGuideView.Action)
@@ -84,7 +85,7 @@ private extension OnboardingMissionGuideView {
         }
         
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
