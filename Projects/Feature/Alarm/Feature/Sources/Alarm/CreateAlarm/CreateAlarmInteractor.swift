@@ -7,17 +7,25 @@
 
 import RIBs
 import RxSwift
+import FeatureResources
 
 protocol CreateAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum CreateAlarmPresentableRequest {
+    case alarmUpdated(Alarm)
+}
+
 protocol CreateAlarmPresentable: Presentable {
     var listener: CreateAlarmPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: CreateAlarmPresentableRequest)
 }
 
 enum CreateAlarmListenerRequest {
+    case back
+    case snoozeOption(SnoozeFrequency?, SnoozeCount?)
+    case soundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?)
     case done(Alarm)
 }
 
@@ -30,23 +38,86 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
     weak var router: CreateAlarmRouting?
     weak var listener: CreateAlarmListener?
     
-    override init(presenter: CreateAlarmPresentable) {
+    init(
+        presenter: CreateAlarmPresentable,
+        mode: AlarmCreateEditMode,
+        createAlarmStream: CreateAlarmStream
+    ) {
+        self.mode = mode
+        self.createAlarmStream = createAlarmStream
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
+    private let mode: AlarmCreateEditMode
+    private let createAlarmStream: CreateAlarmStream
     private var alarm: Alarm = .default
+    
+    override func didBecomeActive() {
+        super.didBecomeActive()
+        bind()
+    }
     
     func request(_ request: CreateAlarmPresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            start()
+        case .back:
+            listener?.request(.back)
         case let .meridiemChanged(meridiem):
             alarm.meridiem = meridiem
+            print(meridiem.content)
         case let .hourChanged(hour):
             alarm.hour = hour
         case let .minuteChanged(minute):
             alarm.minute = minute
+        case let .selectedDaysChanged(set):
+            alarm.repeatDays = set
+        case .selectSnooze:
+            listener?.request(.snoozeOption(alarm.snoozeFrequency, alarm.snoozeCount))
+        case .selectSound:
+            listener?.request(.soundOption(
+                isVibrateOn: alarm.isVibrationOn,
+                isSoundOn: alarm.isSoundOn,
+                volume: alarm.volume,
+                selectedSound: alarm.selectedSound
+            ))
         case .done:
             createAlarm()
+        }
+    }
+    
+    private func bind() {
+        createAlarmStream.snoozeOptionChanged
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] options in
+                guard let self else { return }
+                alarm.snoozeFrequency = options.0
+                alarm.snoozeCount = options.1
+                presenter.request(.alarmUpdated(alarm))
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        createAlarmStream.soundOptionChanged
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] options in
+                guard let self else { return }
+                alarm.isVibrationOn = options.isVibrateOn
+                alarm.isSoundOn = options.isSoundOn
+                alarm.volume = options.volume
+                alarm.selectedSound = options.selectedSound
+                presenter.request(.alarmUpdated(alarm))
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+    
+    private func start() {
+        switch mode {
+        case .create:
+            presenter.request(.alarmUpdated(alarm))
+        case let .edit(alarm):
+            self.alarm = alarm
+            presenter.request(.alarmUpdated(alarm))
         }
     }
     

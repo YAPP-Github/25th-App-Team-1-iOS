@@ -7,12 +7,17 @@
 
 import RIBs
 import RxSwift
+import FeatureResources
 
 enum RootRouterRequest {
     case cleanupViews
     case routeToAlarmList
-    case routeToCreateAlarm
+    case routeToCreateAlarm(mode: AlarmCreateEditMode)
     case detachCreateAlarm
+    case routeToSnoozeOption(SnoozeFrequency?, SnoozeCount?)
+    case detachSnoozeOption
+    case routeToSoundOption(isVibrateOn: Bool, isSoundOn: Bool, volume: Float, selectedSound: R.AlarmSound?)
+    case detachSoundOption
 }
 
 protocol RootRouting: Routing {
@@ -32,10 +37,12 @@ final class RootInteractor: Interactor, RootInteractable {
     // in constructor.
     init(
         service: RootServiceable,
-        stream: AlarmListMutableStream
+        alarmListMutableStream: AlarmListMutableStream,
+        createAlarmMutableStream: CreateAlarmMutableStream
     ) {
         self.service = service
-        self.stream = stream
+        self.alarmListMutableStream = alarmListMutableStream
+        self.createAlarmMutableStream = createAlarmMutableStream
     }
 
     override func didBecomeActive() {
@@ -51,28 +58,70 @@ final class RootInteractor: Interactor, RootInteractable {
     }
     
     private let service: RootServiceable
-    private let stream: AlarmListMutableStream
+    private let alarmListMutableStream: AlarmListMutableStream
+    private let createAlarmMutableStream: CreateAlarmMutableStream
     
     private func start() {
         router?.request(.routeToAlarmList)
     }
 }
 
+// MARK: AlarmListListenerRequest
 extension RootInteractor {
     func request(_ request: AlarmListListenerRequest) {
         switch request {
         case .addAlarm:
-            router?.request(.routeToCreateAlarm)
+            router?.request(.routeToCreateAlarm(mode: .create))
         }
     }
 }
 
+// MARK: CreateAlarmListenerRequest
 extension RootInteractor {
     func request(_ request: CreateAlarmListenerRequest) {
         switch request {
+        case .back:
+            router?.request(.detachCreateAlarm)
+        case let .snoozeOption(snoozeOption, snoozeCount):
+            router?.request(.routeToSnoozeOption(snoozeOption, snoozeCount))
+        case let .soundOption(isVibrateOn, isSoundOn, volume, selectedSound):
+            router?.request(
+                .routeToSoundOption(
+                    isVibrateOn: isVibrateOn,
+                    isSoundOn: isSoundOn,
+                    volume: volume,
+                    selectedSound: selectedSound
+                )
+            )
         case let .done(alarm):
             router?.request(.detachCreateAlarm)
             service.createAlarm(alarm)
+        }
+    }
+}
+
+// MARK: CreateAlarmSnoozeOptionListenerRequest
+extension RootInteractor {
+    func request(_ request: CreateAlarmSnoozeOptionListenerRequest) {
+        
+        switch request {
+        case .offSnooze:
+            router?.request(.detachSnoozeOption)
+            createAlarmMutableStream.mutableSnoozeOption.onNext((nil, nil))
+        case let .done(frequency, count):
+            router?.request(.detachSnoozeOption)
+            createAlarmMutableStream.mutableSnoozeOption.onNext((frequency, count))
+        }
+    }
+}
+
+// MARK: CreateAlarmSoundOptionListenerRequest
+extension RootInteractor {
+    func request(_ request: CreateAlarmSoundOptionListenerRequest) {
+        switch request {
+        case let .done(isVibrateOn, isSoundOn, volume, selectedSound):
+            router?.request(.detachSoundOption)
+            createAlarmMutableStream.mutableSoundOption.onNext((isVibrateOn, isSoundOn, volume, selectedSound))
         }
     }
 }

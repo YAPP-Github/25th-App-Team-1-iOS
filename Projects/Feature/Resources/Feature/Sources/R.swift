@@ -5,8 +5,76 @@ public class R {
         public static let svgBtnAdd = UIImage(named: "svg_btn_add", in: .resources, compatibleWith: nil)
     }
     
-    public struct Sound {
-        public static let alarm = Bundle.resources.url(forResource: "crowded_cafe", withExtension: "caf")!
+    public enum AlarmSound: String, CaseIterable {
+        case Ascending = "Ascending.caf"
+        case Bell_Tower = "Bell_Tower.caf"
+        case Blues = "Blues.caf"
+        case Boing = "Boing.caf"
+        case Crickets = "Crickets.caf"
+        case Digital = "Digital.caf"
+        case Doorbell = "Doorbell.caf"
+        case Duck = "Duck.caf"
+        case Harp = "Harp.caf"
+        case Marimba = "Marimba.caf"
+        case Motocycle = "Motocycle.caf"
+        case Old_Car_Horn = "Old_Car_Horn.caf"
+        case Old_Phone = "Old_Phone.caf"
+        case Piano_Riff = "Piano_Riff.caf"
+        case Pinball = "Pinball.caf"
+        case Robot = "Robot.caf"
+        case Strum = "Strum.caf"
+        case Timba = "Timba.caf"
+        case Trill = "Trill.caf"
+        case Xylophone = "Xylophone.caf"
+        
+        public var title: String {
+            switch self {
+            case .Ascending:
+                return "상승음"
+            case .Bell_Tower:
+                return "종탑 소리"
+            case .Blues:
+                return "블루스"
+            case .Boing:
+                return "공 튀기는 소리"
+            case .Crickets:
+                return "귀뚜라미 소리"
+            case .Digital:
+                return "기계음"
+            case .Doorbell:
+                return "초인종 소리"
+            case .Duck:
+                return "오리 소리"
+            case .Harp:
+                return "하프"
+            case .Marimba:
+                return "마림바"
+            case .Motocycle:
+                return "오토바이"
+            case .Old_Car_Horn:
+                return "구식 자동차 경적"
+            case .Old_Phone:
+                return "전화 벨소리"
+            case .Piano_Riff:
+                return "피아노 연주"
+            case .Pinball:
+                return "핀볼 소리"
+            case .Robot:
+                return "로보트 소리"
+            case .Strum:
+                return "기타"
+            case .Timba:
+                return "타악기"
+            case .Trill:
+                return "트릴"
+            case .Xylophone:
+                return "실로폰"
+            }
+        }
+        
+        public var alarm: URL {
+            Bundle.resources.url(forResource: rawValue, withExtension: nil)!
+        }
     }
     
     public struct Color {
