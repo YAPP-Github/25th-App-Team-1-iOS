@@ -46,7 +46,7 @@ private extension OnboardingIntroView {
         
         subtitleLabel.do {
             $0.displayText = """
-            "오르비 알람은 기상과 함께
+            오르비 알람은 기상과 함께
             하루 운세를 제공해요
             """.displayText(font: .heading1SemiBold, color: R.Color.white100)
             $0.textAlignment = .center
