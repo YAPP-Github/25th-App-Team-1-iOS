@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import FeatureCommonDependencies
 
 public struct OnboardingModel {
-    var alarm: AlarmData?
+    var alarm: Alarm?
     var birthDate: BirthDateData?
     var bornTime: BornTimeData?
     var name: String?

@@ -82,15 +82,32 @@ extension InputSummaryView {
         }
     }
     
-    func update(inputs: [String: String]) {
+    func update(model: OnboardingModel) {
         inputSummaryStack.arrangedSubviews.forEach {$0.removeFromSuperview()}
-        inputs.forEach { keyText, valueText in
-            let rowView = SummaryRowView()
-                .update(keyText: keyText)
-                .update(valueText: valueText)
-            inputSummaryStack.addArrangedSubview(rowView)
+        if let name = model.name {
+            generateSummaryView(key: "이름", value: name)
+        }
+        if let gender = model.gender {
+            generateSummaryView(key: "성별", value: gender.displayingName)
+        }
+        if let birthDate = model.birthDate {
+            let birthDateText = "\(birthDate.calendarType.displayKoreanText) \(birthDate.year)년 \(birthDate.month)월 \(birthDate.day)일"
+            generateSummaryView(key: "생년월일", value: birthDateText)
+        }
+        if let bornTime = model.bornTime {
+            let bornTimeText = "\(bornTime.hours)시 \(bornTime.minutes)분"
+            generateSummaryView(key: "태어난 시간", value: bornTimeText)
+        } else {
+            generateSummaryView(key: "태어난 시간", value: "몰라요")
         }
         layoutIfNeeded()
+    }
+    
+    private func generateSummaryView(key: String, value: String) {
+        let rowView = SummaryRowView()
+        rowView.update(keyText: key)
+        rowView.update(valueText: value)
+        inputSummaryStack.addArrangedSubview(rowView)
     }
 }
 
@@ -189,11 +206,7 @@ private extension InputSummaryView {
 
 #Preview {
     let view = InputSummaryView()
-    view.update(inputs: [
-        "타입1": "값1",
-        "타입2": "값2",
-        "타입3": "값3",
-        "타입4": "값4",
-    ])
+    let model = OnboardingModel(birthDate: .init(calendarType: .gregorian, year: 2024, month: 12, day: 21), bornTime: .init(hours: 12, minutes: 21), name: "이름", gender: .male)
+    view.update(model: model)
     return view
 }

@@ -8,12 +8,13 @@
 import RIBs
 import RxSwift
 import UIKit
+import FeatureCommonDependencies
 
 enum InputWakeUpAlarmPresenterRequest {
     
     case exitPage
     case confirmUserInputAndExit
-    case updateCurrentAlarmData(AlarmData)
+    case updateCurrentAlarmData(Meridiem, Hour, Minute)
 }
 
 protocol InputWakeUpAlarmPresentableListener: AnyObject {
@@ -56,8 +57,8 @@ extension InputWakeUpAlarmViewController {
         switch action {
         case .backButtonClicked:
             listener?.request(.exitPage)
-        case .alarmPicker(let alarmData):
-            listener?.request(.updateCurrentAlarmData(alarmData))
+        case let .alarmPicker(meridiem, hour, minute):
+            listener?.request(.updateCurrentAlarmData(meridiem, hour, minute))
         case .ctaButtonClicked:
             listener?.request(.confirmUserInputAndExit)
         }

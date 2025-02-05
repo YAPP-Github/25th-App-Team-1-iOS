@@ -21,7 +21,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
     enum Action {
         
         case backButtonClicked
-        case alarmPicker(AlarmData)
+        case alarmPicker(Meridiem, Hour, Minute)
         case ctaButtonClicked
     }
     
@@ -147,8 +147,7 @@ extension InputWakeUpAlarmView {
 // MARK: AlarmPickerListener
 extension InputWakeUpAlarmView {
     func latestSelection(meridiem: Meridiem, hour: Hour, minute: Minute) {
-        let alarmData = AlarmData(meridiem: meridiem.rawValue, hour: hour.value, minute: minute.value)
-        listener?.action(.alarmPicker(alarmData))
+        listener?.action(.alarmPicker(meridiem, hour, minute))
     }
 }
 

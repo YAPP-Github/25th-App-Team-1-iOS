@@ -7,6 +7,8 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
+import FeatureResources
 
 protocol InputWakeUpAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -19,7 +21,7 @@ protocol InputWakeUpAlarmPresentable: Presentable {
 
 enum InputWakeUpAlarmListenerRequest {
     case back
-    case next(AlarmData)
+    case next(Alarm)
 }
 
 protocol InputWakeUpAlarmListener: AnyObject {
@@ -34,11 +36,19 @@ final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPr
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
     override init(presenter: InputWakeUpAlarmPresentable) {
+        alarmData = Alarm(
+            meridiem: .am,
+            hour: .init(6)!,
+            minute: .init(0)!,
+            repeatDays: AlarmDays(),
+            snoozeOption: .init(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
+            soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: R.AlarmSound.allCases.sorted(by: { $0.title < $1.title }).first?.title ?? "")
+        )
         super.init(presenter: presenter)
         presenter.listener = self
     }
     
-    private var alarmData: AlarmData?
+    private var alarmData: Alarm
 }
 
 
@@ -51,10 +61,11 @@ extension InputWakeUpAlarmInteractor {
         case .exitPage:
             listener?.request(.back)
         case .confirmUserInputAndExit:
-            guard let alarmData else { return }
             listener?.request(.next(alarmData))
-        case .updateCurrentAlarmData(let alarmData):
-            self.alarmData = alarmData
+        case let .updateCurrentAlarmData(meridiem, hour, minute):
+            alarmData.meridiem = meridiem
+            alarmData.hour = hour
+            alarmData.minute = minute
             print("현재 알람 데이터 업데이트 \(alarmData)")
         }
     }
