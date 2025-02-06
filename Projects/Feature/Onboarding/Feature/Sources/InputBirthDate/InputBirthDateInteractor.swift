@@ -12,14 +12,18 @@ protocol InputBirthDateRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum InputBirthDatePresentableRequest {
+    case setBirthDate(BirthDateData)
+}
+
 protocol InputBirthDatePresentable: Presentable {
     var listener: InputBirthDatePresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: InputBirthDatePresentableRequest)
 }
 
 enum InputBirthDateListenerRequest {
     case back
-    case confirmBirthDate(BirthDateData)
+    case confirmBirthDate(OnboardingModel)
 }
 
 protocol InputBirthDateListener: AnyObject {
@@ -31,27 +35,22 @@ final class InputBirthDateInteractor: PresentableInteractor<InputBirthDatePresen
     weak var router: InputBirthDateRouting?
     weak var listener: InputBirthDateListener?
     
-    
     // State
     private(set) var birthDate: BirthDateData?
     
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputBirthDatePresentable) {
+    init(
+        presenter: InputBirthDatePresentable,
+        model: OnboardingModel
+    ) {
+        self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
+    private var model: OnboardingModel
 }
 
 
@@ -60,13 +59,16 @@ extension InputBirthDateInteractor {
     
     func request(_ request: InputBirthDatePresenterRequest) {
         switch request {
+        case .viewDidLoad:
+            if let birthDate = model.birthDate {
+                presenter.request(.setBirthDate(birthDate))
+            }
         case .exitPage:
             listener?.request(.back)
         case .confirmUserInputAndExit:
-            guard let birthDate else { return }
-            listener?.request(.confirmBirthDate(birthDate))
-        case .updateCurrentBirthDate(let birthDateData):
-            self.birthDate = birthDateData
+            listener?.request(.confirmBirthDate(model))
+        case let .updateCurrentBirthDate(birthDateData):
+            model.birthDate = birthDateData
         }
     }
 }

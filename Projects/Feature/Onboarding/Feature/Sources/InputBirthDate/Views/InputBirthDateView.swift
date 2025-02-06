@@ -8,9 +8,9 @@
 import UIKit
 
 import FeatureUIDependencies
+import FeatureCommonDependencies
 
 protocol InputBirthDateViewListener: AnyObject {
-    
     func action(_ action: InputBirthDateView.Action)
 }
 
@@ -19,7 +19,6 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
     
     // View action
     enum Action {
-        
         case backButtonClicked
         case birthDatePicker(BirthDateData)
         case ctaButtonClicked
@@ -36,6 +35,14 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
     // Listener
     weak var listener: InputBirthDateViewListener?
     
+    func setBirthDate(_ birthdateData: BirthDateData) {
+        birthDatePicker.update(
+            calendarType: birthdateData.calendarType,
+            year: birthdateData.year,
+            month: birthdateData.month,
+            day: birthdateData.day
+        )
+    }
     
     init() {
         super.init(frame: .zero)
@@ -146,7 +153,7 @@ extension InputBirthDateView {
 // MARK: BirthDatePickerListener
 extension InputBirthDateView {
     
-    func latestDate(calendar: CalendarType, year: Int, month: Int, day: Int) {
+    func latestDate(calendar: CalendarType, year: Year, month: Month, day: Day) {
         
         let data: BirthDateData = .init(calendarType: calendar, year: year, month: month, day: day)
         

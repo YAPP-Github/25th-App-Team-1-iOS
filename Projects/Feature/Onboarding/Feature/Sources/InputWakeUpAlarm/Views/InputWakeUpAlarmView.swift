@@ -37,6 +37,9 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
     // Listener
     weak var listener: InputWakeUpAlarmViewListener?
     
+    func setAlarm(_ alarm: Alarm) {
+        alarmPicker.update(meridiem: alarm.meridiem, hour: alarm.hour, minute: alarm.minute)
+    }
     
     init() {
         super.init(frame: .zero)

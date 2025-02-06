@@ -22,6 +22,7 @@ final class InputNameView: UIView {
     }
     
     enum State {
+        case setName(String)
         case startEdit
         case shortNameLength
         case invalidName
@@ -43,6 +44,8 @@ final class InputNameView: UIView {
     
     func update(_ state: State) {
         switch state {
+        case let .setName(name):
+            nameField.text = name
         case .startEdit:
             nameField.becomeFirstResponder()
         case .shortNameLength:

@@ -142,6 +142,16 @@ private extension InputGenderView {
 
 // MARK: public interface
 extension InputGenderView {
+    func setGender(_ gender: Gender) {
+        switch gender {
+        case .male:
+            maleButton.update(state: .selected)
+            femaleButton.update(state: .idle)
+        case .female:
+            maleButton.update(state: .idle)
+            femaleButton.update(state: .selected)
+        }
+    }
     
     func updateCtaButton(isEnabled: Bool) {
         

@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum InputNamePresentableListenerRequest {
+    case viewDidLoad
     case back
     case nameChanged(String)
     case goNext
@@ -31,11 +32,16 @@ final class InputNameViewController: UIViewController, InputNamePresentable, Inp
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
-        mainView.update(.startEdit)
+        listener?.reqeust(.viewDidLoad)
     }
     
     func request(_ request: InputNamePresentableRequest) {
         switch request {
+        case let .setName(name):
+            mainView.update(.setName(name))
+            mainView.update(.buttonEnabled(true))
+        case .startEdit:
+            mainView.update(.startEdit)
         case .showNameLengthError:
             mainView.update(.shortNameLength)
         case .showInvalidNameError:

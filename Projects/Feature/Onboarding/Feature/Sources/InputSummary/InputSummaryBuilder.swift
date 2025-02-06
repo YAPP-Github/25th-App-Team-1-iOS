@@ -13,14 +13,18 @@ protocol InputSummaryDependency: Dependency {
 }
 
 final class InputSummaryComponent: Component<InputSummaryDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let model: OnboardingModel
+    
+    init(dependency: any InputSummaryDependency, model: OnboardingModel) {
+        self.model = model
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol InputSummaryBuildable: Buildable {
-    func build(withListener listener: InputSummaryListener, onBoardingModel: OnboardingModel) -> InputSummaryRouting
+    func build(withListener listener: InputSummaryListener, model: OnboardingModel) -> InputSummaryRouting
 }
 
 final class InputSummaryBuilder: Builder<InputSummaryDependency>, InputSummaryBuildable {
@@ -29,12 +33,12 @@ final class InputSummaryBuilder: Builder<InputSummaryDependency>, InputSummaryBu
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: InputSummaryListener, onBoardingModel: OnboardingModel) -> InputSummaryRouting {
-        let component = InputSummaryComponent(dependency: dependency)
+    func build(withListener listener: InputSummaryListener, model: OnboardingModel) -> InputSummaryRouting {
+        let component = InputSummaryComponent(dependency: dependency, model: model)
         let viewController = InputSummaryViewController()
         let interactor = InputSummaryInteractor(
             presenter: viewController,
-            onBoardingModel: onBoardingModel
+            model: component.model
         )
         interactor.listener = listener
         return InputSummaryRouter(interactor: interactor, viewController: viewController)

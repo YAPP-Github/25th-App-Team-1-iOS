@@ -8,8 +8,8 @@
 import UIKit
 
 import FeatureUIDependencies
-
 import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol InputSummaryViewListener: AnyObject {
     
@@ -91,11 +91,12 @@ extension InputSummaryView {
             generateSummaryView(key: "성별", value: gender.displayingName)
         }
         if let birthDate = model.birthDate {
-            let birthDateText = "\(birthDate.calendarType.displayKoreanText) \(birthDate.year)년 \(birthDate.month)월 \(birthDate.day)일"
+            let birthDateText = "\(birthDate.calendarType.displayKoreanText) \(birthDate.year.value)년 \(birthDate.month.rawValue)월 \(birthDate.day.value)일"
             generateSummaryView(key: "생년월일", value: birthDateText)
         }
         if let bornTime = model.bornTime {
-            let bornTimeText = "\(bornTime.hours)시 \(bornTime.minutes)분"
+            let hourValue = bornTime.hour.value + (bornTime.meridiem == .am ? 0 : 12)
+            let bornTimeText = String(format: "%02d시 %02d분", hourValue, bornTime.minute.value)
             generateSummaryView(key: "태어난 시간", value: bornTimeText)
         } else {
             generateSummaryView(key: "태어난 시간", value: "몰라요")
@@ -206,7 +207,15 @@ private extension InputSummaryView {
 
 #Preview {
     let view = InputSummaryView()
-    let model = OnboardingModel(birthDate: .init(calendarType: .gregorian, year: 2024, month: 12, day: 21), bornTime: .init(hours: 12, minutes: 21), name: "이름", gender: .male)
+    let year = Year(2024)
+    let month = Month(rawValue: 12)!
+    let day = Day(21, month: month, year: year)!
+    let hour = Hour(6)!
+    let minute = Minute(0)!
+    let model = OnboardingModel(
+        birthDate: .init(calendarType: .gregorian, year: Year(2024), month: month, day: day),
+        bornTime: .init(meridiem: .am, hour: hour, minute: minute),
+        name: "이름", gender: .male)
     view.update(model: model)
     return view
 }

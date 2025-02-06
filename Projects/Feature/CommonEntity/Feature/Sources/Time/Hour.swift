@@ -11,7 +11,7 @@ public struct Hour {
     public let value: Int
     
     public init?(_ value: Int) {
-        guard (1...12).contains(value) else { return nil }
+        guard (0...11).contains(value) else { return nil }
         self.value = value
     }
 }

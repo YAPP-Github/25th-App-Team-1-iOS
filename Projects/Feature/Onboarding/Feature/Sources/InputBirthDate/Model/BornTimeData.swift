@@ -5,9 +5,10 @@
 //  Created by ever on 1/14/25.
 //
 
-import Foundation
+import FeatureCommonDependencies
 
-struct BornTimeData {
-    var hours: Int
-    var minutes: Int
+public struct BornTimeData {
+    public var meridiem: Meridiem
+    public var hour: Hour
+    public var minute: Minute
 }

@@ -34,6 +34,14 @@ public class DSTextField: UIView {
         return .init(width: UIView.noIntrinsicMetric, height: 54)
     }
     
+    public var text: String? {
+        get {
+            return textField.text
+        }
+        set {
+            textField.text = newValue
+        }
+    }
     public var editingChanged: ((UITextField) -> Void)?
     
     public func update(state: State) {

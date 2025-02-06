@@ -38,14 +38,13 @@ final class InputSummaryInteractor: PresentableInteractor<InputSummaryPresentabl
     
     
     // State
-    private let onBoardingModel: OnboardingModel
+    private let model: OnboardingModel
     private var mainViewIsAppear = false
 
-    
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(presenter: InputSummaryPresentable, onBoardingModel: OnboardingModel) {
-        self.onBoardingModel = onBoardingModel
+    init(presenter: InputSummaryPresentable, model: OnboardingModel) {
+        self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -64,7 +63,7 @@ extension InputSummaryInteractor {
                 mainViewIsAppear = true
             
                 presenter.presentMainView(
-                    onBoadingModel: onBoardingModel,
+                    onBoadingModel: model,
                     animated: true
                 )
             }

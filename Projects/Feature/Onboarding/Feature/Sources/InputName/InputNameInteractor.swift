@@ -14,10 +14,13 @@ protocol InputNameRouting: ViewableRouting {
 }
 
 enum InputNamePresentableRequest {
+    case setName(String)
+    case startEdit
     case showNameLengthError
     case showInvalidNameError
     case updateButtonIsEnabled(Bool)
 }
+
 protocol InputNamePresentable: Presentable {
     var listener: InputNamePresentableListener? { get set }
     func request(_ request: InputNamePresentableRequest)
@@ -25,7 +28,7 @@ protocol InputNamePresentable: Presentable {
 
 enum InputNameListenerRequest {
     case back
-    case next(String)
+    case next(OnboardingModel)
 }
 
 protocol InputNameListener: AnyObject {
@@ -39,17 +42,26 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputNamePresentable) {
+    init(
+        presenter: InputNamePresentable,
+        model: OnboardingModel
+    ) {
+        self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
     }
     
     func reqeust(_ request: InputNamePresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            if let name = model.name {
+                presenter.request(.setName(name))
+            }
+            presenter.request(.startEdit)
         case .back:
             listener?.request(.back)
         case let .nameChanged(name):
-            self.name = name
+            model.name = nil
             guard validateNameLength(name) else {
                 presenter.request(.showNameLengthError)
                 presenter.request(.updateButtonIsEnabled(false))
@@ -61,14 +73,15 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
                 presenter.request(.updateButtonIsEnabled(false))
                 return
             }
+            model.name = name
             presenter.request(.updateButtonIsEnabled(true))
         case .goNext:
-            listener?.request(.next(name))
+            listener?.request(.next(model))
         }
     }
     
     private let helper = InputNameHelper()
-    private var name: String = ""
+    private var model: OnboardingModel
     
     private func validateNameLength(_ name: String) -> Bool {
         return name.count >= 1

@@ -33,6 +33,15 @@ public final class DSTextFieldWithTitleWithMessage: UIView {
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    public var text: String? {
+        get {
+            textField.text
+        }
+        set {
+            textField.text = newValue
+        }
+    }
 
     public var editingChanged: ((UITextField) -> Void)? {
         didSet {
@@ -133,6 +142,7 @@ public extension DSTextFieldWithTitleWithMessage {
         return textField.isFirstResponder
     }
     
+    @discardableResult
     override func becomeFirstResponder() -> Bool {
         textField.becomeFirstResponder()
     }

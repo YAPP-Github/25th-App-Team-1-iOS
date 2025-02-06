@@ -22,6 +22,8 @@ final class InputBornTImeView: UIView {
     }
     
     enum State {
+        case setBornTime(BornTimeData)
+        case startEdit
         case shortBornTimeLength
         case invalidBornTime
         case buttonEnabled(Bool)
@@ -47,6 +49,15 @@ final class InputBornTImeView: UIView {
     // Internal
     func update(_ state: State) {
         switch state {
+        case let .setBornTime(bornTime):
+            var hourValue = bornTime.hour.value
+            hourValue += bornTime.meridiem == .am ? 0 : 12
+            let hourString = String(format: "%02d", hourValue)
+            let minuteString = String(format: "%02d", bornTime.minute.value)
+            timeField.text = "\(hourString):\(minuteString)"
+            updateNextButtonState(true)
+        case .startEdit:
+            timeField.becomeFirstResponder()
         case .shortBornTimeLength:
             showBornTimeLengthError()
         case .invalidBornTime:

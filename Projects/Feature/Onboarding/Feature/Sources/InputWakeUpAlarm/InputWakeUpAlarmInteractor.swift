@@ -14,14 +14,18 @@ protocol InputWakeUpAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum InputWakeUpAlarmPresentableRequest {
+    case setAlarm(Alarm)
+}
+
 protocol InputWakeUpAlarmPresentable: Presentable {
     var listener: InputWakeUpAlarmPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: InputWakeUpAlarmPresentableRequest)
 }
 
 enum InputWakeUpAlarmListenerRequest {
     case back
-    case next(Alarm)
+    case next(OnboardingModel)
 }
 
 protocol InputWakeUpAlarmListener: AnyObject {
@@ -35,20 +39,16 @@ final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPr
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputWakeUpAlarmPresentable) {
-        alarmData = Alarm(
-            meridiem: .am,
-            hour: .init(6)!,
-            minute: .init(0)!,
-            repeatDays: AlarmDays(),
-            snoozeOption: .init(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
-            soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: R.AlarmSound.allCases.sorted(by: { $0.title < $1.title }).first?.title ?? "")
-        )
+    init(
+        presenter: InputWakeUpAlarmPresentable,
+        model: OnboardingModel
+    ) {
+        self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
     }
     
-    private var alarmData: Alarm
+    private var model: OnboardingModel
 }
 
 
@@ -58,15 +58,16 @@ extension InputWakeUpAlarmInteractor {
     func request(_ request: InputWakeUpAlarmPresenterRequest) {
         
         switch request {
+        case .viewDidLoad:
+            presenter.request(.setAlarm(model.alarm))
         case .exitPage:
             listener?.request(.back)
         case .confirmUserInputAndExit:
-            listener?.request(.next(alarmData))
+            listener?.request(.next(model))
         case let .updateCurrentAlarmData(meridiem, hour, minute):
-            alarmData.meridiem = meridiem
-            alarmData.hour = hour
-            alarmData.minute = minute
-            print("현재 알람 데이터 업데이트 \(alarmData)")
+            model.alarm.meridiem = meridiem
+            model.alarm.hour = hour
+            model.alarm.minute = minute
         }
     }
 }
