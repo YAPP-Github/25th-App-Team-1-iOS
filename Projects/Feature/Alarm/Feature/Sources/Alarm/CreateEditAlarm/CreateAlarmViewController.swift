@@ -14,6 +14,7 @@ import FeatureCommonDependencies
 enum CreateEditAlarmPresentableListenerRequest {
     case viewDidLoad
     case back
+    case delete
     case meridiemChanged(Meridiem)
     case hourChanged(Hour)
     case minuteChanged(Minute)
@@ -44,6 +45,8 @@ final class CreateEditAlarmViewController: UIViewController, CreateEditAlarmPres
     
     func request(_ request: CreateEditAlarmPresentableRequest) {
         switch request {
+        case .showDeleteButton:
+            mainView.update(state: .showDeleteButton)
         case let .alarmUpdated(alarm):
             mainView.update(state: .alarmUpdated(alarm))
         }
@@ -61,6 +64,8 @@ extension CreateEditAlarmViewController: CreateEditAlarmViewListener {
         switch action {
         case .backButtonTapped:
             listener?.request(.back)
+        case .deleteButtonTapped:
+            listener?.request(.delete)
         case let .meridiemChanged(meridiem):
             listener?.request(.meridiemChanged(meridiem))
         case let .hourChanged(hour):

@@ -17,6 +17,7 @@ protocol CreateEditAlarmViewListener: AnyObject {
 final class CreateEditAlarmView: UIView {
     enum Action {
         case backButtonTapped
+        case deleteButtonTapped
         case meridiemChanged(Meridiem)
         case hourChanged(Hour)
         case minuteChanged(Minute)
@@ -27,6 +28,7 @@ final class CreateEditAlarmView: UIView {
     }
     
     enum State {
+        case showDeleteButton
         case alarmUpdated(Alarm)
     }
     
@@ -43,6 +45,8 @@ final class CreateEditAlarmView: UIView {
     weak var listener: CreateEditAlarmViewListener?
     func update(state: State) {
         switch state {
+        case .showDeleteButton:
+            navigationBar.update(rightButtonTitle: "닫기".displayText(font: .body1Medium, color: R.Color.statusAlert))
         case let .alarmUpdated(alarm):
             updateView(with: alarm)
         }
@@ -120,6 +124,8 @@ extension CreateEditAlarmView: OnBoardingNavBarViewListener {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)
+        case .rightButtonClicked:
+            listener?.action(.deleteButtonTapped)
         }
     }
 }

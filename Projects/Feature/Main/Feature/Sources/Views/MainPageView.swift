@@ -23,6 +23,7 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
         case fortuneNotiButtonClicked
         case applicationSettingButtonClicked
         case addAlarmButtonClicked
+        case alarmSelected(Alarm)
         case alarmStateWillChange(alarmId: String, isActive: Bool)
         case alarmWillDelete(alarmId: String)
     }
@@ -111,7 +112,6 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
     
     // - alarmOptionBottomListView
     private var alarmOptionBottomListView: UIView?
-    
     
     init() {
         super.init(frame: .zero)
@@ -641,6 +641,12 @@ extension MainPageView {
         // Swipe to commit
         configuration.performsFirstActionWithFullSwipe = true
         return configuration
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let alarm = alarmCellROs[indexPath.item]
+        listener?.action(.alarmSelected(alarm))
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 

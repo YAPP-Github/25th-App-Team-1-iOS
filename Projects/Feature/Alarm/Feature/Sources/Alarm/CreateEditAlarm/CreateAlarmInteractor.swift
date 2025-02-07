@@ -8,14 +8,20 @@
 import Foundation
 import RIBs
 import RxSwift
-import FeatureResources
+import FeatureUIDependencies
 import FeatureCommonDependencies
 
+enum CreateEditAlarmRouterRequest {
+    case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
+    case dismissAlert(completion: (()->Void)? = nil)
+}
+
 protocol CreateEditAlarmRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func request(_ request: CreateEditAlarmRouterRequest)
 }
 
 enum CreateEditAlarmPresentableRequest {
+    case showDeleteButton
     case alarmUpdated(Alarm)
 }
 
@@ -29,6 +35,8 @@ enum CreateEditAlarmListenerRequest {
     case snoozeOption(SnoozeOption)
     case soundOption(SoundOption)
     case done(Alarm)
+    case updated(Alarm)
+    case deleted(Alarm)
 }
 
 protocol CreateEditAlarmListener: AnyObject {
@@ -79,7 +87,9 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
         case .viewDidLoad:
             start()
         case .back:
-            listener?.request(.back)
+            handleBack()
+        case .delete:
+            listener?.request(.deleted(alarm))
         case let .meridiemChanged(meridiem):
             alarm.meridiem = meridiem
         case let .hourChanged(hour):
@@ -123,11 +133,54 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
             presenter.request(.alarmUpdated(alarm))
         case let .edit(alarm):
             self.alarm = alarm
+            presenter.request(.showDeleteButton)
             presenter.request(.alarmUpdated(alarm))
         }
     }
     
+    private func handleBack() {
+        switch mode {
+        case .create:
+            listener?.request(.back)
+        case let .edit(alarm):
+            if alarm.hashValue != self.alarm.hashValue {
+                router?.request(.presentAlert(
+                    DSTwoButtonAlert.Config(
+                        titleText: "변경 사항 삭제",
+                        subTitleText: """
+                        변경 사항을 저장하지 않고
+                        나가시겠어요?
+                        """,
+                        leftButtonText: "취소",
+                        rightButtonText: "나가기"
+                    ),
+                    self
+                ))
+            } else {
+                listener?.request(.back)
+            }
+        }
+    }
+    
     private func createAlarm() {
-        listener?.request(.done(alarm))
+        switch mode {
+        case .create:
+            listener?.request(.done(alarm))
+        case .edit:
+            listener?.request(.updated(alarm))
+        }
+        
+    }
+}
+extension CreateEditAlarmInteractor: DSTwoButtonAlertViewControllerListener {
+    func action(_ action: DSTwoButtonAlertViewController.Action) {
+        switch action {
+        case .leftButtonClicked:
+            router?.request(.dismissAlert(completion: nil))
+        case .rightButtonClicked:
+            router?.request(.dismissAlert(completion: { [weak listener] in
+                listener?.request(.back)
+            }))
+        }
     }
 }

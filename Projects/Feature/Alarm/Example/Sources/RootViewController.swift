@@ -59,7 +59,7 @@ final class RootViewController: UIViewController {
 }
 
 extension RootViewController: RootListener, RootViewControllable {
-    
+    func reqeust(_ request: FeatureAlarm.RootListenerRequest) {}
 }
 
 extension ExampleComponent: RootDependency {

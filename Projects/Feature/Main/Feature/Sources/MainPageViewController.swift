@@ -19,6 +19,7 @@ enum MainPageViewPresenterRequest {
     case showFortuneNoti
     case goToSettings
     case createAlarm
+    case editAlarm(Alarm)
     case changeAlarmState(alarmId: String, changeToActive: Bool)
     case deleteAlarm(alarmId: String)
 }
@@ -82,6 +83,8 @@ extension MainPageViewController {
             listener?.request(.goToSettings)
         case .addAlarmButtonClicked:
             listener?.request(.createAlarm)
+        case let .alarmSelected(alarm):
+            listener?.request(.editAlarm(alarm))
         case .alarmStateWillChange(let alarmId, let isActive):
             listener?.request(.changeAlarmState(
                 alarmId: alarmId,

@@ -17,6 +17,7 @@ public class DSButtonAlert: UIView {
     private let titleLabel: UILabel = .init()
     private let subTitleLabel: UILabel = .init().then {
         $0.numberOfLines = 0
+        $0.textAlignment = .center
     }
     private let labelStack: UIStackView = .init().then {
         $0.axis = .vertical

@@ -73,6 +73,8 @@ extension MainPageInteractor {
             break
         case .createAlarm:
             router?.request(.routeToCreateEditAlarm(mode: .create))
+        case let .editAlarm(alarm):
+            router?.request(.routeToCreateEditAlarm(mode: .edit(alarm)))
         case let .changeAlarmState(alarmId, isActive):
             guard var alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return }
             alarm.isActive = isActive
@@ -105,6 +107,14 @@ extension MainPageInteractor {
             break
         case let .done(alarm):
             service.addAlarm(alarm)
+            let newAlarmList = service.getAllAlarm()
+            presenter.request(.setAlarmList(newAlarmList))
+        case let .updated(alarm):
+            service.updateAlarm(alarm)
+            let newAlarmList = service.getAllAlarm()
+            presenter.request(.setAlarmList(newAlarmList))
+        case let .deleted(alarm):
+            service.deleteAlarm(alarm)
             let newAlarmList = service.getAllAlarm()
             presenter.request(.setAlarmList(newAlarmList))
         }

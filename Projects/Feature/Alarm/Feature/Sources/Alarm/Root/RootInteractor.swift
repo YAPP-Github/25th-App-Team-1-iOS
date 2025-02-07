@@ -26,6 +26,8 @@ public protocol RootRouting: Routing {
 public enum RootListenerRequest {
     case close
     case done(Alarm)
+    case updated(Alarm)
+    case deleted(Alarm)
 }
 
 public protocol RootListener: AnyObject {
@@ -85,7 +87,10 @@ extension RootInteractor {
             router?.request(.routeToSoundOption(soundOption))
         case let .done(alarm):
             listener?.reqeust(.done(alarm))
-//            service.scheduleTimer(with: alarm)
+        case let .updated(alarm):
+            listener?.reqeust(.updated(alarm))
+        case let .deleted(alarm):
+            listener?.reqeust(.deleted(alarm))
         }
     }
 }

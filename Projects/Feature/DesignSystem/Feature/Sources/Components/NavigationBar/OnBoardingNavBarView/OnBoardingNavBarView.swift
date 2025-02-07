@@ -22,6 +22,7 @@ public final class OnBoardingNavBarView: UIView {
     // View actions
     public enum Action {
         case backButtonClicked
+        case rightButtonClicked
     }
     
     // Listener
@@ -32,6 +33,8 @@ public final class OnBoardingNavBarView: UIView {
         let buttonImage =  FeatureResourcesAsset.chevronLeft.image
         $0.setImage(buttonImage, for: .normal)
     }
+    
+    private let rightButton: UIButton = .init()
     private let titleLabel = UILabel()
     fileprivate let stageIndexView: StageIndexView = .init()
         
@@ -51,6 +54,11 @@ public final class OnBoardingNavBarView: UIView {
         titleLabel.displayText = title.displayText(font: .body1SemiBold, color: R.Color.white100)
     }
     
+    public func update(rightButtonTitle: NSAttributedString) {
+        rightButton.setAttributedTitle(rightButtonTitle, for: .normal)
+        rightButton.isHidden = false
+    }
+    
     public func setIndex(_ currentStage: Int, of stageCount: Int) {
         stageIndexView.isHidden = false
         stageIndexView.update(currentStage: currentStage, stageCount: stageCount)
@@ -68,6 +76,16 @@ public final class OnBoardingNavBarView: UIView {
         }
     }
     
+    @objc
+    private func rightButtonClicked() {
+        listener?.action(.rightButtonClicked)
+        
+        backButton.alpha = 0.5
+        UIView.animate(withDuration: 0.35) {
+            self.backButton.alpha = 1
+        }
+    }
+    
     
     private func setupUI() {
         self.backgroundColor = .clear
@@ -75,11 +93,15 @@ public final class OnBoardingNavBarView: UIView {
         backButton.addTarget(self,
             action: #selector(backButtonClicked),
             for: .touchUpInside)
+        rightButton.addTarget(self,
+            action: #selector(rightButtonClicked),
+            for: .touchUpInside)
+        rightButton.isHidden = true
     }
     
     
     private func setupLayout() {
-        [backButton, titleLabel, stageIndexView].forEach {
+        [backButton, titleLabel, rightButton, stageIndexView].forEach {
             addSubview($0)
         }
         
@@ -94,6 +116,11 @@ public final class OnBoardingNavBarView: UIView {
         
         stageIndexView.snp.makeConstraints {
             $0.trailing.equalTo(-20)
+            $0.centerY.equalToSuperview()
+        }
+        
+        rightButton.snp.makeConstraints {
+            $0.trailing.equalTo(-18)
             $0.centerY.equalToSuperview()
         }
     }
