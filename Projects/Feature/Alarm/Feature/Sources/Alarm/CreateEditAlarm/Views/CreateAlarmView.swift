@@ -46,7 +46,7 @@ final class CreateEditAlarmView: UIView {
     func update(state: State) {
         switch state {
         case .showDeleteButton:
-            navigationBar.update(rightButtonTitle: "닫기".displayText(font: .body1Medium, color: R.Color.statusAlert))
+            navigationBar.update(rightButtonTitle: "삭제".displayText(font: .body1Medium, color: R.Color.statusAlert))
         case let .alarmUpdated(alarm):
             updateView(with: alarm)
         }

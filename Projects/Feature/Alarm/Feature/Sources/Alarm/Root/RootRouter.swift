@@ -97,7 +97,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
         router.viewControllable.uiviewController.modalTransitionStyle = .crossDissolve
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        createAlarmRouter?.viewControllable.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
     
     func detachSnoozeOption() {
@@ -114,7 +114,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
         router.viewControllable.uiviewController.modalTransitionStyle = .crossDissolve
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        createAlarmRouter?.viewControllable.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
     
     func detachSoundOption() {
