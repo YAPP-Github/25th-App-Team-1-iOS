@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Hour {
+public struct Hour: Codable {
     public let value: Int
     
     public init?(_ value: Int) {

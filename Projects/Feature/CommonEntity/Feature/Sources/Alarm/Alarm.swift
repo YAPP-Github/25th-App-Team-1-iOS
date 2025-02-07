@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Alarm: Equatable {
+public struct Alarm: Identifiable, Equatable, Codable {
     public var id: String
     public var meridiem: Meridiem
     public var hour: Hour

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AlarmDays {
+public struct AlarmDays: Codable {
     public private(set) var days: Set<WeekDay>
     public var shoundTurnOffHolidayAlarm: Bool
     

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SoundOption {
+public struct SoundOption: Codable {
     public var isVibrationOn: Bool
     public var isSoundOn: Bool
     public var volume: Float
