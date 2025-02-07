@@ -46,6 +46,7 @@ public extension ModulePath {
         
         case AlarmMission
         case Main
+        case Fortune
         
         public static let categoryName: String = "Feature"
 
