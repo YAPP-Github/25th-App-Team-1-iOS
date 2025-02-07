@@ -59,24 +59,24 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             cleanupViews()
         case .routeToIntro:
             routeToIntro()
-        case .routeToInputWakeUpAlarm:
-            routeToInputWakeUpAlarm()
+        case let .routeToInputWakeUpAlarm(model):
+            routeToInputWakeUpAlarm(model: model)
         case .detachInputWakeUpAlarm:
             detachInputWakeUpAlarm()
-        case .routeToInputBirthDate:
-            routeToInputBirthDate()
+        case let .routeToInputBirthDate(model):
+            routeToInputBirthDate(model: model)
         case .detachInputBirthDate:
             detachInputBirthDate()
-        case .routeToInputBornTime:
-            routeToInputBornTime()
+        case let .routeToInputBornTime(model):
+            routeToInputBornTime(model: model)
         case .detachInputBornTime:
             detachInputBornTime()
-        case .routeToInputName:
-            routeToInputName()
+        case let .routeToInputName(model):
+            routeToInputName(model: model)
         case .detachInputName:
             detachInputName()
-        case .routeToInputGender:
-            routeToInputGender()
+        case let .routeToInputGender(model):
+            routeToInputGender(model: model)
         case .detachInputGender:
             detachInputGender()
         case .routeToAuthorizationRequest:
@@ -91,8 +91,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToMissionGuide()
         case .routeToFortuneGuide:
             routeToFortunenGuide()
-        case .routeToInputSummary(let model):
-            routeToInputSummary(onBoardingModel: model)
+        case let .routeToInputSummary(model):
+            routeToInputSummary(model: model)
         case let .detachInputSummary(completion):
             detachInputSummary(completion: completion)
         }
@@ -137,7 +137,13 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private var onboardingFortuneGuideRouter: OnboardingFortuneGuideRouting?
     
     private func cleanupViews() {
-        
+        if let navigationController {
+            navigationController.setViewControllers([], animated: true)
+            viewController.uiviewController.dismiss(animated: true)
+        } else {
+            // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
+            viewController.uiviewController.dismiss(animated: true)
+        }
     }
     
     private func presentOrPushViewController(with router: ViewableRouting, animated: Bool = true) {
@@ -170,9 +176,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPushViewController(with: router)
     }
     
-    private func routeToInputWakeUpAlarm() {
+    private func routeToInputWakeUpAlarm(model: OnboardingModel) {
         guard inputWakeUpAlarmRouter == nil else { return }
-        let router = inputWakeUpAlarmBuilder.build(withListener: interactor)
+        let router = inputWakeUpAlarmBuilder.build(withListener: interactor, model: model)
         inputWakeUpAlarmRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
@@ -185,9 +191,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         dismissOrPopViewController()
     }
     
-    private func routeToInputBirthDate() {
+    private func routeToInputBirthDate(model: OnboardingModel) {
         guard inputBirthDateRouter == nil else { return }
-        let router = inputBirthDateBuilder.build(withListener: interactor)
+        let router = inputBirthDateBuilder.build(withListener: interactor, model: model)
         inputBirthDateRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
@@ -200,9 +206,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         dismissOrPopViewController()
     }
     
-    private func routeToInputBornTime() {
+    private func routeToInputBornTime(model: OnboardingModel) {
         guard inputBornTimeRouter == nil else { return }
-        let router = inputBornTimeBuilder.build(withListener: interactor)
+        let router = inputBornTimeBuilder.build(withListener: interactor, model: model)
         inputBornTimeRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
@@ -215,9 +221,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         dismissOrPopViewController()
     }
     
-    private func routeToInputName() {
+    private func routeToInputName(model: OnboardingModel) {
         guard inputNameRouter == nil else { return }
-        let router = inputNameBuilder.build(withListener: interactor)
+        let router = inputNameBuilder.build(withListener: interactor, model: model)
         inputNameRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
@@ -230,9 +236,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         dismissOrPopViewController()
     }
     
-    private func routeToInputGender() {
+    private func routeToInputGender(model: OnboardingModel) {
         guard inputGenderRouter == nil else { return }
-        let router = inputGenderBuilder.build(withListener: interactor)
+        let router = inputGenderBuilder.build(withListener: interactor, model: model)
         inputGenderRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
@@ -272,7 +278,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard let router = authorizationDeniedRouter else { return }
         authorizationDeniedRouter = nil
         detachChild(router)
-        viewController.uiviewController.dismiss(animated: true)
+        dismissOrPopViewController()
     }
     
     private func routeToMissionGuide() {
@@ -291,11 +297,11 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPushViewController(with: router)
     }
     
-    private func routeToInputSummary(onBoardingModel: OnboardingModel) {
+    private func routeToInputSummary(model: OnboardingModel) {
         guard inputSummaryRouter == nil else { return }
         let router = inputSummaryBuilder.build(
             withListener: interactor,
-            onBoardingModel: onBoardingModel
+            model: model
         )
         inputSummaryRouter = router
         attachChild(router)

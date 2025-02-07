@@ -6,8 +6,7 @@
 //
 
 import UIKit
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 import FeatureResources
 
 public final class DSTextFieldWithTitleWithMessage: UIView {
@@ -33,6 +32,15 @@ public final class DSTextFieldWithTitleWithMessage: UIView {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public var text: String? {
+        get {
+            textField.text
+        }
+        set {
+            textField.text = newValue
+        }
     }
 
     public var editingChanged: ((UITextField) -> Void)? {
@@ -115,6 +123,7 @@ private extension DSTextFieldWithTitleWithMessage {
             $0.axis = .vertical
             $0.alignment = .fill
             $0.distribution = .fill
+            $0.spacing = 12
         }
         [titleLabel, textField, messageLabel].forEach {
             stackView.addArrangedSubview($0)
@@ -133,6 +142,7 @@ public extension DSTextFieldWithTitleWithMessage {
         return textField.isFirstResponder
     }
     
+    @discardableResult
     override func becomeFirstResponder() -> Bool {
         textField.becomeFirstResponder()
     }

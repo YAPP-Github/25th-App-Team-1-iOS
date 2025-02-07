@@ -6,6 +6,7 @@
 //
 
 import RxSwift
+import FeatureCommonDependencies
 
 protocol AlarmListStream {
     var alarms: Observable<[Alarm]> { get }

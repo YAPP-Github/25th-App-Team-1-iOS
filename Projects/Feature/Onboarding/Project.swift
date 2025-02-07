@@ -26,7 +26,7 @@ let project = Project(
             resources: ["Example/Resources/**"],
             dependencies: [
                 .feature(implements: .Onboarding),
-                .thirdParty(library: .RIBs)
+                .feature(implements: .ThirdPartyDependencies)
             ],
             settings: .settings(configurations: [
                 .debug(name: "Debug"),
@@ -58,12 +58,9 @@ let project = Project(
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
-                .feature(implements: .Resources),
-                .feature(implements: .DesignSystem),
-                .thirdParty(library: .RIBs),
-                .thirdParty(library: .SnapKit),
-                .thirdParty(library: .Then),
-                .thirdParty(library: .Lottie)
+                .feature(implements: .UIDependencies),
+                .feature(implements: .CommonDependencies),
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
     ],
