@@ -155,6 +155,12 @@ public class R {
         
         // Line
         public static let line = UIColor(hex: "#2A2F38")
+        
+        // Letter
+        public static let letterBlue2 = UIColor(hex: "#69A8F6")
+        public static let letterBabyPink = UIColor(hex: "#E98C8C")
+        public static let letterGreen = UIColor(hex: "#4DCC71")
+        public static let letterPink = UIColor(hex: "#E682D7")
     }
     
     public enum Font: String, CaseIterable {
