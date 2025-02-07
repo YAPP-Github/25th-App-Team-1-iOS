@@ -9,7 +9,16 @@ import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
-final class FortuneCoordinationView: UIView {
+protocol FortuneCoordinationViewListener: AnyObject {
+    func action(_ action: FortuneCoordinationView.Action)
+}
+
+final class FortuneCoordinationView: TouchDetectingView {
+    enum Action {
+        case prev
+        case next
+    }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -18,6 +27,12 @@ final class FortuneCoordinationView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    weak var listener: FortuneCoordinationViewListener?
+    
+    override func onTouchOut() {
+        listener?.action(.next)
     }
     
     private let backgroundImageView = UIImageView()

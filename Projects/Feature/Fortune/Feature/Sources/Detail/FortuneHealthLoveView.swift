@@ -9,7 +9,16 @@ import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
-final class FortuneHealthLoveView: UIView {
+protocol FortuneHealthLoveViewListener: AnyObject {
+    func action(_ action: FortuneHealthLoveView.Action)
+}
+
+final class FortuneHealthLoveView: TouchDetectingView {
+    enum Action {
+        case prev
+        case next
+    }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -18,6 +27,12 @@ final class FortuneHealthLoveView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    weak var listener: FortuneHealthLoveViewListener?
+    
+    override func onTouchOut() {
+        listener?.action(.next)
     }
     
     private let backgroundImageView = UIImageView()

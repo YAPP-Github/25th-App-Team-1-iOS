@@ -9,7 +9,16 @@ import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
+protocol CompleteWithFortuneViewListener: AnyObject {
+    func action(_ action: CompleteWithFortuneView.Action)
+}
+
 final class CompleteWithFortuneView: UIView {
+    enum Action {
+        case prev
+        case next
+    }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -19,6 +28,8 @@ final class CompleteWithFortuneView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    weak var listener: CompleteWithFortuneViewListener?
     
     private let backgroundImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
@@ -55,6 +66,9 @@ private extension CompleteWithFortuneView {
         
         doneButton.do {
             $0.update(title: "부적 보러가기")
+            $0.buttonAction = { [weak self] in
+                self?.listener?.action(.next)
+            }
         }
         
         [backgroundImageView, pageIndicatorView, titleLabel, characterImageView, descriptionLabel, doneButton].forEach {

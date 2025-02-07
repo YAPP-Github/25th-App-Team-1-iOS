@@ -9,7 +9,16 @@ import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
-final class FortuneStudyMoneyView: UIView {
+protocol FortuneStudyMoneyViewListener: AnyObject {
+    func action(_ action: FortuneStudyMoneyView.Action)
+}
+
+final class FortuneStudyMoneyView: TouchDetectingView {
+    enum Action {
+        case prev
+        case next
+    }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -18,6 +27,12 @@ final class FortuneStudyMoneyView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    weak var listener: FortuneStudyMoneyViewListener?
+    
+    override func onTouchOut() {
+        listener?.action(.next)
     }
     
     private let backgroundImageView = UIImageView()
