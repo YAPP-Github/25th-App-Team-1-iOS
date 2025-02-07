@@ -86,6 +86,11 @@ public extension DSCheckBox {
         apply(state: state)
         return self
     }
+    
+    func toggle() {
+        self.state = state == .idle ? .seleceted : .idle
+        apply(state: state)
+    }
 }
 
 

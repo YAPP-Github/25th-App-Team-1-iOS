@@ -46,30 +46,20 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
                 view = emptyView
             } else {
                 view = mainView
-                mainView.update(.presentAlarmCell(list: alarmList))
+                let currentROs = alarmList.map { alarm in
+                    AlarmCellRO(
+                        mode: .idle,
+                        isSelectedForDeleteion: false,
+                        alarm: alarm
+                    )
+                }
+                mainView.update(.presentAlarmCell(list: currentROs))
             }
         }
     }
     
     private let mainView = MainPageView()
     private let emptyView = EmptyAlarmView()
-}
-
-
-// MARK: Public interface
-extension MainPageViewController {
-    enum UpdateRequest {
-        // Alarm엔티티 전달
-        case presentAlarmList(alarms: [Alarm])
-    }
-    
-    func update(_ request: UpdateRequest) {
-        switch request {
-        case .presentAlarmList(let alarms):
-            // 엔티티를 RO로 변경
-            mainView.update(.presentAlarmCell(list: alarms))
-        }
-    }
 }
 
 

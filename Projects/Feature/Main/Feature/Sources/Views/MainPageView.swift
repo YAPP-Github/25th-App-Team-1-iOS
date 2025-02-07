@@ -16,7 +16,7 @@ protocol MainPageViewListener: AnyObject {
 }
 
 
-final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener {
+final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener, DeleteAlarmGroupBarViewListener {
     
     // Action
     enum Action {
@@ -104,7 +104,7 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
     // - TableView
     private let alarmTableView: UITableView = .init()
     private var alarmTableDiffableDataSource: UITableViewDiffableDataSource<Int, Int>!
-    private var alarmCellROs: [Alarm] = []
+    private var alarmCellROs: [AlarmCellRO] = []
     
     // - AlarmDeletionView
     private var alarmDeletionView: AlarmDeletionView?
@@ -112,6 +112,17 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
     
     // - alarmOptionBottomListView
     private var alarmOptionBottomListView: UIView?
+    
+    // - DeleteAlarmGroup
+    private var selectedForDeletionAlarmIds: Set<String> = .init()
+    private let deleteAlarmGroupBarView: DeleteAlarmGroupBarView = .init()
+    private let deleteGroupAlarmConfirmButton: DSDefaultCTAButton = .init(
+        initialState: .active,
+        style: .init(
+            type: .tertiary,
+            size: .medium
+    ))
+        
     
     init() {
         super.init(frame: .zero)
@@ -240,6 +251,12 @@ private extension MainPageView {
         resizableContentView.addSubview(alarmToolBarContainerView)
         
         
+        // deleteAlarmGroupBarView
+        deleteAlarmGroupBarView.isHidden = true
+        deleteAlarmGroupBarView.listener = self
+        resizableContentView.addSubview(deleteAlarmGroupBarView)
+        
+        
         // resizableContentViewDockViewDrageArea
         resizableContentViewDockViewDrageArea.backgroundColor = .clear
         addSubview(resizableContentViewDockViewDrageArea)
@@ -248,6 +265,17 @@ private extension MainPageView {
         
         // alarmTableView
         setupAlarmTableView()
+        
+        
+        // deleteGroupAlarmConfirmButton
+        deleteGroupAlarmConfirmButton.isHidden = true
+        deleteGroupAlarmConfirmButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            selectedForDeletionAlarmIds.forEach { id in
+                self.listener?.action(.alarmWillDelete(alarmId: id))
+            }
+        }
+        resizableContentView.addSubview(deleteGroupAlarmConfirmButton)
     }
     
     
@@ -312,11 +340,16 @@ private extension MainPageView {
         
         // alarmToolBarContainerView
         alarmToolBarContainerView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(14)
-                .priority(.high)
-            make.top.greaterThanOrEqualTo(self.safeAreaLayoutGuide)
-                .inset(14)
-                .priority(.required)
+            make.top.equalToSuperview().inset(14).priority(.high)
+            make.top.greaterThanOrEqualTo(self.safeAreaLayoutGuide).inset(14)
+            make.horizontalEdges.equalToSuperview()
+        }
+        
+        
+        // deleteAlarmGroupBarView
+        deleteAlarmGroupBarView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(14).priority(.high)
+            make.top.greaterThanOrEqualTo(self.safeAreaLayoutGuide).inset(14)
             make.horizontalEdges.equalToSuperview()
         }
         
@@ -326,6 +359,13 @@ private extension MainPageView {
             make.horizontalEdges.equalToSuperview()
             make.top.equalTo(alarmToolBarContainerView.snp.bottom)
             make.bottom.equalToSuperview()
+        }
+        
+        
+        // deleteGroupAlarmConfirmButton
+        deleteGroupAlarmConfirmButton.snp.makeConstraints { make in
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(24)
+            make.centerX.equalToSuperview()
         }
     }
 }
@@ -399,7 +439,7 @@ extension MainPageView {
         case fortuneDeliveryTimeText(String)
         case turnOnFortuneNoti(Bool)
         case turnOnFortuneIsDeliveredBubble(Bool)
-        case presentAlarmCell(list: [Alarm])
+        case presentAlarmCell(list: [AlarmCellRO])
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -581,7 +621,7 @@ extension MainPageView {
         }
     }
     
-    func presentAlarmROs(_ ros: [Alarm]) {
+    func presentAlarmROs(_ ros: [AlarmCellRO]) {
         self.alarmCellROs = ros
         let identifiers = ros.map({ $0.hashValue })
         var snapShot = NSDiffableDataSourceSnapshot<Int, Int>()
@@ -599,15 +639,47 @@ extension MainPageView {
                 cell.action = { [weak self] action in
                     guard let self else { return }
                     switch action {
-                    case let .toggleIsTapped(willMoveTo):
+                    case .toggleIsTapped:
+                        let currentState = renderObject.alarm.isActive
+                        let nextState = !currentState
+                        let rewROS = self.alarmCellROs.map { ro in
+                            if ro.id == renderObject.id {
+                                var newRO = renderObject
+                                var newAlarm = newRO.alarm
+                                newAlarm.isActive = nextState
+                                newRO.alarm = newAlarm
+                                return newRO
+                            }
+                            return ro
+                        }
+                        presentAlarmROs(rewROS)
                         listener?.action(.alarmStateWillChange(
                             alarmId: renderObject.id,
-                            isActive: (willMoveTo == .active)
+                            isActive: nextState
                         ))
                     case .cellIsLongPressed:
                         guard isDeletionViewPresenting == false else { return }
                         isDeletionViewPresenting = true
-                        presentAlarmDeletionView(renderObject: renderObject)
+                        presentAlarmDeletionView(alarm: renderObject.alarm)
+                    case .selectionForDeletion:
+                        let currentState = renderObject.isSelectedForDeleteion
+                        let nextState = !currentState
+                        
+                        changeDeletionSelectionState(alarmId: renderObject.id, isSelected: nextState)
+                        
+                        let rewROS = self.alarmCellROs.map { ro in
+                            if ro.id == renderObject.id {
+                                var newRO = renderObject
+                                newRO.isSelectedForDeleteion = nextState
+                                return newRO
+                            }
+                            return ro
+                        }
+                        presentAlarmROs(rewROS)
+                    case .cellIsTapped:
+                        let alarmCellRO = alarmCellROs[indexPath.item]
+                        listener?.action(.alarmSelected(alarmCellRO.alarm))
+                        break
                     }
                 }
                 return cell.update(renderObject: renderObject)
@@ -642,18 +714,12 @@ extension MainPageView {
         configuration.performsFirstActionWithFullSwipe = true
         return configuration
     }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let alarm = alarmCellROs[indexPath.item]
-        listener?.action(.alarmSelected(alarm))
-        tableView.deselectRow(at: indexPath, animated: true)
-    }
 }
 
 
 // MARK: Alarm deleltion
 private extension MainPageView {
-    func presentAlarmDeletionView(renderObject ro: Alarm) {
+    func presentAlarmDeletionView(alarm ro: Alarm) {
         let deletionView = AlarmDeletionView()
         deletionView.listener = self
         deletionView.update(renderObject: ro)
@@ -673,6 +739,22 @@ private extension MainPageView {
             alarmDeletionView?.removeFromSuperview()
             alarmDeletionView = nil
             isDeletionViewPresenting = false
+        }
+    }
+    
+    func changeDeletionSelectionState(alarmId: String, isSelected: Bool) {
+        if isSelected {
+            // 삭제를 위해 선택된 경우
+            selectedForDeletionAlarmIds.insert(alarmId)
+            let displayText = "\(selectedForDeletionAlarmIds.count)개 삭제"
+            deleteGroupAlarmConfirmButton.isHidden = false
+            deleteGroupAlarmConfirmButton.update(title: displayText)
+        } else {
+            // 삭제를 위해 선택된 경우
+            selectedForDeletionAlarmIds.remove(alarmId)
+            let displayText = "\(selectedForDeletionAlarmIds.count)개 삭제"
+            deleteGroupAlarmConfirmButton.isHidden = selectedForDeletionAlarmIds.isEmpty
+            deleteGroupAlarmConfirmButton.update(title: displayText)
         }
     }
 }
@@ -701,6 +783,15 @@ private extension MainPageView {
             .update(image: FeatureResourcesAsset.edit.image)
         editButton.buttonAction = { [weak self] in
             guard let self else { return }
+            configAlarmButton.update(state: .idle)
+            dismissAlarmOptionBottomListView()
+            presentDeleteAllAlarmBarView()
+            alarmCellROs = alarmCellROs.map { ro in
+                var newRO = ro
+                newRO.mode = .deletion
+                return newRO
+            }
+            presentAlarmROs(alarmCellROs)
         }
         
         // containerView
@@ -731,6 +822,57 @@ extension MainPageView {
         case .deleteButtonClicked(let cellId):
             dismissAlarmDeletionView()
             listener?.action(.alarmWillDelete(alarmId: cellId))
+        }
+    }
+}
+
+
+// MARK: DeleteAlarmGroup
+extension MainPageView {
+    
+    func presentDeleteAllAlarmBarView() {
+        alarmToolBarContainerView.alpha = 0
+        deleteAlarmGroupBarView.isHidden = false
+    }
+    
+    func dismissDeleteAllAlarmBarView() {
+        alarmToolBarContainerView.alpha = 1
+        deleteAlarmGroupBarView.isHidden = true
+    }
+    
+    func action(_ action: DeleteAlarmGroupBarView.Action) {
+        switch action {
+        case .cancelButtonTapped:
+            dismissDeleteAllAlarmBarView()
+            alarmCellROs = alarmCellROs.map { ro in
+                var newRO = ro
+                newRO.isSelectedForDeleteion = false
+                newRO.mode = .idle
+                return newRO
+            }
+            presentAlarmROs(alarmCellROs)
+            break
+        case .selectionStateChanged(let isSelected):
+            alarmCellROs = alarmCellROs.map { ro in
+                var newRO = ro
+                newRO.isSelectedForDeleteion = isSelected
+                return newRO
+            }
+            
+            if isSelected {
+                // 전체선택
+                alarmCellROs.forEach { ro in
+                    changeDeletionSelectionState(alarmId: ro.id, isSelected: true)
+                }
+            } else {
+                // 전체 삭제
+                selectedForDeletionAlarmIds.forEach { alarmId in
+                    changeDeletionSelectionState(alarmId: alarmId, isSelected: false)
+                }
+            }
+            
+            presentAlarmROs(alarmCellROs)
+            break
         }
     }
 }
