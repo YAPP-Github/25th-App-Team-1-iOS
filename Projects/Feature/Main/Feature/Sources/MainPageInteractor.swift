@@ -85,3 +85,15 @@ extension MainPageInteractor: DSButtonAlertViewControllerListener {
         }
     }
 }
+
+extension MainPageInteractor {
+    func reqeust(_ request: RootListenerRequest) {
+        router?.request(.detachCreateEditAlarm)
+        switch request {
+        case .close:
+            break
+        case let .done(alarm):
+            print(alarm)
+        }
+    }
+}

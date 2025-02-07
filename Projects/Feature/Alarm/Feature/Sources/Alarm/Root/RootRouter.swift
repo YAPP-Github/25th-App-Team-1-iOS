@@ -45,8 +45,6 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             cleanupViews()
         case let .routeToCreateEditAlarm(mode):
             routeToCreateEditAlarm(mode: mode)
-        case .detachCreateEditAlarm:
-            detachCreateEditAlarm()
         case let .routeToSnoozeOption(snoozeOption):
             routeToSnoozeOption(snoozeOption: snoozeOption)
         case .detachSnoozeOption:
@@ -72,8 +70,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private var soundOptionRouter: CreateEditAlarmSoundOptionRouting?
     
     private func cleanupViews() {
-        // TODO: Since this router does not own its view, it needs to cleanup the views
-        // it may have added to the view hierarchy, when its interactor is deactivated.
+        detachCreateEditAlarm()
     }
     
     func routeToCreateEditAlarm(mode: AlarmCreateEditMode) {

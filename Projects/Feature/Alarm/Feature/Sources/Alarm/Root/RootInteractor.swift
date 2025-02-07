@@ -13,7 +13,6 @@ import FeatureCommonDependencies
 public enum RootRouterRequest {
     case cleanupViews
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
-    case detachCreateEditAlarm
     case routeToSnoozeOption(SnoozeOption)
     case detachSnoozeOption
     case routeToSoundOption(SoundOption)
@@ -24,8 +23,13 @@ public protocol RootRouting: Routing {
     func request(_ request: RootRouterRequest)
 }
 
+public enum RootListenerRequest {
+    case close
+    case done(Alarm)
+}
+
 public protocol RootListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func reqeust(_ request: RootListenerRequest)
 }
 
 final class RootInteractor: Interactor, RootInteractable {
@@ -74,14 +78,14 @@ extension RootInteractor {
     func request(_ request: CreateEditAlarmListenerRequest) {
         switch request {
         case .back:
-            router?.request(.detachCreateEditAlarm)
+            listener?.reqeust(.close)
         case let .snoozeOption(snoozeOption):
             router?.request(.routeToSnoozeOption(snoozeOption))
         case let .soundOption(soundOption):
             router?.request(.routeToSoundOption(soundOption))
         case let .done(alarm):
-            router?.request(.detachCreateEditAlarm)
-            service.scheduleTimer(with: alarm)
+            listener?.reqeust(.done(alarm))
+//            service.scheduleTimer(with: alarm)
         }
     }
 }
