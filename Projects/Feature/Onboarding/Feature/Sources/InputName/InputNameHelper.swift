@@ -14,8 +14,8 @@ struct InputNameHelper {
         case mixed
     }
     
-    private let allPattern = "^[A-Za-z가-힣]+$"
-    private let koreanOnlyPattern = "^[가-힣]{1,6}$"
+    private let allPattern = "^[A-Za-zㄱ-ㅎ가-힣]+$"
+    private let koreanOnlyPattern = "^[ㄱ-ㅎ가-힣]{1,6}$"
     private let englishOnlyPattern = "^[A-Za-z]{1,12}$"
     
     private let allRegex: NSRegularExpression
