@@ -7,19 +7,25 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
+import FeatureResources
 
 protocol InputWakeUpAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum InputWakeUpAlarmPresentableRequest {
+    case setAlarm(Alarm)
+}
+
 protocol InputWakeUpAlarmPresentable: Presentable {
     var listener: InputWakeUpAlarmPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: InputWakeUpAlarmPresentableRequest)
 }
 
 enum InputWakeUpAlarmListenerRequest {
     case back
-    case next(AlarmData)
+    case next(OnboardingModel)
 }
 
 protocol InputWakeUpAlarmListener: AnyObject {
@@ -33,12 +39,16 @@ final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPr
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputWakeUpAlarmPresentable) {
+    init(
+        presenter: InputWakeUpAlarmPresentable,
+        model: OnboardingModel
+    ) {
+        self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
     }
     
-    private var alarmData: AlarmData?
+    private var model: OnboardingModel
 }
 
 
@@ -48,14 +58,16 @@ extension InputWakeUpAlarmInteractor {
     func request(_ request: InputWakeUpAlarmPresenterRequest) {
         
         switch request {
+        case .viewDidLoad:
+            presenter.request(.setAlarm(model.alarm))
         case .exitPage:
             listener?.request(.back)
         case .confirmUserInputAndExit:
-            guard let alarmData else { return }
-            listener?.request(.next(alarmData))
-        case .updateCurrentAlarmData(let alarmData):
-            self.alarmData = alarmData
-            print("현재 알람 데이터 업데이트 \(alarmData)")
+            listener?.request(.next(model))
+        case let .updateCurrentAlarmData(meridiem, hour, minute):
+            model.alarm.meridiem = meridiem
+            model.alarm.hour = hour
+            model.alarm.minute = minute
         }
     }
 }

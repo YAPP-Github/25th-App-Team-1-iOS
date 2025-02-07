@@ -6,9 +6,8 @@
 //
 
 import UIKit
-
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
+import FeatureCommonDependencies
 
 protocol InputWakeUpAlarmViewListener: AnyObject {
     
@@ -22,7 +21,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
     enum Action {
         
         case backButtonClicked
-        case alarmPicker(AlarmData)
+        case alarmPicker(Meridiem, Hour, Minute)
         case ctaButtonClicked
     }
     
@@ -31,37 +30,16 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
     private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel: UILabel = .init()
     private let subTitleLabel: UILabel = .init()
-    private let alarmPicker: AlarmPicker = .init(
-        meridiemColumns: MeridiemItem.allCases.map { item in
-            return PickerSelectionItem(
-                content: item.content,
-                displayingText: item.displayingText
-            )
-        },
-        hourColumns: (1...12).map { hour in
-            return PickerSelectionItem(
-                content: String(hour),
-                displayingText: "\(hour)"
-            )
-        },
-        minuteColumns: (1...60).map { minute in
-            var displayingText = "\(minute)"
-            if minute < 10 {
-                displayingText = "0\(minute)"
-            }
-            
-            return PickerSelectionItem(
-                content: String(minute),
-                displayingText: displayingText
-            )
-        }
-    )
+    private let alarmPicker: AlarmPicker = .init()
     private let ctaButton: DSDefaultCTAButton = .init(initialState: .active)
     
     
     // Listener
     weak var listener: InputWakeUpAlarmViewListener?
     
+    func setAlarm(_ alarm: Alarm) {
+        alarmPicker.update(meridiem: alarm.meridiem, hour: alarm.hour, minute: alarm.minute)
+    }
     
     init() {
         super.init(frame: .zero)
@@ -139,9 +117,8 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         // alarmPicker
         addSubview(alarmPicker)
         alarmPicker.snp.makeConstraints { make in
-            make.top.equalTo(labelStackView.snp.bottom).inset(-89)
-            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
-                .inset(20)
+            make.top.equalTo(labelStackView.snp.bottom).offset(79)
+            make.horizontalEdges.equalToSuperview().inset(20)
         }
         
         
@@ -150,8 +127,8 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
         ctaButton.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
                 .inset(20)
-            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
-                .inset(20.42)
+            make.bottom.equalTo(safeAreaLayoutGuide)
+                .inset(12)
         }
     }
 }
@@ -172,16 +149,8 @@ extension InputWakeUpAlarmView {
 
 // MARK: AlarmPickerListener
 extension InputWakeUpAlarmView {
-    
-    func latestSelection(meridiem: String, hour: Int, minute: Int) {
-        
-        let alarmData = AlarmData(
-            meridiem: meridiem,
-            hour: hour,
-            minute: minute
-        )
-        
-        listener?.action(.alarmPicker(alarmData))
+    func latestSelection(meridiem: Meridiem, hour: Hour, minute: Minute) {
+        listener?.action(.alarmPicker(meridiem, hour, minute))
     }
 }
 

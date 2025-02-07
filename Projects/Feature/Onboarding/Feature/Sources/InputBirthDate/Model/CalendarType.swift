@@ -7,16 +7,16 @@
 
 import Foundation
 
-enum CalendarType {
+public enum CalendarType {
     
     case gregorian
     case lunar
     
-    static var displayOrderList: [Self] {
+    public static var displayOrderList: [Self] {
         [.gregorian, .lunar]
     }
     
-    var displayKoreanText: String {
+    public var displayKoreanText: String {
         switch self {
         case .gregorian:
             "양력"
@@ -25,7 +25,7 @@ enum CalendarType {
         }
     }
     
-    var content: String {
+    public var content: String {
         switch self {
         case .gregorian:
             "gregorian"
@@ -34,7 +34,7 @@ enum CalendarType {
         }
     }
     
-    var calendarIdentifier: Calendar.Identifier {
+    public var calendarIdentifier: Calendar.Identifier {
         switch self {
         case .gregorian:
             .gregorian

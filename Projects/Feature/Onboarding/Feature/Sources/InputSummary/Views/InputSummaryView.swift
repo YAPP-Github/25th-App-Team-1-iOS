@@ -7,11 +7,9 @@
 
 import UIKit
 
-import FeatureResources
-import FeatureDesignSystem
-
-import SnapKit
-import Then
+import FeatureUIDependencies
+import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol InputSummaryViewListener: AnyObject {
     
@@ -84,15 +82,33 @@ extension InputSummaryView {
         }
     }
     
-    func update(inputs: [String: String]) {
+    func update(model: OnboardingModel) {
         inputSummaryStack.arrangedSubviews.forEach {$0.removeFromSuperview()}
-        inputs.forEach { keyText, valueText in
-            let rowView = SummaryRowView()
-                .update(keyText: keyText)
-                .update(valueText: valueText)
-            inputSummaryStack.addArrangedSubview(rowView)
+        if let name = model.name {
+            generateSummaryView(key: "이름", value: name)
+        }
+        if let gender = model.gender {
+            generateSummaryView(key: "성별", value: gender.displayingName)
+        }
+        if let birthDate = model.birthDate {
+            let birthDateText = "\(birthDate.calendarType.displayKoreanText) \(birthDate.year.value)년 \(birthDate.month.rawValue)월 \(birthDate.day.value)일"
+            generateSummaryView(key: "생년월일", value: birthDateText)
+        }
+        if let bornTime = model.bornTime {
+            let hourValue = bornTime.hour.value + (bornTime.meridiem == .am ? 0 : 12)
+            let bornTimeText = String(format: "%02d시 %02d분", hourValue, bornTime.minute.value)
+            generateSummaryView(key: "태어난 시간", value: bornTimeText)
+        } else {
+            generateSummaryView(key: "태어난 시간", value: "몰라요")
         }
         layoutIfNeeded()
+    }
+    
+    private func generateSummaryView(key: String, value: String) {
+        let rowView = SummaryRowView()
+        rowView.update(keyText: key)
+        rowView.update(valueText: value)
+        inputSummaryStack.addArrangedSubview(rowView)
     }
 }
 
@@ -169,7 +185,7 @@ private extension InputSummaryView {
         buttonStack.snp.makeConstraints { make in
             make.top.equalTo(inputSummaryStack.snp.bottom).inset(-24)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(44)
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
         }
     }
     
@@ -191,11 +207,15 @@ private extension InputSummaryView {
 
 #Preview {
     let view = InputSummaryView()
-    view.update(inputs: [
-        "타입1": "값1",
-        "타입2": "값2",
-        "타입3": "값3",
-        "타입4": "값4",
-    ])
+    let year = Year(2024)
+    let month = Month(rawValue: 12)!
+    let day = Day(21, month: month, year: year)!
+    let hour = Hour(6)!
+    let minute = Minute(0)!
+    let model = OnboardingModel(
+        birthDate: .init(calendarType: .gregorian, year: Year(2024), month: month, day: day),
+        bornTime: .init(meridiem: .am, hour: hour, minute: minute),
+        name: "이름", gender: .male)
+    view.update(model: model)
     return view
 }

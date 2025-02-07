@@ -13,14 +13,18 @@ protocol InputNameDependency: Dependency {
 }
 
 final class InputNameComponent: Component<InputNameDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let model: OnboardingModel
+    
+    init(dependency: any InputNameDependency, model: OnboardingModel) {
+        self.model = model
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol InputNameBuildable: Buildable {
-    func build(withListener listener: InputNameListener) -> InputNameRouting
+    func build(withListener listener: InputNameListener, model: OnboardingModel) -> InputNameRouting
 }
 
 final class InputNameBuilder: Builder<InputNameDependency>, InputNameBuildable {
@@ -29,10 +33,10 @@ final class InputNameBuilder: Builder<InputNameDependency>, InputNameBuildable {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: InputNameListener) -> InputNameRouting {
-        let component = InputNameComponent(dependency: dependency)
+    func build(withListener listener: InputNameListener, model: OnboardingModel) -> InputNameRouting {
+        let component = InputNameComponent(dependency: dependency, model: model)
         let viewController = InputNameViewController()
-        let interactor = InputNameInteractor(presenter: viewController)
+        let interactor = InputNameInteractor(presenter: viewController, model: component.model)
         interactor.listener = listener
         return InputNameRouter(interactor: interactor, viewController: viewController)
     }

@@ -6,10 +6,8 @@
 //
 
 import UIKit
-import SnapKit
-import Then
-import FeatureDesignSystem
-import FeatureResources
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol InputNameViewListener: AnyObject {
     func action(_ action: InputNameView.Action)
@@ -24,6 +22,8 @@ final class InputNameView: UIView {
     }
     
     enum State {
+        case setName(String)
+        case startEdit
         case shortNameLength
         case invalidName
         case buttonEnabled(Bool)
@@ -44,6 +44,10 @@ final class InputNameView: UIView {
     
     func update(_ state: State) {
         switch state {
+        case let .setName(name):
+            nameField.text = name
+        case .startEdit:
+            nameField.becomeFirstResponder()
         case .shortNameLength:
             showNameLengthError()
         case .invalidName:
@@ -109,11 +113,6 @@ private extension InputNameView {
                 nameChanged(textField)
             }
         }
-        termLabel.do {
-            $0.displayText = "서비스 시작 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.".displayText(font: .caption1Regular, color: R.Color.gray500)
-            $0.textAlignment = .center
-            $0.numberOfLines = 0
-        }
         nextButton.do {
             $0.update(title: "다음")
             $0.buttonAction = { [weak self] in
@@ -121,7 +120,7 @@ private extension InputNameView {
             }
         }
         
-        [navigationBar, titleLabel, nameField, termLabel, nextButton].forEach {
+        [navigationBar, titleLabel, nameField, nextButton].forEach {
             addSubview($0)
         }
     }
@@ -142,14 +141,8 @@ private extension InputNameView {
             $0.trailing.equalTo(-72.5)
         }
         
-        termLabel.snp.makeConstraints {
-            $0.leading.equalTo(20)
-            $0.trailing.equalTo(-20)
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
-        }
-        
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(termLabel.snp.top).offset(-14)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
     }
@@ -167,7 +160,7 @@ private extension InputNameView {
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
         else { return }
-        termLabel.snp.updateConstraints {
+        nextButton.snp.updateConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10 + -keyboardFrame.size.height)
         }
         UIView.animate(withDuration: animationDuration) {
@@ -181,7 +174,7 @@ private extension InputNameView {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
         else { return }
         
-        termLabel.snp.updateConstraints {
+        nextButton.snp.updateConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
         }
         

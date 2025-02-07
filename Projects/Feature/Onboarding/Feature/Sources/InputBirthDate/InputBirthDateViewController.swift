@@ -10,7 +10,7 @@ import RxSwift
 import UIKit
 
 enum InputBirthDatePresenterRequest {
-    
+    case viewDidLoad
     case exitPage
     case confirmUserInputAndExit
     case updateCurrentBirthDate(BirthDateData)
@@ -25,13 +25,6 @@ final class InputBirthDateViewController: UIViewController, InputBirthDatePresen
 
     weak var listener: InputBirthDatePresentableListener?
     
-    private(set) var mainView: InputBirthDateView!
-    
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    required init?(coder: NSCoder) { nil }
-    
     override func loadView() {
         
         self.mainView = InputBirthDateView()
@@ -41,9 +34,18 @@ final class InputBirthDateViewController: UIViewController, InputBirthDatePresen
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationController?.isNavigationBarHidden = true
+        listener?.request(.viewDidLoad)
     }
+    
+    func request(_ request: InputBirthDatePresentableRequest) {
+        switch request {
+        case let .setBirthDate(birthDateData):
+            mainView.setBirthDate(birthDateData)
+        }
+    }
+    
+    private(set) var mainView: InputBirthDateView!
 }
 
 

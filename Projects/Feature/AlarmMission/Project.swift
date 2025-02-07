@@ -59,14 +59,10 @@ let project = Project(
             dependencies: [
                 
                 // Internal
-                .feature(implements: .Resources),
-                .feature(implements: .DesignSystem),
+                .feature(implements: .UIDependencies),
                 
                 // Third party
-                .thirdParty(library: .RIBs),
-                .thirdParty(library: .Then),
-                .thirdParty(library: .SnapKit),
-                .thirdParty(library: .Lottie),
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
     ],

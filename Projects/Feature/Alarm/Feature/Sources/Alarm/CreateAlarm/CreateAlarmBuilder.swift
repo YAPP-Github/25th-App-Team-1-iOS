@@ -6,21 +6,33 @@
 //
 
 import RIBs
+import FeatureCommonDependencies
+
+public enum AlarmCreateEditMode {
+    case create
+    case edit(Alarm)
+}
 
 protocol CreateAlarmDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var createAlarmStream: CreateAlarmStream { get }
 }
 
 final class CreateAlarmComponent: Component<CreateAlarmDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let mode: AlarmCreateEditMode
+    fileprivate let createAlarmStream: CreateAlarmStream
+    init(dependency: CreateAlarmDependency,
+         mode: AlarmCreateEditMode
+    ) {
+        self.mode = mode
+        self.createAlarmStream = dependency.createAlarmStream
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol CreateAlarmBuildable: Buildable {
-    func build(withListener listener: CreateAlarmListener) -> CreateAlarmRouting
+    func build(withListener listener: CreateAlarmListener, mode: AlarmCreateEditMode) -> CreateAlarmRouting
 }
 
 final class CreateAlarmBuilder: Builder<CreateAlarmDependency>, CreateAlarmBuildable {
@@ -29,10 +41,14 @@ final class CreateAlarmBuilder: Builder<CreateAlarmDependency>, CreateAlarmBuild
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: CreateAlarmListener) -> CreateAlarmRouting {
-        let component = CreateAlarmComponent(dependency: dependency)
+    func build(withListener listener: CreateAlarmListener, mode: AlarmCreateEditMode) -> CreateAlarmRouting {
+        let component = CreateAlarmComponent(dependency: dependency, mode: mode)
         let viewController = CreateAlarmViewController()
-        let interactor = CreateAlarmInteractor(presenter: viewController)
+        let interactor = CreateAlarmInteractor(
+            presenter: viewController,
+            mode: component.mode,
+            createAlarmStream: component.createAlarmStream
+        )
         interactor.listener = listener
         return CreateAlarmRouter(interactor: interactor, viewController: viewController)
     }

@@ -8,12 +8,13 @@
 import RIBs
 import RxSwift
 import UIKit
+import FeatureCommonDependencies
 
 enum InputWakeUpAlarmPresenterRequest {
-    
+    case viewDidLoad
     case exitPage
     case confirmUserInputAndExit
-    case updateCurrentAlarmData(AlarmData)
+    case updateCurrentAlarmData(Meridiem, Hour, Minute)
 }
 
 protocol InputWakeUpAlarmPresentableListener: AnyObject {
@@ -22,21 +23,9 @@ protocol InputWakeUpAlarmPresentableListener: AnyObject {
 }
 
 final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPresentable, InputWakeUpAlarmViewControllable, InputWakeUpAlarmViewListener {
-
-    
     weak var listener: InputWakeUpAlarmPresentableListener?
     
-    
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    required init?(coder: NSCoder) { nil
-    }
-    
-    private let mainView = InputWakeUpAlarmView()
-    
     override func loadView() {
-        
         self.view = mainView
         mainView.listener = self
     }
@@ -44,7 +33,17 @@ final class InputWakeUpAlarmViewController: UIViewController, InputWakeUpAlarmPr
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
+        listener?.request(.viewDidLoad)
     }
+    
+    func request(_ request: InputWakeUpAlarmPresentableRequest) {
+        switch request {
+        case let .setAlarm(alarm):
+            mainView.setAlarm(alarm)
+        }
+    }
+    
+    private let mainView = InputWakeUpAlarmView()
 }
 
 
@@ -56,8 +55,8 @@ extension InputWakeUpAlarmViewController {
         switch action {
         case .backButtonClicked:
             listener?.request(.exitPage)
-        case .alarmPicker(let alarmData):
-            listener?.request(.updateCurrentAlarmData(alarmData))
+        case let .alarmPicker(meridiem, hour, minute):
+            listener?.request(.updateCurrentAlarmData(meridiem, hour, minute))
         case .ctaButtonClicked:
             listener?.request(.confirmUserInputAndExit)
         }

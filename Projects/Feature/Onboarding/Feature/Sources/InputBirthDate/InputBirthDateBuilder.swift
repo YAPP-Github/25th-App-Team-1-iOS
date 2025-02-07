@@ -13,14 +13,18 @@ protocol InputBirthDateDependency: Dependency {
 }
 
 final class InputBirthDateComponent: Component<InputBirthDateDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let model: OnboardingModel
+    
+    init(dependency: any InputBirthDateDependency, model: OnboardingModel) {
+        self.model = model
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol InputBirthDateBuildable: Buildable {
-    func build(withListener listener: InputBirthDateListener) -> InputBirthDateRouting
+    func build(withListener listener: InputBirthDateListener, model: OnboardingModel) -> InputBirthDateRouting
 }
 
 final class InputBirthDateBuilder: Builder<InputBirthDateDependency>, InputBirthDateBuildable {
@@ -29,10 +33,10 @@ final class InputBirthDateBuilder: Builder<InputBirthDateDependency>, InputBirth
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: InputBirthDateListener) -> InputBirthDateRouting {
-        let component = InputBirthDateComponent(dependency: dependency)
+    func build(withListener listener: InputBirthDateListener, model: OnboardingModel) -> InputBirthDateRouting {
+        let component = InputBirthDateComponent(dependency: dependency, model: model)
         let viewController = InputBirthDateViewController()
-        let interactor = InputBirthDateInteractor(presenter: viewController)
+        let interactor = InputBirthDateInteractor(presenter: viewController, model: component.model)
         interactor.listener = listener
         return InputBirthDateRouter(interactor: interactor, viewController: viewController)
     }

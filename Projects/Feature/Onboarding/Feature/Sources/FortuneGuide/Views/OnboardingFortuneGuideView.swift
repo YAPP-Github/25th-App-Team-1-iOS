@@ -7,10 +7,8 @@
 
 import Lottie
 import UIKit
-import SnapKit
-import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol OnboardingFortuneGuideViewListener: AnyObject {
     func action(_ action: OnboardingFortuneGuideView.Action)
@@ -39,7 +37,6 @@ final class OnboardingFortuneGuideView: UIView {
     private let welcomeLabel = UILabel()
     private let guideLabel = UILabel()
     private let animationView = LottieAnimationView(name: "onboarding_3", bundle: Bundle.resources)
-    private let countImageView = UIImageView()
     private let startButton = DSDefaultCTAButton(initialState: .active)
 }
 
@@ -62,13 +59,8 @@ private extension OnboardingFortuneGuideView {
         
         animationView.do {
             $0.loopMode = .loop
-            $0.animationSpeed = 0.5
-            $0.contentMode = .scaleAspectFit
-        }
-        
-        countImageView.do {
-            $0.image = FeatureResourcesAsset.svgOnboardingShake10.image
-            $0.contentMode = .scaleAspectFit
+            $0.animationSpeed = 1.0
+            $0.contentMode = .scaleAspectFill
         }
         
         startButton.do {
@@ -78,7 +70,7 @@ private extension OnboardingFortuneGuideView {
             }
         }
         
-        [welcomeLabel, guideLabel, animationView, countImageView, startButton].forEach { addSubview($0) }
+        [welcomeLabel, guideLabel, animationView, startButton].forEach { addSubview($0) }
     }
     
     func layout() {
@@ -93,12 +85,13 @@ private extension OnboardingFortuneGuideView {
         }
         
         animationView.snp.makeConstraints {
-            $0.top.equalTo(guideLabel.snp.bottom).offset(36)
-            $0.leading.equalTo(3.5)
+            $0.center.equalToSuperview()
+            $0.width.equalToSuperview()
+            $0.height.equalToSuperview()
         }
         
         startButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
     }

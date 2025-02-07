@@ -6,10 +6,8 @@
 //
 
 import UIKit
-import SnapKit
-import Then
-import FeatureDesignSystem
-import FeatureResources
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol AuthorizationDeniedViewListener: AnyObject {
     func action(_ action:AuthorizationDeniedView.Action)
@@ -17,6 +15,7 @@ protocol AuthorizationDeniedViewListener: AnyObject {
 
 final class AuthorizationDeniedView: UIView {
     enum Action {
+        case backButtonTapped
         case laterButtonTapped
         case settingButtonTapped
     }
@@ -36,6 +35,7 @@ final class AuthorizationDeniedView: UIView {
     
     weak var listener: AuthorizationDeniedViewListener?
     
+    private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel = UILabel()
     private let deniedImageView = UIImageView()
     private let buttonStackView = UIStackView()
@@ -46,6 +46,9 @@ final class AuthorizationDeniedView: UIView {
 private extension AuthorizationDeniedView {
     func setupUI() {
         backgroundColor = R.Color.gray900
+        navigationBar.do {
+            $0.listener = self
+        }
         titleLabel.do {
             $0.displayText = """
             알람을 허용하지 않으면 
@@ -80,7 +83,7 @@ private extension AuthorizationDeniedView {
             }
         }
         
-        [titleLabel, deniedImageView, buttonStackView].forEach {
+        [navigationBar, titleLabel, deniedImageView, buttonStackView].forEach {
             addSubview($0)
         }
         [laterButton, settingButton].forEach {
@@ -90,8 +93,13 @@ private extension AuthorizationDeniedView {
     }
     
     func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(40)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(40)
             $0.centerX.equalToSuperview()
         }
         
@@ -101,10 +109,18 @@ private extension AuthorizationDeniedView {
         }
         
         buttonStackView.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.leading.equalTo(20)
             $0.trailing.equalTo(-20)
         }
     }
 }
 
+extension AuthorizationDeniedView: OnBoardingNavBarViewListener {
+    func action(_ action: OnBoardingNavBarView.Action) {
+        switch action {
+        case .backButtonClicked:
+            listener?.action(.backButtonTapped)
+        }
+    }
+}
