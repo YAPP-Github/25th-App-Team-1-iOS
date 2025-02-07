@@ -5,12 +5,12 @@
 //  Created by choijunios on 1/7/25.
 //
 
-enum Gender {
+public enum Gender {
     
     case male
     case female
     
-    var displayingName: String {
+    public var displayingName: String {
         switch self {
         case .male:
             "남성"

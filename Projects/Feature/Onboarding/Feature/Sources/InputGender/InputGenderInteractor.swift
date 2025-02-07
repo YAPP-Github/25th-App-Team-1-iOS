@@ -13,6 +13,7 @@ protocol InputGenderRouting: ViewableRouting {
 }
 
 enum InputGenderInteractorAction {
+    case setGender(Gender)
     case updateButtonState(isEnabled: Bool)
 }
 
@@ -24,7 +25,7 @@ protocol InputGenderPresentable: Presentable {
 
 enum InputGenderListenerRequest {
     case back
-    case next(Gender)
+    case next(OnboardingModel)
 }
 
 protocol InputGenderListener: AnyObject {
@@ -35,39 +36,20 @@ final class InputGenderInteractor: PresentableInteractor<InputGenderPresentable>
 
     weak var router: InputGenderRouting?
     weak var listener: InputGenderListener?
-    
-    
-    // State
-    private(set) var state: State = .init()
-    
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputGenderPresentable) {
+    init(
+        presenter: InputGenderPresentable,
+        model: OnboardingModel
+    ) {
+        self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
     }
-
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
-}
-
-
-// MARK: Data model
-extension InputGenderInteractor {
     
-    struct State {
-        var gender: Gender? = nil
-    }
+    private var model: OnboardingModel
 }
-
 
 // MARK: InputGenderPresentableListener
 extension InputGenderInteractor {
@@ -76,19 +58,22 @@ extension InputGenderInteractor {
         
         switch request {
         case .viewDidLoad:
-            
-            presenter.action(.updateButtonState(isEnabled: false))
+            if let gender = model.gender {
+                presenter.action(.setGender(gender))
+                presenter.action(.updateButtonState(isEnabled: true))
+            } else {
+                presenter.action(.updateButtonState(isEnabled: false))
+            }
             
         case .updateSelectedGender(let gender):
-            
-            state.gender = gender
+            model.gender = gender
             
             let buttonIsEnabled = (gender != nil)
             presenter.action(.updateButtonState(isEnabled: buttonIsEnabled))
             
         case .confirmCurrentGender:
-            guard let gender = state.gender else { return }
-            listener?.request(.next(gender))
+            guard let gender = model.gender else { return }
+            listener?.request(.next(model))
         case .exitPage:
             listener?.request(.back)
         }

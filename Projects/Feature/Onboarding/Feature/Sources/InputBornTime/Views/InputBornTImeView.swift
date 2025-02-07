@@ -6,10 +6,8 @@
 //
 
 import UIKit
-import SnapKit
-import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol InputBornTImeViewListener: AnyObject {
     func action(_ action: InputBornTImeView.Action)
@@ -24,6 +22,8 @@ final class InputBornTImeView: UIView {
     }
     
     enum State {
+        case setBornTime(BornTimeData)
+        case startEdit
         case shortBornTimeLength
         case invalidBornTime
         case buttonEnabled(Bool)
@@ -49,6 +49,15 @@ final class InputBornTImeView: UIView {
     // Internal
     func update(_ state: State) {
         switch state {
+        case let .setBornTime(bornTime):
+            var hourValue = bornTime.hour.value
+            hourValue += bornTime.meridiem == .am ? 0 : 12
+            let hourString = String(format: "%02d", hourValue)
+            let minuteString = String(format: "%02d", bornTime.minute.value)
+            timeField.text = "\(hourString):\(minuteString)"
+            updateNextButtonState(true)
+        case .startEdit:
+            timeField.becomeFirstResponder()
         case .shortBornTimeLength:
             showBornTimeLengthError()
         case .invalidBornTime:
@@ -57,6 +66,8 @@ final class InputBornTImeView: UIView {
             updateNextButtonState(isEnabled)
         }
     }
+    
+    private var iDontKnowButtonSelected: Bool = false
     
     private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel = UILabel()
@@ -72,9 +83,8 @@ final class InputBornTImeView: UIView {
         )
     )
     private let errorLabel = UILabel()
-    private let termLabel = UILabel()
-    private let nextButton = CTAButton(type: .system)
-    private let iDontKnowButton = UIButton()
+    private let nextButton = DSDefaultCTAButton()
+    private let iDontKnowButton = UIButton(type: .system)
     
     private var labelBottomAnchor: Constraint?
     
@@ -87,7 +97,7 @@ final class InputBornTImeView: UIView {
     }
     
     private func updateNextButtonState(_ isEnabled: Bool) {
-        nextButton.isEnabled = isEnabled
+        nextButton.update(state: isEnabled ? .active : .inactive)
     }
     
     @objc
@@ -120,8 +130,9 @@ final class InputBornTImeView: UIView {
     
     @objc
     private func iDontKnowButtonTapped() {
-        iDontKnowButton.isSelected.toggle()
-        
+        iDontKnowButtonSelected.toggle()
+        let buttonColor = iDontKnowButtonSelected ? R.Color.main100 : R.Color.white100
+        iDontKnowButton.tintColor = buttonColor
         timeField.update(messageState: .none)
         
         if iDontKnowButton.isSelected {
@@ -154,32 +165,28 @@ private extension InputBornTImeView {
                 timeChanged(textField)
             }
         }
-        
-        termLabel.do {
-            $0.displayText = "서비스 시작 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.".displayText(font: .caption1Regular, color: R.Color.gray500)
-            $0.textAlignment = .center
-            $0.numberOfLines = 0
-        }
         nextButton.do {
-            $0.setAttributedTitle("다음".displayText(font: .headline1SemiBold, color: R.Color.gray900), for: .normal)
-            $0.setAttributedTitle("다음".displayText(font: .headline1SemiBold, color: R.Color.gray600), for: .disabled)
-            $0.normalBackgroundColor = R.Color.main100
-            $0.disabledBackgroundColor = R.Color.gray700
-            $0.isEnabled = false
-            $0.layer.cornerRadius = 16
-            $0.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+            $0.update(title: "다음")
+            $0.update(state: .inactive)
+            $0.buttonAction = { [weak self] in
+                self?.listener?.action(.nextButtonTapped)
+            }
         }
         
         iDontKnowButton.do {
-            $0.setImage(.init(systemName: "checkmark")?.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.imageView?.contentMode = .center
+            $0.setImage(FeatureResourcesAsset.icoCheck.image.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.setTitle("태어난 시간을 몰라요", for: .normal)
+            $0.titleLabel?.font = R.Font.body1Medium.toUIFont()
+            $0.titleLabel?.textAlignment = .center
             $0.tintColor = R.Color.white100
-            $0.setAttributedTitle("태어난 시간을 몰라요".displayText(font: .body1Medium, color: R.Color.white100), for: .normal)
-            $0.setAttributedTitle("태어난 시간을 몰라요".displayText(font: .body1Medium, color: R.Color.main100), for: .selected)
+            $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: -4)
+            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 4)
             $0.addTarget(self, action: #selector(iDontKnowButtonTapped), for: .touchUpInside)
         }
         
         
-        [navigationBar, titleLabel, timeField, termLabel, nextButton, iDontKnowButton].forEach {
+        [navigationBar, titleLabel, timeField, nextButton, iDontKnowButton].forEach {
             addSubview($0)
         }
     }
@@ -200,22 +207,16 @@ private extension InputBornTImeView {
             $0.trailing.equalTo(-72.5)
         }
         
-        termLabel.snp.makeConstraints {
-            $0.leading.equalTo(20)
-            $0.trailing.equalTo(-20)
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
-        }
-        
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(termLabel.snp.top).offset(-14)
-            $0.leading.equalTo(20)
-            $0.trailing.equalTo(-20)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
+            $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(54)
         }
         
         iDontKnowButton.snp.makeConstraints {
-            $0.bottom.equalTo(nextButton.snp.top).offset(-26)
-            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(nextButton.snp.top).offset(-30)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(36)
         }
     }
 }
@@ -232,8 +233,8 @@ private extension InputBornTImeView {
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
         else { return }
-        termLabel.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10 + -keyboardFrame.size.height)
+        nextButton.snp.updateConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-22 + -keyboardFrame.size.height)
         }
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
@@ -246,8 +247,8 @@ private extension InputBornTImeView {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double 
         else { return }
         
-        termLabel.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+        nextButton.snp.updateConstraints {
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-22)
         }
         
         UIView.animate(withDuration: animationDuration) {

@@ -7,10 +7,13 @@
 
 import RIBs
 import RxSwift
+import FeatureOnboarding
 
 enum MainRouterRequest {
     case routeToOnboarding
+    case detachOnboarding
     case routeToAlarm
+    case detachAlarm
 }
 
 protocol MainRouting: ViewableRouting {
@@ -51,5 +54,16 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+}
+
+// MARK: OnboardRootListenerRequest
+extension MainInteractor {
+    func request(_ request: RootListenerRequest) {
+        switch request {
+        case .start:
+            router?.request(.detachOnboarding)
+            router?.request(.routeToAlarm)
+        }
     }
 }

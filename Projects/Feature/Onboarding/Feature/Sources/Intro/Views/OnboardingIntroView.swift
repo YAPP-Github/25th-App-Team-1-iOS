@@ -5,12 +5,9 @@
 //  Created by ever on 1/14/25.
 //
 
-import Lottie
 import UIKit
-import SnapKit
-import Then
-import FeatureResources
-import FeatureDesignSystem
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol OnboardingIntroViewListener: AnyObject {
     func action(_ action: OnboardingIntroView.Action)
@@ -33,11 +30,7 @@ final class OnboardingIntroView: UIView {
     
     weak var listener: OnboardingIntroViewListener?
     
-    func playAnimation() {
-        animationView.play()
-    }
-    
-    private let animationView = LottieAnimationView(name: "onboarding_1", bundle: Bundle.resources)
+    private let animationView = UIImageView()
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let nextButton = DSDefaultCTAButton(initialState: .active)
@@ -53,7 +46,7 @@ private extension OnboardingIntroView {
         
         subtitleLabel.do {
             $0.displayText = """
-            "오르비 알람은 기상과 함께
+            오르비 알람은 기상과 함께
             하루 운세를 제공해요
             """.displayText(font: .heading1SemiBold, color: R.Color.white100)
             $0.textAlignment = .center
@@ -61,9 +54,22 @@ private extension OnboardingIntroView {
         }
         
         animationView.do {
-            $0.loopMode = .loop
-            $0.animationSpeed = 0.5
+            guard
+                let gifData = try? Data(contentsOf: R.GIF.onboarding1),
+                let source = CGImageSourceCreateWithData(gifData as CFData, nil)
+            else { return }
+            let frameCount = CGImageSourceGetCount(source)
+            var images = [UIImage]()
+
+            (0..<frameCount)
+                .compactMap { CGImageSourceCreateImageAtIndex(source, $0, nil) }
+                .forEach { images.append(UIImage(cgImage: $0)) }
+
             $0.contentMode = .scaleAspectFit
+            $0.animationImages = images
+            $0.animationDuration = TimeInterval(frameCount) * 0.05 // 0.05는 임의의 값
+            $0.animationRepeatCount = 0
+            $0.startAnimating()
         }
         
         nextButton.do {
@@ -88,12 +94,12 @@ private extension OnboardingIntroView {
         }
         
         animationView.snp.makeConstraints {
-            $0.top.equalTo(subtitleLabel.snp.bottom).offset(123)
-            $0.horizontalEdges.equalToSuperview().inset(32)
+            $0.centerY.equalToSuperview().offset(100)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
     }

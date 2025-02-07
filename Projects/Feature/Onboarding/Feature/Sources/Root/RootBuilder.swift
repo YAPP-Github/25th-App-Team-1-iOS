@@ -19,7 +19,7 @@ public enum EntryPoint {
 
 public protocol RootDependency: Dependency {
     // TODO: Make sure to convert the variable into lower-camelcase.
-    var rootViewController: RootViewControllable { get }
+    var onboardingRootViewController: RootViewControllable { get }
     // TODO: Declare the set of dependencies required by this RIB, but won't be
     // created by this RIB.
 }
@@ -28,7 +28,7 @@ final class RootComponent: Component<RootDependency> {
 
     // TODO: Make sure to convert the variable into lower-camelcase.
     fileprivate var rootViewController: RootViewControllable {
-        return dependency.rootViewController
+        return dependency.onboardingRootViewController
     }
 
     // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.

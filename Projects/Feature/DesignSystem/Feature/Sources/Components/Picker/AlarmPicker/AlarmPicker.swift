@@ -8,18 +8,19 @@
 import UIKit
 
 import FeatureResources
+import FeatureCommonDependencies
 
-import SnapKit
+import FeatureThirdPartyDependencies
 import RxSwift
 
 public protocol AlarmPickerListener: AnyObject {
-    func latestSelection(meridiem: String, hour: Int, minute: Int)
+    func latestSelection(meridiem: Meridiem, hour: Hour, minute: Minute)
 }
 
 public final class AlarmPicker: UIView {
-    private let meridiemColumns: [PickerSelectionItemable]
-    private let hourColumns: [PickerSelectionItemable]
-    private let minuteColumns: [PickerSelectionItemable]
+    private let meridiemColumns: [Meridiem] = [.am, .pm]
+    private var hourColumns: [Hour] = (1...12).compactMap { Hour($0) }
+    private let minuteColumns: [Minute] = (0...59).compactMap { Minute($0) }
     
     // Sub view
     private lazy var meridiemColumnView: AlarmPickerColumnView = {
@@ -82,22 +83,13 @@ public final class AlarmPicker: UIView {
     // Rx
     private let disposeBag: DisposeBag = .init()
     
-    public init(
-        meridiemColumns: [PickerSelectionItemable],
-        hourColumns: [PickerSelectionItemable],
-        minuteColumns: [PickerSelectionItemable]
-    ) {
-        self.meridiemColumns = meridiemColumns
-        self.hourColumns = hourColumns
-        self.minuteColumns = minuteColumns
+    public init() {
         super.init(frame: .zero)
-        
         setupUI()
         setupLayout()
         setReactive()
     }
     required init?(coder: NSCoder) { nil }
-    
    
     
     public override func layoutSubviews() {
@@ -156,12 +148,15 @@ public final class AlarmPicker: UIView {
             hourColumnView.rx.selectedItem,
             minuteColumnView.rx.selectedItem
         ).subscribe(onNext: { [weak self] meridiem, hour, minute in
-            guard let self else { return }
-            
+            guard let self,
+                  let meridiem = meridiem as? Meridiem,
+                  let hour = hour as? Hour,
+                  let minute = minute as? Minute
+            else { return }
             listener?.latestSelection(
-                meridiem: meridiem.content,
-                hour: Int(hour.content)!,
-                minute: Int(minute.content)!
+                meridiem: meridiem,
+                hour: hour,
+                minute: minute
             )
         })
         .disposed(by: disposeBag)
@@ -172,7 +167,7 @@ public final class AlarmPicker: UIView {
 // MARK: Public interface
 public extension AlarmPicker {
     
-    func update(meridiem: MeridiemItem? = nil, hour: Int? = nil, minute: Int? = nil) {
+    func update(meridiem: Meridiem? = nil, hour: Hour? = nil, minute: Minute? = nil) {
         
         if let meridiem {
             
@@ -181,16 +176,14 @@ public extension AlarmPicker {
         }
         
         
-        if let hour, (1...12).contains(hour) {
-            
-            let content = String(hour)
+        if let hour {
+            let content = "\(hour.value)"
             hourColumnView.rx.setContent.accept(content)
         }
         
         
-        if let minute, (0...60).contains(minute) {
-            
-            let content = String(minute)
+        if let minute {
+            let content = "\(minute.value)"
             minuteColumnView.rx.setContent.accept(content)
         }
     }
@@ -199,29 +192,12 @@ public extension AlarmPicker {
     func updateToNow() {
         
         let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: .now)
+        guard let hourValue = dateComponents.hour,
+              let hour = Hour(hourValue) else { return }
+        guard let minuteValue = dateComponents.minute,
+              let minute = Minute(minuteValue) else { return }
         
-        guard var hour = dateComponents.hour, let minute = dateComponents.minute else { return }
-        
-        var meridiem: MeridiemItem = .ante
-        
-        if hour >= 12 {
-            
-            // 12시 이상 = 오후
-            
-            meridiem = .post
-            
-            if hour != 12 {
-                
-                // 오후 0시는 오후 12시로 표현
-                hour -= 12
-            }
-        }
-        
-        if hour == 0 {
-            
-            // 오전 0시시는 오전 12시로 표현
-            hour = 12
-        }
+        let meridiem: Meridiem = hourValue < 12 ? .am : .pm
         
         self.update(meridiem: meridiem, hour: hour, minute: minute)
     }

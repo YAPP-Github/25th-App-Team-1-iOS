@@ -7,8 +7,7 @@
 
 import UIKit
 
-import FeatureResources
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol InputGenderViewListener: AnyObject {
     func action(_ action: InputGenderView.Action)
@@ -39,15 +38,14 @@ final class InputGenderView: UIView, DSBoxButtonListener, OnBoardingNavBarViewLi
         .update(state: .idle)
         .update(title: .normal(Gender.female.displayingName))
     let genderButtonStack: UIStackView = .init().then {
-            $0.axis = .horizontal
-            $0.distribution = .fillEqually
-            $0.spacing = 16
-        }
+        $0.axis = .horizontal
+        $0.distribution = .fillEqually
+        $0.spacing = 15
+    }
     let ctaButton: DSDefaultCTAButton = .init(initialState: .active).then {
         $0.update(title: "다음")
         $0.update(state: .inactive)
     }
-    let policyAgreementLabel = PolicyAgreementLabel()
     let buttonAndTextStack: UIStackView = .init().then {
             $0.axis = .vertical
             $0.distribution = .fill
@@ -99,7 +97,7 @@ private extension InputGenderView {
         
         
         // button and text
-        [ctaButton, policyAgreementLabel].forEach {
+        [ctaButton].forEach {
             buttonAndTextStack.addArrangedSubview($0)
         }
         ctaButton.buttonAction = { [weak self] in
@@ -128,15 +126,15 @@ private extension InputGenderView {
         
         // genderButtonStack
         genderButtonStack.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(70)
-            make.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(40)
+            make.top.equalTo(titleLabel.snp.bottom).offset(60)
+            make.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(38)
         }
         
         
         // buttonAndTextStack
         buttonAndTextStack.snp.makeConstraints { make in
             
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(10)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(12)
             make.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
     }
@@ -144,6 +142,16 @@ private extension InputGenderView {
 
 // MARK: public interface
 extension InputGenderView {
+    func setGender(_ gender: Gender) {
+        switch gender {
+        case .male:
+            maleButton.update(state: .selected)
+            femaleButton.update(state: .idle)
+        case .female:
+            maleButton.update(state: .idle)
+            femaleButton.update(state: .selected)
+        }
+    }
     
     func updateCtaButton(isEnabled: Bool) {
         

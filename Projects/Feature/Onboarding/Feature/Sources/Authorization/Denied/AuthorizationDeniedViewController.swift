@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum AuthorizationDeniedPresentableListenerRequest {
+    case back
     case later
     case allowed
 }
@@ -30,6 +31,7 @@ final class AuthorizationDeniedViewController: UIViewController, AuthorizationDe
     override func viewDidLoad() {
         super.viewDidLoad()
         setNotifications()
+        navigationController?.isNavigationBarHidden = true
     }
     
     private let mainView = AuthorizationDeniedView()
@@ -82,6 +84,8 @@ final class AuthorizationDeniedViewController: UIViewController, AuthorizationDe
 extension AuthorizationDeniedViewController: AuthorizationDeniedViewListener {
     func action(_ action: AuthorizationDeniedView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.request(.back)
         case .laterButtonTapped:
             listener?.request(.later)
         case .settingButtonTapped:

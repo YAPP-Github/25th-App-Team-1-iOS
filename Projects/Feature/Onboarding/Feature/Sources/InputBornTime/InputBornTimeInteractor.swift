@@ -7,12 +7,15 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
 
 protocol InputBornTimeRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
 enum InputBornTimePresentableRequest {
+    case setBornTIme(BornTimeData)
+    case startEdit
     case showShortLenghError
     case showInvalidBornTimeError
     case updateButton(Bool)
@@ -25,8 +28,7 @@ protocol InputBornTimePresentable: Presentable {
 
 enum InputBornTimeListenerRequest {
     case back
-    case next(BornTimeData)
-    case skip
+    case next(OnboardingModel)
 }
 
 protocol InputBornTimeListener: AnyObject {
@@ -40,23 +42,22 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: InputBornTimePresentable) {
+    init(
+        presenter: InputBornTimePresentable,
+        model: OnboardingModel
+    ) {
+        self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
-    }
-
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
     }
     
     func request(_ request: InputBornTimePresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            if let bornTime = model.bornTime {
+                presenter.request(.setBornTIme(bornTime))
+            }
+            presenter.request(.startEdit)
         case .back:
             listener?.request(.back)
         case let .timeChanged(time):
@@ -68,13 +69,13 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
                 return
             }
             
-            guard let hour = validateHour(time),
+            guard let (meridiem, hour) = validateHour(time),
                   let minute = validateMinute(time) else {
                 presenter.request(.showInvalidBornTimeError)
                 return
             }
             
-            bornTimeData = .init(hours: hour, minutes: minute)
+            model.bornTime = .init(meridiem: meridiem, hour: hour, minute: minute)
             
             presenter.request(.updateButton(canGoNext))
         case .iDontKnowButtonTapped:
@@ -82,50 +83,53 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
             shouldSkip.toggle()
             presenter.request(.updateButton(canGoNext))
         case .next:
-            guard !shouldSkip else {
-                listener?.request(.skip)
-                return
-            }
-            guard let bornTimeData else {
-                return
-            }
-            listener?.request(.next(bornTimeData))
+            guard canGoNext else { return }
+            listener?.request(.next(model))
         }
     }
     
     private func resetTime() {
-        self.bornTimeData = nil
+        model.bornTime = nil
     }
     
-    private var bornTimeData: BornTimeData?
+    private var model: OnboardingModel
+    
     private var shouldSkip: Bool = false
     private var isValidTime: Bool {
-        bornTimeData != nil
+        model.bornTime != nil
     }
-    var canGoNext: Bool {
+    
+    private var canGoNext: Bool {
         isValidTime || shouldSkip
     }
     
-    func checkTimeLength(_ time: String) -> Bool {
+    private func checkTimeLength(_ time: String) -> Bool {
         let text = time.replacingOccurrences(of: ":", with: "")
         return text.count == 4
     }
     
-    func validateHour(_ time: String) -> Int? {
-        let hour = time.prefix(2)
-        guard let hourInt = Int(hour) else { return nil }
-        if hourInt >= 0 && hourInt <= 23 {
-            return hourInt
+    private func validateHour(_ time: String) -> (Meridiem, Hour)? {
+        let hourString = time.prefix(2)
+        guard let hourInt = Int(hourString),
+              (0...23).contains(hourInt) else { return nil }
+        let meridiem: Meridiem = hourInt < 12 ? .am : .pm
+        switch meridiem {
+        case .am:
+            guard let hour = Hour(hourInt) else { return nil }
+            return (meridiem, hour)
+        case .pm:
+            guard let hour = Hour(hourInt - 12) else { return nil }
+            return (meridiem, hour)
         }
-        return nil
     }
     
-    func validateMinute(_ time: String) -> Int? {
+    private func validateMinute(_ time: String) -> Minute? {
         let minute = time.suffix(2)
-        guard let minuteInt = Int(minute) else { return nil }
-        if minuteInt >= 0 && minuteInt <= 59 {
-            return minuteInt
-        }
-        return nil
+        guard let minuteInt = Int(minute),
+              (0...59).contains(minuteInt),
+              let minute = Minute(minuteInt)
+        else { return nil }
+        
+        return minute
     }
 }

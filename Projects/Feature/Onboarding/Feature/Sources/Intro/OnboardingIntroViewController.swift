@@ -28,7 +28,6 @@ final class OnboardingIntroViewController: UIViewController, OnboardingIntroPres
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        mainView.playAnimation()
         navigationController?.isNavigationBarHidden = true
     }
     
