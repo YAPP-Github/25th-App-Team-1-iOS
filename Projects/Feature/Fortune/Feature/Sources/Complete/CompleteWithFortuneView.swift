@@ -50,7 +50,7 @@ private extension CompleteWithFortuneView {
             $0.displayText = """
             첫 알람에 잘 일어났네!
             보상으로 행운 부적을 줄게
-            """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100)
+            """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
         }

@@ -50,7 +50,7 @@ private extension CompleteWithoutFortuneView {
             $0.displayText = """
             운세 확인 끝!
             이제 든든하게 하루 시작해봐
-            """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100)
+            """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
         }

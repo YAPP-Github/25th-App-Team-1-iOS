@@ -39,7 +39,7 @@ private extension CharmView {
             
             부적에 소원을 적으면
             이루어질거야!
-            """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100)
+            """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .left
         }
