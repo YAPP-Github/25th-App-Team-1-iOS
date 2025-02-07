@@ -1,5 +1,5 @@
 //
-//  FortuneHealthLoveView.swift
+//  FortuneCoordinationView.swift
 //  FeatureFortune
 //
 //  Created by ever on 2/8/25.
@@ -9,7 +9,7 @@ import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
-final class FortuneHealthLoveView: UIView {
+final class FortuneCoordinationView: UIView {
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -21,31 +21,39 @@ final class FortuneHealthLoveView: UIView {
     }
     
     private let backgroundImageView = UIImageView()
-    private let pageIndicatorView = PageIndicatorView(activeCount: 2, totalCount: 6)
+    private let pageIndicatorView = PageIndicatorView(activeCount: 4, totalCount: 6)
     private let decoImageView = UIImageView()
     private let bubbleView = SpeechBubbleView()
     private let titleLabel = UILabel()
     private let paperContainer = UIImageView()
     private let contentStackView = UIStackView()
-    private let healthContentView = TodayFortuneContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneStudy.image,
-        title: "건강운 95점",
-        titleColor: R.Color.letterGreen,
-        content: """
-        오늘은 컨디션 최고! 몸이 가볍고 활력이 넘칠 거야. 평소보다 운동을 좀 더 해보거나, 건강한 음식을 챙겨 먹으면 더욱 좋을 거야. 충분한 수면으로 컨디션을 유지하는 것도 잊지 말고!
-        """
+    private let topBottomClothStackView = UIStackView()
+    private let topClothContentView = FortuneCoordinationContentView(
+        icon: FeatureResourcesAsset.svgIcoFortuneClothTop.image,
+        title: "상의",
+        content: "베이지색 니트"
     )
-    private let loveContentView = TodayFortuneContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneMoney.image,
-        title: "애정운 67점",
-        titleColor: R.Color.letterPink,
-        content: """
-        솔로라면 새로운 만남의 기회가 있을 수 있어. 적극적으로 다가가 보는 것도 좋을 것 같아! 커플이라면 서로의 마음을 확인하는 시간을 가져보는 건 어때? 작은 선물이나 편지를 통해 애정을 표현해보는 것도 좋은 방법일 거야.
-        """
+    private let bottomClothContentView = FortuneCoordinationContentView(
+        icon: FeatureResourcesAsset.svgIcoFortuneClothBottom.image,
+        title: "하의",
+        content: "청색 데님 팬츠"
+    )
+    
+    private let shoesAccessoryStackView = UIStackView()
+    
+    private let shoesContentView = FortuneCoordinationContentView(
+        icon: FeatureResourcesAsset.svgIcoFortuneShoes.image,
+        title: "신발",
+        content: "흰색 스니커즈"
+    )
+    private let accessoryClothContentView = FortuneCoordinationContentView(
+        icon: FeatureResourcesAsset.svgIcoFortuneAccessory.image,
+        title: "하의",
+        content: "은색 목걸이"
     )
 }
 
-private extension FortuneHealthLoveView {
+private extension FortuneCoordinationView {
     func setupUI() {
         backgroundColor = .init(red: 72/255, green: 145/255, blue: 240/255, alpha: 1)
         backgroundImageView.do {
@@ -53,7 +61,7 @@ private extension FortuneHealthLoveView {
             $0.contentMode = .scaleAspectFill
         }
         bubbleView.do {
-            $0.update(titleText: "오늘의 운세")
+            $0.update(titleText: "오늘의 코디")
             $0.update(arrowHidden: true)
         }
         decoImageView.do {
@@ -62,8 +70,8 @@ private extension FortuneHealthLoveView {
         }
         titleLabel.do {
             $0.displayText = """
-            오늘 너의 하루는 
-            행운이 가득해!
+            오늘은 이렇게 입는 거 어때?
+            코디에 참고해봐!
             """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
@@ -74,17 +82,38 @@ private extension FortuneHealthLoveView {
             $0.contentMode = .scaleAspectFill
         }
         
+        topBottomClothStackView.do {
+            $0.axis = .horizontal
+            $0.alignment = .fill
+            $0.distribution = .fill
+            $0.spacing = 24
+        }
+        
+        shoesAccessoryStackView.do {
+            $0.axis = .horizontal
+            $0.alignment = .fill
+            $0.distribution = .fill
+            $0.spacing = 24
+        }
+        
         contentStackView.do {
             $0.axis = .vertical
             $0.alignment = .fill
             $0.distribution = .fill
             $0.spacing = 32
         }
+        
         [backgroundImageView, pageIndicatorView, decoImageView, bubbleView, titleLabel, paperContainer].forEach {
             addSubview($0)
         }
         paperContainer.addSubview(contentStackView)
-        [healthContentView, loveContentView].forEach {
+        [topClothContentView, bottomClothContentView].forEach {
+            topBottomClothStackView.addArrangedSubview($0)
+        }
+        [shoesContentView, accessoryClothContentView].forEach {
+            shoesAccessoryStackView.addArrangedSubview($0)
+        }
+        [topBottomClothStackView, shoesAccessoryStackView].forEach {
             contentStackView.addArrangedSubview($0)
         }
         
@@ -117,8 +146,8 @@ private extension FortuneHealthLoveView {
             $0.horizontalEdges.equalToSuperview().inset(32.5)
         }
         contentStackView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(32)
-            $0.centerY.equalToSuperview()
+            $0.center.equalToSuperview()
         }
     }
 }
+

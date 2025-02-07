@@ -1,5 +1,5 @@
 //
-//  FortuneCoordinationView.swift
+//  FortuneReferenceView.swift
 //  FeatureFortune
 //
 //  Created by ever on 2/8/25.
@@ -9,7 +9,7 @@ import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
-final class FortuneCoordinationView: UIView {
+final class FortuneReferenceView: UIView {
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -21,39 +21,30 @@ final class FortuneCoordinationView: UIView {
     }
     
     private let backgroundImageView = UIImageView()
-    private let pageIndicatorView = PageIndicatorView(activeCount: 2, totalCount: 6)
+    private let pageIndicatorView = PageIndicatorView(activeCount: 5, totalCount: 6)
     private let decoImageView = UIImageView()
     private let bubbleView = SpeechBubbleView()
     private let titleLabel = UILabel()
     private let paperContainer = UIImageView()
     private let contentStackView = UIStackView()
-    private let topBottomClothStackView = UIStackView()
-    private let topClothContentView = FortuneCoordinationContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneClothTop.image,
-        title: "상의",
-        content: "베이지색 니트"
+    private let luckyColorContentView = FortuneReferenceContentView(
+        icon: FeatureResourcesAsset.svgIcoFortuneColorGreen.image,
+        title: "행운의 색",
+        content: "초록색"
     )
-    private let bottomClothContentView = FortuneCoordinationContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneClothBottom.image,
-        title: "하의",
-        content: "청색 데님 팬츠"
+    private let avoidColorContentView = FortuneReferenceContentView(
+        icon: FeatureResourcesAsset.svgIcoFortuneColorRed.image,
+        title: "피해야 할 색",
+        content: "빨간색"
     )
-    
-    private let shoesAccessoryStackView = UIStackView()
-    
-    private let shoesContentView = FortuneCoordinationContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneShoes.image,
-        title: "신발",
-        content: "흰색 스니커즈"
-    )
-    private let accessoryClothContentView = FortuneCoordinationContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneAccessory.image,
-        title: "하의",
-        content: "은색 목걸이"
+    private let recommendFoodContentView = FortuneReferenceContentView(
+        icon: FeatureResourcesAsset.svgIcoFortuneFood.image,
+        title: "추천 음식",
+        content: "햄버거"
     )
 }
 
-private extension FortuneCoordinationView {
+private extension FortuneReferenceView {
     func setupUI() {
         backgroundColor = .init(red: 72/255, green: 145/255, blue: 240/255, alpha: 1)
         backgroundImageView.do {
@@ -61,7 +52,7 @@ private extension FortuneCoordinationView {
             $0.contentMode = .scaleAspectFill
         }
         bubbleView.do {
-            $0.update(titleText: "오늘의 코디")
+            $0.update(titleText: "오늘 참고해")
             $0.update(arrowHidden: true)
         }
         decoImageView.do {
@@ -70,8 +61,8 @@ private extension FortuneCoordinationView {
         }
         titleLabel.do {
             $0.displayText = """
-            오늘은 이렇게 입는 거 어때?
-            코디에 참고해봐!
+            기억해놓고
+            일상생활에 반영해 봐!
             """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
@@ -82,38 +73,17 @@ private extension FortuneCoordinationView {
             $0.contentMode = .scaleAspectFill
         }
         
-        topBottomClothStackView.do {
-            $0.axis = .horizontal
-            $0.alignment = .fill
-            $0.distribution = .fill
-            $0.spacing = 24
-        }
-        
-        shoesAccessoryStackView.do {
-            $0.axis = .horizontal
-            $0.alignment = .fill
-            $0.distribution = .fill
-            $0.spacing = 24
-        }
-        
         contentStackView.do {
             $0.axis = .vertical
             $0.alignment = .fill
             $0.distribution = .fill
-            $0.spacing = 32
+            $0.spacing = 52
         }
-        
         [backgroundImageView, pageIndicatorView, decoImageView, bubbleView, titleLabel, paperContainer].forEach {
             addSubview($0)
         }
         paperContainer.addSubview(contentStackView)
-        [topClothContentView, bottomClothContentView].forEach {
-            topBottomClothStackView.addArrangedSubview($0)
-        }
-        [shoesContentView, accessoryClothContentView].forEach {
-            shoesAccessoryStackView.addArrangedSubview($0)
-        }
-        [topBottomClothStackView, shoesAccessoryStackView].forEach {
+        [luckyColorContentView, avoidColorContentView, recommendFoodContentView].forEach {
             contentStackView.addArrangedSubview($0)
         }
         
@@ -146,8 +116,8 @@ private extension FortuneCoordinationView {
             $0.horizontalEdges.equalToSuperview().inset(32.5)
         }
         contentStackView.snp.makeConstraints {
-            $0.center.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+            $0.centerY.equalToSuperview()
         }
     }
 }
-
