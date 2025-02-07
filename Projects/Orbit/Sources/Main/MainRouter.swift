@@ -78,6 +78,8 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
         let router = mainBuilder.build(withListener: interactor)
         mainRouter = router
         attachChild(router)
+        router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
     
     private func detachMain() {
