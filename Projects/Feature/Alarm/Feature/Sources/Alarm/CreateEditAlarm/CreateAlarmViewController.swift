@@ -57,6 +57,10 @@ final class CreateEditAlarmViewController: UIViewController, CreateEditAlarmPres
     private func setupNavigation() {
         navigationController?.isNavigationBarHidden = true
     }
+    
+    deinit {
+        print(#function)
+    }
 }
 
 extension CreateEditAlarmViewController: CreateEditAlarmViewListener {

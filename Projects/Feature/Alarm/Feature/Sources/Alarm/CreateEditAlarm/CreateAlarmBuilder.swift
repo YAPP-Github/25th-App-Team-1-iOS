@@ -19,12 +19,15 @@ protocol CreateEditAlarmDependency: Dependency {
 
 final class CreateEditAlarmComponent: Component<CreateEditAlarmDependency> {
     fileprivate let mode: AlarmCreateEditMode
-    fileprivate let createAlarmStream: CreateEditAlarmStream
+    fileprivate var createAlarmStream: CreateEditAlarmStream {
+        shared {
+            dependency.createAlarmStream
+        }
+    }
     init(dependency: CreateEditAlarmDependency,
          mode: AlarmCreateEditMode
     ) {
         self.mode = mode
-        self.createAlarmStream = dependency.createAlarmStream
         super.init(dependency: dependency)
     }
 }

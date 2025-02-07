@@ -60,9 +60,7 @@ final class RootInteractor: Interactor, RootInteractable {
 
     override func willResignActive() {
         super.willResignActive()
-
         router?.request(.cleanupViews)
-        // TODO: Pause any business logic.
     }
     
     private var service: RootServiceable
