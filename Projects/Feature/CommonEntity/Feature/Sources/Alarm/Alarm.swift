@@ -15,6 +15,7 @@ public struct Alarm: Equatable {
     public var repeatDays: AlarmDays // 반복할 요일
     public var snoozeOption: SnoozeOption
     public var soundOption: SoundOption
+    public var isActive: Bool
     
     // 초기화 메서드
     public init(
@@ -23,7 +24,8 @@ public struct Alarm: Equatable {
         minute: Minute,
         repeatDays: AlarmDays,
         snoozeOption: SnoozeOption,
-        soundOption: SoundOption
+        soundOption: SoundOption,
+        isActive: Bool = true
     ) {
         self.id = UUID().uuidString
         self.meridiem = meridiem
@@ -32,6 +34,7 @@ public struct Alarm: Equatable {
         self.repeatDays = repeatDays
         self.snoozeOption = snoozeOption
         self.soundOption = soundOption
+        self.isActive = isActive
     }
     
     public static func == (lhs: Alarm, rhs: Alarm) -> Bool {

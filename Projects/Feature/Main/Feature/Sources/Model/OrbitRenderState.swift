@@ -10,7 +10,7 @@ import Foundation
 import FeatureResources
 
 enum OrbitRenderState {
-    
+    case emptyAlarm
     case beforeFortune
     case luckScoreOver80(userName: String)
     case luckScoreOver50(userName: String)
@@ -19,6 +19,8 @@ enum OrbitRenderState {
     /// 말풍선에 들어갈 텍스트 입니다.
     var bubbleSpeechKorText: String {
         switch self {
+        case .emptyAlarm:
+            "알람을 설정해줘..ㄴ"
         case .beforeFortune:
             "안녕, 난 오르비야!"
         case .luckScoreOver80:
@@ -35,6 +37,8 @@ enum OrbitRenderState {
     var orbitMotionLottieFilePath: String {
         let lottileBundle = Bundle.resources
         switch self {
+        case .emptyAlarm:
+            return lottileBundle.path(forResource: "", ofType: "")!
         case .beforeFortune:
             return lottileBundle.path(forResource: "mainPage_BeforeFortune", ofType: "json")!
         case .luckScoreOver80:
@@ -50,6 +54,8 @@ enum OrbitRenderState {
     /// 오르비가 전해주는 운세기반 텍스트입니다.
     var orbitFortuneBaseKorText: String {
         switch self {
+        case .emptyAlarm:
+            "미래에서 운세 편지를\n작성 중이야!"
         case .beforeFortune:
             "미래에서 운세 편지를\n작성 중이야!"
         case .luckScoreOver80(let userName):

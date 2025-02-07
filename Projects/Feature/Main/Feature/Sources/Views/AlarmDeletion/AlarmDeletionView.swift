@@ -8,8 +8,8 @@
 import UIKit
 
 import FeatureResources
-
-import SnapKit
+import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol AlarmDeletionViewListener: AnyObject {
     func action(_ action: AlarmDeletionView.Action)
@@ -24,7 +24,7 @@ final class AlarmDeletionView: UIView {
     
     
     // State
-    private var alarmRO: AlarmCellRO?
+    private var alarmRO: Alarm?
     
     
     // Listener
@@ -60,7 +60,7 @@ extension AlarmDeletionView {
             self.alpha = 0
         } completion: { _ in completion?() }
     }
-    func update(renderObject ro: AlarmCellRO) {
+    func update(renderObject ro: Alarm) {
         self.alarmRO = ro
         deletionItemView.update(renderObject: ro)
     }

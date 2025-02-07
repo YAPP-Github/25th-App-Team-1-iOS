@@ -8,13 +8,8 @@
 import UIKit
 
 import FeatureResources
-
-import Then
-import SnapKit
-
-protocol AlarmCellListener: AnyObject {
-    func action(_ action: AlarmCell.Action)
-}
+import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 final class AlarmCell: UITableViewCell {
     
@@ -24,13 +19,13 @@ final class AlarmCell: UITableViewCell {
     
     // Action
     enum Action {
-        case toggleIsTapped(cellId: String, willMoveTo: AlarmCellState)
-        case cellIsLongPressed(cellId: String)
+        case toggleIsTapped(willMoveTo: AlarmCellState)
+        case cellIsLongPressed
     }
     
     
     // Listener
-    weak var listener: AlarmCellListener?
+    var action: ((Action) -> Void)?
     
     
     // Gesture
@@ -67,7 +62,7 @@ final class AlarmCell: UITableViewCell {
     }
     
     // State
-    private var currentRO: AlarmCellRO?
+    private var currentAlarm: Alarm?
     private var state: AlarmCellState = .active
     
     
@@ -81,7 +76,7 @@ final class AlarmCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        self.currentRO = nil
+        self.currentAlarm = nil
     }
 }
 
@@ -164,15 +159,10 @@ private extension AlarmCell {
     }
     @objc
     func onLongPress(_ sender: UILongPressGestureRecognizer) {
-        guard let cellId = self.currentRO?.id else { return }
-        listener?.action(.cellIsLongPressed(cellId: cellId))
+        action?(.cellIsLongPressed)
     }
     @objc func switchChanged(_ sender: UISwitch) {
-        guard let cellId = self.currentRO?.id else { return }
-        listener?.action(.toggleIsTapped(
-            cellId: cellId,
-            willMoveTo: sender.isOn ? .active : .inactive
-        ))
+        action?(.toggleIsTapped(willMoveTo: sender.isOn ? .active : .inactive))
     }
 }
 
@@ -180,23 +170,22 @@ private extension AlarmCell {
 // MARK: Public interface
 extension AlarmCell {
     @discardableResult
-    func update(renderObject: AlarmCellRO, animated: Bool = true) -> Self {
+    func update(renderObject: Alarm, animated: Bool = true) -> Self {
         // State
         self.state = renderObject.isActive ? .active : .inactive
-        self.currentRO = renderObject
         
         // Toggle
         toggleView.setOn(state == .active, animated: animated)
         
         // day
-        let iterationType = renderObject.iterationType
-        everyWeekLabel.isHidden = !iterationType.showIsEveryWeekImage
-        holidayImage.isHidden = !iterationType.showHolidayBadge
+        let repeatDays = renderObject.repeatDays
+        everyWeekLabel.isHidden = repeatDays.days.isEmpty
+        holidayImage.isHidden = !renderObject.repeatDays.shoundTurnOffHolidayAlarm
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
         )
-        let dayDisplayText = iterationType.dayDisplayText
+        let dayDisplayText = "매주" + repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: " ")
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
@@ -204,11 +193,11 @@ extension AlarmCell {
         holidayImage.tintColor = state.dayLabelColor
         
         // clock
-        meridiemLabel.displayText = renderObject.meridiem.korText.displayText(
+        meridiemLabel.displayText = renderObject.meridiem.toKoreanFormat.displayText(
             font: .title2Medium,
             color: state.clockLabelColor
         )
-        hourAndMinuteLabel.displayText = renderObject.hourAndMinuteDisplayText.displayText(
+        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", renderObject.hour.value, renderObject.minute.value).displayText(
             font: .title2Medium,
             color: state.clockLabelColor
         )
@@ -244,30 +233,36 @@ extension AlarmCell {
 #Preview("공휴일 미포함") {
     AlarmCell()
         .update(renderObject: .init(
-            iterationType: .everyDays(days: [.mon,.thu,.wed,.fri,.tue]),
             meridiem: .am,
-            hour: 1,
-            minute: 5,
+            hour: Hour(1)!,
+            minute: Minute(5)!,
+            repeatDays: AlarmDays(days: [.monday, .thursday, .wednesday, .friday, .tuesday], shoundTurnOffHolidayAlarm: true),
+            snoozeOption: SnoozeOption(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes),
+            soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: ""),
             isActive: true
         ))
 }
 #Preview("공휴일 포함") {
     AlarmCell()
         .update(renderObject: .init(
-            iterationType: .everyDays(days: [.mon,.sun,.tue]),
             meridiem: .am,
-            hour: 1,
-            minute: 5,
+            hour: Hour(1)!,
+            minute: Minute(5)!,
+            repeatDays: AlarmDays(days: [.monday, .thursday, .wednesday, .friday, .tuesday], shoundTurnOffHolidayAlarm: false),
+            snoozeOption: SnoozeOption(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes),
+            soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: ""),
             isActive: true
         ))
 }
 #Preview("반복없는 특정일") {
     AlarmCell()
         .update(renderObject: .init(
-            iterationType: .specificDay(month: 1, day: 2),
             meridiem: .am,
-            hour: 1,
-            minute: 5,
-            isActive: false
+            hour: Hour(1)!,
+            minute: Minute(5)!,
+            repeatDays: AlarmDays(days: []),
+            snoozeOption: SnoozeOption(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes),
+            soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: ""),
+            isActive: true
         ))
 }

@@ -6,12 +6,9 @@
 //
 
 import UIKit
-
-import FeatureResources
-import FeatureDesignSystem
-
-import SnapKit
-import Then
+import FeatureUIDependencies
+import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 import Lottie
 
 protocol MainPageViewListener: AnyObject {
@@ -19,7 +16,7 @@ protocol MainPageViewListener: AnyObject {
 }
 
 
-final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener, AlarmDeletionViewListener {
+final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener {
     
     // Action
     enum Action {
@@ -105,7 +102,7 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmCellListener, AlarmD
     // - TableView
     private let alarmTableView: UITableView = .init()
     private var alarmTableDiffableDataSource: UITableViewDiffableDataSource<Int, String>!
-    private var alarmCellROs: [AlarmCellRO] = []
+    private var alarmCellROs: [Alarm] = []
     
     // - AlarmDeletionView
     private var alarmDeletionView: AlarmDeletionView?
@@ -400,7 +397,7 @@ extension MainPageView {
         case fortuneDeliveryTimeText(String)
         case turnOnFortuneNoti(Bool)
         case turnOnFortuneIsDeliveredBubble(Bool)
-        case presentAlarmCell(list: [AlarmCellRO])
+        case presentAlarmCell(list: [Alarm])
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -582,7 +579,7 @@ extension MainPageView {
         }
     }
     
-    func presentAlarmROs(_ ros: [AlarmCellRO]) {
+    func presentAlarmROs(_ ros: [Alarm]) {
         self.alarmCellROs = ros
         let identifiers = ros.map({ $0.id })
         var snapShot = NSDiffableDataSourceSnapshot<Int, String>()
@@ -596,8 +593,21 @@ extension MainPageView {
         let diffableDataSource = AlarmDiffableDataSource(
             tableView: alarmTableView) { [weak self] tableView, indexPath, itemIdentifier in
                 guard let self, let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
-                cell.listener = self
                 let renderObject = alarmCellROs[indexPath.item]
+                cell.action = { [weak self] action in
+                    guard let self else { return }
+                    switch action {
+                    case let .toggleIsTapped(willMoveTo):
+                        listener?.action(.alarmStateWillChange(
+                            alarmId: renderObject.id,
+                            isActive: (willMoveTo == .active)
+                        ))
+                    case .cellIsLongPressed:
+                        guard isDeletionViewPresenting == false else { return }
+                        isDeletionViewPresenting = true
+                        presentAlarmDeletionView(renderObject: renderObject)
+                    }
+                }
                 return cell.update(renderObject: renderObject)
             }
         self.alarmTableDiffableDataSource = diffableDataSource
@@ -635,7 +645,7 @@ extension MainPageView {
 
 // MARK: Alarm deleltion
 private extension MainPageView {
-    func presentAlarmDeletionView(renderObject ro: AlarmCellRO) {
+    func presentAlarmDeletionView(renderObject ro: Alarm) {
         let deletionView = AlarmDeletionView()
         deletionView.listener = self
         deletionView.update(renderObject: ro)
@@ -716,26 +726,6 @@ extension MainPageView {
         }
     }
 }
-
-
-// MARK: AlarmCellListener
-extension MainPageView {
-    func action(_ action: AlarmCell.Action) {
-        switch action {
-        case .toggleIsTapped(let cellId, let willMoveTo):
-            listener?.action(.alarmStateWillChange(
-                alarmId: cellId,
-                isActive: (willMoveTo == .active)
-            ))
-        case .cellIsLongPressed(let cellId):
-            guard isDeletionViewPresenting == false else { return }
-            isDeletionViewPresenting = true
-            guard let ro = alarmCellROs.first(where: { $0.id==cellId }) else { return }
-            presentAlarmDeletionView(renderObject: ro)
-        }
-    }
-}
-
 
 #Preview {
     MainPageView()

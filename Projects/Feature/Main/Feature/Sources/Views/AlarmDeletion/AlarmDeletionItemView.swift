@@ -8,9 +8,8 @@
 import UIKit
 
 import FeatureResources
-
-import Then
-import SnapKit
+import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol AlarmDeletionItemViewListener: AnyObject {
     func action(_ action: AlarmDeletionItemView.Action)
@@ -25,7 +24,7 @@ final class AlarmDeletionItemView: UIView {
     
     
     // Listener
-    weak var listener: AlarmCellListener?
+    weak var listener: AlarmDeletionItemViewListener?
     
     
     // Suv view
@@ -58,7 +57,7 @@ final class AlarmDeletionItemView: UIView {
     }
     
     // State
-    private var currentRO: AlarmCellRO?
+    private var currentRO: Alarm?
     private var state: AlarmState = .active
     
     
@@ -157,7 +156,7 @@ private extension AlarmDeletionItemView {
 // MARK: Public interface
 extension AlarmDeletionItemView {
     @discardableResult
-    func update(renderObject: AlarmCellRO, animated: Bool = true) -> Self {
+    func update(renderObject: Alarm, animated: Bool = true) -> Self {
         // State
         self.state = renderObject.isActive ? .active : .inactive
         self.currentRO = renderObject
@@ -166,14 +165,14 @@ extension AlarmDeletionItemView {
         toggleView.setOn(state == .active, animated: animated)
         
         // day
-        let iterationType = renderObject.iterationType
-        everyWeekLabel.isHidden = !iterationType.showIsEveryWeekImage
-        holidayImage.isHidden = !iterationType.showHolidayBadge
+        let repeatDays = renderObject.repeatDays
+        everyWeekLabel.isHidden = repeatDays.days.isEmpty
+        holidayImage.isHidden = !renderObject.repeatDays.shoundTurnOffHolidayAlarm
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
         )
-        let dayDisplayText = iterationType.dayDisplayText
+        let dayDisplayText = "매주" + repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: " ")
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
@@ -181,11 +180,11 @@ extension AlarmDeletionItemView {
         holidayImage.tintColor = state.dayLabelColor
         
         // clock
-        meridiemLabel.displayText = renderObject.meridiem.korText.displayText(
+        meridiemLabel.displayText = renderObject.meridiem.toKoreanFormat.displayText(
             font: .title2Medium,
             color: state.clockLabelColor
         )
-        hourAndMinuteLabel.displayText = renderObject.hourAndMinuteDisplayText.displayText(
+        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", renderObject.hour.value, renderObject.minute.value).displayText(
             font: .title2Medium,
             color: state.clockLabelColor
         )
@@ -216,13 +215,13 @@ extension AlarmDeletionItemView {
     }
 }
 
-#Preview {
-    AlarmDeletionItemView()
-        .update(renderObject: .init(
-            iterationType: .everyDays(days: [.fri,.mon]),
-            meridiem: .am,
-            hour: 1,
-            minute: 12,
-            isActive: true
-        ))
-}
+//#Preview {
+//    AlarmDeletionItemView()
+//        .update(renderObject: .init(
+//            iterationType: .everyDays(days: [.fri,.mon]),
+//            meridiem: .am,
+//            hour: 1,
+//            minute: 12,
+//            isActive: true
+//        ))
+//}
