@@ -101,6 +101,8 @@ extension AuthorizationRequestView: OnBoardingNavBarViewListener {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)
+        case .rightButtonClicked:
+            break
         }
     }
 }

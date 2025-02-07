@@ -11,13 +11,14 @@ import FeatureDesignSystem
 import FeatureAlarm
 import FeatureCommonDependencies
 
-enum MainPageRouterRequest {
+public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
     case detachCreateEditAlarm
     case presentAlert(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
 }
-protocol MainPageRouting: ViewableRouting {
+
+public protocol MainPageRouting: ViewableRouting {
     func request(_ request: MainPageRouterRequest)
 }
 
@@ -30,9 +31,7 @@ protocol MainPagePresentable: Presentable {
     func request(_ request: MainPagePresentableRequest)
 }
 
-protocol MainPageListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
-}
+public protocol MainPageListener: AnyObject {}
 
 final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, MainPageInteractable, MainPagePresentableListener {
     

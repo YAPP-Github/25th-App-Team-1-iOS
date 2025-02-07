@@ -7,18 +7,17 @@
 
 import RIBs
 import FeatureOnboarding
-import FeatureAlarm
+import FeatureMain
 
 protocol MainInteractable: Interactable,
                            FeatureOnboarding.RootListener,
-                           FeatureAlarm.RootListener {
+                           FeatureMain.MainPageListener {
     var router: MainRouting? { get set }
     var listener: MainListener? { get set }
 }
 
 protocol MainViewControllable: ViewControllable,
-                               FeatureOnboarding.RootViewControllable,
-                               FeatureAlarm.RootViewControllable {
+                               FeatureOnboarding.RootViewControllable {
     // TODO: Declare methods the router invokes to manipulate the view hierarchy.
 }
 
@@ -29,10 +28,10 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
         interactor: MainInteractable,
         viewController: MainViewControllable,
         onboardingBuilder: FeatureOnboarding.RootBuildable,
-        alarmBuilder: FeatureAlarm.RootBuildable
+        mainBuilder: FeatureMain.MainPageBuildable
     ) {
         self.onboardingBuilder = onboardingBuilder
-        self.alarmBuilder = alarmBuilder
+        self.mainBuilder = mainBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -48,18 +47,18 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
             routeToOnboarding()
         case .detachOnboarding:
             detachOnboarding()
-        case .routeToAlarm:
-            routeToAlarm()
-        case .detachAlarm:
-            detachAlarm()
+        case .routeToMain:
+            routeToMain()
+        case .detachMain:
+            detachMain()
         }
     }
     
     private let onboardingBuilder: FeatureOnboarding.RootBuildable
     private var onboardingRouter: FeatureOnboarding.RootRouting?
     
-    private let alarmBuilder: FeatureAlarm.RootBuildable
-    private var alarmRouter: FeatureAlarm.RootRouting?
+    private let mainBuilder: FeatureMain.MainPageBuildable
+    private var mainRouter: FeatureMain.MainPageRouting?
     
     private func routeToOnboarding() {
         guard onboardingRouter == nil else { return }
@@ -74,16 +73,16 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
         detachChild(router)
     }
     
-    private func routeToAlarm() {
-        guard alarmRouter == nil else { return }
-        let router = alarmBuilder.build(withListener: interactor)
-        alarmRouter = router
+    private func routeToMain() {
+        guard mainRouter == nil else { return }
+        let router = mainBuilder.build(withListener: interactor)
+        mainRouter = router
         attachChild(router)
     }
     
-    private func detachAlarm() {
-        guard let router = alarmRouter else { return }
-        alarmRouter = nil
+    private func detachMain() {
+        guard let router = mainRouter else { return }
+        mainRouter = nil
         detachChild(router)
     }
 }

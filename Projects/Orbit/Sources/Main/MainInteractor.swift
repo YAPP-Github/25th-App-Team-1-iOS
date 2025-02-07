@@ -12,8 +12,8 @@ import FeatureOnboarding
 enum MainRouterRequest {
     case routeToOnboarding
     case detachOnboarding
-    case routeToAlarm
-    case detachAlarm
+    case routeToMain
+    case detachMain
 }
 
 protocol MainRouting: ViewableRouting {
@@ -45,7 +45,7 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
         super.didBecomeActive()
         let hadDoneOnboarding: Bool = false
         if hadDoneOnboarding {
-            router?.request(.routeToAlarm)
+            router?.request(.routeToMain)
         } else {
             router?.request(.routeToOnboarding)
         }
@@ -63,7 +63,7 @@ extension MainInteractor {
         switch request {
         case .start:
             router?.request(.detachOnboarding)
-            router?.request(.routeToAlarm)
+            router?.request(.routeToMain)
         }
     }
 }

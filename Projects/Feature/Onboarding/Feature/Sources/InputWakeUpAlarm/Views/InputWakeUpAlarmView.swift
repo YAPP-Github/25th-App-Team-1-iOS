@@ -142,6 +142,8 @@ extension InputWakeUpAlarmView {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonClicked)
+        case .rightButtonClicked:
+            break
         }
     }
 }

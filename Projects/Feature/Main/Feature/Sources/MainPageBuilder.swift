@@ -8,10 +8,7 @@
 import RIBs
 import FeatureAlarm
 
-protocol MainPageDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
-}
+public protocol MainPageDependency: Dependency {}
 
 final class MainPageComponent: Component<MainPageDependency> {
     let viewController: MainPageViewControllable
@@ -26,17 +23,17 @@ final class MainPageComponent: Component<MainPageDependency> {
 
 // MARK: - Builder
 
-protocol MainPageBuildable: Buildable {
+public protocol MainPageBuildable: Buildable {
     func build(withListener listener: MainPageListener) -> MainPageRouting
 }
 
-final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildable {
+public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildable {
 
-    override init(dependency: MainPageDependency) {
+    public override init(dependency: MainPageDependency) {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: MainPageListener) -> MainPageRouting {
+    public func build(withListener listener: MainPageListener) -> MainPageRouting {
         let viewController = MainPageViewController()
         let component = MainPageComponent(dependency: dependency, viewController: viewController)
         let interactor = MainPageInteractor(presenter: viewController, service: component.service)

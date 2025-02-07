@@ -16,6 +16,7 @@ let project = Project(
             dependencies: [
                 // Feature
                 .feature(implements: .Onboarding),
+                .feature(implements: .Main),
                 .feature(implements: .Alarm),
                 // Third party
                 .feature(implements: .ThirdPartyDependencies)
