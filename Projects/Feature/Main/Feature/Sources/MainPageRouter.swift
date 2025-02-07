@@ -6,10 +6,14 @@
 //
 
 import RIBs
+import UIKit
 import FeatureDesignSystem
 import FeatureAlarm
+import FeatureAlarmMission
 
-protocol MainPageInteractable: Interactable, FeatureAlarm.RootListener {
+protocol MainPageInteractable: Interactable,
+                               FeatureAlarm.RootListener,
+                               FeatureAlarmMission.ShakeMissionMainListener {
     var router: MainPageRouting? { get set }
     var listener: MainPageListener? { get set }
 }
@@ -24,9 +28,11 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     init(
         interactor: MainPageInteractable,
         viewController: MainPageViewControllable,
-        alarmBuilder: FeatureAlarm.RootBuildable
+        alarmBuilder: FeatureAlarm.RootBuildable,
+        alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable
     ) {
         self.alarmBuilder = alarmBuilder
+        self.alarmMissionBuilder = alarmMissionBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -37,6 +43,10 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToCreateAlarm(mode: mode)
         case .detachCreateEditAlarm:
             detachCreateEditAlarm()
+        case .routeToAlarmMission:
+            routeToAlarmMission()
+        case .detachAlarmMission:
+            detachAlarmMission()
         case .presentAlert(let config, let listener):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -54,6 +64,11 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     private let alarmBuilder: FeatureAlarm.RootBuildable
     private var alarmRouter: FeatureAlarm.RootRouting?
     
+    private let alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable
+    private var alarmMissionRouter: FeatureAlarmMission.ShakeMissionMainRouting?
+    
+    var navigationController: UINavigationController?
+    
     private func routeToCreateAlarm(mode: AlarmCreateEditMode) {
         guard alarmRouter == nil else { return }
         let router = alarmBuilder.build(withListener: interactor, mode: mode)
@@ -65,5 +80,27 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         guard let router = alarmRouter else { return }
         alarmRouter = nil
         detachChild(router)
+    }
+    
+    private func routeToAlarmMission() {
+        guard alarmMissionRouter == nil else { return }
+        let router = alarmMissionBuilder.build(withListener: interactor)
+        self.alarmMissionRouter = router
+        attachChild(router)
+        let navigatinoController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
+        navigatinoController.modalPresentationStyle = .fullScreen
+        viewController.uiviewController.present(navigatinoController, animated: true)
+        self.navigationController = navigatinoController
+    }
+    
+    private func detachAlarmMission() {
+        guard let router = alarmMissionRouter else { return }
+        alarmMissionRouter = nil
+        detachChild(router)
+        if let navigationController {
+            navigationController.setViewControllers([], animated: true)
+            self.navigationController = nil
+        }
+        viewController.uiviewController.dismiss(animated: true)
     }
 }

@@ -23,8 +23,7 @@ protocol ShakeMissionMainViewControllable: ViewControllable {
 final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable, ShakeMissionMainViewControllable>, ShakeMissionMainRouting, DSTwoButtonAlertPresentable {
     
     // Navigation
-    private let navigationController: UINavigationController
-    
+    private var navigationController: UINavigationController?
     
     // Builder & Router
     private let shakeMissionWorkingBuilder: ShakeMissionWorkingBuilder
@@ -33,18 +32,39 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
     
     // TODO: Constructor inject child builder protocols to allow building children.
     init(
-        navigationController: UINavigationController,
         interactor: ShakeMissionMainInteractable,
         viewController: ShakeMissionMainViewControllable,
         shakeMissionWorkingBuilder: ShakeMissionWorkingBuilder
     ) {
-        self.navigationController = navigationController
         self.shakeMissionWorkingBuilder = shakeMissionWorkingBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
         
         // navigationController
-        navigationController.isNavigationBarHidden = true
+        
+    }
+    
+    private func presentOrPushViewController(with router: ViewableRouting, animated: Bool = true) {
+        if let navigationController {
+            navigationController.pushViewController(router.viewControllable.uiviewController, animated: animated)
+        } else {
+            let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
+            navigationController.isNavigationBarHidden = true
+            navigationController.modalPresentationStyle = .fullScreen
+            viewController.uiviewController.present(navigationController, animated: animated)
+            self.navigationController = navigationController
+        }
+    }
+    
+    private func dismissOrPopViewController(animated: Bool = true) {
+        if let navigationController,
+           navigationController.viewControllers.count > 1 {
+            navigationController.popViewController(animated: animated)
+        } else {
+            // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
+            viewController.uiviewController.dismiss(animated: animated)
+            navigationController = nil
+        }
     }
 }
 
@@ -84,12 +104,12 @@ private extension ShakeMissionMainRouter {
         self.shakeMissionWorkingRouter = router
         attachChild(router)
         let viewController = router.viewControllable.uiviewController
-        navigationController.pushViewController(viewController, animated: true)
+        presentOrPushViewController(with: router)
     }
     
     func dismissShakeMissionWorkingPage() {
         guard let shakeMissionWorkingRouter else { return }
         detachChild(shakeMissionWorkingRouter)
-        navigationController.popViewController(animated: true)
+        dismissOrPopViewController()
     }
 }

@@ -7,6 +7,7 @@
 
 import RIBs
 import FeatureAlarm
+import FeatureAlarmMission
 
 public protocol MainPageDependency: Dependency {}
 
@@ -40,10 +41,12 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
         interactor.listener = listener
         
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
+        let alarmMissionBuilder = FeatureAlarmMission.ShakeMissionMainBuilder(dependency: component)
         return MainPageRouter(
             interactor: interactor,
             viewController: viewController,
-            alarmBuilder: alarmBuilder
+            alarmBuilder: alarmBuilder,
+            alarmMissionBuilder: alarmMissionBuilder
         )
     }
 }

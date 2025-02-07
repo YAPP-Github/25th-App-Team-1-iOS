@@ -9,9 +9,7 @@ import UIKit
 
 import RIBs
 
-public protocol ShakeMissionMainDependency: Dependency {
-    var navigationController: UINavigationController { get }
-}
+public protocol ShakeMissionMainDependency: Dependency {}
 
 final class ShakeMissionMainComponent: Component<ShakeMissionMainDependency> {
 
@@ -20,7 +18,7 @@ final class ShakeMissionMainComponent: Component<ShakeMissionMainDependency> {
 
 // MARK: - Builder
 
-protocol ShakeMissionMainBuildable: Buildable {
+public protocol ShakeMissionMainBuildable: Buildable {
     func build(withListener listener: ShakeMissionMainListener) -> ShakeMissionMainRouting
 }
 
@@ -37,7 +35,6 @@ public final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>,
         interactor.listener = listener
         let shakeMissionWorkingBuilder = ShakeMissionWorkingBuilder(dependency: component)
         return ShakeMissionMainRouter(
-            navigationController: component.dependency.navigationController,
             interactor: interactor,
             viewController: viewController,
             shakeMissionWorkingBuilder: shakeMissionWorkingBuilder

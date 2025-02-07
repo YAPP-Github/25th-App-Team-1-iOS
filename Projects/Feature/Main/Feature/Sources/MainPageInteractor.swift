@@ -14,6 +14,8 @@ import FeatureCommonDependencies
 public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
     case detachCreateEditAlarm
+    case routeToAlarmMission
+    case detachAlarmMission
     case presentAlert(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
 }
@@ -69,7 +71,7 @@ extension MainPageInteractor {
                 buttonText: "닫기")
             router?.request(.presentAlert(config, self))
         case .goToSettings:
-            break
+            router?.request(.routeToAlarmMission)
         case .createAlarm:
             router?.request(.routeToCreateEditAlarm(mode: .create))
         case let .editAlarm(alarm):
