@@ -7,9 +7,14 @@
 
 import RIBs
 import RxSwift
+import FeatureDesignSystem
 
+enum MainPageRouterRequest {
+    case presentAlert(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
+    case dismissAlert(completion: (()->Void)?=nil)
+}
 protocol MainPageRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func request(_ request: MainPageRouterRequest)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -52,6 +57,15 @@ extension MainPageInteractor {
             break
         case .deleteAlarm(let alarmId):
             break
+        }
+    }
+}
+
+extension MainPageInteractor: DSButtonAlertViewControllerListener {
+    func action(_ action: DSButtonAlertViewController.Action) {
+        switch action {
+        case .buttonClicked:
+            router?.request(.dismissAlert())
         }
     }
 }
