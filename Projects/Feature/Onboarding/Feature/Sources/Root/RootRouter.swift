@@ -137,7 +137,13 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private var onboardingFortuneGuideRouter: OnboardingFortuneGuideRouting?
     
     private func cleanupViews() {
-        
+        if let navigationController {
+            navigationController.setViewControllers([], animated: true)
+            viewController.uiviewController.dismiss(animated: true)
+        } else {
+            // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
+            viewController.uiviewController.dismiss(animated: true)
+        }
     }
     
     private func presentOrPushViewController(with router: ViewableRouting, animated: Bool = true) {

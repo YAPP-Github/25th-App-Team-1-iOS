@@ -15,7 +15,7 @@ protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener,
     var listener: RootListener? { get set }
 }
 
-protocol RootViewControllable: ViewControllable {
+public protocol RootViewControllable: ViewControllable {
     // TODO: Declare methods the router invokes to manipulate the view hierarchy. Since
     // this RIB does not own its own view, this protocol is conformed to by one of this
     // RIB's ancestor RIBs' view.

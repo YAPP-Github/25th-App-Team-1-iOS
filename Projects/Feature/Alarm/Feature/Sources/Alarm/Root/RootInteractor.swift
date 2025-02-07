@@ -10,7 +10,7 @@ import RxSwift
 import FeatureResources
 import FeatureCommonDependencies
 
-enum RootRouterRequest {
+public enum RootRouterRequest {
     case cleanupViews
     case routeToAlarmList
     case routeToCreateAlarm(mode: AlarmCreateEditMode)
@@ -21,11 +21,11 @@ enum RootRouterRequest {
     case detachSoundOption
 }
 
-protocol RootRouting: Routing {
+public protocol RootRouting: Routing {
     func request(_ request: RootRouterRequest)
 }
 
-protocol RootListener: AnyObject {
+public protocol RootListener: AnyObject {
     // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
 }
 

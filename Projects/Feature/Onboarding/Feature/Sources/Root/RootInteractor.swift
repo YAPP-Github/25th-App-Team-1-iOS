@@ -35,8 +35,12 @@ public protocol RootRouting: Routing {
     func request(_ request: RootRouterRequest)
 }
 
+public enum RootListenerRequest {
+    case start
+}
+
 public protocol RootListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: RootListenerRequest)
 }
 
 final class RootInteractor: Interactor, RootInteractable {
@@ -209,8 +213,7 @@ extension RootInteractor {
     func request(_ request: OnboardingFortuneGuideListenerRequest) {
         switch request {
         case .start:
-            break
-            //여기다가 이제 온보딩 때 입력한 데이터 저장 및 메인 화면 호출 이벤트를 리스너에게 전달해야함.
+            listener?.request(.start)
         }
     }
 }

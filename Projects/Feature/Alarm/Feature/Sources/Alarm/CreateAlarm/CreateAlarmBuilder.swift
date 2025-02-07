@@ -8,7 +8,7 @@
 import RIBs
 import FeatureCommonDependencies
 
-enum AlarmCreateEditMode {
+public enum AlarmCreateEditMode {
     case create
     case edit(Alarm)
 }
