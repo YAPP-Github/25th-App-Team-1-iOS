@@ -102,7 +102,7 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
     
     // - TableView
     private let alarmTableView: UITableView = .init()
-    private var alarmTableDiffableDataSource: UITableViewDiffableDataSource<Int, String>!
+    private var alarmTableDiffableDataSource: UITableViewDiffableDataSource<Int, Int>!
     private var alarmCellROs: [Alarm] = []
     
     // - AlarmDeletionView
@@ -575,7 +575,7 @@ private extension MainPageView {
 extension MainPageView {
     typealias Cell = AlarmCell
     
-    class AlarmDiffableDataSource: UITableViewDiffableDataSource<Int, String> {
+    class AlarmDiffableDataSource: UITableViewDiffableDataSource<Int, Int> {
         override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
             return true
         }
@@ -583,11 +583,11 @@ extension MainPageView {
     
     func presentAlarmROs(_ ros: [Alarm]) {
         self.alarmCellROs = ros
-        let identifiers = ros.map({ $0.id })
-        var snapShot = NSDiffableDataSourceSnapshot<Int, String>()
+        let identifiers = ros.map({ $0.hashValue })
+        var snapShot = NSDiffableDataSourceSnapshot<Int, Int>()
         snapShot.appendSections([0])
         snapShot.appendItems(identifiers)
-        self.alarmTableDiffableDataSource.apply(snapShot)
+        self.alarmTableDiffableDataSource.apply(snapShot, animatingDifferences: false)
     }
     
     func setupAlarmTableView() {

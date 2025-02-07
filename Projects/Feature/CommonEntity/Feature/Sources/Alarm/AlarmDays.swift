@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AlarmDays: Codable {
+public struct AlarmDays: Codable, Hashable {
     public private(set) var days: Set<WeekDay>
     public var shoundTurnOffHolidayAlarm: Bool
     
@@ -44,5 +44,10 @@ public struct AlarmDays: Codable {
     
     public func isSubset(of days: Set<WeekDay>) -> Bool {
         self.days.isSubset(of: days)
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(days)
+        hasher.combine(shoundTurnOffHolidayAlarm)
     }
 }

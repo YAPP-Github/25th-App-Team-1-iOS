@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum WeekDay: Int, CaseIterable, Codable {
+public enum WeekDay: Int, CaseIterable, Codable, Hashable {
     case sunday = 1
     case monday
     case tuesday
@@ -60,5 +60,9 @@ public enum WeekDay: Int, CaseIterable, Codable {
         case .saturday:
             "토"
         }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
     }
 }

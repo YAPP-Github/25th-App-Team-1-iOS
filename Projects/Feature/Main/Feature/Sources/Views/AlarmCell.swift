@@ -185,7 +185,11 @@ extension AlarmCell {
             font: .label1SemiBold,
             color: state.dayLabelColor
         )
-        let dayDisplayText = "매주" + repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: " ")
+        let dayDisplayText = if !repeatDays.days.isEmpty {
+            repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: ", ")
+        } else {
+            "음.."
+        }
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
