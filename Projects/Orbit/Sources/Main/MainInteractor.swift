@@ -61,8 +61,9 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
 extension MainInteractor {
     func request(_ request: RootListenerRequest) {
         switch request {
-        case .start:
+        case let .start(alarm):
             router?.request(.detachOnboarding)
+            AlarmStore.shared.add(alarm)
             router?.request(.routeToMain)
         }
     }

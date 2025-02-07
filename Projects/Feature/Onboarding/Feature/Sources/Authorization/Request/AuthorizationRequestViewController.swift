@@ -11,7 +11,7 @@ import UIKit
 
 enum AuthorizationRequestPresentableListenerRequest {
     case back
-    case yesButtonTapped
+    case requestAuthorization
 }
 
 protocol AuthorizationRequestPresentableListener: AnyObject {
@@ -30,6 +30,9 @@ final class AuthorizationRequestViewController: UIViewController, AuthorizationR
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak listener] in
+            listener?.request(.requestAuthorization)
+        }
     }
     
     private let mainView = AuthorizationRequestView()
@@ -40,8 +43,6 @@ extension AuthorizationRequestViewController: AuthorizationRequestViewListener {
         switch action {
         case .backButtonTapped:
             listener?.request(.back)
-        case .yesButtonTapped:
-            listener?.request(.yesButtonTapped)
         }
     }
 }

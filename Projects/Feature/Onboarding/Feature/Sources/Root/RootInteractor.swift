@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
 
 public enum RootRouterRequest {
     case cleanUpViews
@@ -36,7 +37,7 @@ public protocol RootRouting: Routing {
 }
 
 public enum RootListenerRequest {
-    case start
+    case start(Alarm)
 }
 
 public protocol RootListener: AnyObject {
@@ -213,7 +214,7 @@ extension RootInteractor {
     func request(_ request: OnboardingFortuneGuideListenerRequest) {
         switch request {
         case .start:
-            listener?.request(.start)
+            listener?.request(.start(onboardingModel.alarm))
         }
     }
 }
