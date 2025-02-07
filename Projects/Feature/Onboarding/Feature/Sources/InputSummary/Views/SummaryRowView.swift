@@ -7,10 +7,9 @@
 
 import UIKit
 
-import FeatureResources
+import FeatureUIDependencies
 
-import SnapKit
-import Then
+import FeatureThirdPartyDependencies
 
 final class SummaryRowView: UIView {
     

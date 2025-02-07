@@ -13,14 +13,18 @@ protocol InputGenderDependency: Dependency {
 }
 
 final class InputGenderComponent: Component<InputGenderDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let model: OnboardingModel
+    
+    init(dependency: any InputGenderDependency, model: OnboardingModel) {
+        self.model = model
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol InputGenderBuildable: Buildable {
-    func build(withListener listener: InputGenderListener) -> InputGenderRouting
+    func build(withListener listener: InputGenderListener, model: OnboardingModel) -> InputGenderRouting
 }
 
 final class InputGenderBuilder: Builder<InputGenderDependency>, InputGenderBuildable {
@@ -29,10 +33,10 @@ final class InputGenderBuilder: Builder<InputGenderDependency>, InputGenderBuild
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: InputGenderListener) -> InputGenderRouting {
-        let component = InputGenderComponent(dependency: dependency)
+    func build(withListener listener: InputGenderListener, model: OnboardingModel) -> InputGenderRouting {
+        let component = InputGenderComponent(dependency: dependency, model: model)
         let viewController = InputGenderViewController()
-        let interactor = InputGenderInteractor(presenter: viewController)
+        let interactor = InputGenderInteractor(presenter: viewController, model: component.model)
         interactor.listener = listener
         return InputGenderRouter(interactor: interactor, viewController: viewController)
     }

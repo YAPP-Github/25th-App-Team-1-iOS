@@ -8,7 +8,7 @@
 import FeatureOnboarding
 
 extension MainComponent: FeatureOnboarding.RootDependency {
-    var rootViewController: FeatureOnboarding.RootViewControllable {
+    var onboardingRootViewController: any FeatureOnboarding.RootViewControllable {
         rootViewController
     }
 }

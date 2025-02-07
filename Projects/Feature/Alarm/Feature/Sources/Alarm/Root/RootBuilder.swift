@@ -7,57 +7,66 @@
 
 import RIBs
 
-protocol RootDependency: Dependency {
-    // TODO: Make sure to convert the variable into lower-camelcase.
-    var RootViewController: RootViewControllable { get }
-    // TODO: Declare the set of dependencies required by this RIB, but won't be
-    // created by this RIB.
+public protocol RootDependency: Dependency {
+    var alarmRootViewController: RootViewControllable { get }
 }
 
 final class RootComponent: Component<RootDependency> {
-    fileprivate var RootViewController: RootViewControllable {
-        return dependency.RootViewController
+    fileprivate var rootViewController: RootViewControllable {
+        return dependency.alarmRootViewController
     }
     fileprivate var service: RootServiceable
+    fileprivate var mode: AlarmCreateEditMode
     
-    var mutableStream: AlarmListMutableStream {
+    var alarmListMutableStream: AlarmListMutableStream {
         return shared { MutableAlarmListStreamImpl() }
     }
     
+    var createAlarmMutableStream: CreateEditAlarmMutableStream {
+        return shared { CreateEditAlarmMutableStreamImpl() }
+    }
+    
     init(dependency: any RootDependency,
-         service: RootServiceable = RootService()
+         service: RootServiceable = RootService(),
+         mode: AlarmCreateEditMode
     ) {
         self.service = service
+        self.mode = mode
         super.init(dependency: dependency)
     }
 }
 
 // MARK: - Builder
 
-protocol RootBuildable: Buildable {
-    func build(withListener listener: RootListener) -> RootRouting
+public protocol RootBuildable: Buildable {
+    func build(withListener listener: RootListener, mode: AlarmCreateEditMode) -> RootRouting
 }
 
-final class RootBuilder: Builder<RootDependency>, RootBuildable {
+public final class RootBuilder: Builder<RootDependency>, RootBuildable {
 
-    override init(dependency: RootDependency) {
+    public override init(dependency: RootDependency) {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: RootListener) -> RootRouting {
-        let component = RootComponent(dependency: dependency)
+    public func build(withListener listener: RootListener, mode: AlarmCreateEditMode) -> RootRouting {
+        let component = RootComponent(dependency: dependency, mode: mode)
         let interactor = RootInteractor(
             service: component.service,
-            stream: component.mutableStream
+            mode: component.mode,
+            alarmListMutableStream: component.alarmListMutableStream,
+            createAlarmMutableStream: component.createAlarmMutableStream
         )
         interactor.listener = listener
-        let alarmListBuilder = AlarmListBuilder(dependency: component)
-        let createAlarmBuilder = CreateAlarmBuilder(dependency: component)
+        let createAlarmBuilder = CreateEditAlarmBuilder(dependency: component)
+        let snoozeOptionBuilder = CreateEditAlarmSnoozeOptionBuilder(dependency: component)
+        let soundOptionBuilder = CreateEditAlarmSoundOptionBuilder(dependency: component)
+        
         return RootRouter(
             interactor: interactor,
-            viewController: component.RootViewController,
-            alarmListBuilder: alarmListBuilder,
-            createAlarmBuilder: createAlarmBuilder
+            viewController: component.rootViewController,
+            createAlarmBuilder: createAlarmBuilder,
+            snoozeOptionBuilder: snoozeOptionBuilder,
+            soundOptionBuilder: soundOptionBuilder
         )
     }
 }

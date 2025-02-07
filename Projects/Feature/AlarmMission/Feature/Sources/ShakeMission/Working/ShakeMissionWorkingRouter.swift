@@ -7,7 +7,7 @@
 
 import RIBs
 
-import FeatureDesignSystem
+import FeatureUIDependencies
 
 protocol ShakeMissionWorkingInteractable: Interactable {
     var router: ShakeMissionWorkingRouting? { get set }

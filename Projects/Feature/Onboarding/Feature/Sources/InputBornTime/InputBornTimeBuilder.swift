@@ -13,14 +13,18 @@ protocol InputBornTimeDependency: Dependency {
 }
 
 final class InputBornTimeComponent: Component<InputBornTimeDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let model: OnboardingModel
+    
+    init(dependency: any InputBornTimeDependency, model: OnboardingModel) {
+        self.model = model
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol InputBornTimeBuildable: Buildable {
-    func build(withListener listener: InputBornTimeListener) -> InputBornTimeRouting
+    func build(withListener listener: InputBornTimeListener, model: OnboardingModel) -> InputBornTimeRouting
 }
 
 final class InputBornTimeBuilder: Builder<InputBornTimeDependency>, InputBornTimeBuildable {
@@ -29,10 +33,10 @@ final class InputBornTimeBuilder: Builder<InputBornTimeDependency>, InputBornTim
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: InputBornTimeListener) -> InputBornTimeRouting {
-        let component = InputBornTimeComponent(dependency: dependency)
+    func build(withListener listener: InputBornTimeListener, model: OnboardingModel) -> InputBornTimeRouting {
+        let component = InputBornTimeComponent(dependency: dependency, model: model)
         let viewController = InputBornTimeViewController()
-        let interactor = InputBornTimeInteractor(presenter: viewController)
+        let interactor = InputBornTimeInteractor(presenter: viewController, model: component.model)
         interactor.listener = listener
         return InputBornTimeRouter(interactor: interactor, viewController: viewController)
     }

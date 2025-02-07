@@ -16,11 +16,10 @@ let project = Project(
             dependencies: [
                 // Feature
                 .feature(implements: .Onboarding),
+                .feature(implements: .Main),
                 .feature(implements: .Alarm),
                 // Third party
-                .thirdParty(library: .RIBs),
-                .thirdParty(library: .SnapKit),
-                .thirdParty(library: .Then)
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
     ]

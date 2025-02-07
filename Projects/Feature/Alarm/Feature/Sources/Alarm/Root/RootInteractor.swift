@@ -7,20 +7,31 @@
 
 import RIBs
 import RxSwift
+import FeatureResources
+import FeatureCommonDependencies
 
-enum RootRouterRequest {
+public enum RootRouterRequest {
     case cleanupViews
-    case routeToAlarmList
-    case routeToCreateAlarm
-    case detachCreateAlarm
+    case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
+    case routeToSnoozeOption(SnoozeOption)
+    case detachSnoozeOption
+    case routeToSoundOption(SoundOption)
+    case detachSoundOption
 }
 
-protocol RootRouting: Routing {
+public protocol RootRouting: Routing {
     func request(_ request: RootRouterRequest)
 }
 
-protocol RootListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+public enum RootListenerRequest {
+    case close
+    case done(Alarm)
+    case updated(Alarm)
+    case deleted(Alarm)
+}
+
+public protocol RootListener: AnyObject {
+    func reqeust(_ request: RootListenerRequest)
 }
 
 final class RootInteractor: Interactor, RootInteractable {
@@ -32,10 +43,14 @@ final class RootInteractor: Interactor, RootInteractable {
     // in constructor.
     init(
         service: RootServiceable,
-        stream: AlarmListMutableStream
+        mode: AlarmCreateEditMode,
+        alarmListMutableStream: AlarmListMutableStream,
+        createAlarmMutableStream: CreateEditAlarmMutableStream
     ) {
         self.service = service
-        self.stream = stream
+        self.mode = mode
+        self.alarmListMutableStream = alarmListMutableStream
+        self.createAlarmMutableStream = createAlarmMutableStream
     }
 
     override func didBecomeActive() {
@@ -50,29 +65,55 @@ final class RootInteractor: Interactor, RootInteractable {
         // TODO: Pause any business logic.
     }
     
-    private let service: RootServiceable
-    private let stream: AlarmListMutableStream
+    private var service: RootServiceable
+    private let mode: AlarmCreateEditMode
+    private let alarmListMutableStream: AlarmListMutableStream
+    private let createAlarmMutableStream: CreateEditAlarmMutableStream
     
     private func start() {
-        router?.request(.routeToAlarmList)
+        router?.request(.routeToCreateEditAlarm(mode: mode))
     }
 }
 
+// MARK: CreateEditAlarmListenerRequest
 extension RootInteractor {
-    func request(_ request: AlarmListListenerRequest) {
+    func request(_ request: CreateEditAlarmListenerRequest) {
         switch request {
-        case .addAlarm:
-            router?.request(.routeToCreateAlarm)
+        case .back:
+            listener?.reqeust(.close)
+        case let .snoozeOption(snoozeOption):
+            router?.request(.routeToSnoozeOption(snoozeOption))
+        case let .soundOption(soundOption):
+            router?.request(.routeToSoundOption(soundOption))
+        case let .done(alarm):
+            listener?.reqeust(.done(alarm))
+        case let .updated(alarm):
+            listener?.reqeust(.updated(alarm))
+        case let .deleted(alarm):
+            listener?.reqeust(.deleted(alarm))
         }
     }
 }
 
+// MARK: CreateEditAlarmSnoozeOptionListenerRequest
 extension RootInteractor {
-    func request(_ request: CreateAlarmListenerRequest) {
+    func request(_ request: CreateEditAlarmSnoozeOptionListenerRequest) {
+        
         switch request {
-        case let .done(alarm):
-            router?.request(.detachCreateAlarm)
-            service.createAlarm(alarm)
+        case let .done(snoozeOption):
+            router?.request(.detachSnoozeOption)
+            createAlarmMutableStream.mutableSnoozeOption.onNext(snoozeOption)
+        }
+    }
+}
+
+// MARK: CreateEditAlarmSoundOptionListenerRequest
+extension RootInteractor {
+    func request(_ request: CreateEditAlarmSoundOptionListenerRequest) {
+        switch request {
+        case let .done(soundOption):
+            router?.request(.detachSoundOption)
+            createAlarmMutableStream.mutableSoundOption.onNext(soundOption)
         }
     }
 }

@@ -6,10 +6,8 @@
 //
 
 import UIKit
-import SnapKit
-import Then
-import FeatureDesignSystem
-import FeatureResources
+import FeatureThirdPartyDependencies
+import FeatureUIDependencies
 
 protocol AuthorizationRequestViewListener: AnyObject {
     func action(_ action:AuthorizationRequestView.Action)
@@ -91,7 +89,7 @@ private extension AuthorizationRequestView {
         }
         
         yesButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.leading.equalTo(20)
             $0.trailing.equalTo(-20)
         }
@@ -103,6 +101,8 @@ extension AuthorizationRequestView: OnBoardingNavBarViewListener {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)
+        case .rightButtonClicked:
+            break
         }
     }
 }

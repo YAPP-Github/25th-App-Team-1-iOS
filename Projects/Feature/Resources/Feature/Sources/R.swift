@@ -5,8 +5,80 @@ public class R {
         public static let svgBtnAdd = UIImage(named: "svg_btn_add", in: .resources, compatibleWith: nil)
     }
     
-    public struct Sound {
-        public static let alarm = Bundle.resources.url(forResource: "crowded_cafe", withExtension: "caf")!
+    public enum AlarmSound: String, CaseIterable {
+        case Ascending = "Ascending.caf"
+        case Bell_Tower = "Bell_Tower.caf"
+        case Blues = "Blues.caf"
+        case Boing = "Boing.caf"
+        case Crickets = "Crickets.caf"
+        case Digital = "Digital.caf"
+        case Doorbell = "Doorbell.caf"
+        case Duck = "Duck.caf"
+        case Harp = "Harp.caf"
+        case Marimba = "Marimba.caf"
+        case Motocycle = "Motocycle.caf"
+        case Old_Car_Horn = "Old_Car_Horn.caf"
+        case Old_Phone = "Old_Phone.caf"
+        case Piano_Riff = "Piano_Riff.caf"
+        case Pinball = "Pinball.caf"
+        case Robot = "Robot.caf"
+        case Strum = "Strum.caf"
+        case Timba = "Timba.caf"
+        case Trill = "Trill.caf"
+        case Xylophone = "Xylophone.caf"
+        
+        public var title: String {
+            switch self {
+            case .Ascending:
+                return "상승음"
+            case .Bell_Tower:
+                return "종탑 소리"
+            case .Blues:
+                return "블루스"
+            case .Boing:
+                return "공 튀기는 소리"
+            case .Crickets:
+                return "귀뚜라미 소리"
+            case .Digital:
+                return "기계음"
+            case .Doorbell:
+                return "초인종 소리"
+            case .Duck:
+                return "오리 소리"
+            case .Harp:
+                return "하프"
+            case .Marimba:
+                return "마림바"
+            case .Motocycle:
+                return "오토바이"
+            case .Old_Car_Horn:
+                return "구식 자동차 경적"
+            case .Old_Phone:
+                return "전화 벨소리"
+            case .Piano_Riff:
+                return "피아노 연주"
+            case .Pinball:
+                return "핀볼 소리"
+            case .Robot:
+                return "로보트 소리"
+            case .Strum:
+                return "기타"
+            case .Timba:
+                return "타악기"
+            case .Trill:
+                return "트릴"
+            case .Xylophone:
+                return "실로폰"
+            }
+        }
+        
+        public var alarm: URL? {
+            Bundle.resources.url(forResource: rawValue, withExtension: nil)
+        }
+    }
+    
+    public struct GIF {
+        public static let onboarding1 = Bundle.resources.url(forResource: "onboarding_1", withExtension: "gif")!
     }
     
     public struct Color {
@@ -114,6 +186,13 @@ public class R {
         case caption1Regular
         case caption2Regular
         
+        case ownglyphPHD_H0
+        case ownglyphPHD_H1
+        case ownglyphPHD_H2
+        case ownglyphPHD_H3
+        case ownglyphPHD_H4
+        case ownglyphPHD_H5
+        
         var size: CGFloat {
             switch self {
             case .displaySemiBold:
@@ -164,6 +243,18 @@ public class R {
                 return 12
             case .caption2Regular:
                 return 11
+            case .ownglyphPHD_H0:
+                return 36
+            case .ownglyphPHD_H1:
+                return 28
+            case .ownglyphPHD_H2:
+                return 22
+            case .ownglyphPHD_H3:
+                return 20
+            case .ownglyphPHD_H4:
+                return 18
+            case .ownglyphPHD_H5:
+                return 16
             }
         }
         
@@ -217,6 +308,18 @@ public class R {
                 return 1.334
             case .caption2Regular:
                 return 1.273
+            case .ownglyphPHD_H0:
+                return 1.4
+            case .ownglyphPHD_H1:
+                return 1.4
+            case .ownglyphPHD_H2:
+                return 1.5
+            case .ownglyphPHD_H3:
+                return 1.5
+            case .ownglyphPHD_H4:
+                return 1.3
+            case .ownglyphPHD_H5:
+                return 1.3
             }
         }
         
@@ -269,6 +372,18 @@ public class R {
             case .caption1Regular:
                 return -1
             case .caption2Regular:
+                return -1
+            case .ownglyphPHD_H0:
+                return -1
+            case .ownglyphPHD_H1:
+                return -1
+            case .ownglyphPHD_H2:
+                return -1
+            case .ownglyphPHD_H3:
+                return -1
+            case .ownglyphPHD_H4:
+                return -1
+            case .ownglyphPHD_H5:
                 return -1
             }
         }
@@ -323,8 +438,19 @@ public class R {
                 return FeatureResourcesFontFamily.Pretendard.regular.font(size: size)
             case .caption2Regular:
                 return FeatureResourcesFontFamily.Pretendard.regular.font(size: size)
+            case .ownglyphPHD_H0:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H1:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H2:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H3:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H4:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
+            case .ownglyphPHD_H5:
+                return FeatureResourcesFontFamily.OwnglyphPDH.regular.font(size: size)
             }
         }
     }
 }
-

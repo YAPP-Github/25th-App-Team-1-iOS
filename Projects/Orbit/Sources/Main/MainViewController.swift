@@ -8,6 +8,7 @@
 import RIBs
 import RxSwift
 import UIKit
+import FeatureThirdPartyDependencies
 
 protocol MainPresentableListener: AnyObject {
     // TODO: Declare properties and methods that the view controller can invoke to perform
@@ -20,6 +21,26 @@ final class MainViewController: UIViewController, MainPresentable, MainViewContr
     weak var listener: MainPresentableListener?
     
     override func viewDidLoad() {
-        
+        super.viewDidLoad()
+        setupUI()
+        layout()
+    }
+    
+    private let logoImageView = UIImageView()
+}
+
+private extension MainViewController {
+    func setupUI() {
+        logoImageView.do {
+            $0.image = UIImage(named: "splash_logo")
+            $0.contentMode = .scaleAspectFit
+        }
+        view.addSubview(logoImageView)
+    }
+    
+    func layout() {
+        logoImageView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
     }
 }

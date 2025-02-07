@@ -48,7 +48,7 @@ final class RootViewController: UIViewController {
     
     private func showAlarmList() {
         let builder = RootBuilder(dependency: ExampleComponent(viewController: self))
-        let router = builder.build(withListener: self)
+        let router = builder.build(withListener: self, mode: .create)
         router.interactable.activate()
         alarmRootRouter = router
     }
@@ -59,11 +59,11 @@ final class RootViewController: UIViewController {
 }
 
 extension RootViewController: RootListener, RootViewControllable {
-    
+    func reqeust(_ request: FeatureAlarm.RootListenerRequest) {}
 }
 
 extension ExampleComponent: RootDependency {
-    var RootViewController: RootViewControllable {
+    var alarmRootViewController: RootViewControllable {
         viewController
     }
 }

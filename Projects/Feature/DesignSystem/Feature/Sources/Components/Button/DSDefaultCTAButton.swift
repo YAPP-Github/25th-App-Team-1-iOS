@@ -9,11 +9,14 @@ import UIKit
 
 import FeatureResources
 
-import SnapKit
+import FeatureThirdPartyDependencies
 
 public final class DSDefaultCTAButton: TouchDetectingView {
     // Sub view
+    private let leftIconImageView = UIImageView()
     private let titleLabel: UILabel = .init()
+    private let rightIconImageView = UIImageView()
+    private let stackView = UIStackView()
     
     // Listener
     public var buttonAction: (() -> Void)?
@@ -78,11 +81,40 @@ public final class DSDefaultCTAButton: TouchDetectingView {
     
     private func setupLayout() {
         // titleLabel
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
+        leftIconImageView.do {
+            $0.contentMode = .scaleAspectFit
+            $0.isHidden = true
+        }
+        
+        rightIconImageView.do {
+            $0.contentMode = .scaleAspectFit
+            $0.isHidden = true
+        }
+        
+        stackView.do {
+            $0.axis = .horizontal
+            $0.alignment = .fill
+            $0.distribution = .fill
+            $0.spacing = 4
+        }
+        
+        [leftIconImageView, titleLabel, rightIconImageView].forEach {
+            stackView.addArrangedSubview($0)
+        }
+        
+        addSubview(stackView)
+        stackView.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.leading.greaterThanOrEqualToSuperview()
             make.trailing.lessThanOrEqualToSuperview()
+        }
+        
+        leftIconImageView.snp.makeConstraints {
+            $0.size.equalTo(20)
+        }
+        
+        rightIconImageView.snp.makeConstraints {
+            $0.size.equalTo(20)
         }
     }
     
@@ -101,9 +133,19 @@ public final class DSDefaultCTAButton: TouchDetectingView {
 
 // MARK: Public interface
 public extension DSDefaultCTAButton {
+    func update(leftImage: UIImage) {
+        leftIconImageView.image = leftImage
+        leftIconImageView.isHidden = false
+    }
+    
     func update(title: String) {
         self.title = title
         updateAppearance()
+    }
+    
+    func update(rightImage: UIImage) {
+        rightIconImageView.image = rightImage
+        rightIconImageView.isHidden = false
     }
     
     func update(state: State) {

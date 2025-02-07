@@ -7,7 +7,10 @@
 
 import UIKit
 
-public protocol DSTwoButtonAlertPresentable: AlertPresentable { }
+public protocol DSTwoButtonAlertPresentable {
+    func presentAlert(presentingController: UIViewController, listener: DSTwoButtonAlertViewControllerListener, config: DSTwoButtonAlert.Config)
+    func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)?)
+}
 
 public extension DSTwoButtonAlertPresentable {
     

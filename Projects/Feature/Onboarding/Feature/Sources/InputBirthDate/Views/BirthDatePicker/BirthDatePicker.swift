@@ -7,14 +7,13 @@
 
 import UIKit
 
-import FeatureResources
-
-import SnapKit
+import FeatureUIDependencies
+import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 import RxSwift
 
 protocol BirthDatePickerListener: AnyObject {
-    
-    func latestDate(calendar: CalendarType, year: Int, month: Int, day: Int)
+    func latestDate(calendar: CalendarType, year: Year, month: Month, day: Day)
 }
 
 final class BirthDatePicker: UIView {
@@ -165,7 +164,7 @@ final class BirthDatePicker: UIView {
             .withUnretained(self)
             .map({ view, bundle in
                 
-                let (calendar, year, month) = bundle
+                let (calendar, yearValue, monthValue) = bundle
                 
                 var calendarType: CalendarType!
                 
@@ -178,11 +177,16 @@ final class BirthDatePicker: UIView {
                     fatalError()
                 }
                 
-                guard let yearInt = Int(year), let monthInt = Int(month) else {
+                guard let yearInt = Int(yearValue), let monthInt = Int(monthValue) else {
                     fatalError()
                 }
                 
-                let newDayRange = view.updateDay(calendarType: calendarType, year: yearInt, month: monthInt)
+                let year = Year(yearInt)
+                guard let month = Month(rawValue: monthInt), let month = Month(rawValue: monthInt) else {
+                    fatalError()
+                }
+                
+                let newDayRange = view.updateDay(calendarType: calendarType, year: year, month: month)
                 
                 return (calendar, year, month, newDayRange)
             })
@@ -193,7 +197,7 @@ final class BirthDatePicker: UIView {
         
         Observable
             .combineLatest(dateIsUpdated, dayChangeObservable)
-            .subscribe(onNext: { [weak self] bundle, day in
+            .subscribe(onNext: { [weak self] bundle, dayValue in
                 
                 let (calendar, year, month, newDayRange) = bundle
                 
@@ -210,17 +214,11 @@ final class BirthDatePicker: UIView {
                     fatalError()
                 }
                 
-                guard let yearInt = Int(year), let monthInt = Int(month), let dayInt = Int(day) else {
-                    fatalError()
-                }
+                guard let dayInt = Int(dayValue),
+                      let day = Day(dayInt, month: month, year: year)
+                else { fatalError() }
                 
-                // 업데이트된 일수를 적용하여 현재 방출된 Day값이 유효한지 확인
-                if newDayRange.contains(dayInt) {
-                    
-                    // 현재 방출된 일 값이 유효함
-                    
-                    listener?.latestDate(calendar: calendarType, year: yearInt, month: monthInt, day: dayInt)
-                }
+                listener?.latestDate(calendar: calendarType, year: year, month: month, day: day)
             })
             .disposed(by: disposeBag)
     }
@@ -238,7 +236,9 @@ extension BirthDatePicker {
         
         let dateComponents = gregorianCalendar.dateComponents([.year, .month, .day], from: oneYearAgoDate)
         
-        guard let year = dateComponents.year, let month = dateComponents.month, let day = dateComponents.day else { return }
+        guard let yearValue = dateComponents.year, let monthValue = dateComponents.month, let dayValue = dateComponents.day else { return }
+        let year = Year(yearValue)
+        guard let month = Month(rawValue: monthValue), let day = Day(dayValue, month: month, year: year) else { return }
         
         let calendarType: CalendarType = .gregorian
         
@@ -247,49 +247,39 @@ extension BirthDatePicker {
     }
     
     
-    func update(calendarType: CalendarType, year: Int, month: Int, day: Int) {
+    func update(calendarType: CalendarType, year: Year, month: Month, day: Day) {
         
         // calendarType
         calendarColumn.rx.setContent.accept(calendarType.content)
         
         // year
-        yearColumn.rx.setContent.accept(String(year))
+        yearColumn.rx.setContent.accept(String(year.value))
         
         // month
-        monthColumn.rx.setContent.accept(String(month))
+        monthColumn.rx.setContent.accept(String(month.rawValue))
         
         // day
         updateDay(calendarType: calendarType, year: year, month: month)
-        dayColumn.rx.setContent.accept(String(day))
+        dayColumn.rx.setContent.accept(String(day.value))
     }
     
     
     /// 새롭게 업데이트되는 일수를 반환
     @discardableResult
-    func updateDay(calendarType: CalendarType, year: Int, month: Int) -> Range<Int> {
+    func updateDay(calendarType: CalendarType, year: Year, month: Month) -> Range<Int> {
         
         let calendar = Calendar(identifier: calendarType.calendarIdentifier)
         
-        var dateComponents = DateComponents()
-        dateComponents.year = year
-        dateComponents.month = month
+        let lastDay = Day.lastDay(of: month, in: year)
         
-        let date = calendar.date(from: dateComponents)!
-        let range = calendar.range(of: .day, in: .month, for: date)!
-        
-        let updatedItems: [BirthDaySelectionItem] = range.map { dayItem in
-            
-            var displayingText = "\(dayItem)"
-            
-            if dayItem < 10 {
-                
-                displayingText = "0\(dayItem)"
-            }
+        let range = 1...lastDay
+        let updatedItems: [BirthDaySelectionItem] = range.map { day in
+            var displayingText = String(format: "%02d", day)
             
             let selectionItemViewSize: CGSize = .init(width: 42, height: 38)
             
             return BirthDaySelectionItem(
-                content: String(dayItem),
+                content: String(day),
                 displayingText: displayingText,
                 contentSize: selectionItemViewSize
             )
@@ -297,7 +287,7 @@ extension BirthDatePicker {
         
         dayColumn.update(items: updatedItems)
         
-        return range
+        return Range(range)
     }
 }
 

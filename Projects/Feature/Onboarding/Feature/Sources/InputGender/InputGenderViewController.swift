@@ -70,6 +70,8 @@ extension InputGenderViewController {
     func action(_ action: InputGenderInteractorAction) {
         
         switch action {
+        case let .setGender(gender):
+            mainView.setGender(gender)
         case .updateButtonState(let isEnabled):
             
             mainView.updateCtaButton(isEnabled: isEnabled)

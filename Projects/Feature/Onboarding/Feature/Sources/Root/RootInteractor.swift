@@ -11,15 +11,15 @@ import RxSwift
 public enum RootRouterRequest {
     case cleanUpViews
     case routeToIntro
-    case routeToInputWakeUpAlarm
+    case routeToInputWakeUpAlarm(OnboardingModel)
     case detachInputWakeUpAlarm
-    case routeToInputBirthDate
+    case routeToInputBirthDate(OnboardingModel)
     case detachInputBirthDate
-    case routeToInputBornTime
+    case routeToInputBornTime(OnboardingModel)
     case detachInputBornTime
-    case routeToInputName
+    case routeToInputName(OnboardingModel)
     case detachInputName
-    case routeToInputGender
+    case routeToInputGender(OnboardingModel)
     case detachInputGender
     case routeToAuthorizationRequest
     case detachAuthorizationRequest
@@ -35,8 +35,12 @@ public protocol RootRouting: Routing {
     func request(_ request: RootRouterRequest)
 }
 
+public enum RootListenerRequest {
+    case start
+}
+
 public protocol RootListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: RootListenerRequest)
 }
 
 final class RootInteractor: Interactor, RootInteractable {
@@ -56,15 +60,15 @@ final class RootInteractor: Interactor, RootInteractable {
         case .intro:
             router?.request(.routeToIntro)
         case .inputName:
-            router?.request(.routeToInputName)
+            router?.request(.routeToInputName(onboardingModel))
         case .inputBornTime:
-            router?.request(.routeToInputBornTime)
+            router?.request(.routeToInputBornTime(onboardingModel))
         case .inputGender:
-            router?.request(.routeToInputGender)
+            router?.request(.routeToInputGender(onboardingModel))
         case .inputWakeUpAlarm:
-            router?.request(.routeToInputWakeUpAlarm)
+            router?.request(.routeToInputWakeUpAlarm(onboardingModel))
         case .inputBirthDate:
-            router?.request(.routeToInputBirthDate)
+            router?.request(.routeToInputBirthDate(onboardingModel))
         case .authorizationRequest:
             router?.request(.routeToAuthorizationRequest)
         }
@@ -74,7 +78,6 @@ final class RootInteractor: Interactor, RootInteractable {
         super.willResignActive()
 
         router?.request(.cleanUpViews)
-        // TODO: Pause any business logic.
     }
     
     private let entryPoint: EntryPoint
@@ -87,7 +90,7 @@ extension RootInteractor {
     func request(_ request: OnboardingIntroListenerRequest) {
         switch request {
         case .next:
-            router?.request(.routeToInputWakeUpAlarm)
+            router?.request(.routeToInputWakeUpAlarm(onboardingModel))
         }
     }
 }
@@ -98,11 +101,10 @@ extension RootInteractor {
     func request(_ request: InputWakeUpAlarmListenerRequest) {
         switch request {
         case .back:
-            onboardingModel.alarm = nil
             router?.request(.detachInputWakeUpAlarm)
-        case let .next(alarmData):
-            onboardingModel.alarm = alarmData
-            router?.request(.routeToInputBirthDate)
+        case let .next(model):
+            onboardingModel.alarm = model.alarm
+            router?.request(.routeToInputBirthDate(onboardingModel))
         }
     }
 }
@@ -113,11 +115,10 @@ extension RootInteractor {
     func request(_ request: InputBirthDateListenerRequest) {
         switch request {
         case .back:
-            onboardingModel.birthDate = nil
             router?.request(.detachInputBirthDate)
-        case let .confirmBirthDate(birthDateData):
-            onboardingModel.birthDate = birthDateData
-            router?.request(.routeToInputBornTime)
+        case let .confirmBirthDate(model):
+            onboardingModel.birthDate = model.birthDate
+            router?.request(.routeToInputBornTime(onboardingModel))
         }
     }
 }
@@ -129,11 +130,9 @@ extension RootInteractor {
         switch request {
         case .back:
             router?.request(.detachInputBornTime)
-        case .skip:
-            router?.request(.routeToInputName)
-        case let .next(bornTimeData):
-            onboardingModel.bornTime = bornTimeData
-            router?.request(.routeToInputName)
+        case let .next(model):
+            onboardingModel.bornTime = model.bornTime
+            router?.request(.routeToInputName(onboardingModel))
         }
     }
     
@@ -160,11 +159,10 @@ extension RootInteractor {
     func request(_ request: InputNameListenerRequest) {
         switch request {
         case .back:
-            onboardingModel.name = nil
             router?.request(.detachInputName)
-        case let .next(name):
-            onboardingModel.name = name
-            router?.request(.routeToInputGender)
+        case let .next(model):
+            onboardingModel.name = model.name
+            router?.request(.routeToInputGender(onboardingModel))
         }
     }
 }
@@ -175,10 +173,9 @@ extension RootInteractor {
     func request(_ request: InputGenderListenerRequest) {
         switch request {
         case .back:
-            onboardingModel.gender = nil
             router?.request(.detachInputGender)
-        case let .next(gender):
-            onboardingModel.gender = gender
+        case let .next(model):
+            onboardingModel.gender = model.gender
             router?.request(.routeToInputSummary(onboardingModel))
         }
     }
@@ -189,6 +186,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: AuthorizationDeniedListenerRequest) {
         switch request {
+        case .back:
+            router?.request(.detachAuthorizationDenied)
         case .later:
             router?.request(.routeToMissionGuide)
         case .allowed:
@@ -214,8 +213,7 @@ extension RootInteractor {
     func request(_ request: OnboardingFortuneGuideListenerRequest) {
         switch request {
         case .start:
-            break
-            //여기다가 이제 온보딩 때 입력한 데이터 저장 및 메인 화면 호출 이벤트를 리스너에게 전달해야함.
+            listener?.request(.start)
         }
     }
 }
