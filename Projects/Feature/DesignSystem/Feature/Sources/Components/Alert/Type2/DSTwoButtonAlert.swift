@@ -16,7 +16,9 @@ public class DSTwoButtonAlert: UIView {
     // SubView
     // - Label
     private let titleLabel: UILabel = .init()
-    private let subTitleLabel: UILabel = .init()
+    private let subTitleLabel: UILabel = .init().then {
+        $0.numberOfLines = 0
+    }
     private let labelStack: UIStackView = .init().then {
         $0.axis = .vertical
         $0.alignment = .center

@@ -53,6 +53,17 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
 extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
+        case .showFortuneNoti:
+            let config = DSButtonAlert.Config(
+                titleText: "받은 운세가 없어요",
+                subTitleText: """
+                알람이 울린 후 미션을 수행하면
+                오늘의 운세를 받을 수 있어요.
+                """,
+                buttonText: "닫기")
+            router?.request(.presentAlert(config, self))
+        case .goToSettings:
+            break
         case .changeAlarmState(let alarmId, let changeToActive):
             break
         case .deleteAlarm(let alarmId):

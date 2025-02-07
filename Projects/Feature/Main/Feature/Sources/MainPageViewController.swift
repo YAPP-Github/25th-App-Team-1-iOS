@@ -15,6 +15,8 @@ protocol MainPagePresentableListener: AnyObject {
 }
 
 enum MainPageViewPresenterRequest {
+    case showFortuneNoti
+    case goToSettings
     case changeAlarmState(alarmId: String, changeToActive: Bool)
     case deleteAlarm(alarmId: String)
 }
@@ -61,9 +63,9 @@ extension MainPageViewController {
     func action(_ action: MainPageView.Action) {
         switch action {
         case .fortuneNotiButtonClicked:
-            break
+            listener?.request(.showFortuneNoti)
         case .applicationSettingButtonClicked:
-            break
+            listener?.request(.goToSettings)
         case .alarmStateWillChange(let alarmId, let isActive):
             listener?.request(.changeAlarmState(
                 alarmId: alarmId,
@@ -71,6 +73,19 @@ extension MainPageViewController {
             ))
         case .alarmWillDelete(let alarmId):
             listener?.request(.deleteAlarm(alarmId: alarmId))
+            break
+        }
+    }
+}
+
+extension MainPageViewController: EmptyAlarmViewListener {
+    func action(_ action: EmptyAlarmView.Action) {
+        switch action {
+        case .fortuneNotiButtonTapped:
+            listener?.request(.showFortuneNoti)
+        case .applicationSettingButtonTapped:
+            listener?.request(.goToSettings)
+        case .addAlarmButtonTapped:
             break
         }
     }
@@ -103,9 +118,3 @@ extension MainPageViewController {
 //    
 //    return vc
 //}
-
-extension MainPageViewController: EmptyAlarmViewListener {
-    func action(_ action: EmptyAlarmView.Action) {
-        
-    }
-}
