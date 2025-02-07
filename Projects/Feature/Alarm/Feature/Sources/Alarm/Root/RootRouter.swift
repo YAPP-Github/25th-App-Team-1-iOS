@@ -86,8 +86,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     func detachCreateEditAlarm() {
         guard let router = createAlarmRouter else { return }
         createAlarmRouter = nil
-        detachChild(router)
-        viewController.uiviewController.dismiss(animated: true)
+        viewController.uiviewController.dismiss(animated: true) { [weak self] in
+            self?.detachChild(router)
+        }
     }
     
     func routeToSnoozeOption(snoozeOption: SnoozeOption) {
@@ -104,7 +105,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard let router = snoozeOptionRouter else { return }
         snoozeOptionRouter = nil
         detachChild(router)
-        router.viewControllable.uiviewController.dismiss(animated: true)
+        router.viewControllable.uiviewController.dismiss(animated: true) { [weak self] in
+            self?.detachChild(router)
+        }
     }
     
     func routeToSoundOption(soundOption: SoundOption) {
@@ -121,6 +124,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard let router = soundOptionRouter else { return }
         soundOptionRouter = nil
         detachChild(router)
-        router.viewControllable.uiviewController.dismiss(animated: true)
+        router.viewControllable.uiviewController.dismiss(animated: true) { [weak self] in
+            self?.detachChild(router)
+        }
     }
 }

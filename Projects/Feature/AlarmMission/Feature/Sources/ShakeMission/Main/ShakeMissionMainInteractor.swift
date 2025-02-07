@@ -29,8 +29,12 @@ protocol ShakeMissionMainPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
+public enum ShakeMissionMainListenerRequest {
+    case close
+}
+
 public protocol ShakeMissionMainListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: ShakeMissionMainListenerRequest)
 }
 
 final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPresentable>, ShakeMissionMainInteractable, ShakeMissionMainPresentableListener, DSTwoButtonAlertViewControllerListener {
@@ -70,6 +74,7 @@ extension ShakeMissionMainInteractor {
             router?.request(.dismissAlert())
         case .rightButtonClicked:
             router?.request(.exitPage)
+            listener?.request(.close)
         }
     }
 }
@@ -80,5 +85,7 @@ extension ShakeMissionMainInteractor {
     
     func exitShakeMissionWorkingPage() {
         router?.request(.dissmissWorkingPage)
+        router?.request(.exitPage)
+        listener?.request(.close)
     }
 }

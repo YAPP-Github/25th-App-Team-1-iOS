@@ -9,13 +9,17 @@ import RIBs
 import RxSwift
 import FeatureDesignSystem
 import FeatureAlarm
+import FeatureAlarmMission
 import FeatureCommonDependencies
+import FeatureFortune
 
 public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
     case detachCreateEditAlarm
     case routeToAlarmMission
-    case detachAlarmMission
+    case detachAlarmMission((() -> Void)?)
+    case routeToFortune
+    case detachFortune
     case presentAlert(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
 }
@@ -54,7 +58,7 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private let service: MainPageServiceable
 }
 
-
+// MARK: - MainPageViewPresenterRequest
 extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
@@ -91,6 +95,7 @@ extension MainPageInteractor {
     }
 }
 
+// MARK: - DSButtonAlertViewControllerListener
 extension MainPageInteractor: DSButtonAlertViewControllerListener {
     func action(_ action: DSButtonAlertViewController.Action) {
         switch action {
@@ -100,6 +105,7 @@ extension MainPageInteractor: DSButtonAlertViewControllerListener {
     }
 }
 
+// MARK: - RootListenerRequest
 extension MainPageInteractor {
     func reqeust(_ request: RootListenerRequest) {
         router?.request(.detachCreateEditAlarm)
@@ -118,6 +124,27 @@ extension MainPageInteractor {
             service.deleteAlarm(alarm)
             let newAlarmList = service.getAllAlarm()
             presenter.request(.setAlarmList(newAlarmList))
+        }
+    }
+}
+
+extension MainPageInteractor {
+    func request(_ request: FeatureAlarmMission.ShakeMissionMainListenerRequest) {
+        switch request {
+        case .close:
+            router?.request(.detachAlarmMission { [weak router] in
+                router?.request(.routeToFortune)
+            })
+        }
+    }
+}
+
+// MARK: - FortuneListenerRequest
+extension MainPageInteractor {
+    func request(_ request: FeatureFortune.FortuneListenerRequest) {
+        switch request {
+        case .close:
+            router?.request(.detachFortune)
         }
     }
 }

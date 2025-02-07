@@ -54,6 +54,7 @@ let project = Project(
                 .feature(implements: .ThirdPartyDependencies),
                 .feature(implements: .Alarm),
                 .feature(implements: .AlarmMission),
+                .feature(implements: .Fortune)
             ]
         ),
     ]

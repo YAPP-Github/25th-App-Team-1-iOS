@@ -10,10 +10,12 @@ import UIKit
 import FeatureDesignSystem
 import FeatureAlarm
 import FeatureAlarmMission
+import FeatureFortune
 
 protocol MainPageInteractable: Interactable,
                                FeatureAlarm.RootListener,
-                               FeatureAlarmMission.ShakeMissionMainListener {
+                               FeatureAlarmMission.ShakeMissionMainListener,
+                               FeatureFortune.FortuneListener {
     var router: MainPageRouting? { get set }
     var listener: MainPageListener? { get set }
 }
@@ -29,10 +31,12 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         interactor: MainPageInteractable,
         viewController: MainPageViewControllable,
         alarmBuilder: FeatureAlarm.RootBuildable,
-        alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable
+        alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable,
+        fortuneBuilder: FeatureFortune.FortuneBuildable
     ) {
         self.alarmBuilder = alarmBuilder
         self.alarmMissionBuilder = alarmMissionBuilder
+        self.fortuneBuilder = fortuneBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -45,8 +49,12 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             detachCreateEditAlarm()
         case .routeToAlarmMission:
             routeToAlarmMission()
-        case .detachAlarmMission:
-            detachAlarmMission()
+        case let .detachAlarmMission(completion):
+            detachAlarmMission(completion)
+        case .routeToFortune:
+            routeToFortune()
+        case .detachFortune:
+            detachFortune()
         case .presentAlert(let config, let listener):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -67,7 +75,10 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     private let alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable
     private var alarmMissionRouter: FeatureAlarmMission.ShakeMissionMainRouting?
     
-    var navigationController: UINavigationController?
+    private let fortuneBuilder: FeatureFortune.FortuneBuildable
+    private var fortuneRouter: FeatureFortune.FortuneRouting?
+    
+    private var navigationController: UINavigationController?
     
     private func routeToCreateAlarm(mode: AlarmCreateEditMode) {
         guard alarmRouter == nil else { return }
@@ -87,20 +98,41 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         let router = alarmMissionBuilder.build(withListener: interactor)
         self.alarmMissionRouter = router
         attachChild(router)
-        let navigatinoController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
-        navigatinoController.modalPresentationStyle = .fullScreen
-        viewController.uiviewController.present(navigatinoController, animated: true)
-        self.navigationController = navigatinoController
+        router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
     
-    private func detachAlarmMission() {
+    private func detachAlarmMission(_ completion: (() -> Void)?) {
         guard let router = alarmMissionRouter else { return }
         alarmMissionRouter = nil
+        viewController.uiviewController.dismiss(animated: true) { [weak self] in
+            self?.detachChild(router)
+            completion?()
+        }
+    }
+    
+    private func routeToFortune() {
+        guard fortuneRouter == nil else { return }
+        let router = fortuneBuilder.build(withListener: interactor)
+        self.fortuneRouter = router
+        attachChild(router)
+        let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        viewController.uiviewController.present(navigationController, animated: true)
+        self.navigationController = navigationController
+    }
+    
+    private func detachFortune() {
+        guard let router = fortuneRouter else { return }
+        fortuneRouter = nil
         detachChild(router)
+        
         if let navigationController {
             navigationController.setViewControllers([], animated: true)
-            self.navigationController = nil
+            navigationController.dismiss(animated: true) { [weak self] in
+                self?.detachChild(router)
+            }
         }
-        viewController.uiviewController.dismiss(animated: true)
+        navigationController = nil
     }
 }

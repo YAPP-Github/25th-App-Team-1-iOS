@@ -39,9 +39,6 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
         self.shakeMissionWorkingBuilder = shakeMissionWorkingBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
-        
-        // navigationController
-        
     }
     
     private func presentOrPushViewController(with router: ViewableRouting, animated: Bool = true) {
@@ -57,13 +54,19 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
     }
     
     private func dismissOrPopViewController(animated: Bool = true) {
-        if let navigationController,
-           navigationController.viewControllers.count > 1 {
-            navigationController.popViewController(animated: animated)
+        if let navigationController {
+            if navigationController.viewControllers.count > 1 {
+                navigationController.popViewController(animated: animated)
+            }
+            else {
+                navigationController.setViewControllers([], animated: true)
+                navigationController.dismiss(animated: true)
+                self.navigationController = nil
+            }
         } else {
             // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
             viewController.uiviewController.dismiss(animated: animated)
-            navigationController = nil
+    
         }
     }
 }
@@ -90,7 +93,7 @@ extension ShakeMissionMainRouter {
                 completion: completion
             )
         case .exitPage:
-            print("exit ShakeMissionMainPage")
+            break
         }
     }
 }
@@ -103,7 +106,6 @@ private extension ShakeMissionMainRouter {
         let router = shakeMissionWorkingBuilder.build(withListener: interactor)
         self.shakeMissionWorkingRouter = router
         attachChild(router)
-        let viewController = router.viewControllable.uiviewController
         presentOrPushViewController(with: router)
     }
     

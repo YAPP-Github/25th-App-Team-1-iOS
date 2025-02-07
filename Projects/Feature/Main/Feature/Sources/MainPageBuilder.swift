@@ -8,6 +8,7 @@
 import RIBs
 import FeatureAlarm
 import FeatureAlarmMission
+import FeatureFortune
 
 public protocol MainPageDependency: Dependency {}
 
@@ -42,11 +43,13 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
         
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
         let alarmMissionBuilder = FeatureAlarmMission.ShakeMissionMainBuilder(dependency: component)
+        let fortuneBuilder = FeatureFortune.FortuneBuilder(dependency: component)
         return MainPageRouter(
             interactor: interactor,
             viewController: viewController,
             alarmBuilder: alarmBuilder,
-            alarmMissionBuilder: alarmMissionBuilder
+            alarmMissionBuilder: alarmMissionBuilder,
+            fortuneBuilder: fortuneBuilder
         )
     }
 }
