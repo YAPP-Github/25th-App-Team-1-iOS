@@ -8,6 +8,7 @@
 import RIBs
 import RxSwift
 import FeatureOnboarding
+import FeatureCommonDependencies
 
 enum MainRouterRequest {
     case routeToOnboarding
@@ -43,8 +44,7 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
 
     override func didBecomeActive() {
         super.didBecomeActive()
-        let hadDoneOnboarding: Bool = false
-        if hadDoneOnboarding {
+        if Preference.isOnboardingFinished {
             router?.request(.routeToMain)
         } else {
             router?.request(.routeToOnboarding)
@@ -61,8 +61,9 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
 extension MainInteractor {
     func request(_ request: RootListenerRequest) {
         switch request {
-        case .start:
+        case let .start(alarm):
             router?.request(.detachOnboarding)
+            AlarmStore.shared.add(alarm)
             router?.request(.routeToMain)
         }
     }

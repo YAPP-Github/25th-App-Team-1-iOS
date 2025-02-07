@@ -60,12 +60,12 @@ final class AuthorizationRequestInteractor: PresentableInteractor<AuthorizationR
         switch request {
         case .back:
             listener?.request(.back)
-        case .yesButtonTapped:
-            requestPermission()
+        case .requestAuthorization:
+            requestAuthorization()
         }
     }
     
-    private func requestPermission() {
+    private func requestAuthorization() {
         service.requestPermission { [weak listener] granted in
             DispatchQueue.main.async {
                 if granted {

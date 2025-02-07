@@ -12,9 +12,7 @@ public protocol RootDependency: Dependency {
 }
 
 final class RootComponent: Component<RootDependency> {
-    fileprivate var rootViewController: RootViewControllable {
-        return dependency.alarmRootViewController
-    }
+    fileprivate let rootViewController: RootViewControllable
     fileprivate var service: RootServiceable
     fileprivate var mode: AlarmCreateEditMode
     
@@ -27,11 +25,13 @@ final class RootComponent: Component<RootDependency> {
     }
     
     init(dependency: any RootDependency,
+         viewController: RootViewControllable,
          service: RootServiceable = RootService(),
          mode: AlarmCreateEditMode
     ) {
         self.service = service
         self.mode = mode
+        self.rootViewController = viewController
         super.init(dependency: dependency)
     }
 }
@@ -49,7 +49,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
     }
 
     public func build(withListener listener: RootListener, mode: AlarmCreateEditMode) -> RootRouting {
-        let component = RootComponent(dependency: dependency, mode: mode)
+        let component = RootComponent(dependency: dependency, viewController: dependency.alarmRootViewController, mode: mode)
         let interactor = RootInteractor(
             service: component.service,
             mode: component.mode,

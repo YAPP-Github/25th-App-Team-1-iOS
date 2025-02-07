@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
 
 protocol OnboardingFortuneGuideRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -40,6 +41,7 @@ final class OnboardingFortuneGuideInteractor: PresentableInteractor<OnboardingFo
     func request(_ request: OnboardingFortuneGuidePresentableListenerRequest) {
         switch request {
         case .start:
+            Preference.isOnboardingFinished = true
             listener?.request(.start)
         }
     }

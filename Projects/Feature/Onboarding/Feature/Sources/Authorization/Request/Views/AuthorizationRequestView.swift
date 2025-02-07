@@ -16,7 +16,6 @@ protocol AuthorizationRequestViewListener: AnyObject {
 final class AuthorizationRequestView: UIView {
     enum Action {
         case backButtonTapped
-        case yesButtonTapped
     }
     
     enum State {
@@ -37,7 +36,6 @@ final class AuthorizationRequestView: UIView {
     private let navigationBar = OnBoardingNavBarView()
     private let titleLabel = UILabel()
     private let guideImageView = UIImageView()
-    private let yesButton = DSDefaultCTAButton(initialState: .active)
 }
 
 private extension AuthorizationRequestView {
@@ -61,14 +59,7 @@ private extension AuthorizationRequestView {
             $0.contentMode = .scaleAspectFit
         }
         
-        yesButton.do {
-            $0.update(title: "네, 알겠어요")
-            $0.buttonAction = { [weak self] in
-                self?.listener?.action(.yesButtonTapped)
-            }
-        }
-        
-        [navigationBar, titleLabel, guideImageView, yesButton].forEach {
+        [navigationBar, titleLabel, guideImageView].forEach {
             addSubview($0)
         }
     }
@@ -86,12 +77,6 @@ private extension AuthorizationRequestView {
         guideImageView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(100)
             $0.horizontalEdges.equalToSuperview().inset(33)
-        }
-        
-        yesButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
-            $0.leading.equalTo(20)
-            $0.trailing.equalTo(-20)
         }
     }
 }
