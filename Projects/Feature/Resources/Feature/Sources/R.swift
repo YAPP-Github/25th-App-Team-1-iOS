@@ -72,8 +72,8 @@ public class R {
             }
         }
         
-        public var alarm: URL {
-            Bundle.resources.url(forResource: rawValue, withExtension: nil)!
+        public var alarm: URL? {
+            Bundle.resources.url(forResource: rawValue, withExtension: nil)
         }
     }
     

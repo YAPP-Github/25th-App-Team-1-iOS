@@ -9,6 +9,7 @@ import RIBs
 import RxSwift
 import FeatureDesignSystem
 import FeatureAlarm
+import FeatureCommonDependencies
 
 enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
@@ -20,9 +21,13 @@ protocol MainPageRouting: ViewableRouting {
     func request(_ request: MainPageRouterRequest)
 }
 
+enum MainPagePresentableRequest {
+    case setAlarmList([Alarm])
+}
+
 protocol MainPagePresentable: Presentable {
     var listener: MainPagePresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: MainPagePresentableRequest)
 }
 
 protocol MainPageListener: AnyObject {
@@ -36,26 +41,25 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: MainPagePresentable) {
+    init(
+        presenter: MainPagePresentable,
+        service: MainPageServiceable
+    ) {
+        self.service = service
         super.init(presenter: presenter)
         presenter.listener = self
     }
-
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
+    
+    private let service: MainPageServiceable
 }
 
 
 extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
+        case .viewDidLoad:
+            let alarmList = service.getAllAlarm()
+            presenter.request(.setAlarmList(alarmList))
         case .showFortuneNoti:
             let config = DSButtonAlert.Config(
                 titleText: "받은 운세가 없어요",
@@ -93,7 +97,8 @@ extension MainPageInteractor {
         case .close:
             break
         case let .done(alarm):
-            print(alarm)
+            service.addAlarm(alarm)
+            print(service.getAllAlarm().count)
         }
     }
 }

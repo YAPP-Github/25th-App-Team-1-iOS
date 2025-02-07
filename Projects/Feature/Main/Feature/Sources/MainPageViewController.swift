@@ -15,6 +15,7 @@ protocol MainPagePresentableListener: AnyObject {
 }
 
 enum MainPageViewPresenterRequest {
+    case viewDidLoad
     case showFortuneNoti
     case goToSettings
     case createAlarm
@@ -33,7 +34,20 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        listener?.request(.viewDidLoad)
         mainView.update(.orbitState(.beforeFortune))
+    }
+    
+    func request(_ request: MainPagePresentableRequest) {
+        switch request {
+        case let .setAlarmList(alarmList):
+            if alarmList.isEmpty {
+                view = emptyView
+            } else {
+                view = mainView
+                mainView.update(.presentAlarmCell(list: alarmList))
+            }
+        }
     }
     
     private let mainView = MainPageView()
@@ -60,7 +74,6 @@ extension MainPageViewController {
 
 // MARK: MainPageViewListener
 extension MainPageViewController {
-    
     func action(_ action: MainPageView.Action) {
         switch action {
         case .fortuneNotiButtonClicked:

@@ -7,8 +7,8 @@
 
 import Foundation
 
-final class AlarmStore {
-    static let shared = AlarmStore()
+public final class AlarmStore {
+    public static let shared = AlarmStore()
     
     private let userDefaults = UserDefaults.standard
     private let storageKey = "alarms" // 저장 키
@@ -23,18 +23,18 @@ final class AlarmStore {
     // MARK: - CRUD Methods
     
     /// Create: 새 알람 추가
-    func add(_ alarm: Alarm) {
+    public func add(_ alarm: Alarm) {
         alarms.append(alarm)
         saveAlarms()
     }
     
     /// Read: 모든 알람 조회
-    func getAll() -> [Alarm] {
+    public func getAll() -> [Alarm] {
         return alarms
     }
     
     /// Update: 기존 알람 수정 (id를 기준으로)
-    func update(_ alarm: Alarm) {
+    public func update(_ alarm: Alarm) {
         if let index = alarms.firstIndex(where: { $0.id == alarm.id }) {
             alarms[index] = alarm
             saveAlarms()
@@ -42,7 +42,7 @@ final class AlarmStore {
     }
     
     /// Delete: 알람 삭제 (id를 기준으로)
-    func delete(_ alarm: Alarm) {
+    public func delete(_ alarm: Alarm) {
         alarms.removeAll { $0.id == alarm.id }
         saveAlarms()
     }

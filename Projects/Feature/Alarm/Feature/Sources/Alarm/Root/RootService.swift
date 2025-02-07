@@ -131,7 +131,7 @@ extension RootService {
     @discardableResult
     func copySoundFileToLibrary(with sound: R.AlarmSound) -> UNNotificationSound? {
         // 다른 번들에서 사운드 파일 URL 가져오기
-        let soundURL = sound.alarm
+        let soundURL = sound.alarm!
         
         let fileManager = FileManager.default
         

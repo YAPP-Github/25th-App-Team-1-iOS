@@ -15,8 +15,11 @@ protocol MainPageDependency: Dependency {
 
 final class MainPageComponent: Component<MainPageDependency> {
     let viewController: MainPageViewControllable
-    init(dependency: MainPageDependency, viewController: MainPageViewControllable) {
+    fileprivate let service: MainPageServiceable
+    
+    init(dependency: MainPageDependency, viewController: MainPageViewControllable, service: MainPageServiceable = MainPageService()) {
         self.viewController = viewController
+        self.service = service
         super.init(dependency: dependency)
     }
 }
@@ -36,7 +39,7 @@ final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildable {
     func build(withListener listener: MainPageListener) -> MainPageRouting {
         let viewController = MainPageViewController()
         let component = MainPageComponent(dependency: dependency, viewController: viewController)
-        let interactor = MainPageInteractor(presenter: viewController)
+        let interactor = MainPageInteractor(presenter: viewController, service: component.service)
         interactor.listener = listener
         
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
