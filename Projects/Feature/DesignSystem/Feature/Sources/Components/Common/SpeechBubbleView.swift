@@ -1,31 +1,29 @@
 //
 //  SpeechBubbleView.swift
-//  Main
+//  FeatureDesignSystem
 //
-//  Created by choijunios on 1/28/25.
+//  Created by ever on 2/8/25.
 //
 
 import UIKit
-
 import FeatureResources
-
 import SnapKit
 
-final class SpeechBubbleView: UIStackView {
+public final class SpeechBubbleView: UIStackView {
     
     // Sub views
     private let bubbleView: UIView = .init()
     private let titleLabel: UILabel = .init()
     private let arrowView: UIImageView = .init()
     
-    init() {
+    public init() {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
     }
     required init(coder: NSCoder) { fatalError() }
     
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         
         // bubbleView corner radius
@@ -73,7 +71,7 @@ private extension SpeechBubbleView {
 
 
 // MARK: Public interface
-extension SpeechBubbleView {
+public extension SpeechBubbleView {
     
     func update(titleText: String) {
         titleLabel.displayText = titleText.displayText(
