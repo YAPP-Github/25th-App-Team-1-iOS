@@ -376,7 +376,8 @@ private extension SelectWeekDayView {
             holidayToggle.isOn = false
         } else {
             holidayToggle.isEnabled = true
+            holidayToggle.isOn = selectedDays.shoundTurnOffHolidayAlarm
         }
-        holidayToggle.thumbTintColor = holidayToggle.isOn ? R.Color.gray800 : R.Color.gray300
+        holidayToggle.thumbTintColor = selectedDays.shoundTurnOffHolidayAlarm ? R.Color.gray800 : R.Color.gray300
     }
 }
