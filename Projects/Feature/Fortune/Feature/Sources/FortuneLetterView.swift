@@ -48,7 +48,7 @@ private extension FortuneLetterView {
             $0.contentMode = .scaleAspectFill
         }
         letterContentLabel.do {
-            $0.displayText = "민경,  오늘은 괜찮은 하루가 될 거야! 평소보다 긍정적인 마음으로 하루를 시작하면 좋은 일이 생길지도 몰라. 주변 사람들과의 관계에 신경 쓰면 더욱 행복한 하루가 될 거야. 혹시 오늘 중요한 일이 있다면, 미리 계획을 세우고 차분하게 진행하는 게 좋아. 너의 꼼꼼함이 빛을 발할 거야!".displayText(font: .ownglyphPHD_H3, color: R.Color.gray600)
+            $0.displayText = "오늘은 괜찮은 하루가 될 거야! 평소보다 긍정적인 마음으로 하루를 시작하면 좋은 일이 생길지도 몰라. 주변 사람들과의 관계에 신경 쓰면 더욱 행복한 하루가 될 거야. 혹시 오늘 중요한 일이 있다면, 미리 계획을 세우고 차분하게 진행하는 게 좋아. 너의 꼼꼼함이 빛을 발할 거야!".displayText(font: .ownglyphPHD_H3, color: R.Color.gray600)
             $0.numberOfLines = 0
             $0.textAlignment = .center
         }

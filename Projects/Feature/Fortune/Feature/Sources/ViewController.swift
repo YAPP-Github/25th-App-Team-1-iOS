@@ -25,7 +25,7 @@ class ViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: FeatureResourcesAsset.svgNavClose.image.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(closeButtonTapped))
     }
     
-    private let mainView = FortuneLetterView()
+    private let mainView = FortuneStudyMoneyView()
     
     @objc
     private func closeButtonTapped() {

@@ -79,6 +79,10 @@ public extension SpeechBubbleView {
             color: R.Color.white100
         )
     }
+    
+    func update(arrowHidden: Bool) {
+        arrowView.isHidden = arrowHidden
+    }
 }
 
 
