@@ -80,6 +80,8 @@ extension MainPageViewController {
             listener?.request(.showFortuneNoti)
         case .applicationSettingButtonClicked:
             listener?.request(.goToSettings)
+        case .addAlarmButtonClicked:
+            listener?.request(.createAlarm)
         case .alarmStateWillChange(let alarmId, let isActive):
             listener?.request(.changeAlarmState(
                 alarmId: alarmId,

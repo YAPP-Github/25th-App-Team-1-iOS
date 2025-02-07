@@ -35,10 +35,10 @@ protocol MainPageListener: AnyObject {
 }
 
 final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, MainPageInteractable, MainPagePresentableListener {
-
+    
     weak var router: MainPageRouting?
     weak var listener: MainPageListener?
-
+    
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
     init(
@@ -73,10 +73,17 @@ extension MainPageInteractor {
             break
         case .createAlarm:
             router?.request(.routeToCreateEditAlarm(mode: .create))
-        case .changeAlarmState(let alarmId, let changeToActive):
-            break
-        case .deleteAlarm(let alarmId):
-            break
+        case let .changeAlarmState(alarmId, isActive):
+            guard var alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return }
+            alarm.isActive = isActive
+            service.updateAlarm(alarm)
+            let newAlarmList = service.getAllAlarm()
+            presenter.request(.setAlarmList(newAlarmList))
+        case let .deleteAlarm(alarmId):
+            guard let alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return }
+            service.deleteAlarm(alarm)
+            let newAlarmList = service.getAllAlarm()
+            presenter.request(.setAlarmList(newAlarmList))
         }
     }
 }
@@ -98,7 +105,8 @@ extension MainPageInteractor {
             break
         case let .done(alarm):
             service.addAlarm(alarm)
-            print(service.getAllAlarm().count)
+            let newAlarmList = service.getAllAlarm()
+            presenter.request(.setAlarmList(newAlarmList))
         }
     }
 }

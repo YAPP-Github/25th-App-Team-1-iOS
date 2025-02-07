@@ -22,6 +22,7 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
     enum Action {
         case fortuneNotiButtonClicked
         case applicationSettingButtonClicked
+        case addAlarmButtonClicked
         case alarmStateWillChange(alarmId: String, isActive: Bool)
         case alarmWillDelete(alarmId: String)
     }
@@ -207,6 +208,7 @@ private extension MainPageView {
         // alarmToolBarButtonStack
         addAlarmButton.buttonAction = { [weak self] in
             guard let self else { return }
+            self.listener?.action(.addAlarmButtonClicked)
         }
         configAlarmButton.buttonAction = { [weak self] state in
             guard let self else { return }
