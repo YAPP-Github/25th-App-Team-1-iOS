@@ -1,5 +1,5 @@
 //
-//  CreateAlarmInteractor.swift
+//  CreateEditAlarmInteractor.swift
 //  FeatureAlarm
 //
 //  Created by ever on 12/30/24.
@@ -11,39 +11,39 @@ import RxSwift
 import FeatureResources
 import FeatureCommonDependencies
 
-protocol CreateAlarmRouting: ViewableRouting {
+protocol CreateEditAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
-enum CreateAlarmPresentableRequest {
+enum CreateEditAlarmPresentableRequest {
     case alarmUpdated(Alarm)
 }
 
-protocol CreateAlarmPresentable: Presentable {
-    var listener: CreateAlarmPresentableListener? { get set }
-    func request(_ request: CreateAlarmPresentableRequest)
+protocol CreateEditAlarmPresentable: Presentable {
+    var listener: CreateEditAlarmPresentableListener? { get set }
+    func request(_ request: CreateEditAlarmPresentableRequest)
 }
 
-enum CreateAlarmListenerRequest {
+enum CreateEditAlarmListenerRequest {
     case back
     case snoozeOption(SnoozeOption)
     case soundOption(SoundOption)
     case done(Alarm)
 }
 
-protocol CreateAlarmListener: AnyObject {
-    func request(_ request: CreateAlarmListenerRequest)
+protocol CreateEditAlarmListener: AnyObject {
+    func request(_ request: CreateEditAlarmListenerRequest)
 }
 
-final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>, CreateAlarmInteractable, CreateAlarmPresentableListener {
+final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPresentable>, CreateEditAlarmInteractable, CreateEditAlarmPresentableListener {
 
-    weak var router: CreateAlarmRouting?
-    weak var listener: CreateAlarmListener?
+    weak var router: CreateEditAlarmRouting?
+    weak var listener: CreateEditAlarmListener?
     
     init(
-        presenter: CreateAlarmPresentable,
+        presenter: CreateEditAlarmPresentable,
         mode: AlarmCreateEditMode,
-        createAlarmStream: CreateAlarmStream
+        createAlarmStream: CreateEditAlarmStream
     ) {
         self.mode = mode
         switch mode {
@@ -66,7 +66,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
     }
 
     private let mode: AlarmCreateEditMode
-    private let createAlarmStream: CreateAlarmStream
+    private let createAlarmStream: CreateEditAlarmStream
     private var alarm: Alarm
     
     override func didBecomeActive() {
@@ -74,7 +74,7 @@ final class CreateAlarmInteractor: PresentableInteractor<CreateAlarmPresentable>
         bind()
     }
     
-    func request(_ request: CreateAlarmPresentableListenerRequest) {
+    func request(_ request: CreateEditAlarmPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
             start()

@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import FeatureAlarm
 
 protocol MainPageDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
@@ -13,8 +14,11 @@ protocol MainPageDependency: Dependency {
 }
 
 final class MainPageComponent: Component<MainPageDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    let viewController: MainPageViewControllable
+    init(dependency: MainPageDependency, viewController: MainPageViewControllable) {
+        self.viewController = viewController
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
@@ -30,10 +34,16 @@ final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildable {
     }
 
     func build(withListener listener: MainPageListener) -> MainPageRouting {
-        let component = MainPageComponent(dependency: dependency)
         let viewController = MainPageViewController()
+        let component = MainPageComponent(dependency: dependency, viewController: viewController)
         let interactor = MainPageInteractor(presenter: viewController)
         interactor.listener = listener
-        return MainPageRouter(interactor: interactor, viewController: viewController)
+        
+        let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
+        return MainPageRouter(
+            interactor: interactor,
+            viewController: viewController,
+            alarmBuilder: alarmBuilder
+        )
     }
 }

@@ -1,5 +1,5 @@
 //
-//  CreateAlarmSnoozeOptionInteractor.swift
+//  CreateEditAlarmSnoozeOptionInteractor.swift
 //  FeatureAlarm
 //
 //  Created by ever on 1/20/25.
@@ -9,36 +9,36 @@ import RIBs
 import RxSwift
 import FeatureCommonDependencies
 
-protocol CreateAlarmSnoozeOptionRouting: ViewableRouting {
+protocol CreateEditAlarmSnoozeOptionRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
-enum CreateAlarmSnoozeOptionPresentableRequest {
+enum CreateEditAlarmSnoozeOptionPresentableRequest {
     case updateOption(SnoozeOption)
 }
 
-protocol CreateAlarmSnoozeOptionPresentable: Presentable {
-    var listener: CreateAlarmSnoozeOptionPresentableListener? { get set }
-    func request(_ request: CreateAlarmSnoozeOptionPresentableRequest)
+protocol CreateEditAlarmSnoozeOptionPresentable: Presentable {
+    var listener: CreateEditAlarmSnoozeOptionPresentableListener? { get set }
+    func request(_ request: CreateEditAlarmSnoozeOptionPresentableRequest)
 }
 
-enum CreateAlarmSnoozeOptionListenerRequest {
+enum CreateEditAlarmSnoozeOptionListenerRequest {
     case done(SnoozeOption)
 }
 
-protocol CreateAlarmSnoozeOptionListener: AnyObject {
-    func request(_ request: CreateAlarmSnoozeOptionListenerRequest)
+protocol CreateEditAlarmSnoozeOptionListener: AnyObject {
+    func request(_ request: CreateEditAlarmSnoozeOptionListenerRequest)
 }
 
-final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarmSnoozeOptionPresentable>, CreateAlarmSnoozeOptionInteractable, CreateAlarmSnoozeOptionPresentableListener {
+final class CreateEditAlarmSnoozeOptionInteractor: PresentableInteractor<CreateEditAlarmSnoozeOptionPresentable>, CreateEditAlarmSnoozeOptionInteractable, CreateEditAlarmSnoozeOptionPresentableListener {
 
-    weak var router: CreateAlarmSnoozeOptionRouting?
-    weak var listener: CreateAlarmSnoozeOptionListener?
+    weak var router: CreateEditAlarmSnoozeOptionRouting?
+    weak var listener: CreateEditAlarmSnoozeOptionListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
     init(
-        presenter: CreateAlarmSnoozeOptionPresentable,
+        presenter: CreateEditAlarmSnoozeOptionPresentable,
         snoozeOption: SnoozeOption
     ) {
         self.snoozeOption = snoozeOption
@@ -48,7 +48,7 @@ final class CreateAlarmSnoozeOptionInteractor: PresentableInteractor<CreateAlarm
 
     private var snoozeOption: SnoozeOption
     
-    func request(_ request: CreateAlarmSnoozeOptionPresentableListenerRequest) {
+    func request(_ request: CreateEditAlarmSnoozeOptionPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
             presenter.request(.updateOption(snoozeOption))

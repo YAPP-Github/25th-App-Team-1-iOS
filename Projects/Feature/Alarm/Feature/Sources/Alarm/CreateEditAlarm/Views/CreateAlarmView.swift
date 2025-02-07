@@ -1,5 +1,5 @@
 //
-//  CreateAlarmView.swift
+//  CreateEditAlarmView.swift
 //  FeatureAlarm
 //
 //  Created by ever on 12/30/24.
@@ -10,11 +10,11 @@ import FeatureCommonDependencies
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
-protocol CreateAlarmViewListener: AnyObject {
-    func action(_ action: CreateAlarmView.Action)
+protocol CreateEditAlarmViewListener: AnyObject {
+    func action(_ action: CreateEditAlarmView.Action)
 }
 
-final class CreateAlarmView: UIView {
+final class CreateEditAlarmView: UIView {
     enum Action {
         case backButtonTapped
         case meridiemChanged(Meridiem)
@@ -40,7 +40,7 @@ final class CreateAlarmView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    weak var listener: CreateAlarmViewListener?
+    weak var listener: CreateEditAlarmViewListener?
     func update(state: State) {
         switch state {
         case let .alarmUpdated(alarm):
@@ -68,7 +68,7 @@ final class CreateAlarmView: UIView {
     }
 }
 
-private extension CreateAlarmView {
+private extension CreateEditAlarmView {
     func setupUI() {
         backgroundColor = R.Color.gray900
         navigationBar.do {
@@ -115,7 +115,7 @@ private extension CreateAlarmView {
 }
 
 
-extension CreateAlarmView: OnBoardingNavBarViewListener {
+extension CreateEditAlarmView: OnBoardingNavBarViewListener {
     func action(_ action: OnBoardingNavBarView.Action) {
         switch action {
         case .backButtonClicked:
@@ -124,7 +124,7 @@ extension CreateAlarmView: OnBoardingNavBarViewListener {
     }
 }
 
-extension CreateAlarmView: AlarmPickerListener {
+extension CreateEditAlarmView: AlarmPickerListener {
     func latestSelection(meridiem: Meridiem, hour: Hour, minute: Minute) {
         listener?.action(.meridiemChanged(meridiem))
         listener?.action(.hourChanged(hour))
@@ -132,7 +132,7 @@ extension CreateAlarmView: AlarmPickerListener {
     }
 }
 
-extension CreateAlarmView: SelectWeekDayViewListener {
+extension CreateEditAlarmView: SelectWeekDayViewListener {
     func action(_ action: SelectWeekDayView.Action) {
         switch action {
         case let .selectWeekday(set):

@@ -10,7 +10,7 @@ import UIKit
 import FeatureResources
 import FeatureCommonDependencies
 
-protocol RootInteractable: Interactable, AlarmListListener, CreateAlarmListener, CreateAlarmSnoozeOptionListener, CreateAlarmSoundOptionListener {
+protocol RootInteractable: Interactable, CreateEditAlarmListener, CreateEditAlarmSnoozeOptionListener, CreateEditAlarmSoundOptionListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -27,13 +27,11 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     init(
         interactor: RootInteractable,
         viewController: RootViewControllable,
-        alarmListBuilder: AlarmListBuildable,
-        createAlarmBuilder: CreateAlarmBuildable,
-        snoozeOptionBuilder: CreateAlarmSnoozeOptionBuildable,
-        soundOptionBuilder: CreateAlarmSoundOptionBuildable
+        createAlarmBuilder: CreateEditAlarmBuildable,
+        snoozeOptionBuilder: CreateEditAlarmSnoozeOptionBuildable,
+        soundOptionBuilder: CreateEditAlarmSoundOptionBuildable
     ) {
         self.viewController = viewController
-        self.alarmListBuilder = alarmListBuilder
         self.createAlarmBuilder = createAlarmBuilder
         self.snoozeOptionBuilder = snoozeOptionBuilder
         self.soundOptionBuilder = soundOptionBuilder
@@ -45,12 +43,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         switch request {
         case .cleanupViews:
             cleanupViews()
-        case .routeToAlarmList:
-            routeToAlarmList()
-        case let .routeToCreateAlarm(mode):
-            routeToCreateAlarm(mode: mode)
-        case .detachCreateAlarm:
-            detachCreateAlarm()
+        case let .routeToCreateEditAlarm(mode):
+            routeToCreateEditAlarm(mode: mode)
+        case .detachCreateEditAlarm:
+            detachCreateEditAlarm()
         case let .routeToSnoozeOption(snoozeOption):
             routeToSnoozeOption(snoozeOption: snoozeOption)
         case .detachSnoozeOption:
@@ -65,52 +61,36 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     // MARK: - Private
 
     private let viewController: RootViewControllable
-    private let navigationController = UINavigationController().then {
-        $0.modalPresentationStyle = .fullScreen
-    }
-
-    private let alarmListBuilder: AlarmListBuildable
-    private var alarmListRouter: AlarmListRouting?
     
-    private let createAlarmBuilder: CreateAlarmBuildable
-    private var createAlarmRouter: CreateAlarmRouting?
+    private let createAlarmBuilder: CreateEditAlarmBuildable
+    private var createAlarmRouter: CreateEditAlarmRouting?
     
-    private let snoozeOptionBuilder: CreateAlarmSnoozeOptionBuildable
-    private var snoozeOptionRouter: CreateAlarmSnoozeOptionRouting?
+    private let snoozeOptionBuilder: CreateEditAlarmSnoozeOptionBuildable
+    private var snoozeOptionRouter: CreateEditAlarmSnoozeOptionRouting?
     
-    private let soundOptionBuilder: CreateAlarmSoundOptionBuildable
-    private var soundOptionRouter: CreateAlarmSoundOptionRouting?
+    private let soundOptionBuilder: CreateEditAlarmSoundOptionBuildable
+    private var soundOptionRouter: CreateEditAlarmSoundOptionRouting?
     
     private func cleanupViews() {
         // TODO: Since this router does not own its view, it needs to cleanup the views
         // it may have added to the view hierarchy, when its interactor is deactivated.
     }
-
     
-    func routeToAlarmList() {
-        guard alarmListRouter == nil else { return }
-        let router = alarmListBuilder.build(withListener: interactor)
-        self.alarmListRouter = router
-        attachChild(router)
-        let alarmListViewController = router.viewControllable.uiviewController
-        navigationController.viewControllers = [alarmListViewController]
-        viewController.uiviewController.present(navigationController, animated: true)
-    }
-    
-    func routeToCreateAlarm(mode: AlarmCreateEditMode) {
+    func routeToCreateEditAlarm(mode: AlarmCreateEditMode) {
         guard createAlarmRouter == nil else { return }
         let router = createAlarmBuilder.build(withListener: interactor, mode: mode)
         self.createAlarmRouter = router
         attachChild(router)
+        router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
         let createAlarmViewController = router.viewControllable.uiviewController
-        navigationController.pushViewController(createAlarmViewController, animated: true)
+        viewController.uiviewController.present(createAlarmViewController, animated: true)
     }
     
-    func detachCreateAlarm() {
+    func detachCreateEditAlarm() {
         guard let router = createAlarmRouter else { return }
         createAlarmRouter = nil
         detachChild(router)
-        navigationController.popViewController(animated: true)
+        viewController.uiviewController.dismiss(animated: true)
     }
     
     func routeToSnoozeOption(snoozeOption: SnoozeOption) {
@@ -120,7 +100,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
         router.viewControllable.uiviewController.modalTransitionStyle = .crossDissolve
-        navigationController.present(router.viewControllable.uiviewController, animated: true)
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
     
     func detachSnoozeOption() {
@@ -137,7 +117,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
         router.viewControllable.uiviewController.modalTransitionStyle = .crossDissolve
-        navigationController.present(router.viewControllable.uiviewController, animated: true)
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
     
     func detachSoundOption() {

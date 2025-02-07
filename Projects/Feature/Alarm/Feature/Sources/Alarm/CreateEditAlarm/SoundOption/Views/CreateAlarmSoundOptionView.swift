@@ -1,5 +1,5 @@
 //
-//  CreateAlarmSoundOptionView.swift
+//  CreateEditAlarmSoundOptionView.swift
 //  FeatureAlarm
 //
 //  Created by ever on 1/26/25.
@@ -12,11 +12,11 @@ import FeatureResources
 import FeatureDesignSystem
 import FeatureCommonDependencies
 
-protocol CreateAlarmSoundOptionViewListener: AnyObject {
-    func action(_ action: CreateAlarmSoundOptionView.Action)
+protocol CreateEditAlarmSoundOptionViewListener: AnyObject {
+    func action(_ action: CreateEditAlarmSoundOptionView.Action)
 }
 
-final class CreateAlarmSoundOptionView: UIView {
+final class CreateEditAlarmSoundOptionView: UIView {
     enum Action {
         case isVibrateOnChanged(Bool)
         case isSoundOnChanged(Bool)
@@ -36,7 +36,7 @@ final class CreateAlarmSoundOptionView: UIView {
     }
     
     // MARK: - Internal
-    weak var listener: CreateAlarmSoundOptionViewListener?
+    weak var listener: CreateEditAlarmSoundOptionViewListener?
     
     func updateOption(option: SoundOption) {
         isSoundOn = option.isSoundOn
@@ -98,7 +98,7 @@ final class CreateAlarmSoundOptionView: UIView {
     }
 }
 
-private extension CreateAlarmSoundOptionView {
+private extension CreateEditAlarmSoundOptionView {
     func setupUI() {
         backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
         containerView.do {
@@ -243,7 +243,7 @@ private extension CreateAlarmSoundOptionView {
     }
 }
 
-extension CreateAlarmSoundOptionView: UITableViewDataSource {
+extension CreateEditAlarmSoundOptionView: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         1
     }
@@ -260,7 +260,7 @@ extension CreateAlarmSoundOptionView: UITableViewDataSource {
     }
 }
 
-extension CreateAlarmSoundOptionView: UITableViewDelegate {
+extension CreateEditAlarmSoundOptionView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 44
     }

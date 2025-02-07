@@ -1,5 +1,5 @@
 //
-//  CreateAlarmViewController.swift
+//  CreateEditAlarmViewController.swift
 //  FeatureAlarm
 //
 //  Created by ever on 12/30/24.
@@ -11,7 +11,7 @@ import UIKit
 import FeatureDesignSystem
 import FeatureCommonDependencies
 
-enum CreateAlarmPresentableListenerRequest {
+enum CreateEditAlarmPresentableListenerRequest {
     case viewDidLoad
     case back
     case meridiemChanged(Meridiem)
@@ -23,13 +23,13 @@ enum CreateAlarmPresentableListenerRequest {
     case done
 }
 
-protocol CreateAlarmPresentableListener: AnyObject {
-    func request(_ request: CreateAlarmPresentableListenerRequest)
+protocol CreateEditAlarmPresentableListener: AnyObject {
+    func request(_ request: CreateEditAlarmPresentableListenerRequest)
 }
 
-final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable, CreateAlarmViewControllable {
+final class CreateEditAlarmViewController: UIViewController, CreateEditAlarmPresentable, CreateEditAlarmViewControllable {
 
-    weak var listener: CreateAlarmPresentableListener?
+    weak var listener: CreateEditAlarmPresentableListener?
         
     override func loadView() {
         view = mainView
@@ -42,22 +42,22 @@ final class CreateAlarmViewController: UIViewController, CreateAlarmPresentable,
         listener?.request(.viewDidLoad)
     }
     
-    func request(_ request: CreateAlarmPresentableRequest) {
+    func request(_ request: CreateEditAlarmPresentableRequest) {
         switch request {
         case let .alarmUpdated(alarm):
             mainView.update(state: .alarmUpdated(alarm))
         }
     }
     
-    private let mainView = CreateAlarmView()
+    private let mainView = CreateEditAlarmView()
     
     private func setupNavigation() {
         navigationController?.isNavigationBarHidden = true
     }
 }
 
-extension CreateAlarmViewController: CreateAlarmViewListener {
-    func action(_ action: CreateAlarmView.Action) {
+extension CreateEditAlarmViewController: CreateEditAlarmViewListener {
+    func action(_ action: CreateEditAlarmView.Action) {
         switch action {
         case .backButtonTapped:
             listener?.request(.back)

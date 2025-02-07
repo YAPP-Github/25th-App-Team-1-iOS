@@ -7,4 +7,4 @@
 
 import Foundation
 
-extension RootComponent: CreateAlarmSoundOptionDependency {}
+extension RootComponent: CreateEditAlarmSoundOptionDependency {}

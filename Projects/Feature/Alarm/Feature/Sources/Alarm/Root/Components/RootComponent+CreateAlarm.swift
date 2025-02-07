@@ -1,5 +1,5 @@
 //
-//  RootComponent+CreateAlarm.swift
+//  RootComponent+CreateEditAlarm.swift
 //  FeatureAlarm
 //
 //  Created by ever on 1/1/25.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-extension RootComponent: CreateAlarmDependency {
-    var createAlarmStream: CreateAlarmStream {
+extension RootComponent: CreateEditAlarmDependency {
+    var createAlarmStream: CreateEditAlarmStream {
         createAlarmMutableStream
     }
 }

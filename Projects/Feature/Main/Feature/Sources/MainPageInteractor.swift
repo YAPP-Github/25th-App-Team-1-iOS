@@ -8,8 +8,11 @@
 import RIBs
 import RxSwift
 import FeatureDesignSystem
+import FeatureAlarm
 
 enum MainPageRouterRequest {
+    case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
+    case detachCreateEditAlarm
     case presentAlert(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
 }
@@ -64,6 +67,8 @@ extension MainPageInteractor {
             router?.request(.presentAlert(config, self))
         case .goToSettings:
             break
+        case .createAlarm:
+            router?.request(.routeToCreateEditAlarm(mode: .create))
         case .changeAlarmState(let alarmId, let changeToActive):
             break
         case .deleteAlarm(let alarmId):

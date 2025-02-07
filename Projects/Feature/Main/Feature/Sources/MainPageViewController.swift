@@ -17,6 +17,7 @@ protocol MainPagePresentableListener: AnyObject {
 enum MainPageViewPresenterRequest {
     case showFortuneNoti
     case goToSettings
+    case createAlarm
     case changeAlarmState(alarmId: String, changeToActive: Bool)
     case deleteAlarm(alarmId: String)
 }
@@ -86,7 +87,7 @@ extension MainPageViewController: EmptyAlarmViewListener {
         case .applicationSettingButtonTapped:
             listener?.request(.goToSettings)
         case .addAlarmButtonTapped:
-            break
+            listener?.request(.createAlarm)
         }
     }
 }

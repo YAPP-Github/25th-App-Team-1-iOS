@@ -1,5 +1,5 @@
 //
-//  CreateAlarmSnoozeOptionView.swift
+//  CreateEditAlarmSnoozeOptionView.swift
 //  FeatureAlarm
 //
 //  Created by ever on 1/20/25.
@@ -12,11 +12,11 @@ import FeatureResources
 import FeatureDesignSystem
 import FeatureCommonDependencies
 
-protocol CreateAlarmSnoozeOptionViewListener: AnyObject {
-    func action(_ action: CreateAlarmSnoozeOptionView.Action)
+protocol CreateEditAlarmSnoozeOptionViewListener: AnyObject {
+    func action(_ action: CreateEditAlarmSnoozeOptionView.Action)
 }
 
-final class CreateAlarmSnoozeOptionView: UIView {
+final class CreateEditAlarmSnoozeOptionView: UIView {
     enum Action {
         case isOnChanged(Bool)
         case frequencyChanged(SnoozeFrequency)
@@ -34,7 +34,7 @@ final class CreateAlarmSnoozeOptionView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    weak var listener: CreateAlarmSnoozeOptionViewListener?
+    weak var listener: CreateEditAlarmSnoozeOptionViewListener?
     
     private let containerView = UIView()
     private let titleLabel = UILabel()
@@ -86,7 +86,7 @@ final class CreateAlarmSnoozeOptionView: UIView {
     }
 }
 
-private extension CreateAlarmSnoozeOptionView {
+private extension CreateEditAlarmSnoozeOptionView {
     func setupUI() {
         backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
         containerView.do {

@@ -12,9 +12,8 @@ import FeatureCommonDependencies
 
 public enum RootRouterRequest {
     case cleanupViews
-    case routeToAlarmList
-    case routeToCreateAlarm(mode: AlarmCreateEditMode)
-    case detachCreateAlarm
+    case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
+    case detachCreateEditAlarm
     case routeToSnoozeOption(SnoozeOption)
     case detachSnoozeOption
     case routeToSoundOption(SoundOption)
@@ -38,10 +37,12 @@ final class RootInteractor: Interactor, RootInteractable {
     // in constructor.
     init(
         service: RootServiceable,
+        mode: AlarmCreateEditMode,
         alarmListMutableStream: AlarmListMutableStream,
-        createAlarmMutableStream: CreateAlarmMutableStream
+        createAlarmMutableStream: CreateEditAlarmMutableStream
     ) {
         self.service = service
+        self.mode = mode
         self.alarmListMutableStream = alarmListMutableStream
         self.createAlarmMutableStream = createAlarmMutableStream
     }
@@ -59,44 +60,35 @@ final class RootInteractor: Interactor, RootInteractable {
     }
     
     private var service: RootServiceable
+    private let mode: AlarmCreateEditMode
     private let alarmListMutableStream: AlarmListMutableStream
-    private let createAlarmMutableStream: CreateAlarmMutableStream
+    private let createAlarmMutableStream: CreateEditAlarmMutableStream
     
     private func start() {
-        router?.request(.routeToAlarmList)
+        router?.request(.routeToCreateEditAlarm(mode: mode))
     }
 }
 
-// MARK: AlarmListListenerRequest
+// MARK: CreateEditAlarmListenerRequest
 extension RootInteractor {
-    func request(_ request: AlarmListListenerRequest) {
-        switch request {
-        case .addAlarm:
-            router?.request(.routeToCreateAlarm(mode: .create))
-        }
-    }
-}
-
-// MARK: CreateAlarmListenerRequest
-extension RootInteractor {
-    func request(_ request: CreateAlarmListenerRequest) {
+    func request(_ request: CreateEditAlarmListenerRequest) {
         switch request {
         case .back:
-            router?.request(.detachCreateAlarm)
+            router?.request(.detachCreateEditAlarm)
         case let .snoozeOption(snoozeOption):
             router?.request(.routeToSnoozeOption(snoozeOption))
         case let .soundOption(soundOption):
             router?.request(.routeToSoundOption(soundOption))
         case let .done(alarm):
-            router?.request(.detachCreateAlarm)
+            router?.request(.detachCreateEditAlarm)
             service.scheduleTimer(with: alarm)
         }
     }
 }
 
-// MARK: CreateAlarmSnoozeOptionListenerRequest
+// MARK: CreateEditAlarmSnoozeOptionListenerRequest
 extension RootInteractor {
-    func request(_ request: CreateAlarmSnoozeOptionListenerRequest) {
+    func request(_ request: CreateEditAlarmSnoozeOptionListenerRequest) {
         
         switch request {
         case let .done(snoozeOption):
@@ -106,9 +98,9 @@ extension RootInteractor {
     }
 }
 
-// MARK: CreateAlarmSoundOptionListenerRequest
+// MARK: CreateEditAlarmSoundOptionListenerRequest
 extension RootInteractor {
-    func request(_ request: CreateAlarmSoundOptionListenerRequest) {
+    func request(_ request: CreateEditAlarmSoundOptionListenerRequest) {
         switch request {
         case let .done(soundOption):
             router?.request(.detachSoundOption)

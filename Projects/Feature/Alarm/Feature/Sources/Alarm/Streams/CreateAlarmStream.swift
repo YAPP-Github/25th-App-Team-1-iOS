@@ -1,5 +1,5 @@
 //
-//  CreateAlarmStream.swift
+//  CreateEditAlarmStream.swift
 //  FeatureAlarm
 //
 //  Created by ever on 1/31/25.
@@ -9,17 +9,17 @@ import RxSwift
 import FeatureResources
 import FeatureCommonDependencies
 
-protocol CreateAlarmStream {
+protocol CreateEditAlarmStream {
     var snoozeOptionChanged: Observable<SnoozeOption> { get }
     var soundOptionChanged: Observable<SoundOption> { get }
 }
 
-protocol CreateAlarmMutableStream: CreateAlarmStream {
+protocol CreateEditAlarmMutableStream: CreateEditAlarmStream {
     var mutableSnoozeOption: PublishSubject<SnoozeOption> { get }
     var mutableSoundOption: PublishSubject<SoundOption> { get }
 }
 
-struct CreateAlarmMutableStreamImpl: CreateAlarmMutableStream {
+struct CreateEditAlarmMutableStreamImpl: CreateEditAlarmMutableStream {
     // 미루기 옵션
     let mutableSnoozeOption = PublishSubject<SnoozeOption>()
     var snoozeOptionChanged: Observable<SnoozeOption> {

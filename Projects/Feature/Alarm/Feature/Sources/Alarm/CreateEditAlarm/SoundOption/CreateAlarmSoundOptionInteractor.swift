@@ -1,5 +1,5 @@
 //
-//  CreateAlarmSoundOptionInteractor.swift
+//  CreateEditAlarmSoundOptionInteractor.swift
 //  FeatureAlarm
 //
 //  Created by ever on 1/26/25.
@@ -11,37 +11,37 @@ import AVFoundation
 import FeatureResources
 import FeatureCommonDependencies
 
-protocol CreateAlarmSoundOptionRouting: ViewableRouting {
+protocol CreateEditAlarmSoundOptionRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
-enum CreateAlarmSoundOptionPresentableRequest {
+enum CreateEditAlarmSoundOptionPresentableRequest {
     case updateOption(SoundOption)
 }
 
-protocol CreateAlarmSoundOptionPresentable: Presentable {
-    var listener: CreateAlarmSoundOptionPresentableListener? { get set }
-    func request(_ request: CreateAlarmSoundOptionPresentableRequest)
+protocol CreateEditAlarmSoundOptionPresentable: Presentable {
+    var listener: CreateEditAlarmSoundOptionPresentableListener? { get set }
+    func request(_ request: CreateEditAlarmSoundOptionPresentableRequest)
 }
 
-enum CreateAlarmSoundOptionListenerRequest {
+enum CreateEditAlarmSoundOptionListenerRequest {
     case done(SoundOption)
 }
 
-protocol CreateAlarmSoundOptionListener: AnyObject {
-    func request(_ request: CreateAlarmSoundOptionListenerRequest)
+protocol CreateEditAlarmSoundOptionListener: AnyObject {
+    func request(_ request: CreateEditAlarmSoundOptionListenerRequest)
 }
 
-final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmSoundOptionPresentable>, CreateAlarmSoundOptionInteractable, CreateAlarmSoundOptionPresentableListener {
+final class CreateEditAlarmSoundOptionInteractor: PresentableInteractor<CreateEditAlarmSoundOptionPresentable>, CreateEditAlarmSoundOptionInteractable, CreateEditAlarmSoundOptionPresentableListener {
 
-    weak var router: CreateAlarmSoundOptionRouting?
-    weak var listener: CreateAlarmSoundOptionListener?
+    weak var router: CreateEditAlarmSoundOptionRouting?
+    weak var listener: CreateEditAlarmSoundOptionListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
     init(
-        presenter: CreateAlarmSoundOptionPresentable,
-        service: CreateAlarmSoundOptionServiceable,
+        presenter: CreateEditAlarmSoundOptionPresentable,
+        service: CreateEditAlarmSoundOptionServiceable,
         soundOption: SoundOption
     ) {
         self.service = service
@@ -50,10 +50,10 @@ final class CreateAlarmSoundOptionInteractor: PresentableInteractor<CreateAlarmS
         presenter.listener = self
     }
 
-    private let service: CreateAlarmSoundOptionServiceable
+    private let service: CreateEditAlarmSoundOptionServiceable
     private var soundOption: SoundOption
     
-    func request(_ request: CreateAlarmSoundOptionPresentableListenerRequest) {
+    func request(_ request: CreateEditAlarmSoundOptionPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
             presenter.request(.updateOption(soundOption))

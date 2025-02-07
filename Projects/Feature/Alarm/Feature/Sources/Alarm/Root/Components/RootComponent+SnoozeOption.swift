@@ -7,4 +7,4 @@
 
 import Foundation
 
-extension RootComponent: CreateAlarmSnoozeOptionDependency {}
+extension RootComponent: CreateEditAlarmSnoozeOptionDependency {}

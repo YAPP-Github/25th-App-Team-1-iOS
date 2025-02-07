@@ -1,5 +1,5 @@
 //
-//  CreateAlarmSnoozeOptionViewController.swift
+//  CreateEditAlarmSnoozeOptionViewController.swift
 //  FeatureAlarm
 //
 //  Created by ever on 1/20/25.
@@ -10,7 +10,7 @@ import RxSwift
 import UIKit
 import FeatureCommonDependencies
 
-enum CreateAlarmSnoozeOptionPresentableListenerRequest {
+enum CreateEditAlarmSnoozeOptionPresentableListenerRequest {
     case viewDidLoad
     case isOnChanged(Bool)
     case frequencyChanged(SnoozeFrequency)
@@ -18,13 +18,13 @@ enum CreateAlarmSnoozeOptionPresentableListenerRequest {
     case done
 }
 
-protocol CreateAlarmSnoozeOptionPresentableListener: AnyObject {
-    func request(_ request: CreateAlarmSnoozeOptionPresentableListenerRequest)
+protocol CreateEditAlarmSnoozeOptionPresentableListener: AnyObject {
+    func request(_ request: CreateEditAlarmSnoozeOptionPresentableListenerRequest)
 }
 
-final class CreateAlarmSnoozeOptionViewController: UIViewController, CreateAlarmSnoozeOptionPresentable, CreateAlarmSnoozeOptionViewControllable {
+final class CreateEditAlarmSnoozeOptionViewController: UIViewController, CreateEditAlarmSnoozeOptionPresentable, CreateEditAlarmSnoozeOptionViewControllable {
 
-    weak var listener: CreateAlarmSnoozeOptionPresentableListener?
+    weak var listener: CreateEditAlarmSnoozeOptionPresentableListener?
     
     override func loadView() {
         view = mainView
@@ -36,18 +36,18 @@ final class CreateAlarmSnoozeOptionViewController: UIViewController, CreateAlarm
         listener?.request(.viewDidLoad)
     }
     
-    func request(_ request: CreateAlarmSnoozeOptionPresentableRequest) {
+    func request(_ request: CreateEditAlarmSnoozeOptionPresentableRequest) {
         switch request {
         case let .updateOption(option):
             mainView.updateOption(option: option)
         }
     }
     
-    private let mainView = CreateAlarmSnoozeOptionView()
+    private let mainView = CreateEditAlarmSnoozeOptionView()
 }
 
-extension CreateAlarmSnoozeOptionViewController: CreateAlarmSnoozeOptionViewListener {
-    func action(_ action: CreateAlarmSnoozeOptionView.Action) {
+extension CreateEditAlarmSnoozeOptionViewController: CreateEditAlarmSnoozeOptionViewListener {
+    func action(_ action: CreateEditAlarmSnoozeOptionView.Action) {
         switch action {
         case let .isOnChanged(isOn):
             listener?.request(.isOnChanged(isOn))
