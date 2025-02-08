@@ -240,6 +240,8 @@ private extension SelectWeekDayView {
         }
  
         snoozeValueButton.do {
+            $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
+            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
             $0.addTarget(self, action: #selector(snoozeButtonTapped), for: .touchUpInside)
         }
         
@@ -248,6 +250,8 @@ private extension SelectWeekDayView {
         }
         
         soundValueButton.do {
+            $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
+            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
             $0.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
         }
         
@@ -292,6 +296,8 @@ private extension SelectWeekDayView {
         holidayToggle.snp.makeConstraints {
             $0.top.equalTo(dayButtonsStackView.snp.bottom).offset(18)
             $0.trailing.equalTo(-20)
+            $0.width.equalTo(46)
+            $0.height.equalTo(26)
         }
         
         holidayImageView.snp.makeConstraints {
@@ -315,7 +321,7 @@ private extension SelectWeekDayView {
         }
         
         snoozeValueButton.snp.makeConstraints {
-            $0.trailing.equalTo(-20)
+            $0.trailing.equalTo(-16)
             $0.centerY.equalTo(snoozeTitleLabel)
         }
         
@@ -331,7 +337,7 @@ private extension SelectWeekDayView {
         }
         
         soundValueButton.snp.makeConstraints {
-            $0.trailing.equalTo(-20)
+            $0.trailing.equalTo(-16)
             $0.centerY.equalTo(soundTitleLabel)
         }
     }
