@@ -17,7 +17,7 @@ struct CreateEditAlarmSoundOptionService: CreateEditAlarmSoundOptionServiceable 
     func playSound(with option: SoundOption) {
         guard let sound = R.AlarmSound.allCases.first(where: { $0.title == option.selectedSound })?.alarm else { return }
         VolumeManager.setVolume(option.volume) // 설정한 볼륨값 0.0~1.0으로 설정
-        AlarmManager.shared.playAlarmSound(with: sound, loopCount: 1)
+        AlarmManager.shared.playAlarmSound(with: sound, volume: option.volume, loopCount: 1)
     }
     
     func stopSound() {
