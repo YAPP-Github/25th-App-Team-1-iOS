@@ -29,6 +29,7 @@ final class CreateEditAlarmView: UIView {
     
     enum State {
         case showDeleteButton
+        case titleUpdated(String)
         case alarmUpdated(Alarm)
     }
     
@@ -47,6 +48,8 @@ final class CreateEditAlarmView: UIView {
         switch state {
         case .showDeleteButton:
             navigationBar.update(rightButtonTitle: "삭제".displayText(font: .body1Medium, color: R.Color.statusAlert))
+        case let .titleUpdated(title):
+            navigationBar.update(title: title)
         case let .alarmUpdated(alarm):
             updateView(with: alarm)
         }

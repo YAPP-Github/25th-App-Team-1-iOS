@@ -22,6 +22,7 @@ protocol CreateEditAlarmRouting: ViewableRouting {
 
 enum CreateEditAlarmPresentableRequest {
     case showDeleteButton
+    case updateTitle(String)
     case alarmUpdated(Alarm)
 }
 
@@ -92,10 +93,16 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
             listener?.request(.deleted(alarm))
         case let .meridiemChanged(meridiem):
             alarm.meridiem = meridiem
+            let title = alarm.timeRemainingDescription()
+            presenter.request(.updateTitle(title))
         case let .hourChanged(hour):
             alarm.hour = hour
+            let title = alarm.timeRemainingDescription()
+            presenter.request(.updateTitle(title))
         case let .minuteChanged(minute):
             alarm.minute = minute
+            let title = alarm.timeRemainingDescription()
+            presenter.request(.updateTitle(title))
         case let .selectedDaysChanged(set):
             alarm.repeatDays = set
         case .selectSnooze:
@@ -182,5 +189,43 @@ extension CreateEditAlarmInteractor: DSTwoButtonAlertViewControllerListener {
                 listener?.request(.back)
             }))
         }
+    }
+}
+
+extension Alarm {
+    func timeRemainingDescription(from now: Date = Date()) -> String {
+        let calendar = Calendar.current
+        
+        // nextDateComponents를 이용해 알람이 울릴 Date 생성
+        guard let nextDate = calendar.date(from: self.nextDateComponents(from: now)) else {
+            return "알 수 없음"
+        }
+        
+        // 현재 시간과 알람 시간의 차이를 구함 (일, 시간, 분)
+        let diffComponents = calendar.dateComponents([.day, .hour, .minute], from: now, to: nextDate)
+        
+        var parts: [String] = []
+        
+        // 하루 이상 걸린다면 일(day)만 표시
+        if let day = diffComponents.day, day > 0 {
+            parts.append("\(day)일")
+        }
+        
+        // 시간(hour)은 항상 표시 (0시간인 경우는 생략할 수도 있음)
+        if let hour = diffComponents.hour, hour > 0 {
+            parts.append("\(hour)시간")
+        }
+        
+        // 분(minute)도 필요하다면 추가 (예: 0일 0시간 30분 후)
+        if let minute = diffComponents.minute, minute > 0 {
+            parts.append("\(minute)분")
+        }
+        
+        // 아무것도 남지 않은 경우 (즉, 바로 울릴 때) 처리
+        if parts.isEmpty {
+            return "곧 울려요"
+        }
+        
+        return parts.joined(separator: " ") + " 후에 울려요"
     }
 }

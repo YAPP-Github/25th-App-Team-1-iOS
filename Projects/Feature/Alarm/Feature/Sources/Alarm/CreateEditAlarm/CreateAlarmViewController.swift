@@ -47,6 +47,8 @@ final class CreateEditAlarmViewController: UIViewController, CreateEditAlarmPres
         switch request {
         case .showDeleteButton:
             mainView.update(state: .showDeleteButton)
+        case let .updateTitle(title):
+            mainView.update(state: .titleUpdated(title))
         case let .alarmUpdated(alarm):
             mainView.update(state: .alarmUpdated(alarm))
         }
