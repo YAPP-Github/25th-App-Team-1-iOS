@@ -28,5 +28,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ShakeMissionMainListener 
     }
     
     class RootComponent: ShakeMissionMainDependency {}
+    
+    func request(_ request: ShakeMissionMainListenerRequest) {
+        switch request {
+        case .close:
+            window?.rootViewController?.dismiss(animated: true
+            )
+        }
+    }
 }
 
