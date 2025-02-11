@@ -31,11 +31,17 @@ final class SnoozeButton: UIButton {
         contentEdgeInsets = UIEdgeInsets(top: 0, left: rightInset + 20, bottom: 0, right: 0)
     }
     
-    func update(_ option: SnoozeOption) {
+    func update(option: SnoozeOption) {
         let title = option.frequency.toKoreanFormat + " 미루기"
         let count = option.count.toKoreanTitleFormat
         countLabel.displayText = count.displayText(font: .body2Medium, color: R.Color.main100)
         setAttributedTitle(title.displayText(font: .heading2SemiBold, color: R.Color.white100), for: .normal)
+        setNeedsLayout()
+    }
+    
+    func update(count: Int) {
+        let countString = "\(count)회"
+        countLabel.displayText = countString.displayText(font: .body2Medium, color: R.Color.main100)
         setNeedsLayout()
     }
     

@@ -23,6 +23,8 @@ final class AlarmReleaseIntroView: UIView {
     enum State {
         case updateTime
         case snoozeOption(SnoozeOption)
+        case snoozeCount(Int)
+        case hideSnoozeButton
     }
     
     init() {
@@ -52,7 +54,11 @@ final class AlarmReleaseIntroView: UIView {
         case .updateTime:
             generateCurrentTime()
         case let .snoozeOption(option):
-            snoozeButton.update(option)
+            snoozeButton.update(option: option)
+        case let .snoozeCount(count):
+            snoozeButton.update(count: count)
+        case .hideSnoozeButton:
+            snoozeButton.isHidden = true
         }
     }
     

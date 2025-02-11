@@ -15,6 +15,8 @@ public protocol AlarmReleaseIntroRouting: ViewableRouting {
 
 enum AlarmReleaseIntroPresentableRequest {
     case updateSnooze(SnoozeOption)
+    case updateSnoozeCount(Int)
+    case hideSnoozeButton
 }
 
 protocol AlarmReleaseIntroPresentable: Presentable {
@@ -42,20 +44,36 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         alarm: Alarm
     ) {
         self.alarm = alarm
+        remainSnoozeCount = alarm.snoozeOption.count.rawValue
         super.init(presenter: presenter)
         presenter.listener = self
     }
-    
-    private let alarm: Alarm
     
     func request(_ request: AlarmReleaseIntroPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
             presenter.request(.updateSnooze(alarm.snoozeOption))
         case .snoozeAlarm:
-            print("SnoozeAlarmTapped")
+            updateSnoozeCount()
         case .releaseAlarm:
             listener?.request(.releaseAlarm)
+        }
+    }
+    
+    private let alarm: Alarm
+    private var remainSnoozeCount: Int?
+    
+    private func updateSnoozeCount() {
+        guard alarm.snoozeOption.count != .unlimited,
+        let currentRemainCount = remainSnoozeCount else { return }
+        let newCount = currentRemainCount - 1
+        
+        self.remainSnoozeCount = newCount
+        
+        if newCount > 0 {
+            presenter.request(.updateSnoozeCount(newCount))
+        } else {
+            presenter.request(.hideSnoozeButton)
         }
     }
 }

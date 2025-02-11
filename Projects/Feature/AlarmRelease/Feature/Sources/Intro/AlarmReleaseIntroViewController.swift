@@ -46,6 +46,10 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
         switch request {
         case let .updateSnooze(option):
             mainView.update(.snoozeOption(option))
+        case let .updateSnoozeCount(count):
+            mainView.update(.snoozeCount(count))
+        case .hideSnoozeButton:
+            mainView.update(.hideSnoozeButton)
         }
     }
     
