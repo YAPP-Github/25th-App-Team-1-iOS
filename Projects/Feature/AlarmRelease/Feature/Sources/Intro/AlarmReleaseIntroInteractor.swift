@@ -13,9 +13,13 @@ public protocol AlarmReleaseIntroRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum AlarmReleaseIntroPresentableRequest {
+    case updateSnooze(SnoozeOption)
+}
+
 protocol AlarmReleaseIntroPresentable: Presentable {
     var listener: AlarmReleaseIntroPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: AlarmReleaseIntroPresentableRequest)
 }
 
 public enum AlarmReleaseIntroListenerRequest {
@@ -46,6 +50,8 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     
     func request(_ request: AlarmReleaseIntroPresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            presenter.request(.updateSnooze(alarm.snoozeOption))
         case .snoozeAlarm:
             print("SnoozeAlarmTapped")
         case .releaseAlarm:

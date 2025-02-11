@@ -11,9 +11,8 @@ import FeatureUIDependencies
 import FeatureThirdPartyDependencies
 
 final class SnoozeButton: UIButton {
-    init(option: SnoozeOption) {
-        self.option = option
-        super.init(frame: .zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupUI()
         layout()
     }
@@ -32,22 +31,27 @@ final class SnoozeButton: UIButton {
         contentEdgeInsets = UIEdgeInsets(top: 0, left: rightInset + 20, bottom: 0, right: 0)
     }
     
-    private let option: SnoozeOption
+    func update(_ option: SnoozeOption) {
+        let title = option.frequency.toKoreanFormat + " 미루기"
+        let count = option.count.toKoreanTitleFormat
+        countLabel.displayText = count.displayText(font: .body2Medium, color: R.Color.main100)
+        setAttributedTitle(title.displayText(font: .heading2SemiBold, color: R.Color.white100), for: .normal)
+        setNeedsLayout()
+    }
+    
     private let countLabel = UILabel()
     private let countContainer = UIView()
 }
 
 private extension SnoozeButton {
     func setupUI() {
-        let title = option.frequency.toKoreanFormat + " 미루기"
-        let count = option.count.toKoreanTitleFormat
         backgroundColor = R.Color.white30
         layer.borderWidth = 1
         layer.borderColor = R.Color.white20.cgColor
-        setAttributedTitle(title.displayText(font: .heading2SemiBold, color: R.Color.white100), for: .normal)
-        countLabel.displayText = count.displayText(font: .body2Medium, color: R.Color.main100)
+        
         countContainer.backgroundColor = R.Color.main30
         countContainer.addSubview(countLabel)
+        countContainer.isUserInteractionEnabled = false
         addSubview(countContainer)
     }
     

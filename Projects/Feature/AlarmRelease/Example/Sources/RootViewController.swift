@@ -60,6 +60,7 @@ final class RootViewController: UIViewController {
         let router = builder.build(withListener: self, alarm: alarm)
         router.interactable.activate()
         alarmReleaseRouter = router
+        router.interactable.activate()
         router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
         present(router.viewControllable.uiviewController, animated: true)
     }
@@ -69,7 +70,11 @@ extension RootViewController: AlarmReleaseIntroListener, AlarmReleaseIntroViewCo
     func request(_ request: AlarmReleaseIntroListenerRequest) {
         switch request {
         case .releaseAlarm:
-            dismiss(animated: true)
+            guard let router = alarmReleaseRouter else { return }
+            alarmReleaseRouter = nil
+            dismiss(animated: true) {
+                router.interactable.deactivate()
+            }
         }
     }
 }

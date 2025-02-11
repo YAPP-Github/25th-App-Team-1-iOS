@@ -19,6 +19,12 @@ final class AlarmReleaseIntroView: UIView {
         case snoozeButtonTapped
         case releaseAlarmButtonTapped
     }
+    
+    enum State {
+        case updateTime
+        case snoozeOption(SnoozeOption)
+    }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -38,10 +44,19 @@ final class AlarmReleaseIntroView: UIView {
     private let dateLabel = UILabel()
     private let timeStackView = UIStackView()
     
-    private let snoozeButton = SnoozeButton(option: .init(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes))
+    private let snoozeButton = SnoozeButton(type: .system)
     private let releaseAlarmButton = UIButton(type: .system)
   
-    func generateCurrentTime() {
+    func update(_ state: State) {
+        switch state {
+        case .updateTime:
+            generateCurrentTime()
+        case let .snoozeOption(option):
+            snoozeButton.update(option)
+        }
+    }
+    
+    private func generateCurrentTime() {
         let date = Date()
         let calendar = Calendar.current
         let month = calendar.component(.month, from: date)

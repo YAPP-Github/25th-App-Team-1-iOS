@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum AlarmReleaseIntroPresentableListenerRequest {
+    case viewDidLoad
     case snoozeAlarm
     case releaseAlarm
 }
@@ -25,6 +26,7 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
 
     override func loadView() {
         view = mainView
+        mainView.listener = self
     }
     
     override func viewDidLoad() {
@@ -37,18 +39,22 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
             userInfo: nil,
             repeats: true
         )
+        listener?.request(.viewDidLoad)
+    }
+    
+    func request(_ request: AlarmReleaseIntroPresentableRequest) {
+        switch request {
+        case let .updateSnooze(option):
+            mainView.update(.snoozeOption(option))
+        }
     }
     
     @objc
     private func timerFired() {
-        mainView.generateCurrentTime()
+        mainView.update(.updateTime)
     }
     
     private let mainView = AlarmReleaseIntroView()
-    
-    deinit {
-        timer?.invalidate()
-    }
 }
 
 extension AlarmReleaseIntroViewController: AlarmReleaseIntroViewListener {
@@ -57,6 +63,8 @@ extension AlarmReleaseIntroViewController: AlarmReleaseIntroViewListener {
         case .snoozeButtonTapped:
             listener?.request(.snoozeAlarm)
         case .releaseAlarmButtonTapped:
+            timer?.invalidate()
+            timer = nil
             listener?.request(.releaseAlarm)
         }
     }
