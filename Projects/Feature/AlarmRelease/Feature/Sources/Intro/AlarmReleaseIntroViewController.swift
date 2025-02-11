@@ -66,6 +66,8 @@ extension AlarmReleaseIntroViewController: AlarmReleaseIntroViewListener {
         switch action {
         case .snoozeButtonTapped:
             listener?.request(.snoozeAlarm)
+            let vc = AlarmReleaseSnoozeViewController()
+            self.present(vc, animated: true)
         case .releaseAlarmButtonTapped:
             timer?.invalidate()
             timer = nil
