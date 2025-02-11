@@ -18,10 +18,32 @@ protocol AlarmReleaseIntroPresentableListener: AnyObject {
 final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntroPresentable, AlarmReleaseIntroViewControllable {
 
     weak var listener: AlarmReleaseIntroPresentableListener?
-    
+    private var timer: Timer?
+
     override func loadView() {
         view = mainView
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        timer = Timer.scheduledTimer(
+            timeInterval: 1.0,
+            target: self,
+            selector: #selector(timerFired),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+    
+    @objc
+    private func timerFired() {
+        mainView.generateCurrentTime()
+    }
+    
     private let mainView = AlarmReleaseIntroView()
+    
+    deinit {
+        timer?.invalidate()
+    }
 }

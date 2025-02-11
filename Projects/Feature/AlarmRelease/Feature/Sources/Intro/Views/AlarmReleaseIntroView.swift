@@ -40,7 +40,7 @@ final class AlarmReleaseIntroView: UIView {
     private let snoozeButton = SnoozeButton(option: .init(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes))
     private let releaseAlarmButton = UIButton(type: .system)
   
-    private func generateCurrentTime() {
+    func generateCurrentTime() {
         let date = Date()
         let calendar = Calendar.current
         let month = calendar.component(.month, from: date)
