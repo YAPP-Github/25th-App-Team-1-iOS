@@ -12,6 +12,11 @@ import FeatureAlarm
 import FeatureAlarmMission
 import FeatureCommonDependencies
 import FeatureFortune
+import FeatureAlarmRelease
+
+public protocol MainPageActionableItem: AnyObject {
+    func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())>
+}
 
 public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
@@ -20,6 +25,8 @@ public enum MainPageRouterRequest {
     case detachAlarmMission((() -> Void)?)
     case routeToFortune
     case detachFortune
+    case routeToAlarmRelease(Alarm)
+    case detachAlarmRelease((() -> Void)?)
     case presentAlert(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
 }
@@ -147,4 +154,24 @@ extension MainPageInteractor {
             router?.request(.detachFortune)
         }
     }
+}
+
+extension MainPageInteractor {
+    func request(_ request: FeatureAlarmRelease.AlarmReleaseIntroListenerRequest) {
+        switch request {
+        case .releaseAlarm:
+            router?.request(.detachAlarmRelease({ [weak router] in
+                router?.request(.routeToAlarmMission)
+            }))
+        }
+    }
+}
+
+extension MainPageInteractor: MainPageActionableItem {
+    func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())> {
+        guard let alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return .just((self, ())) }
+        router?.request(.routeToAlarmRelease(alarm))
+        return .just((self, ()))
+    }
+
 }

@@ -42,6 +42,7 @@ extension MainPageService {
         let content = UNMutableNotificationContent()
         content.title = "알람"
         content.body = "설정한 알람 시간입니다."
+        content.userInfo = ["alarmId": alarm.id]
 
         // 알림 트리거 구성
         let dateComponents = alarm.nextDateComponents()

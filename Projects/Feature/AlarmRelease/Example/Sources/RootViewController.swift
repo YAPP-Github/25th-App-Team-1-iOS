@@ -63,10 +63,6 @@ final class RootViewController: UIViewController {
         router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
         present(router.viewControllable.uiviewController, animated: true)
     }
-    
-    private func showAlarmSetting() {
-        
-    }
 }
 
 extension RootViewController: AlarmReleaseIntroListener, AlarmReleaseIntroViewControllable {

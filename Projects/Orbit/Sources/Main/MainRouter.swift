@@ -47,8 +47,8 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
             routeToOnboarding()
         case .detachOnboarding:
             detachOnboarding()
-        case .routeToMain:
-            routeToMain()
+        case let .routeToMain(completion):
+            routeToMain(completion: completion)
         case .detachMain:
             detachMain()
         }
@@ -73,13 +73,14 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
         detachChild(router)
     }
     
-    private func routeToMain() {
+    private func routeToMain(completion: ((MainPageActionableItem) -> Void)?) {
         guard mainRouter == nil else { return }
-        let router = mainBuilder.build(withListener: interactor)
+        let (router, actionableItem) = mainBuilder.build(withListener: interactor)
         mainRouter = router
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
         viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        completion?(actionableItem)
     }
     
     private func detachMain() {

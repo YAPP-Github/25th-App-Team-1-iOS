@@ -7,15 +7,18 @@
 
 import RIBs
 import UIKit
+import FeatureCommonDependencies
 import FeatureDesignSystem
 import FeatureAlarm
 import FeatureAlarmMission
 import FeatureFortune
+import FeatureAlarmRelease
 
 protocol MainPageInteractable: Interactable,
                                FeatureAlarm.RootListener,
                                FeatureAlarmMission.ShakeMissionMainListener,
-                               FeatureFortune.FortuneListener {
+                               FeatureFortune.FortuneListener,
+                               FeatureAlarmRelease.AlarmReleaseIntroListener {
     var router: MainPageRouting? { get set }
     var listener: MainPageListener? { get set }
 }
@@ -32,11 +35,13 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         viewController: MainPageViewControllable,
         alarmBuilder: FeatureAlarm.RootBuildable,
         alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable,
-        fortuneBuilder: FeatureFortune.FortuneBuildable
+        fortuneBuilder: FeatureFortune.FortuneBuildable,
+        alarmReleaseBuilder: FeatureAlarmRelease.AlarmReleaseIntroBuildable
     ) {
         self.alarmBuilder = alarmBuilder
         self.alarmMissionBuilder = alarmMissionBuilder
         self.fortuneBuilder = fortuneBuilder
+        self.alarmReleaseBuilder = alarmReleaseBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -55,6 +60,10 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToFortune()
         case .detachFortune:
             detachFortune()
+        case let .routeToAlarmRelease(alarm):
+            routeToAlarmRelease(alarm: alarm)
+        case let .detachAlarmRelease(completion):
+            detachAlarmRelease(completion: completion)
         case .presentAlert(let config, let listener):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -77,6 +86,9 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     
     private let fortuneBuilder: FeatureFortune.FortuneBuildable
     private var fortuneRouter: FeatureFortune.FortuneRouting?
+    
+    private let alarmReleaseBuilder: FeatureAlarmRelease.AlarmReleaseIntroBuildable
+    private var alarmReleaseRouter: FeatureAlarmRelease.AlarmReleaseIntroRouting?
     
     private var navigationController: UINavigationController?
     
@@ -134,5 +146,24 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             }
         }
         navigationController = nil
+    }
+    
+    private func routeToAlarmRelease(alarm: Alarm) {
+        guard alarmReleaseRouter == nil else { return }
+        let router = alarmReleaseBuilder.build(withListener: interactor, alarm: alarm)
+        self.alarmReleaseRouter = router
+        attachChild(router)
+        router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
+        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    private func detachAlarmRelease(completion: (() -> Void)?) {
+        guard let router = alarmReleaseRouter else { return }
+        alarmReleaseRouter = nil
+        detachChild(router)
+        router.viewControllable.uiviewController.dismiss(animated: true) { [weak self] in
+            self?.detachChild(router)
+            completion?()
+        }
     }
 }

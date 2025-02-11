@@ -9,7 +9,7 @@ import RIBs
 import RxSwift
 import FeatureCommonDependencies
 
-protocol AlarmReleaseIntroRouting: ViewableRouting {
+public protocol AlarmReleaseIntroRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
@@ -18,11 +18,11 @@ protocol AlarmReleaseIntroPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
-enum AlarmReleaseIntroListenerRequest {
+public enum AlarmReleaseIntroListenerRequest {
     case releaseAlarm
 }
 
-protocol AlarmReleaseIntroListener: AnyObject {
+public protocol AlarmReleaseIntroListener: AnyObject {
     func request(_ request: AlarmReleaseIntroListenerRequest)
 }
 

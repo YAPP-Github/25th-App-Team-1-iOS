@@ -8,7 +8,7 @@
 import RIBs
 import FeatureCommonDependencies
 
-protocol AlarmReleaseIntroDependency: Dependency {
+public protocol AlarmReleaseIntroDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
     // created by this RIB.
 }
@@ -24,17 +24,17 @@ final class AlarmReleaseIntroComponent: Component<AlarmReleaseIntroDependency> {
 
 // MARK: - Builder
 
-protocol AlarmReleaseIntroBuildable: Buildable {
+public protocol AlarmReleaseIntroBuildable: Buildable {
     func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm) -> AlarmReleaseIntroRouting
 }
 
-final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency>, AlarmReleaseIntroBuildable {
+public final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency>, AlarmReleaseIntroBuildable {
 
-    override init(dependency: AlarmReleaseIntroDependency) {
+    public override init(dependency: AlarmReleaseIntroDependency) {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm) -> AlarmReleaseIntroRouting {
+    public func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm) -> AlarmReleaseIntroRouting {
         let component = AlarmReleaseIntroComponent(dependency: dependency, alarm: alarm)
         let viewController = AlarmReleaseIntroViewController()
         let interactor = AlarmReleaseIntroInteractor(presenter: viewController, alarm: component.alarm)
