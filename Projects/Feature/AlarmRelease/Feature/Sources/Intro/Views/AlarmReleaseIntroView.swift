@@ -16,6 +16,7 @@ protocol AlarmReleaseIntroViewListener: AnyObject {
 
 final class AlarmReleaseIntroView: UIView {
     enum Action {
+        case snoozeButtonTapped
         case releaseAlarmButtonTapped
     }
     init() {
@@ -75,6 +76,11 @@ final class AlarmReleaseIntroView: UIView {
     }
     
     @objc
+    private func snoozeButtonTapped() {
+        listener?.action(.snoozeButtonTapped)
+    }
+    
+    @objc
     private func releaseAlarmButtonTapped() {
         listener?.action(.releaseAlarmButtonTapped)
     }
@@ -96,6 +102,10 @@ private extension AlarmReleaseIntroView {
         
         [meridiemLabel, timeLabel].forEach {
             timeStackView.addArrangedSubview($0)
+        }
+        
+        snoozeButton.do {
+            $0.addTarget(self, action: #selector(snoozeButtonTapped), for: .touchUpInside)
         }
         
         releaseAlarmButton.do {

@@ -17,8 +17,12 @@ protocol AlarmReleaseIntroPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
+enum AlarmReleaseIntroListenerRequest {
+    case releaseAlarm
+}
+
 protocol AlarmReleaseIntroListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: AlarmReleaseIntroListenerRequest)
 }
 
 final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntroPresentable>, AlarmReleaseIntroInteractable, AlarmReleaseIntroPresentableListener {
@@ -32,14 +36,13 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         super.init(presenter: presenter)
         presenter.listener = self
     }
-
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
+    
+    func request(_ request: AlarmReleaseIntroPresentableListenerRequest) {
+        switch request {
+        case .snoozeAlarm:
+            print("SnoozeAlarmTapped")
+        case .releaseAlarm:
+            listener?.request(.releaseAlarm)
+        }
     }
 }

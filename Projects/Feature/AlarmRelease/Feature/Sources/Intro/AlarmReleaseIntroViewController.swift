@@ -9,10 +9,13 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum AlarmReleaseIntroPresentableListenerRequest {
+    case snoozeAlarm
+    case releaseAlarm
+}
+
 protocol AlarmReleaseIntroPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    func request(_ request: AlarmReleaseIntroPresentableListenerRequest)
 }
 
 final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntroPresentable, AlarmReleaseIntroViewControllable {
@@ -45,5 +48,16 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
     
     deinit {
         timer?.invalidate()
+    }
+}
+
+extension AlarmReleaseIntroViewController: AlarmReleaseIntroViewListener {
+    func action(_ action: AlarmReleaseIntroView.Action) {
+        switch action {
+        case .snoozeButtonTapped:
+            listener?.request(.snoozeAlarm)
+        case .releaseAlarmButtonTapped:
+            listener?.request(.releaseAlarm)
+        }
     }
 }
