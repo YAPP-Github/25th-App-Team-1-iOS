@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
 
 protocol AlarmReleaseIntroRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -32,10 +33,16 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: AlarmReleaseIntroPresentable) {
+    init(
+        presenter: AlarmReleaseIntroPresentable,
+        alarm: Alarm
+    ) {
+        self.alarm = alarm
         super.init(presenter: presenter)
         presenter.listener = self
     }
+    
+    private let alarm: Alarm
     
     func request(_ request: AlarmReleaseIntroPresentableListenerRequest) {
         switch request {

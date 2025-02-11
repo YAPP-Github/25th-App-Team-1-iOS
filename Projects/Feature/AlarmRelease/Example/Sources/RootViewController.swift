@@ -7,6 +7,8 @@
 
 import UIKit
 import RIBs
+import FeatureCommonDependencies
+import FeatureUIDependencies
 
 @testable import FeatureAlarmRelease
 
@@ -42,11 +44,20 @@ final class RootViewController: UIViewController {
         ])
     }
     
+    let alarm: Alarm = Alarm(
+        meridiem: .am,
+        hour: .init(6)!,
+        minute: .init(0)!,
+        repeatDays: AlarmDays(),
+        snoozeOption: .init(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
+        soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: R.AlarmSound.allCases.sorted(by: { $0.title < $1.title }).first?.title ?? "")
+    )
+    
     var alarmReleaseRouter: Routing?
     
     private func showAlarmRelease() {
         let builder = AlarmReleaseIntroBuilder(dependency: ExampleComponent(viewController: self))
-        let router = builder.build(withListener: self)
+        let router = builder.build(withListener: self, alarm: alarm)
         router.interactable.activate()
         alarmReleaseRouter = router
         router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
@@ -59,6 +70,12 @@ final class RootViewController: UIViewController {
 }
 
 extension RootViewController: AlarmReleaseIntroListener, AlarmReleaseIntroViewControllable {
+    func request(_ request: AlarmReleaseIntroListenerRequest) {
+        switch request {
+        case .releaseAlarm:
+            dismiss(animated: true)
+        }
+    }
 }
 
 extension ExampleComponent: AlarmReleaseIntroDependency {

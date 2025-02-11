@@ -23,6 +23,8 @@ let project = Project(
             resources: ["Example/Resources/**"],
             dependencies: [
                 .feature(implements: .AlarmRelease),
+                .feature(implements: .UIDependencies),
+                .feature(implements: .CommonDependencies),
                 .feature(implements: .ThirdPartyDependencies)
             ]
         ),

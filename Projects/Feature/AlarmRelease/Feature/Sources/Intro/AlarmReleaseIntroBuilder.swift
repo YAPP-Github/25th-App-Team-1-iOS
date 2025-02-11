@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import FeatureCommonDependencies
 
 protocol AlarmReleaseIntroDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
@@ -13,14 +14,18 @@ protocol AlarmReleaseIntroDependency: Dependency {
 }
 
 final class AlarmReleaseIntroComponent: Component<AlarmReleaseIntroDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let alarm: Alarm
+    
+    init(dependency: AlarmReleaseIntroDependency, alarm: Alarm) {
+        self.alarm = alarm
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol AlarmReleaseIntroBuildable: Buildable {
-    func build(withListener listener: AlarmReleaseIntroListener) -> AlarmReleaseIntroRouting
+    func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm) -> AlarmReleaseIntroRouting
 }
 
 final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency>, AlarmReleaseIntroBuildable {
@@ -29,10 +34,10 @@ final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency>, Alar
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: AlarmReleaseIntroListener) -> AlarmReleaseIntroRouting {
-        let component = AlarmReleaseIntroComponent(dependency: dependency)
+    func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm) -> AlarmReleaseIntroRouting {
+        let component = AlarmReleaseIntroComponent(dependency: dependency, alarm: alarm)
         let viewController = AlarmReleaseIntroViewController()
-        let interactor = AlarmReleaseIntroInteractor(presenter: viewController)
+        let interactor = AlarmReleaseIntroInteractor(presenter: viewController, alarm: component.alarm)
         interactor.listener = listener
         return AlarmReleaseIntroRouter(interactor: interactor, viewController: viewController)
     }
