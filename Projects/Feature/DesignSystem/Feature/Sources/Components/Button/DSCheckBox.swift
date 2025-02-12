@@ -12,6 +12,10 @@ import FeatureResources
 import SnapKit
 
 public final class DSCheckBox: TouchDetectingView {
+    // Initial state
+    private let initialState: ButtonState
+    
+    
     // Style
     private let buttonStyle: ButtonStyle
     
@@ -29,7 +33,8 @@ public final class DSCheckBox: TouchDetectingView {
     }
     
     
-    public init(buttonStyle: ButtonStyle) {
+    public init(initialState: ButtonState, buttonStyle: ButtonStyle) {
+        self.initialState = initialState
         self.buttonStyle = buttonStyle
         super.init(frame: .zero)
         setupUI()
@@ -40,13 +45,13 @@ public final class DSCheckBox: TouchDetectingView {
     private func setupUI() {
         // self
         self.layer.cornerRadius = 4
-        self.backgroundColor = ButtonState.idle.backgroundColor
+        self.backgroundColor = initialState.backgroundColor
         
         
         // checkImage
         checkImage.contentMode = .scaleAspectFit
         checkImage.image = FeatureResourcesAsset.check.image
-        checkImage.tintColor = ButtonState.idle.imageTintColor
+        checkImage.tintColor = initialState.imageTintColor
         addSubview(checkImage)
     }
     
