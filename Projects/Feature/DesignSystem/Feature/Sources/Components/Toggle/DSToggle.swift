@@ -12,8 +12,9 @@ import FeatureResources
 import SnapKit
 
 public final class DSToggle: TouchDetectingView {
-    // Initial state
+    // State
     private let initialState: ToggleState
+    private var isEnabled: Bool
     
     
     // Action
@@ -34,6 +35,7 @@ public final class DSToggle: TouchDetectingView {
     
     public init(initialState: ToggleState) {
         self.initialState = initialState
+        self.isEnabled = initialState.isEnabled
         super.init(frame: .zero)
         setupUI()
         setupLayout()
@@ -49,7 +51,9 @@ public final class DSToggle: TouchDetectingView {
     }
     
     public override func onTouchOut() {
-        toggleAction?()
+        if isEnabled {
+            toggleAction?()
+        }
     }
     
     private func apply(state: ToggleState) {
@@ -94,7 +98,8 @@ private extension DSToggle {
 
 // MARK: Public interface
 public extension DSToggle {
-    func update(state: ToggleState, animated: Bool = true) {
+    func update(state: ToggleState, animated: Bool = false) {
+        self.isEnabled = state.isEnabled
         UIView.animate(withDuration: animated ? 0.35 : 0.0) {
             self.apply(state: state)
             if animated { self.layoutIfNeeded() }
