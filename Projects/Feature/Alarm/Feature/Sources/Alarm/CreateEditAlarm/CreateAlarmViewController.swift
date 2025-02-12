@@ -39,7 +39,6 @@ final class CreateEditAlarmViewController: UIViewController, CreateEditAlarmPres
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigation()
         listener?.request(.viewDidLoad)
     }
     
@@ -51,14 +50,19 @@ final class CreateEditAlarmViewController: UIViewController, CreateEditAlarmPres
             mainView.update(state: .titleUpdated(title))
         case let .alarmUpdated(alarm):
             mainView.update(state: .alarmUpdated(alarm))
+        case .presentSnackBar(let config):
+            let snackBar = DSSnackBar(config: config)
+            snackBar.layer.zPosition = 1000
+            view.addSubview(snackBar)
+            snackBar.snp.makeConstraints { make in
+                make.horizontalEdges.equalToSuperview().inset(20)
+                make.bottom.equalTo(view.safeAreaLayoutGuide).inset(78)
+            }
+            snackBar.play()
         }
     }
     
     private let mainView = CreateEditAlarmView()
-    
-    private func setupNavigation() {
-        navigationController?.isNavigationBarHidden = true
-    }
     
     deinit {
         print(#function)

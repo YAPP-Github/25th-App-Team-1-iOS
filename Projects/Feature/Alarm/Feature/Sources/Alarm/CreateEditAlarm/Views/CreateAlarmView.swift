@@ -55,6 +55,7 @@ final class CreateEditAlarmView: UIView {
         }
     }
     
+    private let alarmPickerContainer = UIView()
     private let alarmPicker = AlarmPicker()
     private let navigationBar = OnBoardingNavBarView()
     private let selectWeekDayView = SelectWeekDayView()
@@ -80,6 +81,8 @@ private extension CreateEditAlarmView {
         backgroundColor = R.Color.gray900
         navigationBar.do {
             $0.listener = self
+            $0.setContentHuggingPriority(.required, for: .vertical)
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         alarmPicker.do {
             $0.listener = self
@@ -95,8 +98,8 @@ private extension CreateEditAlarmView {
             $0.update(title: "저장하기")
         }
         
-        
-        [navigationBar, alarmPicker, selectWeekDayView, doneButton].forEach { addSubview($0) }
+        alarmPickerContainer.addSubview(alarmPicker)
+        [navigationBar, alarmPickerContainer, selectWeekDayView, doneButton].forEach { addSubview($0) }
     }
     
     func layout() {
@@ -104,20 +107,25 @@ private extension CreateEditAlarmView {
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
         }
-        alarmPicker.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(42)
-            $0.horizontalEdges.equalToSuperview()
-                .inset(20)
-        }
         doneButton.snp.makeConstraints {
             $0.bottom.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         selectWeekDayView.snp.makeConstraints {
-            $0.top.equalTo(alarmPicker.snp.bottom).offset(50)
             $0.bottom.equalTo(doneButton.snp.top).offset(-24)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
+        alarmPickerContainer.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(selectWeekDayView.snp.top)
+        }
+        alarmPicker.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+                .inset(20)
+        }
+        
     }
 }
 
