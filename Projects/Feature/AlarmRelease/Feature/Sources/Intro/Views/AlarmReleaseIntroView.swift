@@ -111,7 +111,7 @@ private extension AlarmReleaseIntroView {
     func setupUI() {
         backgroundImageView.do {
             $0.image = FeatureResourcesAsset.imgBackgroundAlarmRelease.image
-            $0.contentMode = .scaleAspectFit
+            $0.contentMode = .scaleAspectFill
         }
         
         timeStackView.do {

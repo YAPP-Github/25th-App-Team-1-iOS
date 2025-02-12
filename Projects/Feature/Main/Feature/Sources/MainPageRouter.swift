@@ -159,16 +159,17 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         let router = alarmReleaseBuilder.build(withListener: interactor, alarm: alarm)
         self.alarmReleaseRouter = router
         attachChild(router)
-        router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+        let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        navigationController.isNavigationBarHidden = true
+        viewController.uiviewController.present(navigationController, animated: true)
     }
     
     private func detachAlarmRelease(completion: (() -> Void)?) {
         guard let router = alarmReleaseRouter else { return }
         alarmReleaseRouter = nil
         detachChild(router)
-        router.viewControllable.uiviewController.dismiss(animated: true) { [weak self] in
-            self?.detachChild(router)
+        viewController.uiviewController.dismiss(animated: true) {
             completion?()
         }
     }

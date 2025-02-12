@@ -69,6 +69,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
             stopAlarm()
             router?.request(.routeToSnooze(alarm.snoozeOption))
         case .releaseAlarm:
+            stopAlarm()
             listener?.request(.releaseAlarm)
         }
     }
