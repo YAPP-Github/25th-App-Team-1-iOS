@@ -57,12 +57,15 @@ final class RootViewController: UIViewController {
     
     private func showAlarmRelease() {
         let builder = AlarmReleaseIntroBuilder(dependency: ExampleComponent(viewController: self))
+        
         let router = builder.build(withListener: self, alarm: alarm)
         router.interactable.activate()
         alarmReleaseRouter = router
         router.interactable.activate()
-        router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
-        present(router.viewControllable.uiviewController, animated: true)
+        let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        navigationController.isNavigationBarHidden = true
+        present(navigationController, animated: true)
     }
 }
 
@@ -72,9 +75,8 @@ extension RootViewController: AlarmReleaseIntroListener, AlarmReleaseIntroViewCo
         case .releaseAlarm:
             guard let router = alarmReleaseRouter else { return }
             alarmReleaseRouter = nil
-            dismiss(animated: true) {
-                router.interactable.deactivate()
-            }
+            router.interactable.deactivate()
+            dismiss(animated: true)
         }
     }
 }

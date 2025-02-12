@@ -9,14 +9,20 @@ import RIBs
 import RxSwift
 import FeatureCommonDependencies
 
+public enum AlarmReleaseIntroRouterRequest {
+    case routeToSnooze(SnoozeOption)
+    case detachSnooze
+}
+
 public protocol AlarmReleaseIntroRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func request(_ request: AlarmReleaseIntroRouterRequest)
 }
 
 enum AlarmReleaseIntroPresentableRequest {
     case updateSnooze(SnoozeOption)
     case updateSnoozeCount(Int)
     case hideSnoozeButton
+    case stopTimer
 }
 
 protocol AlarmReleaseIntroPresentable: Presentable {
@@ -54,7 +60,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         case .viewDidLoad:
             presenter.request(.updateSnooze(alarm.snoozeOption))
         case .snoozeAlarm:
-            updateSnoozeCount()
+            router?.request(.routeToSnooze(alarm.snoozeOption))
         case .releaseAlarm:
             listener?.request(.releaseAlarm)
         }
@@ -74,6 +80,19 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
             presenter.request(.updateSnoozeCount(newCount))
         } else {
             presenter.request(.hideSnoozeButton)
+        }
+    }
+}
+
+extension AlarmReleaseIntroInteractor {
+    func request(_ request: AlarmReleaseSnoozeListenerRequest) {
+        router?.request(.detachSnooze)
+        switch request {
+        case .releaseAlarm:
+            presenter.request(.stopTimer)
+            listener?.request(.releaseAlarm)
+        case .snoozeFinished:
+            updateSnoozeCount()
         }
     }
 }

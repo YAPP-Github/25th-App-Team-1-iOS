@@ -52,10 +52,6 @@ final class CircularGaugeView: UIView {
     
     weak var listener: CircularGaugeViewListener?
     
-    deinit {
-        timer?.invalidate()
-    }
-    
     /// 타이머 시작 (1초마다 남은 시간 감소)
     func startTimer() {
         timer?.invalidate()
@@ -66,6 +62,11 @@ final class CircularGaugeView: UIView {
                                      selector: #selector(updateTimer),
                                      userInfo: nil,
                                      repeats: true)
+    }
+    
+    func stopTimer() {
+        timer?.invalidate()
+        timer = nil
     }
     
     @objc
@@ -118,6 +119,10 @@ final class CircularGaugeView: UIView {
         foregroundPath.lineCapStyle = .round
         UIColor.yellow.setStroke()
         foregroundPath.stroke()
+    }
+    
+    deinit {
+        print(#function)
     }
 }
 

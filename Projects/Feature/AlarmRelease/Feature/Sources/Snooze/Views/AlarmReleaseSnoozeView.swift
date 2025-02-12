@@ -19,13 +19,15 @@ final class AlarmReleaseSnoozeView: UIView {
         case timerFinished
         case releaseAlarmButtonTapped
     }
+    
+    enum State {
+        case startTimer(SnoozeOption)
+    }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
         layout()
-        
-        guageView.totalTime = 60 * 5
-        guageView.startTimer()
     }
     
     required init?(coder: NSCoder) {
@@ -34,12 +36,21 @@ final class AlarmReleaseSnoozeView: UIView {
     
     weak var listener: AlarmReleaseSnoozeViewListener?
     
+    func update(_ state: State) {
+        switch state {
+        case .startTimer(let snoozeOption):
+            guageView.totalTime = TimeInterval(snoozeOption.frequency.rawValue * 60)
+            guageView.startTimer()
+        }
+    }
+    
     private let titleLabel = UILabel()
     private let guageView = CircularGaugeView()
     private let releaseAlarmButton = UIButton(type: .system)
     
     @objc
     private func releaseAlarmButtonTapped() {
+        guageView.stopTimer()
         listener?.action(.releaseAlarmButtonTapped)
     }
 }

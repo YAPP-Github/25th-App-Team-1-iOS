@@ -50,6 +50,9 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
             mainView.update(.snoozeCount(count))
         case .hideSnoozeButton:
             mainView.update(.hideSnoozeButton)
+        case let .stopTimer:
+            timer?.invalidate()
+            timer = nil
         }
     }
     
@@ -66,8 +69,6 @@ extension AlarmReleaseIntroViewController: AlarmReleaseIntroViewListener {
         switch action {
         case .snoozeButtonTapped:
             listener?.request(.snoozeAlarm)
-            let vc = AlarmReleaseSnoozeViewController()
-            self.present(vc, animated: true)
         case .releaseAlarmButtonTapped:
             timer?.invalidate()
             timer = nil

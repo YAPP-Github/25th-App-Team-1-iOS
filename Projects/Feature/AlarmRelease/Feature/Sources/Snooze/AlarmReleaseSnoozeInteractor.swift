@@ -7,18 +7,28 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
 
 protocol AlarmReleaseSnoozeRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum AlarmReleaseSnoozePresentableRequest {
+    case startTimer(SnoozeOption)
+}
+
 protocol AlarmReleaseSnoozePresentable: Presentable {
     var listener: AlarmReleaseSnoozePresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: AlarmReleaseSnoozePresentableRequest)
+}
+
+enum AlarmReleaseSnoozeListenerRequest {
+    case releaseAlarm
+    case snoozeFinished
 }
 
 protocol AlarmReleaseSnoozeListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: AlarmReleaseSnoozeListenerRequest)
 }
 
 final class AlarmReleaseSnoozeInteractor: PresentableInteractor<AlarmReleaseSnoozePresentable>, AlarmReleaseSnoozeInteractable, AlarmReleaseSnoozePresentableListener {
@@ -28,18 +38,25 @@ final class AlarmReleaseSnoozeInteractor: PresentableInteractor<AlarmReleaseSnoo
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: AlarmReleaseSnoozePresentable) {
+    init(
+        presenter: AlarmReleaseSnoozePresentable,
+        snoozeOption: SnoozeOption
+    ) {
+        self.snoozeOption = snoozeOption
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
-    override func didBecomeActive() {
-        super.didBecomeActive()
-        // TODO: Implement business logic here.
+    func request(_ request: AlarmReleaseSnoozePresentableListenerRequest) {
+        switch request {
+        case .viewDidLoad:
+            presenter.request(.startTimer(snoozeOption))
+        case .releaseAlarm:
+            listener?.request(.releaseAlarm)
+        case .snoozeFinished:
+            listener?.request(.snoozeFinished)
+        }
     }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
+    
+    private let snoozeOption: SnoozeOption
 }

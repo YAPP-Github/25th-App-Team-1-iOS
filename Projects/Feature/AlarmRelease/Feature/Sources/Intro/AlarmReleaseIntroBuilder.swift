@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import UIKit
 import FeatureCommonDependencies
 
 public protocol AlarmReleaseIntroDependency: Dependency {
@@ -39,6 +40,12 @@ public final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency
         let viewController = AlarmReleaseIntroViewController()
         let interactor = AlarmReleaseIntroInteractor(presenter: viewController, alarm: component.alarm)
         interactor.listener = listener
-        return AlarmReleaseIntroRouter(interactor: interactor, viewController: viewController)
+        
+        let snoozeBuilder = AlarmReleaseSnoozeBuilder(dependency: component)
+        return AlarmReleaseIntroRouter(
+            interactor: interactor,
+            viewController: viewController,
+            snoozeBuilder: snoozeBuilder
+        )
     }
 }
