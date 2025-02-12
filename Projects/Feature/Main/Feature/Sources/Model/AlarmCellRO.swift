@@ -6,25 +6,31 @@
 //
 
 import FeatureCommonEntity
+import FeatureCommonEntity
 
-struct AlarmCellRO: Identifiable, Hashable {
-    var id: String { alarm.id }
+struct AlarmCellRO: Hashable {
+    var id: String
+    var alarmDays: AlarmDays
+    var meridiem: Meridiem
+    var hour: Hour
+    var minute: Minute
+    var isToggleOn: Bool
+    var isChecked: Bool
+    var mode: AlarmListMode
     
-    enum Mode {
-        case idle
-        case deletion
-    }
-    var mode: Mode
-    var isSelectedForDeleteion: Bool
-    var alarm: Alarm
-    
-    public static func == (lhs: AlarmCellRO, rhs: AlarmCellRO) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(alarm)
-        hasher.combine(mode)
-        hasher.combine(isSelectedForDeleteion)
+    var hourAndMinuteDisplayText: String {
+        var hourText = "00"
+        if hour.value < 10 {
+            hourText = "0\(hour)"
+        } else {
+            hourText = "\(hour)"
+        }
+        var minuteText = "00"
+        if minute.value < 10 {
+            minuteText = "0\(minute)"
+        } else {
+            minuteText = "\(minute)"
+        }
+        return "\(hourText):\(minuteText)"
     }
 }

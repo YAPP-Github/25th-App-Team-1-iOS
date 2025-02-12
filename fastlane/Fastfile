@@ -16,6 +16,36 @@
 default_platform(:ios)
 
 platform :ios do
+
+  desc "Orbit demo app"
+  lane :betaOrbit do
+
+    match(
+      api_key_path: "fastlane/apple_connect_auth.json",
+      type: "appstore",
+    )
+
+    # increment_build_number(
+    #   build_number: latest_testflight_build_number + 1
+    # )
+
+    update_project_team(
+      path: "Projects/Orbit/Orbit.xcodeproj",
+      teamid: ENV["TEAM_ID"]
+    )
+
+    build_app(
+      scheme: "Orbit-Debug",
+      workspace: "OrbitWorkspace.xcworkspace"
+    )
+    
+    upload_to_testflight(
+      app_identifier: "com.yaf.orbit",
+      api_key_path: "fastlane/apple_connect_auth.json"
+    )
+
+  end
+
   desc "On boarding demo app"
   lane :betaOnboarding do
 
@@ -73,4 +103,5 @@ platform :ios do
     )
 
   end
+  
 end

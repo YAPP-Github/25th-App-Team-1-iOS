@@ -53,7 +53,7 @@ public final class DSDefaultCTAButton: TouchDetectingView {
     
     
     public override var intrinsicContentSize: CGSize {
-        .init(width: UIView.noIntrinsicMetric, height: 54)
+        .init(width: UIView.noIntrinsicMetric, height: style.size.height)
     }
     
     
@@ -284,14 +284,28 @@ extension DSDefaultCTAButton {
                 return .body1SemiBold
             }
         }
+        
+        var height: CGFloat {
+            switch self {
+            case .extraLarge:
+                60
+            case .large:
+                54
+            case .medium:
+                48
+            }
+        }
     }
     
     public enum CornerRadius {
+        case large
         case medium
         case small
         
         var value: CGFloat {
             switch self {
+            case .large:
+                return 24
             case .medium:
                 return 16
             case .small:
@@ -301,6 +315,8 @@ extension DSDefaultCTAButton {
         
         var pressedValue: CGFloat {
             switch self {
+            case .large:
+                return 24
             case .medium:
                 return 12
             case .small:
