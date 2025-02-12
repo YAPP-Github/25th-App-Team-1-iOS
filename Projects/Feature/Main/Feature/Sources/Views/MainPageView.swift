@@ -781,6 +781,10 @@ extension MainPageView {
         case .deleteButtonClicked(let cellId):
             dismissAlarmDeletionView()
             listener?.action(.alarmWillDelete(alarmId: cellId))
+        case .backgroundTapped:
+            dismissAlarmDeletionView()
+        case .deletionItemToggleIsTapped(let cellId):
+            listener?.action(.alarmActivityStateWillChange(alarmId: cellId))
         }
     }
 }

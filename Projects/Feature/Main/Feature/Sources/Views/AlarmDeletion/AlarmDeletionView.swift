@@ -15,11 +15,13 @@ protocol AlarmDeletionViewListener: AnyObject {
     func action(_ action: AlarmDeletionView.Action)
 }
 
-final class AlarmDeletionView: UIView {
+final class AlarmDeletionView: UIView, UIGestureRecognizerDelegate, AlarmDeletionItemViewListener {
     
     // Action
     enum Action {
         case deleteButtonClicked(cellId: String)
+        case deletionItemToggleIsTapped(cellId: String)
+        case backgroundTapped
     }
     
     
@@ -37,12 +39,24 @@ final class AlarmDeletionView: UIView {
     private let alarmDeleteButton: AlarmDeleteButton = .init()
     
     
+    // Gesture
+    private let tapGesture: UITapGestureRecognizer = .init()
+    
+    
     init() {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setupGesture()
     }
     required init?(coder: NSCoder) { nil }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.view?.isDescendant(of: deletionItemView) == true {
+            return false
+        }
+        return true
+    }
 }
 
 
@@ -80,6 +94,7 @@ private extension AlarmDeletionView {
         addSubview(blurEffectView)
         
         // deletionItemView
+        deletionItemView.listener = self
         addSubview(deletionItemView)
         
         // alarmDeleteButton
@@ -107,6 +122,34 @@ private extension AlarmDeletionView {
         alarmDeleteButton.snp.makeConstraints { make in
             make.centerX.equalTo(deletionItemView)
             make.top.equalTo(deletionItemView.snp.bottom).offset(20)
+        }
+    }
+    
+    func setupGesture() {
+        // tapGesture
+        self.addGestureRecognizer(tapGesture)
+        tapGesture.addTarget(self, action: #selector(onTapBackground(gesture:)))
+        tapGesture.cancelsTouchesInView = false
+        tapGesture.delegate = self
+    }
+    @objc
+    func onTapBackground(gesture: UITapGestureRecognizer) {
+        listener?.action(.backgroundTapped)
+    }
+}
+
+
+// MARK: AlarmDeletionItemViewListener
+extension AlarmDeletionView {
+    func action(_ action: AlarmDeletionItemView.Action) {
+        switch action {
+        case .toggleIsTapped:
+            guard let cellId = alarmRO?.id, let alarmRO else { break }
+            listener?.action(.deletionItemToggleIsTapped(cellId: cellId))
+            var newRO = alarmRO
+            newRO.isToggleOn = !alarmRO.isToggleOn
+            self.alarmRO = newRO
+            deletionItemView.update(renderObject: newRO)
         }
     }
 }

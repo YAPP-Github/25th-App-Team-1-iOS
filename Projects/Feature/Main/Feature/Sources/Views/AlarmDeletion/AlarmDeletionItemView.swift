@@ -7,6 +7,7 @@
 
 import UIKit
 
+import FeatureDesignSystem
 import FeatureResources
 import FeatureThirdPartyDependencies
 import FeatureCommonDependencies
@@ -19,7 +20,7 @@ final class AlarmDeletionItemView: UIView {
     
     // Action
     enum Action {
-        case toggleIsTapped(cellId: String, willMoveTo: AlarmState)
+        case toggleIsTapped
     }
     
     
@@ -47,9 +48,7 @@ final class AlarmDeletionItemView: UIView {
         $0.spacing = 4
         $0.alignment = .leading
     }
-    
-    private let toggleView: UISwitch = .init()
-    
+    private let toggle: DSToggle = .init(initialState: .init(isEnabled: true, switchState: .on))
     private let containerView: UIStackView = .init().then {
         $0.axis = .horizontal
         $0.spacing = 16
@@ -65,19 +64,8 @@ final class AlarmDeletionItemView: UIView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
-        
-        // MARK: Temp
-        toggleView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
     }
     required init?(coder: NSCoder) { nil }
-    
-    @objc func switchChanged(_ sender: UISwitch) {
-        guard let cellId = self.currentRO?.id else { return }
-        listener?.action(.toggleIsTapped(
-            cellId: cellId,
-            willMoveTo: sender.isOn ? .active : .inactive
-        ))
-    }
 }
 
 
@@ -123,13 +111,15 @@ private extension AlarmDeletionItemView {
         }
         
         
-        // toggleView
-        // MARK: TEMP
-        toggleView.onTintColor = R.Color.main100
+        // toggle
+        toggle.toggleAction = { [weak self] in
+            guard let self else { return }
+            listener?.action(.toggleIsTapped)
+        }
         
         
         // containerView
-        [timeLabelContainer, toggleView].forEach {
+        [timeLabelContainer, toggle].forEach {
             containerView.addArrangedSubview($0)
         }
         addSubview(containerView)
@@ -163,7 +153,7 @@ extension AlarmDeletionItemView {
         self.currentRO = ro
         
         // Toggle
-        toggleView.setOn(state == .active, animated: animated)
+        toggle.update(state: .init(isEnabled: true, switchState: ro.isToggleOn ? .on : .off))
         
         // day
         let alarmDays = ro.alarmDays
