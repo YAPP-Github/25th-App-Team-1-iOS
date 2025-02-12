@@ -42,7 +42,6 @@ final class CircularGaugeView: UIView {
         backgroundColor = .clear
         setupUI()
         layout()
-        updateTimeLabel()
     }
     
     required init?(coder: NSCoder) {

@@ -8,6 +8,7 @@
 import RIBs
 import RxSwift
 import FeatureCommonDependencies
+import FeatureResources
 
 public enum AlarmReleaseIntroRouterRequest {
     case routeToSnooze(SnoozeOption)
@@ -55,11 +56,17 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         presenter.listener = self
     }
     
+    override func didBecomeActive() {
+        super.didBecomeActive()
+        playAlarm()
+    }
+    
     func request(_ request: AlarmReleaseIntroPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
             presenter.request(.updateSnooze(alarm.snoozeOption))
         case .snoozeAlarm:
+            stopAlarm()
             router?.request(.routeToSnooze(alarm.snoozeOption))
         case .releaseAlarm:
             listener?.request(.releaseAlarm)
@@ -82,6 +89,17 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
             presenter.request(.hideSnoozeButton)
         }
     }
+    
+    private func playAlarm() {
+        guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
+        AlarmManager.shared.activateSession()
+        VolumeManager.setVolume(alarm.soundOption.volume)
+        AlarmManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
+    }
+    
+    private func stopAlarm() {
+        AlarmManager.shared.stopPlayingSound()
+    }
 }
 
 extension AlarmReleaseIntroInteractor {
@@ -90,9 +108,11 @@ extension AlarmReleaseIntroInteractor {
         switch request {
         case .releaseAlarm:
             presenter.request(.stopTimer)
+            stopAlarm()
             listener?.request(.releaseAlarm)
         case .snoozeFinished:
             updateSnoozeCount()
+            playAlarm()
         }
     }
 }
