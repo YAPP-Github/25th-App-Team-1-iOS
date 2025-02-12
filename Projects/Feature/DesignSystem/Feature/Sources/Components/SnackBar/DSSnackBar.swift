@@ -59,6 +59,7 @@ private extension DSSnackBar {
                 guard let self else { return }
                 config.buttonCompletion?()
                 labelButton.isUserInteractionEnabled = false
+                dismiss()
             }
         } else {
             labelButton.isHidden = true
@@ -100,18 +101,21 @@ public extension DSSnackBar {
             self.alpha = 1
         } completion: { _ in
             self.isUserInteractionEnabled = true
-            
             DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
                 guard let self else { return }
-                
-                UIView.animate(withDuration: 0.35) {
-                    self.transform = .init(translationX: 0, y: height)
-                    self.alpha = 0
-                } completion: { _ in
-                    self.alpha = 0
-                    self.removeFromSuperview()
-                }
+                dismiss()
             }
+        }
+    }
+    
+    private func dismiss() {
+        let height = self.layer.bounds.height
+        UIView.animate(withDuration: 0.35) {
+            self.transform = .init(translationX: 0, y: height)
+            self.alpha = 0
+        } completion: { _ in
+            self.alpha = 0
+            self.removeFromSuperview()
         }
     }
     
