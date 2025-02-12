@@ -33,6 +33,7 @@ enum MainPagePresentableRequest {
     case setAlarmList([AlarmCellRO])
     case setAlarmListMode(AlarmListMode)
     case setCountForAlarmsCheckedForDeletion(countOfAlarms: Int)
+    case presentSnackBar(config: DSSnackBar.SnackBarConfig)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -182,9 +183,10 @@ extension MainPageInteractor {
                 
                 // 비즈니스 로직
                 let alarms = service.getAllAlarm()
-                alarms.filter { alarm in
+                let willDeleteAlarms = alarms.filter { alarm in
                     self.checkedState[alarm.id] == true
-                }.forEach { alarm in
+                }
+                willDeleteAlarms.forEach { alarm in
                     self.service.deleteAlarm(alarm)
                 }
                 
@@ -203,6 +205,25 @@ extension MainPageInteractor {
                 presenter.request(.setAlarmListMode(.idle))
                 presenter.request(.setAlarmList(newROs))
                 presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
+                
+                let config: DSSnackBar.SnackBarConfig = .init(
+                    status: .success,
+                    titleText: "삭제되었어요.",
+                    buttonText: "취소",
+                    buttonCompletion: { [weak self] in
+                        guard let self else { return }
+                        willDeleteAlarms.forEach { alarm in
+                            // 복구
+                            self.service.addAlarm(alarm)
+                        }
+                        // UI업데이트
+                        let newAlarmList = service.getAllAlarm()
+                        let alarmCellROs = transform(alarmList: newAlarmList)
+                        self.alarmCellROs = alarmCellROs
+                        presenter.request(.setAlarmList(alarmCellROs))
+                    }
+                )
+                presenter.request(.presentSnackBar(config: config))
             }
             
             self.alertListener[alertListenerKey] = alertListener
@@ -271,6 +292,12 @@ extension MainPageInteractor {
             return
         case let .done(alarm):
             service.addAlarm(alarm)
+            let config: DSSnackBar.SnackBarConfig = .init(
+                status: .success,
+                titleText: "기상 알람이 추가되었어요."
+            )
+            presenter.request(.presentSnackBar(config: config))
+            
         case let .updated(alarm):
             service.updateAlarm(alarm)
         case let .deleted(alarm):

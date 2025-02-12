@@ -12,7 +12,7 @@ import FeatureThirdPartyDependencies
 
 public final class DSSnackBar: UIView {
     // State
-    private let status: SnackBarStatus
+    private let config: SnackBarConfig
     
     
     // Sub views
@@ -25,8 +25,8 @@ public final class DSSnackBar: UIView {
     private let containerStack: UIStackView = .init()
     
     
-    public init(status: SnackBarStatus) {
-        self.status = status
+    public init(config: SnackBarConfig) {
+        self.config = config
         super.init(frame: .zero)
         setupUI()
         setupLayout()
@@ -44,10 +44,26 @@ private extension DSSnackBar {
         
         // iconImage
         iconImageView.contentMode = .scaleAspectFit
-        iconImageView.image = status.iconImage
+        iconImageView.image = config.status.iconImage
+        
+        // titleLabel
+        titleLabel.displayText = config.titleText.displayText(
+            font: .label1Medium,
+            color: R.Color.white100
+        )
         
         // labelButton
-        labelButton.isHidden = true
+        if let buttonText = config.buttonText {
+            labelButton.update(titleText: buttonText)
+            labelButton.buttonAction = { [weak self] in
+                guard let self else { return }
+                config.buttonCompletion?()
+                labelButton.isUserInteractionEnabled = false
+            }
+        } else {
+            labelButton.isHidden = true
+        }
+        
         
         // containerStack
         containerStack.axis = .horizontal
@@ -72,22 +88,6 @@ private extension DSSnackBar {
 
 // MARK: Public interface
 public extension DSSnackBar {
-    @discardableResult
-    func update(titleText: String) -> Self {
-        self.titleLabel.displayText = titleText.displayText(font: .label1Medium, color: R.Color.white100)
-        return self
-    }
-    @discardableResult
-    func update(dismissButtonTitleText: String) -> Self {
-        labelButton.isHidden = false
-        labelButton.update(titleText: dismissButtonTitleText)
-        labelButton.buttonAction = { [weak self] in
-            guard let self else { return }
-            
-        }
-        return self
-    }
-    
     func play() {
         superview?.layoutIfNeeded()
         let height = self.layer.bounds.height
@@ -101,7 +101,7 @@ public extension DSSnackBar {
         } completion: { _ in
             self.isUserInteractionEnabled = true
             
-            DispatchQueue.main.asyncAfter(deadline: .now()+1) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
                 guard let self else { return }
                 
                 UIView.animate(withDuration: 0.35) {
@@ -112,6 +112,20 @@ public extension DSSnackBar {
                     self.removeFromSuperview()
                 }
             }
+        }
+    }
+    
+    struct SnackBarConfig {
+        let status: SnackBarStatus
+        let titleText: String
+        let buttonText: String?
+        let buttonCompletion: (() -> Void)?
+        
+        public init(status: SnackBarStatus, titleText: String, buttonText: String? = nil, buttonCompletion: (() -> Void)? = nil) {
+            self.status = status
+            self.titleText = titleText
+            self.buttonText = buttonText
+            self.buttonCompletion = buttonCompletion
         }
     }
     
@@ -128,16 +142,4 @@ public extension DSSnackBar {
             }
         }
     }
-}
-
-
-#Preview {
-    let snackBar = DSSnackBar(status: .success)
-        .update(titleText: "안녕하세요~")
-        .update(dismissButtonTitleText: "닫기")
-    snackBar.alpha = 0
-    DispatchQueue.main.async {
-        snackBar.play()
-    }
-    return snackBar
 }

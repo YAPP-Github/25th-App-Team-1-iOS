@@ -818,6 +818,7 @@ extension MainPageView {
     }
 }
 
+
 #Preview {
     MainPageView()
 }

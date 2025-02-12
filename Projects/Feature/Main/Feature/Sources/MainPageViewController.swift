@@ -8,7 +8,9 @@
 import RIBs
 import RxSwift
 import UIKit
+
 import FeatureCommonDependencies
+import FeatureDesignSystem
 
 protocol MainPagePresentableListener: AnyObject {
     func request(_ request: MainPageViewPresenterRequest)
@@ -68,6 +70,15 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
                 text = "\(count)개 삭제"
             }
             mainView.update(.alarmGroupDeletionButton(isActive: isActive, text: text))
+        case .presentSnackBar(let config):
+            let snackBar = DSSnackBar(config: config)
+            snackBar.layer.zPosition = 1000
+            view.addSubview(snackBar)
+            snackBar.snp.makeConstraints { make in
+                make.horizontalEdges.equalToSuperview().inset(20)
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(12)
+            }
+            snackBar.play()
         }
     }
     
