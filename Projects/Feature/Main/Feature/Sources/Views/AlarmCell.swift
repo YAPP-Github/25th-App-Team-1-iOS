@@ -20,10 +20,10 @@ final class AlarmCell: UITableViewCell {
     
     // Action
     enum Action {
-        case toggleIsTapped
+        case activityToggleTapped
         case cellIsLongPressed
         case cellIsTapped
-        case selectionForDeletion
+        case checkBoxButtonTapped
     }
     
     
@@ -60,7 +60,7 @@ final class AlarmCell: UITableViewCell {
     private let checkBox: DSCheckBox = .init(initialState: .idle, buttonStyle: .init(size: .medium))
     private var checkBoxRightConstraint: Constraint?
     
-    private let toggleView: UISwitch = .init()
+    private let toggle: DSToggle = .init(initialState: .init(isEnabled: true, switchState: .off))
     
     private let containerView: UIStackView = .init().then {
         $0.axis = .horizontal
@@ -127,22 +127,24 @@ private extension AlarmCell {
         }
         
         
-        // toggleView
-        // MARK: TEMP
-        toggleView.onTintColor = R.Color.main100
-        
-        
         // checkBox
         checkBox.isHidden = true
-        checkBox.buttonAction = { [weak self] _ in
+        checkBox.buttonAction = { [weak self] in
             guard let self else { return }
-            action?(.selectionForDeletion)
+            action?(.checkBoxButtonTapped)
         }
         contentView.addSubview(checkBox)
         
         
+        // Toggle view
+        toggle.toggleAction = { [weak self] in
+            guard let self else { return }
+            action?(.activityToggleTapped)
+        }
+        
+        
         // containerView
-        [timeLabelContainer, toggleView].forEach {
+        [timeLabelContainer, toggle].forEach {
             containerView.addArrangedSubview($0)
         }
         contentView.addSubview(containerView)
@@ -185,10 +187,6 @@ private extension AlarmCell {
         tapGesture.addTarget(self, action: #selector(onTap(_:)))
         tapGesture.cancelsTouchesInView = false
         tapGesture.delegate = self
-        
-        
-        // Toggle
-        toggleView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
     }
     @objc
     func onTap(_ sender: UITapGestureRecognizer) {
@@ -197,9 +195,6 @@ private extension AlarmCell {
     @objc
     func onLongPress(_ sender: UILongPressGestureRecognizer) {
         action?(.cellIsLongPressed)
-    }
-    @objc func switchChanged(_ sender: UISwitch) {
-        action?(.toggleIsTapped)
     }
 }
 
@@ -214,7 +209,10 @@ extension AlarmCell {
         let isActive = renderObject.alarm.isActive
         
         // Toggle
-        toggleView.setOn(isActive, animated: animated)
+        toggle.update(state: .init(
+            isEnabled: true,
+            switchState: renderObject.isToggleOn ? .on : .off
+        ))
         
         // day
         let dayColor = isActive ? R.Color.gray300 : R.Color.gray500
@@ -228,7 +226,7 @@ extension AlarmCell {
         let dayDisplayText = if !repeatDays.days.isEmpty {
             repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: ", ")
         } else {
-            "음.."
+            "Not implemented"
         }
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
@@ -251,13 +249,13 @@ extension AlarmCell {
         switch renderObject.mode {
         case .idle:
             checkBox.isHidden = true
-            toggleView.isHidden = false
+            toggle.isHidden = false
             checkBoxRightConstraint?.deactivate()
         case .deletion:
             checkBox.isHidden = false
-            toggleView.isHidden = true
+            toggle.isHidden = true
             checkBoxRightConstraint?.activate()
-            checkBox.update(state: renderObject.isSelectedForDeleteion ? .seleceted : .idle)
+            checkBox.update(state: renderObject.isChecked ? .seleceted : .idle)
         }
         
         return self

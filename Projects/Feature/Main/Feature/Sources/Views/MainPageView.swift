@@ -639,7 +639,7 @@ extension MainPageView {
                 cell.action = { [weak self] action in
                     guard let self else { return }
                     switch action {
-                    case .toggleIsTapped:
+                    case .activityToggleTapped:
                         let currentState = renderObject.alarm.isActive
                         let nextState = !currentState
                         let rewROS = self.alarmCellROs.map { ro in
@@ -661,8 +661,8 @@ extension MainPageView {
                         guard isDeletionViewPresenting == false else { return }
                         isDeletionViewPresenting = true
                         presentAlarmDeletionView(alarm: renderObject.alarm)
-                    case .selectionForDeletion:
-                        let currentState = renderObject.isSelectedForDeleteion
+                    case .checkBoxButtonTapped:
+                        let currentState = renderObject.isChecked
                         let nextState = !currentState
                         
                         changeDeletionSelectionState(alarmId: renderObject.id, isSelected: nextState)
@@ -670,7 +670,7 @@ extension MainPageView {
                         let rewROS = self.alarmCellROs.map { ro in
                             if ro.id == renderObject.id {
                                 var newRO = renderObject
-                                newRO.isSelectedForDeleteion = nextState
+                                newRO.isChecked = nextState
                                 return newRO
                             }
                             return ro
@@ -846,8 +846,8 @@ extension MainPageView {
             dismissDeleteAllAlarmBarView()
             alarmCellROs = alarmCellROs.map { ro in
                 var newRO = ro
-                newRO.isSelectedForDeleteion = false
                 newRO.mode = .idle
+                newRO.isChecked = false
                 return newRO
             }
             presentAlarmROs(alarmCellROs)
@@ -855,7 +855,7 @@ extension MainPageView {
         case .selectionStateChanged(let isSelected):
             alarmCellROs = alarmCellROs.map { ro in
                 var newRO = ro
-                newRO.isSelectedForDeleteion = isSelected
+                newRO.isChecked = !ro.isChecked
                 return newRO
             }
             

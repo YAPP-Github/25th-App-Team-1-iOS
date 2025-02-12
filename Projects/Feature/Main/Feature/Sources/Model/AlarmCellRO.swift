@@ -8,15 +8,16 @@
 import FeatureCommonEntity
 
 struct AlarmCellRO: Identifiable, Hashable {
-    var id: String { alarm.id }
-    
     enum Mode {
         case idle
         case deletion
     }
-    var mode: Mode
-    var isSelectedForDeleteion: Bool
     var alarm: Alarm
+    var mode: Mode
+    var isChecked: Bool
+    
+    var id: String { alarm.id }
+    var isToggleOn: Bool { alarm.isActive }
     
     public static func == (lhs: AlarmCellRO, rhs: AlarmCellRO) -> Bool {
         return lhs.id == rhs.id
@@ -25,6 +26,6 @@ struct AlarmCellRO: Identifiable, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(alarm)
         hasher.combine(mode)
-        hasher.combine(isSelectedForDeleteion)
+        hasher.combine(isChecked)
     }
 }
