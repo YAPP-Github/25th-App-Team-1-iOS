@@ -8,11 +8,19 @@ let project = Project(
             name: "Orbit",
             destinations: .iOS,
             product: .app,
-            bundleId: Project.Environment.bundleId(suffix: "app"),
+            bundleId: "com.yaf.orbit",
             deploymentTargets: Project.Environment.deploymentTarget,
-            infoPlist: .app,
+            infoPlist: .app_plist(with: [
+                "UIUserInterfaceStyle": "Light",
+                "UISupportedInterfaceOrientations": [
+                    "UIInterfaceOrientationPortrait"
+                ],
+                "CFBundleDisplayName": "Orbit",
+                "CFBundleShortVersionString": "1.0"
+            ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
+//            entitlements: .file(path: .relativeToRoot("Entitlements/App.entitlements")),
             dependencies: [
                 // Feature
                 .feature(implements: .Onboarding),
@@ -21,6 +29,28 @@ let project = Project(
                 // Third party
                 .feature(implements: .ThirdPartyDependencies)
             ]
+        ),
+    ],
+    schemes: [
+        
+        // MARK: Debug scheme
+        .scheme(
+            name: "Orbit-Debug",
+            buildAction: .buildAction(
+                targets: [ .target("Orbit") ]
+            ),
+            runAction: .runAction(configuration: "Debug"),
+            archiveAction: .archiveAction(configuration: "Debug")
+        ),
+        
+        // MARK: Release scheme
+        .scheme(
+            name: "Orbit-Release",
+            buildAction: .buildAction(
+                targets: [ .target("Orbit") ]
+            ),
+            runAction: .runAction(configuration: "Release"),
+            archiveAction: .archiveAction(configuration: "Release")
         ),
     ]
 )
