@@ -80,8 +80,7 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
             presenter.request(.updateButton(canGoNext))
         case .iDontKnowButtonTapped:
             resetTime()
-            shouldSkip.toggle()
-            presenter.request(.updateButton(canGoNext))
+            listener?.request(.next(model))
         case .next:
             guard canGoNext else { return }
             listener?.request(.next(model))
@@ -94,13 +93,12 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
     
     private var model: OnboardingModel
     
-    private var shouldSkip: Bool = false
     private var isValidTime: Bool {
         model.bornTime != nil
     }
     
     private var canGoNext: Bool {
-        isValidTime || shouldSkip
+        isValidTime
     }
     
     private func checkTimeLength(_ time: String) -> Bool {

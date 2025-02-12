@@ -67,8 +67,6 @@ final class InputBornTImeView: UIView {
         }
     }
     
-    private var iDontKnowButtonSelected: Bool = false
-    
     private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel = UILabel()
     private let timeField = DSTextFieldWithTitleWithMessage(
@@ -130,17 +128,6 @@ final class InputBornTImeView: UIView {
     
     @objc
     private func iDontKnowButtonTapped() {
-        iDontKnowButtonSelected.toggle()
-        let buttonColor = iDontKnowButtonSelected ? R.Color.main100 : R.Color.white100
-        iDontKnowButton.tintColor = buttonColor
-        timeField.update(messageState: .none)
-        
-        if iDontKnowButton.isSelected {
-            endEditing(true)
-            timeField.update(textFieldState: .disabled)
-        } else {
-            timeField.update(textFieldState: .normal)
-        }
         listener?.action(.iDontKnowButtonTapped)
     }
     
@@ -175,13 +162,12 @@ private extension InputBornTImeView {
         
         iDontKnowButton.do {
             $0.imageView?.contentMode = .center
-            $0.setImage(FeatureResourcesAsset.icoCheck.image.withRenderingMode(.alwaysTemplate), for: .normal)
-            $0.setTitle("태어난 시간을 몰라요", for: .normal)
-            $0.titleLabel?.font = R.Font.body1Medium.toUIFont()
-            $0.titleLabel?.textAlignment = .center
+            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.setAttributedTitle("태어난 시간을 몰라요".displayText(font: .body1Medium, color: R.Color.white100), for: .normal)
             $0.tintColor = R.Color.white100
-            $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: -4)
-            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 4)
+            $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
+            $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
+            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 0)
             $0.addTarget(self, action: #selector(iDontKnowButtonTapped), for: .touchUpInside)
         }
         
@@ -214,9 +200,9 @@ private extension InputBornTImeView {
         }
         
         iDontKnowButton.snp.makeConstraints {
-            $0.bottom.equalTo(nextButton.snp.top).offset(-30)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(36)
+            $0.bottom.equalTo(nextButton.snp.top).offset(-32)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(24)
         }
     }
 }
