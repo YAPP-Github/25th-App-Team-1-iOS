@@ -62,12 +62,12 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             }
             break
         case .setCountForAlarmsCheckedForDeletion(let count):
-            var isPresentButton: Bool = true
-            let text = "\(count)개 삭제"
-            if count == 0 {
-                isPresentButton = false
+            let isActive: Bool = (count != 0)
+            var text: String = "삭제"
+            if count != 0 {
+                text = "\(count)개 삭제"
             }
-            mainView.update(.alarmGroupDeletionButton(present: isPresentButton, text: text))
+            mainView.update(.alarmGroupDeletionButton(isActive: isActive, text: text))
         }
     }
     

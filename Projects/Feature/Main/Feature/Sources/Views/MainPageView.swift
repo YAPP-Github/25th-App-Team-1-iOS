@@ -126,7 +126,8 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
         initialState: .active,
         style: .init(
             type: .tertiary,
-            size: .medium
+            size: .large,
+            cornerRadius: .large
     ))
         
     
@@ -369,6 +370,7 @@ private extension MainPageView {
         // deleteGroupAlarmConfirmButton
         deleteGroupAlarmConfirmButton.snp.makeConstraints { make in
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(24)
+            make.width.equalTo(135)
             make.centerX.equalToSuperview()
         }
     }
@@ -446,7 +448,7 @@ extension MainPageView {
         case presentAlarmCell(list: [AlarmCellRO])
         case presentAlarmGroupDeletionView
         case dismissAlarmGroupDeletionView
-        case alarmGroupDeletionButton(present: Bool, text: String)
+        case alarmGroupDeletionButton(isActive: Bool, text: String)
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -466,11 +468,13 @@ extension MainPageView {
         case .presentAlarmCell(let list):
             presentAlarmROs(list)
         case .presentAlarmGroupDeletionView:
+            deleteGroupAlarmConfirmButton.isHidden = false
             presentDeleteAllAlarmBarView()
         case .dismissAlarmGroupDeletionView:
+            deleteGroupAlarmConfirmButton.isHidden = true
             dismissDeleteAllAlarmBarView()
-        case .alarmGroupDeletionButton(let present, let text):
-            deleteGroupAlarmConfirmButton.isHidden = !present
+        case .alarmGroupDeletionButton(let isActive, let text):
+            deleteGroupAlarmConfirmButton.update(state: isActive ? .active : .inactive)
             deleteGroupAlarmConfirmButton.update(title: text)
         }
         return self
