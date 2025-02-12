@@ -20,7 +20,8 @@ public enum MainPageRouterRequest {
     case detachAlarmMission((() -> Void)?)
     case routeToFortune
     case detachFortune
-    case presentAlert(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
+    case presentAlertType1(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
+    case presentAlertType2(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
 }
 
@@ -53,6 +54,10 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var alarmListMode: AlarmListMode = .idle
     
     
+    // AlertListener
+    private var alertListener: [String: AlertListener] = [:]
+    
+    
     init(
         presenter: MainPagePresentable,
         service: MainPageServiceable
@@ -82,7 +87,7 @@ extension MainPageInteractor {
                 오늘의 운세를 받을 수 있어요.
                 """,
                 buttonText: "닫기")
-            router?.request(.presentAlert(config, self))
+            router?.request(.presentAlertType1(config, self))
         case .goToSettings:
             router?.request(.routeToAlarmMission)
         case .createAlarm:
@@ -156,29 +161,53 @@ extension MainPageInteractor {
                 countOfAlarms: self.checkedState.keys.count
             ))
         case .deleteAlarms:
-            // 비즈니스 로직
-            let alarms = service.getAllAlarm()
-            alarms.filter { alarm in
-                checkedState[alarm.id] == true
-            }.forEach { alarm in
-                service.deleteAlarm(alarm)
+            
+            let alertConfig: DSTwoButtonAlert.Config = .init(
+                titleText: "알람 삭제",
+                subTitleText: "삭제하시겠어요?",
+                leftButtonText: "취소",
+                rightButtonText: "삭제"
+            )
+            let alertListenerKey = "deleteAlarms"
+            let alertListener = AlertListener()
+            alertListener.leftTapped = { [weak self] in
+                guard let self else { return }
+                router?.request(.dismissAlert())
+                self.alertListener.removeValue(forKey: alertListenerKey)
+            }
+            alertListener.rightTapped = { [weak self] in
+                guard let self else { return }
+                router?.request(.dismissAlert())
+                self.alertListener.removeValue(forKey: alertListenerKey)
+                
+                // 비즈니스 로직
+                let alarms = service.getAllAlarm()
+                alarms.filter { alarm in
+                    self.checkedState[alarm.id] == true
+                }.forEach { alarm in
+                    self.service.deleteAlarm(alarm)
+                }
+                
+                // UI 업데이트
+                let newROs = alarmCellROs.filter { ro in
+                    self.checkedState[ro.id] != true
+                }.map { ro in
+                    var newRO = ro
+                    newRO.mode = .idle
+                    newRO.isChecked = false
+                    return newRO
+                }
+                self.alarmCellROs = newROs
+                self.checkedState = [:]
+                self.alarmListMode = .idle
+                presenter.request(.setAlarmListMode(.idle))
+                presenter.request(.setAlarmList(newROs))
+                presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
             }
             
-            // UI 업데이트
-            let newROs = alarmCellROs.filter { ro in
-                checkedState[ro.id] != true
-            }.map { ro in
-                var newRO = ro
-                newRO.mode = .idle
-                newRO.isChecked = false
-                return newRO
-            }
-            self.alarmCellROs = newROs
-            self.checkedState = [:]
-            self.alarmListMode = .idle
-            presenter.request(.setAlarmListMode(.idle))
-            presenter.request(.setAlarmList(newROs))
-            presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
+            self.alertListener[alertListenerKey] = alertListener
+            router?.request(.presentAlertType2(alertConfig, alertListener))
+            
         case .selectAllAlarmsForDeletion:
             let newROs = alarmCellROs.map { ro in
                 var newRO = ro
@@ -230,6 +259,7 @@ extension MainPageInteractor: DSButtonAlertViewControllerListener {
         }
     }
 }
+
 
 // MARK: - RootListenerRequest
 extension MainPageInteractor {

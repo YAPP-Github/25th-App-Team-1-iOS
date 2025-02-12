@@ -64,6 +64,15 @@ final class DeleteAlarmGroupBarView: UIView {
 }
 
 
+// MARK: Public interface
+extension DeleteAlarmGroupBarView {
+    func clearState() {
+        self.isDeleteAllChecked = false
+        checkBox.update(state: .idle)
+    }
+}
+
+
 private extension DeleteAlarmGroupBarView {
     func setupUI() {
         // self

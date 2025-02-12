@@ -7,10 +7,8 @@
 
 import UIKit
 
-public protocol DSButtonAlertPresentable {
+public protocol DSButtonAlertPresentable: DSAlertDismissable {
     func presentAlert(presentingController viewController: UIViewController, listener: DSButtonAlertViewControllerListener, config: DSButtonAlert.Config)
-    
-    func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)?)
 }
 
 public extension DSButtonAlertPresentable {
@@ -23,11 +21,5 @@ public extension DSButtonAlertPresentable {
         alertController.transitioningDelegate = alertController
         alertController.modalPresentationStyle = .custom
         viewController.present(alertController, animated: true)
-    }
-    
-    func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)? = nil) {
-        if viewController.presentedViewController is DSButtonAlertViewController {
-            viewController.dismiss(animated: true, completion: completion)
-        }
     }
 }

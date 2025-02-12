@@ -798,6 +798,7 @@ extension MainPageView {
 extension MainPageView {
     func presentDeleteAllAlarmBarView() {
         alarmToolBarContainerView.alpha = 0
+        deleteAlarmGroupBarView.clearState()
         deleteAlarmGroupBarView.isHidden = false
     }
     
