@@ -57,7 +57,7 @@ final class AlarmDeletionItemView: UIView {
     }
     
     // State
-    private var currentRO: Alarm?
+    private var currentRO: AlarmCellRO?
     private var state: AlarmState = .active
     
     
@@ -156,23 +156,24 @@ private extension AlarmDeletionItemView {
 // MARK: Public interface
 extension AlarmDeletionItemView {
     @discardableResult
-    func update(renderObject: Alarm, animated: Bool = true) -> Self {
+    func update(renderObject ro: AlarmCellRO, animated: Bool = true) -> Self {
         // State
-        self.state = renderObject.isActive ? .active : .inactive
-        self.currentRO = renderObject
+        let isActive = ro.isToggleOn
+        self.state = isActive ? .active : .inactive
+        self.currentRO = ro
         
         // Toggle
         toggleView.setOn(state == .active, animated: animated)
         
         // day
-        let repeatDays = renderObject.repeatDays
-        everyWeekLabel.isHidden = repeatDays.days.isEmpty
-        holidayImage.isHidden = !renderObject.repeatDays.shoundTurnOffHolidayAlarm
+        let alarmDays = ro.alarmDays
+        everyWeekLabel.isHidden = alarmDays.days.isEmpty
+        holidayImage.isHidden = !alarmDays.shoundTurnOffHolidayAlarm
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
         )
-        let dayDisplayText = "매주" + repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: " ")
+        let dayDisplayText = "매주" + alarmDays.days.map { $0.toShortKoreanFormat }.joined(separator: " ")
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
             color: state.dayLabelColor
@@ -180,11 +181,11 @@ extension AlarmDeletionItemView {
         holidayImage.tintColor = state.dayLabelColor
         
         // clock
-        meridiemLabel.displayText = renderObject.meridiem.toKoreanFormat.displayText(
+        meridiemLabel.displayText = ro.meridiem.toKoreanFormat.displayText(
             font: .title2Medium,
             color: state.clockLabelColor
         )
-        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", renderObject.hour.value, renderObject.minute.value).displayText(
+        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", ro.hour.value, ro.minute.value).displayText(
             font: .title2Medium,
             color: state.clockLabelColor
         )

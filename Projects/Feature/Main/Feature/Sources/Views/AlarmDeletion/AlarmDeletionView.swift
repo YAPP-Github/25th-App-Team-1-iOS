@@ -24,7 +24,7 @@ final class AlarmDeletionView: UIView {
     
     
     // State
-    private var alarmRO: Alarm?
+    private var alarmRO: AlarmCellRO?
     
     
     // Listener
@@ -60,7 +60,7 @@ extension AlarmDeletionView {
             self.alpha = 0
         } completion: { _ in completion?() }
     }
-    func update(renderObject ro: Alarm) {
+    func update(renderObject ro: AlarmCellRO) {
         self.alarmRO = ro
         deletionItemView.update(renderObject: ro)
     }

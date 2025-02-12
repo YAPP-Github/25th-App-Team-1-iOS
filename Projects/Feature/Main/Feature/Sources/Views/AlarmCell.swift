@@ -202,29 +202,27 @@ private extension AlarmCell {
 // MARK: Public interface
 extension AlarmCell {
     @discardableResult
-    func update(renderObject: AlarmCellRO, animated: Bool = true) -> Self {
-        // self
-        self.currentAlarm = renderObject.alarm
-        
-        let isActive = renderObject.alarm.isActive
+    func update(renderObject ro: AlarmCellRO, animated: Bool = true) -> Self {
+        let isAlarmActive = ro.isToggleOn
         
         // Toggle
         toggle.update(state: .init(
             isEnabled: true,
-            switchState: renderObject.isToggleOn ? .on : .off
+            switchState: isAlarmActive ? .on : .off
         ))
         
+        
         // day
-        let dayColor = isActive ? R.Color.gray300 : R.Color.gray500
-        let repeatDays = renderObject.alarm.repeatDays
-        everyWeekLabel.isHidden = repeatDays.days.isEmpty
-        holidayImage.isHidden = !renderObject.alarm.repeatDays.shoundTurnOffHolidayAlarm
+        let dayColor = isAlarmActive ? R.Color.gray300 : R.Color.gray500
+        let alarmDays = ro.alarmDays
+        everyWeekLabel.isHidden = alarmDays.days.isEmpty
+        holidayImage.isHidden = !alarmDays.shoundTurnOffHolidayAlarm
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
             color: dayColor
         )
-        let dayDisplayText = if !repeatDays.days.isEmpty {
-            repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: ", ")
+        let dayDisplayText = if !alarmDays.days.isEmpty {
+            alarmDays.days.map { $0.toShortKoreanFormat }.joined(separator: ", ")
         } else {
             "Not implemented"
         }
@@ -235,18 +233,18 @@ extension AlarmCell {
         holidayImage.tintColor = dayColor
         
         // clock
-        let clockColor = isActive ? R.Color.white100 : R.Color.gray500
-        meridiemLabel.displayText = renderObject.alarm.meridiem.toKoreanFormat.displayText(
+        let clockColor = isAlarmActive ? R.Color.white100 : R.Color.gray500
+        meridiemLabel.displayText = ro.meridiem.toKoreanFormat.displayText(
             font: .title2Medium,
             color: clockColor
         )
-        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", renderObject.alarm.hour.value, renderObject.alarm.minute.value).displayText(
+        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", ro.hour.value, ro.minute.value).displayText(
             font: .title2Medium,
             color: clockColor
         )
         
         // Mode
-        switch renderObject.mode {
+        switch ro.mode {
         case .idle:
             checkBox.isHidden = true
             toggle.isHidden = false
@@ -255,7 +253,7 @@ extension AlarmCell {
             checkBox.isHidden = false
             toggle.isHidden = true
             checkBoxRightConstraint?.activate()
-            checkBox.update(state: renderObject.isChecked ? .seleceted : .idle)
+            checkBox.update(state: ro.isChecked ? .seleceted : .idle)
         }
         
         return self
@@ -265,7 +263,7 @@ extension AlarmCell {
 // MARK: UIGestureRecognizerDelegate
 extension AlarmCell {
     override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        if touch.view === checkBox {
+        if touch.view === checkBox || touch.view === toggle {
             return false
         }
         return true

@@ -23,8 +23,8 @@ public final class DSToggle: TouchDetectingView {
     
     // Sub view
     private let switchBall: UIView = .init()
-    private var switchBallLeftConstraint: Constraint?
-    private var switchBallRightConstraint: Constraint?
+    private var switchBallLeftConstraint: NSLayoutConstraint?
+    private var switchBallRightConstraint: NSLayoutConstraint?
     
     
     // ContentSize
@@ -60,13 +60,13 @@ public final class DSToggle: TouchDetectingView {
         self.backgroundColor = state.backgroundColor
         self.switchBall.backgroundColor = state.switchColor
         
-        switch initialState.switchState {
+        switch state.switchState {
         case .on:
-            self.switchBallLeftConstraint?.deactivate()
-            self.switchBallRightConstraint?.activate()
+            self.switchBallLeftConstraint?.isActive = false
+            self.switchBallRightConstraint?.isActive = true
         case .off:
-            self.switchBallLeftConstraint?.activate()
-            self.switchBallRightConstraint?.deactivate()
+            self.switchBallLeftConstraint?.isActive = true
+            self.switchBallRightConstraint?.isActive = false
         }
     }
 }
@@ -86,11 +86,19 @@ private extension DSToggle {
     
     func setupLayout() {
         // switchBall
-        switchBall.snp.makeConstraints { make in
-            make.verticalEdges.equalToSuperview().inset(3)
-            make.width.equalTo(switchBall.snp.height)
-            self.switchBallLeftConstraint = make.left.equalToSuperview().inset(3).constraint
-            self.switchBallRightConstraint = make.right.equalToSuperview().inset(3).constraint
+        switchBall.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            switchBall.topAnchor.constraint(equalTo: self.topAnchor, constant: 3),
+            switchBall.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -3),
+            switchBall.widthAnchor.constraint(equalTo: switchBall.heightAnchor),
+        ])
+        self.switchBallLeftConstraint = switchBall.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 3)
+        self.switchBallRightConstraint = switchBall.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -3)
+        switch initialState.switchState {
+        case .on:
+            switchBallRightConstraint?.isActive = true
+        case .off:
+            switchBallLeftConstraint?.isActive = true
         }
     }
 }
@@ -98,12 +106,9 @@ private extension DSToggle {
 
 // MARK: Public interface
 public extension DSToggle {
-    func update(state: ToggleState, animated: Bool = false) {
+    func update(state: ToggleState) {
         self.isEnabled = state.isEnabled
-        UIView.animate(withDuration: animated ? 0.35 : 0.0) {
-            self.apply(state: state)
-            if animated { self.layoutIfNeeded() }
-        }
+        self.apply(state: state)
     }
     
     

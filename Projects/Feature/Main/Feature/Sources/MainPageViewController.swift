@@ -19,9 +19,14 @@ enum MainPageViewPresenterRequest {
     case showFortuneNoti
     case goToSettings
     case createAlarm
-    case editAlarm(Alarm)
-    case changeAlarmState(alarmId: String, changeToActive: Bool)
+    case editAlarm(alarmId: String)
+    case changeAlarmActivityState(alarmId: String)
+    case changeAlarmCheckState(alarmId: String)
     case deleteAlarm(alarmId: String)
+    case changeAlarmListMode(mode: AlarmListMode)
+    case deleteAlarms
+    case selectAllAlarmsForDeletion
+    case releaseAllAlarmsForDeletion
 }
 
 final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable, MainPageViewListener {
@@ -41,20 +46,28 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
     
     func request(_ request: MainPagePresentableRequest) {
         switch request {
-        case let .setAlarmList(alarmList):
-            if alarmList.isEmpty {
+        case let .setAlarmList(alarmCellROs):
+            if alarmCellROs.isEmpty {
                 view = emptyView
             } else {
                 view = mainView
-                let currentROs = alarmList.map { alarm in
-                    AlarmCellRO(
-                        mode: .idle,
-                        isSelectedForDeleteion: false,
-                        alarm: alarm
-                    )
-                }
-                mainView.update(.presentAlarmCell(list: currentROs))
+                mainView.update(.presentAlarmCell(list: alarmCellROs))
             }
+        case .setAlarmListMode(let mode):
+            switch mode {
+            case .idle:
+                mainView.update(.dismissAlarmGroupDeletionView)
+            case .deletion:
+                mainView.update(.presentAlarmGroupDeletionView)
+            }
+            break
+        case .setCountForAlarmsCheckedForDeletion(let count):
+            var isPresentButton: Bool = true
+            let text = "\(count)개 삭제"
+            if count == 0 {
+                isPresentButton = false
+            }
+            mainView.update(.alarmGroupDeletionButton(present: isPresentButton, text: text))
         }
     }
     
@@ -73,20 +86,30 @@ extension MainPageViewController {
             listener?.request(.goToSettings)
         case .addAlarmButtonClicked:
             listener?.request(.createAlarm)
-        case let .alarmSelected(alarm):
-            listener?.request(.editAlarm(alarm))
-        case .alarmStateWillChange(let alarmId, let isActive):
-            listener?.request(.changeAlarmState(
-                alarmId: alarmId,
-                changeToActive: isActive
-            ))
+        case .alarmSelected(let alarmId):
+            listener?.request(.editAlarm(alarmId: alarmId))
+        case .alarmActivityStateWillChange(let alarmId):
+            listener?.request(.changeAlarmActivityState(alarmId: alarmId))
         case .alarmWillDelete(let alarmId):
             listener?.request(.deleteAlarm(alarmId: alarmId))
-            break
+        case .alarmsWillDelete:
+            listener?.request(.deleteAlarms)
+        case .alarmIsChecked(alarmId: let alarmId):
+            listener?.request(.changeAlarmCheckState(alarmId: alarmId))
+        case .changeModeToDeletionButtonClicked:
+            listener?.request(.changeAlarmListMode(mode: .deletion))
+        case .changeModeToIdleButtonClicked:
+            listener?.request(.changeAlarmListMode(mode: .idle))
+        case .allAlarmsForDeletionSelected:
+            listener?.request(.selectAllAlarmsForDeletion)
+        case .allAlarmsForDeletionUnSelected:
+            listener?.request(.releaseAllAlarmsForDeletion)
         }
     }
 }
 
+
+// MARK: EmptyAlarmViewListener
 extension MainPageViewController: EmptyAlarmViewListener {
     func action(_ action: EmptyAlarmView.Action) {
         switch action {
@@ -99,31 +122,3 @@ extension MainPageViewController: EmptyAlarmViewListener {
         }
     }
 }
-
-
-//#Preview {
-//    let vc = MainPageViewController()
-//    vc.loadView()
-//    
-//    let testLists = (0..<10).map { _ in
-//        AlarmCellRO(
-//            iterationType: .specificDay(month: 1, day: 2),
-//            meridiem: .am,
-//            hour: 1,
-//            minute: 5,
-//            isActive: true
-//        )
-//    }
-//    
-//    if let mainView = vc.view as? MainPageView {
-//        mainView
-//            .update(.orbitState(.luckScoreOverZero(userName: "준영")))
-//            .update(.fortuneDeliveryTimeText("내일 오전 5:00 도착"))
-//            .update(.turnOnFortuneNoti(true))
-//            .update(.turnOnFortuneIsDeliveredBubble(true))
-//            .update(.presentAlarmCell(list: testLists))
-//    }
-//        
-//    
-//    return vc
-//}
