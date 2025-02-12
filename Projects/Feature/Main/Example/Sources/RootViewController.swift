@@ -46,7 +46,7 @@ final class RootViewController: UIViewController {
     
     private func showMain() {
         let builder = MainPageBuilder(dependency: ExampleComponent(viewController: self))
-        let router = builder.build(withListener: self)
+        let (router, actionableItem) = builder.build(withListener: self)
         router.interactable.activate()
         mainRouter = router
         router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen

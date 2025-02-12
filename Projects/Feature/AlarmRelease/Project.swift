@@ -1,19 +1,19 @@
 //
 //  Project.swift
 //
-//  Created by choijunios on 2025/01/27
+//  Created by ever on 2025/02/10
 //
 
 import ProjectDescription
 import DependencyPlugin
 
 let project = Project(
-    name: "Main",
+    name: "AlarmRelease",
     targets: [
         
         // Example
         .target(
-            name: "FeatureMainExample",
+            name: "FeatureAlarmReleaseExample",
             destinations: .iOS,
             product: .app,
             bundleId: Project.Environment.bundleId(suffix: "feature.example"),
@@ -22,40 +22,40 @@ let project = Project(
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
-                .feature(implements: .Main),
+                .feature(implements: .AlarmRelease),
+                .feature(implements: .UIDependencies),
+                .feature(implements: .CommonDependencies),
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
 
 
         // Tests
         .target(
-            name: "FeatureMainTests",
+            name: "FeatureAlarmReleaseTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: Project.Environment.bundleId(suffix: "feature.Main.tests"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.AlarmRelease.tests"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Tests/**"],
             dependencies: [
-                .feature(implements: .Main),
+                .feature(implements: .AlarmRelease),
             ]
         ),
 
 
         // Feature
         .target(
-            name: "FeatureMain",
+            name: "FeatureAlarmRelease",
             destinations: .iOS,
             product: .staticFramework,
-            bundleId: Project.Environment.bundleId(suffix: "feature.Main"),
+            bundleId: Project.Environment.bundleId(suffix: "feature.AlarmRelease"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
                 .feature(implements: .UIDependencies),
-                .feature(implements: .ThirdPartyDependencies),
-                .feature(implements: .Alarm),
-                .feature(implements: .AlarmMission),
-                .feature(implements: .AlarmRelease),
-                .feature(implements: .Fortune),
+                .feature(implements: .CommonDependencies),
+                .feature(implements: .ThirdPartyDependencies)
             ]
         ),
     ]

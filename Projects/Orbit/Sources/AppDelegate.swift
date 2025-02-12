@@ -4,8 +4,10 @@
 
 import UIKit
 import RIBs
+import RxSwift
 import UserNotifications
 import FeatureCommonDependencies
+import FeatureMain
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,8 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        let launchRouter = MainBuilder(dependency: AppComponent()).build()
+        let (launchRouter, alarmIdHandler) = MainBuilder(dependency: AppComponent()).build()
         self.launchRouter = launchRouter
+        self.alarmIdHandler = alarmIdHandler
         launchRouter.launch(from: window)
         self.window = window
         
@@ -25,16 +28,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     private var launchRouter: LaunchRouting?
+    private var alarmIdHandler: AlarmIdHandler?
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        // 알림의 userInfo나 actionIdentifier를 통해 원하는 분기 처리 가능
+        
+        
+        
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             AlarmManager.shared.stopPlayingSound()
         }
+        
+        let content = response.notification.request.content
+        let userInfo = content.userInfo
+        guard let alarmId = userInfo["alarmId"] as? String else {
+            completionHandler()
+            return
+        }
+        
+        alarmIdHandler?.handle(alarmId)
+        
         completionHandler()
     }
 }

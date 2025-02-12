@@ -7,13 +7,23 @@
 
 import RIBs
 import RxSwift
+import RxRelay
 import FeatureOnboarding
 import FeatureCommonDependencies
+import FeatureMain
+
+protocol RootActionableItem: AnyObject {
+    func waitFoOnboarding() -> Observable<(MainPageActionableItem, ())>
+}
+
+protocol AlarmIdHandler: AnyObject {
+    func handle(_ alarmId: String)
+}
 
 enum MainRouterRequest {
     case routeToOnboarding
     case detachOnboarding
-    case routeToMain
+    case routeToMain(((MainPageActionableItem) -> Void)?)
     case detachMain
 }
 
@@ -45,16 +55,15 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
     override func didBecomeActive() {
         super.didBecomeActive()
         if Preference.isOnboardingFinished {
-            router?.request(.routeToMain)
+            router?.request(.routeToMain { [weak self] actionableItem in
+                self?.mainPageActionableItemSubject.onNext(actionableItem)
+            })
         } else {
             router?.request(.routeToOnboarding)
         }
     }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
-    }
+    
+    private let mainPageActionableItemSubject = ReplaySubject<MainPageActionableItem>.create(bufferSize: 1)
 }
 
 // MARK: OnboardRootListenerRequest
@@ -64,7 +73,27 @@ extension MainInteractor {
         case let .start(alarm):
             router?.request(.detachOnboarding)
             AlarmStore.shared.add(alarm)
-            router?.request(.routeToMain)
+            router?.request(.routeToMain { [weak self] actionableItem in
+                self?.mainPageActionableItemSubject.onNext(actionableItem)
+            })
         }
+    }
+}
+
+extension MainInteractor: AlarmIdHandler {
+    func handle(_ alarmId: String) {
+        let alarmWorkFlow = AlarmWorkFlow(alarmId: alarmId)
+        alarmWorkFlow
+            .subscribe(self)
+            .disposeOnDeactivate(interactor: self)
+    }
+}
+
+extension MainInteractor: RootActionableItem {
+    func waitFoOnboarding() -> Observable<(MainPageActionableItem, ())> {
+        return mainPageActionableItemSubject
+            .map { (mainPageItem: MainPageActionableItem) -> (MainPageActionableItem, ()) in
+                    (mainPageItem, ())
+                }
     }
 }

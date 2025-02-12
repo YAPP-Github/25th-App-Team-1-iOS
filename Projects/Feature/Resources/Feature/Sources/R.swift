@@ -161,6 +161,9 @@ public class R {
         public static let letterBabyPink = UIColor(hex: "#E98C8C")
         public static let letterGreen = UIColor(hex: "#4DCC71")
         public static let letterPink = UIColor(hex: "#E682D7")
+        
+        // Etc
+        public static let snoozeBackground = UIColor(hex: "#3D5372")
     }
     
     public enum Font: String, CaseIterable {
