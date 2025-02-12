@@ -27,6 +27,10 @@ final class DeleteAlarmGroupBarView: UIView {
     }
     
     
+    // State
+    private var isDeleteAllChecked: Bool = false
+    
+    
     // Listener
     weak var listener: DeleteAlarmGroupBarViewListener?
     
@@ -60,6 +64,15 @@ final class DeleteAlarmGroupBarView: UIView {
 }
 
 
+// MARK: Public interface
+extension DeleteAlarmGroupBarView {
+    func clearState() {
+        self.isDeleteAllChecked = false
+        checkBox.update(state: .idle)
+    }
+}
+
+
 private extension DeleteAlarmGroupBarView {
     func setupUI() {
         // self
@@ -69,10 +82,12 @@ private extension DeleteAlarmGroupBarView {
         titleLabel.displayText = "전체 선택".displayText(font: .heading2SemiBold, color: R.Color.white100)
         
         // checkBox
-        checkBox.buttonAction = { [weak self] state in
+        checkBox.buttonAction = { [weak self] in
             guard let self else { return }
-            let isSelected = state == .seleceted
-            listener?.action(.selectionStateChanged(isSelected: isSelected))
+            let nextState = !isDeleteAllChecked
+            listener?.action(.selectionStateChanged(isSelected: nextState))
+            isDeleteAllChecked = nextState
+            checkBox.update(state: nextState ? .seleceted : .idle)
         }
             
         // firstStack

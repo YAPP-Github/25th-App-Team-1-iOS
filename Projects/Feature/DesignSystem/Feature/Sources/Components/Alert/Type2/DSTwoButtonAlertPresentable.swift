@@ -7,9 +7,8 @@
 
 import UIKit
 
-public protocol DSTwoButtonAlertPresentable {
+public protocol DSTwoButtonAlertPresentable: DSAlertDismissable {
     func presentAlert(presentingController: UIViewController, listener: DSTwoButtonAlertViewControllerListener, config: DSTwoButtonAlert.Config)
-    func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)?)
 }
 
 public extension DSTwoButtonAlertPresentable {
@@ -22,11 +21,5 @@ public extension DSTwoButtonAlertPresentable {
         alertController.transitioningDelegate = alertController
         alertController.modalPresentationStyle = .custom
         viewController.present(alertController, animated: true)
-    }
-    
-    func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)?=nil) {
-        if viewController.presentedViewController is DSTwoButtonAlertViewController {
-            viewController.dismiss(animated: true, completion: completion)
-        }
     }
 }

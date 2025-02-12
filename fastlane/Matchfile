@@ -4,7 +4,7 @@ type("appstore") # The default type, can be: appstore, adhoc, enterprise or deve
 api_key_path("fastlane/apple_connect_auth.json")
 team_id(ENV["TEAM_ID"]) 
 
-app_identifier(["com.yaf.orbit.feature.example"])
+app_identifier(["com.yaf.orbit", "com.yaf.orbit.feature.example"])
 # username("user@fastlane.tools") # Your Apple Developer Portal username
 
 # For all available options run `fastlane match --help`

@@ -28,7 +28,7 @@ protocol MainPageViewControllable: ViewControllable,
     // TODO: Declare methods the router invokes to manipulate the view hierarchy.
 }
 
-final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewControllable>, MainPageRouting, DSButtonAlertPresentable {
+final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewControllable>, MainPageRouting, DSButtonAlertPresentable, DSTwoButtonAlertPresentable {
     // TODO: Constructor inject child builder protocols to allow building children.
     init(
         interactor: MainPageInteractable,
@@ -64,7 +64,13 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToAlarmRelease(alarm: alarm)
         case let .detachAlarmRelease(completion):
             detachAlarmRelease(completion: completion)
-        case .presentAlert(let config, let listener):
+        case .presentAlertType1(let config, let listener):
+            presentAlert(
+                presentingController: viewController.uiviewController,
+                listener: listener,
+                config: config
+            )
+        case .presentAlertType2(let config, let listener):
             presentAlert(
                 presentingController: viewController.uiviewController,
                 listener: listener,
@@ -166,4 +172,11 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             completion?()
         }
     }
+}
+
+
+// MARK: DSTwoButtonAlertPresentable
+extension MainPageRouter {
+    
+    
 }

@@ -20,10 +20,10 @@ final class AlarmCell: UITableViewCell {
     
     // Action
     enum Action {
-        case toggleIsTapped
+        case activityToggleTapped
         case cellIsLongPressed
         case cellIsTapped
-        case selectionForDeletion
+        case checkBoxButtonTapped
     }
     
     
@@ -60,7 +60,7 @@ final class AlarmCell: UITableViewCell {
     private let checkBox: DSCheckBox = .init(initialState: .idle, buttonStyle: .init(size: .medium))
     private var checkBoxRightConstraint: Constraint?
     
-    private let toggleView: UISwitch = .init()
+    private let toggle: DSToggle = .init(initialState: .init(isEnabled: true, switchState: .off))
     
     private let containerView: UIStackView = .init().then {
         $0.axis = .horizontal
@@ -127,22 +127,24 @@ private extension AlarmCell {
         }
         
         
-        // toggleView
-        // MARK: TEMP
-        toggleView.onTintColor = R.Color.main100
-        
-        
         // checkBox
         checkBox.isHidden = true
-        checkBox.buttonAction = { [weak self] _ in
+        checkBox.buttonAction = { [weak self] in
             guard let self else { return }
-            action?(.selectionForDeletion)
+            action?(.checkBoxButtonTapped)
         }
         contentView.addSubview(checkBox)
         
         
+        // Toggle view
+        toggle.toggleAction = { [weak self] in
+            guard let self else { return }
+            action?(.activityToggleTapped)
+        }
+        
+        
         // containerView
-        [timeLabelContainer, toggleView].forEach {
+        [timeLabelContainer, toggle].forEach {
             containerView.addArrangedSubview($0)
         }
         contentView.addSubview(containerView)
@@ -185,10 +187,6 @@ private extension AlarmCell {
         tapGesture.addTarget(self, action: #selector(onTap(_:)))
         tapGesture.cancelsTouchesInView = false
         tapGesture.delegate = self
-        
-        
-        // Toggle
-        toggleView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
     }
     @objc
     func onTap(_ sender: UITapGestureRecognizer) {
@@ -198,37 +196,35 @@ private extension AlarmCell {
     func onLongPress(_ sender: UILongPressGestureRecognizer) {
         action?(.cellIsLongPressed)
     }
-    @objc func switchChanged(_ sender: UISwitch) {
-        action?(.toggleIsTapped)
-    }
 }
 
 
 // MARK: Public interface
 extension AlarmCell {
     @discardableResult
-    func update(renderObject: AlarmCellRO, animated: Bool = true) -> Self {
-        // self
-        self.currentAlarm = renderObject.alarm
-        
-        let isActive = renderObject.alarm.isActive
+    func update(renderObject ro: AlarmCellRO, animated: Bool = true) -> Self {
+        let isAlarmActive = ro.isToggleOn
         
         // Toggle
-        toggleView.setOn(isActive, animated: animated)
+        toggle.update(state: .init(
+            isEnabled: true,
+            switchState: isAlarmActive ? .on : .off
+        ))
+        
         
         // day
-        let dayColor = isActive ? R.Color.gray300 : R.Color.gray500
-        let repeatDays = renderObject.alarm.repeatDays
-        everyWeekLabel.isHidden = repeatDays.days.isEmpty
-        holidayImage.isHidden = !renderObject.alarm.repeatDays.shoundTurnOffHolidayAlarm
+        let dayColor = isAlarmActive ? R.Color.gray300 : R.Color.gray500
+        let alarmDays = ro.alarmDays
+        everyWeekLabel.isHidden = alarmDays.days.isEmpty
+        holidayImage.isHidden = !alarmDays.shoundTurnOffHolidayAlarm
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
             color: dayColor
         )
-        let dayDisplayText = if !repeatDays.days.isEmpty {
-            repeatDays.days.map { $0.toShortKoreanFormat }.joined(separator: ", ")
+        let dayDisplayText = if !alarmDays.days.isEmpty {
+            alarmDays.days.map { $0.toShortKoreanFormat }.joined(separator: ", ")
         } else {
-            "음.."
+            "Not implemented"
         }
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
@@ -237,27 +233,27 @@ extension AlarmCell {
         holidayImage.tintColor = dayColor
         
         // clock
-        let clockColor = isActive ? R.Color.white100 : R.Color.gray500
-        meridiemLabel.displayText = renderObject.alarm.meridiem.toKoreanFormat.displayText(
+        let clockColor = isAlarmActive ? R.Color.white100 : R.Color.gray500
+        meridiemLabel.displayText = ro.meridiem.toKoreanFormat.displayText(
             font: .title2Medium,
             color: clockColor
         )
-        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", renderObject.alarm.hour.value, renderObject.alarm.minute.value).displayText(
+        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", ro.hour.value, ro.minute.value).displayText(
             font: .title2Medium,
             color: clockColor
         )
         
         // Mode
-        switch renderObject.mode {
+        switch ro.mode {
         case .idle:
             checkBox.isHidden = true
-            toggleView.isHidden = false
+            toggle.isHidden = false
             checkBoxRightConstraint?.deactivate()
         case .deletion:
             checkBox.isHidden = false
-            toggleView.isHidden = true
+            toggle.isHidden = true
             checkBoxRightConstraint?.activate()
-            checkBox.update(state: renderObject.isSelectedForDeleteion ? .seleceted : .idle)
+            checkBox.update(state: ro.isChecked ? .seleceted : .idle)
         }
         
         return self
@@ -267,7 +263,7 @@ extension AlarmCell {
 // MARK: UIGestureRecognizerDelegate
 extension AlarmCell {
     override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        if touch.view === checkBox {
+        if touch.view === checkBox || touch.view === toggle {
             return false
         }
         return true
