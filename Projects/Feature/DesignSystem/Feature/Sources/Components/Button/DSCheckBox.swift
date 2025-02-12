@@ -12,11 +12,6 @@ import FeatureResources
 import SnapKit
 
 public final class DSCheckBox: TouchDetectingView {
-    
-    // State
-    private var state: ButtonState
-    
-    
     // Style
     private let buttonStyle: ButtonStyle
     
@@ -26,7 +21,7 @@ public final class DSCheckBox: TouchDetectingView {
     
     
     // Button action
-    public var buttonAction: ((ButtonState) -> Void)?
+    public var buttonAction: (() -> Void)?
     
     
     public override var intrinsicContentSize: CGSize {
@@ -34,8 +29,7 @@ public final class DSCheckBox: TouchDetectingView {
     }
     
     
-    public init(initialState state: ButtonState, buttonStyle: ButtonStyle) {
-        self.state = state
+    public init(buttonStyle: ButtonStyle) {
         self.buttonStyle = buttonStyle
         super.init(frame: .zero)
         setupUI()
@@ -46,13 +40,13 @@ public final class DSCheckBox: TouchDetectingView {
     private func setupUI() {
         // self
         self.layer.cornerRadius = 4
-        self.backgroundColor = state.backgroundColor
+        self.backgroundColor = ButtonState.idle.backgroundColor
         
         
         // checkImage
         checkImage.contentMode = .scaleAspectFit
         checkImage.image = FeatureResourcesAsset.check.image
-        checkImage.tintColor = state.imageTintColor
+        checkImage.tintColor = ButtonState.idle.imageTintColor
         addSubview(checkImage)
     }
     
@@ -65,10 +59,7 @@ public final class DSCheckBox: TouchDetectingView {
     
     
     public override func onTouchOut() {
-        let nextState: ButtonState = self.state == .idle ? .seleceted : .idle
-        self.state = nextState
-        apply(state: nextState)
-        buttonAction?(nextState)
+        buttonAction?()
     }
     
     private func apply(state: ButtonState) {
@@ -82,14 +73,8 @@ public final class DSCheckBox: TouchDetectingView {
 public extension DSCheckBox {
     @discardableResult
     func update(state: ButtonState) -> Self {
-        self.state = state
         apply(state: state)
         return self
-    }
-    
-    func toggle() {
-        self.state = state == .idle ? .seleceted : .idle
-        apply(state: state)
     }
 }
 
@@ -138,9 +123,4 @@ public extension DSCheckBox {
             }
         }
     }
-}
-
-
-#Preview {
-    DSCheckBox(initialState: .idle, buttonStyle: .init(size: .medium))
 }
