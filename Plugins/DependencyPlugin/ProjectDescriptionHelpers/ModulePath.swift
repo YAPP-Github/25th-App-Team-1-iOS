@@ -45,6 +45,7 @@ public extension ModulePath {
         case ThirdPartyDependencies
         
         case AlarmMission
+        case AlarmRelease
         case Main
         case Fortune
         

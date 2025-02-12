@@ -28,7 +28,7 @@ final class MainComponent: Component<MainDependency> {
 // MARK: - Builder
 
 protocol MainBuildable: Buildable {
-    func build() -> LaunchRouting
+    func build() -> (routing: LaunchRouting, alarmIdHandler: AlarmIdHandler)
 }
 
 final class MainBuilder: Builder<MainDependency>, MainBuildable {
@@ -37,18 +37,20 @@ final class MainBuilder: Builder<MainDependency>, MainBuildable {
         super.init(dependency: dependency)
     }
 
-    func build() -> LaunchRouting {
+    func build() -> (routing: LaunchRouting, alarmIdHandler: AlarmIdHandler) {
         let viewController = MainViewController()
         let component = MainComponent(dependency: dependency, viewController: viewController)
         
         let interactor = MainInteractor(presenter: viewController)
         let onboardingBuilder = FeatureOnboarding.RootBuilder(dependency: component)
         let mainBuilder = FeatureMain.MainPageBuilder(dependency: component)
-        return MainRouter(
+        let router = MainRouter(
             interactor: interactor,
             viewController: viewController,
             onboardingBuilder: onboardingBuilder,
             mainBuilder: mainBuilder
         )
+        
+        return (router, interactor)
     }
 }
