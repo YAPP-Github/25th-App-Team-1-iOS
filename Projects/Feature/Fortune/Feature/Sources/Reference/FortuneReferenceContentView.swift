@@ -11,13 +11,9 @@ import FeatureThirdPartyDependencies
 
 final class FortuneReferenceContentView: UIView {
     private let title: String
-    private let icon: UIImage
-    private let content: String
     
-    init(icon: UIImage, title: String, content: String) {
-        self.icon = icon
+    init(title: String) {
         self.title = title
-        self.content = content
         super.init(frame: .zero)
         setupUI()
         layout()
@@ -27,7 +23,25 @@ final class FortuneReferenceContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func update(icon: UIImage) {
+        iconImageView.image = icon
+        iconImageView.isHidden = false
+        colorView.isHidden = true
+    }
+    
+    
+    func update(color: UIColor) {
+        colorView.backgroundColor = color
+        colorView.isHidden = false
+        iconImageView.isHidden = true
+    }
+    
+    func update(content: String) {
+        contentLabel.displayText = content.displayText(font: .body1Regular, color: R.Color.gray600)
+    }
+    
     private let iconImageView = UIImageView()
+    private let colorView = UIView()
     private let contentStackView = UIStackView()
     private let titleLabel = UILabel()
     private let contentLabel = UILabel()
@@ -44,15 +58,16 @@ private extension FortuneReferenceContentView {
             $0.distribution = .fill
             $0.spacing = 12
         }
-        iconImageView.do {
-            $0.image = icon
-            $0.contentMode = .scaleAspectFit
-        }
-        contentLabel.do {
-            $0.displayText = content.displayText(font: .body1Regular, color: R.Color.gray600)
+        colorView.do {
+            $0.layer.cornerRadius = 10
+            $0.layer.cornerCurve = .circular
         }
         
-        [iconImageView, contentLabel].forEach {
+        iconImageView.do {
+            $0.contentMode = .scaleAspectFit
+        }
+        
+        [iconImageView, colorView, contentLabel].forEach {
             contentStackView.addArrangedSubview($0)
         }
         addSubview(titleLabel)
@@ -61,6 +76,9 @@ private extension FortuneReferenceContentView {
         
     }
     func layout() {
+        colorView.snp.makeConstraints {
+            $0.size.equalTo(20)
+        }
         titleLabel.snp.makeConstraints {
             $0.top.centerX.equalToSuperview()
         }

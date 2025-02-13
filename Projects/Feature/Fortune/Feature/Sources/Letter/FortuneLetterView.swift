@@ -8,6 +8,7 @@
 import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol FortuneLetterViewListener: AnyObject {
     func action(_ action: FortuneLetterView.Action)
@@ -16,6 +17,10 @@ protocol FortuneLetterViewListener: AnyObject {
 final class FortuneLetterView: TouchDetectingView {
     enum Action {
         case next
+    }
+    
+    enum State {
+        case fortune(Fortune)
     }
     
     init() {
@@ -29,6 +34,14 @@ final class FortuneLetterView: TouchDetectingView {
     }
     
     weak var listener: FortuneLetterViewListener?
+    
+    func update(_ state: State) {
+        switch state {
+        case let .fortune(fortune):
+            bubbleView.update(titleText: "오늘 운세점수 \(fortune.avgFortuneScore)점")
+            letterContentLabel.displayText = fortune.dailyFortune.displayText(font: .ownglyphPHD_H3, color: R.Color.gray600)
+        }
+    }
     
     override func onTouchOut() {
         listener?.action(.next)
@@ -50,9 +63,6 @@ private extension FortuneLetterView {
             $0.image = FeatureResourcesAsset.backgroundLetter.image
             $0.contentMode = .scaleAspectFill
         }
-        bubbleView.do {
-            $0.update(titleText: "오늘 운세 점수 100점")
-        }
         characterImageView.do {
             $0.image = FeatureResourcesAsset.fortuneCharacterHigh.image
             $0.contentMode = .scaleAspectFit
@@ -62,7 +72,6 @@ private extension FortuneLetterView {
             $0.contentMode = .scaleAspectFill
         }
         letterContentLabel.do {
-            $0.displayText = "오늘은 괜찮은 하루가 될 거야! 평소보다 긍정적인 마음으로 하루를 시작하면 좋은 일이 생길지도 몰라. 주변 사람들과의 관계에 신경 쓰면 더욱 행복한 하루가 될 거야. 혹시 오늘 중요한 일이 있다면, 미리 계획을 세우고 차분하게 진행하는 게 좋아. 너의 꼼꼼함이 빛을 발할 거야!".displayText(font: .ownglyphPHD_H3, color: R.Color.gray600)
             $0.numberOfLines = 0
             $0.textAlignment = .center
         }

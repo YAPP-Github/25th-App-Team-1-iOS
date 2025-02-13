@@ -8,6 +8,7 @@
 import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol FortuneStudyMoneyViewListener: AnyObject {
     func action(_ action: FortuneStudyMoneyView.Action)
@@ -17,6 +18,10 @@ final class FortuneStudyMoneyView: TouchDetectingView {
     enum Action {
         case prev
         case next
+    }
+
+    enum State {
+        case fortune(Fortune)
     }
     
     init() {
@@ -31,6 +36,17 @@ final class FortuneStudyMoneyView: TouchDetectingView {
     
     weak var listener: FortuneStudyMoneyViewListener?
     
+    func update(_ state: State) {
+        switch state {
+        case let .fortune(fortune):
+            studyContentView.update(title: "학업/직장운 \(fortune.studyCareerFortune.score)점")
+            studyContentView.update(content: fortune.studyCareerFortune.description)
+            
+            moneyContentView.update(title: "재물운 \(fortune.wealthFortune.score)점")
+            moneyContentView.update(content: fortune.wealthFortune.description)
+        }
+    }
+    
     override func onTouchOut() {
         listener?.action(.next)
     }
@@ -44,19 +60,11 @@ final class FortuneStudyMoneyView: TouchDetectingView {
     private let contentStackView = UIStackView()
     private let studyContentView = TodayFortuneContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneStudy.image,
-        title: "학업/직장운 88점",
-        titleColor: R.Color.letterBlue2,
-        content: """
-        오늘은 집중력이 최고조야! 머릿속에 있는 생각들을 정리하고 효율적으로 공부하거나 업무에 집중하면 좋은 결과를 얻을 수 있을 거야. 복잡한 문제는 차근차근 풀어나가면 답을 찾을 수 있을 거야. 잠깐의 휴식도 잊지 말고 틈틈이 스트레칭을 하면서 긴장을 풀어주자!
-        """
+        titleColor: R.Color.letterBlue2
     )
     private let moneyContentView = TodayFortuneContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneMoney.image,
-        title: "재물운 72점",
-        titleColor: R.Color.letterBabyPink,
-        content: """
-        오늘은 투자보다는 안전한 자산 관리에 집중하는 게 좋아. 계획에 없던 지출은 피하고, 예산을 꼼꼼하게 관리하면 재정적으로 안정적인 하루를 보낼 수 있을 거야. 쓸데없는 소비를 줄여서 저축을 늘려보는 건 어때?
-        """
+        titleColor: R.Color.letterBabyPink
     )
 }
 

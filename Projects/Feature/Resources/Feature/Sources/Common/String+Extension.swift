@@ -8,8 +8,8 @@
 import UIKit
 
 public extension String {
-    func displayText(font: R.Font, color: UIColor? = nil) -> NSAttributedString {
-        attributedString(font: font, color: color)
+    func displayText(font: R.Font, color: UIColor? = nil, alignment: NSTextAlignment = .left) -> NSAttributedString {
+        attributedString(font: font, color: color, alignment: alignment)
     }
     
     private func toParagraphStyle(lineHeight: CGFloat) -> NSMutableParagraphStyle {
@@ -20,7 +20,7 @@ public extension String {
     }
     
     /// LetterSpacing 포함 NSAttributedString 생성
-    private  func attributedString(font: R.Font, color: UIColor?) -> NSAttributedString {
+    private  func attributedString(font: R.Font, color: UIColor?, alignment: NSTextAlignment) -> NSAttributedString {
         let adjustedLetterSpacing = font.size * (font.letterSpacing / 100)
         let adjustedLineHeight = font.size * font.lineHeight
         let uiFont = font.toUIFont() ?? UIFont.systemFont(ofSize: font.size)
@@ -28,6 +28,7 @@ public extension String {
         let paragraphStyle: NSMutableParagraphStyle = .init()
         paragraphStyle.minimumLineHeight = adjustedLineHeight
         paragraphStyle.maximumLineHeight = adjustedLineHeight
+        paragraphStyle.alignment = alignment
         
         let wordMinHeight = uiFont.ascender + abs(uiFont.descender)
         let baseLineOffset = (adjustedLineHeight-wordMinHeight)/2

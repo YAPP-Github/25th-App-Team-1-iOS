@@ -13,9 +13,13 @@ public protocol FortuneRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
+enum FortunePresentableRequest {
+    case setFortune(Fortune)
+}
+
 protocol FortunePresentable: Presentable {
     var listener: FortunePresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func request(_ request: FortunePresentableRequest)
 }
 
 public enum FortuneListenerRequest {
@@ -42,6 +46,8 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     
     func request(_ request: FortunePresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            presenter.request(.setFortune(fortune))
         case .close:
             listener?.request(.close)
         }

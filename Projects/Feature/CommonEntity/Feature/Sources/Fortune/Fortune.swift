@@ -5,7 +5,8 @@
 //  Created by ever on 2/14/25.
 //
 
-import Foundation
+import UIKit
+import FeatureResources
 
 public struct Fortune: Codable {
     public let id: Int
@@ -22,4 +23,12 @@ public struct Fortune: Codable {
     public let unluckyColor: String
     public let luckyColor: String
     public let luckyFood: String
+    
+    public var luckyCircleColor: UIColor {
+        return R.Color.color(title: luckyColor)
+    }
+    
+    public var unluckyCircleColor: UIColor {
+        return R.Color.color(title: unluckyColor)
+    }
 }

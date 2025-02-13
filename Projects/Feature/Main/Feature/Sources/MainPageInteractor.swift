@@ -89,6 +89,10 @@ extension MainPageInteractor {
             let renderObjects = transform(alarmList: alarmList)
             self.alarmCellROs = renderObjects
             presenter.request(.setAlarmList(renderObjects))
+            
+            if UserDefaults.standard.dailyFortuneId() != nil {
+                // TODO: 운세버튼 배지 설정하기.
+            }
         case .showFortuneNoti:
             guard let fortuneId = UserDefaults.standard.dailyFortuneId() else {
                 let config = DSButtonAlert.Config(

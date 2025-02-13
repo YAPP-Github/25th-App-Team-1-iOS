@@ -8,6 +8,7 @@
 import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol FortuneCoordinationViewListener: AnyObject {
     func action(_ action: FortuneCoordinationView.Action)
@@ -17,6 +18,10 @@ final class FortuneCoordinationView: TouchDetectingView {
     enum Action {
         case prev
         case next
+    }
+    
+    enum State {
+        case fortune(Fortune)
     }
     
     init() {
@@ -30,6 +35,16 @@ final class FortuneCoordinationView: TouchDetectingView {
     }
     
     weak var listener: FortuneCoordinationViewListener?
+    
+    func update(_ state: State) {
+        switch state {
+        case let .fortune(fortune):
+            topClothContentView.update(content: fortune.luckyOutfitTop)
+            bottomClothContentView.update(content: fortune.luckyOutfitBottom)
+            shoesContentView.update(content: fortune.luckyOutfitShoes)
+            accessoryClothContentView.update(content: fortune.luckyOutfitAccessory)
+        }
+    }
     
     override func onTouchOut() {
         listener?.action(.next)
@@ -45,26 +60,22 @@ final class FortuneCoordinationView: TouchDetectingView {
     private let topBottomClothStackView = UIStackView()
     private let topClothContentView = FortuneCoordinationContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneClothTop.image,
-        title: "상의",
-        content: "베이지색 니트"
+        title: "상의"
     )
     private let bottomClothContentView = FortuneCoordinationContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneClothBottom.image,
-        title: "하의",
-        content: "청색 데님 팬츠"
+        title: "하의"
     )
     
     private let shoesAccessoryStackView = UIStackView()
     
     private let shoesContentView = FortuneCoordinationContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneShoes.image,
-        title: "신발",
-        content: "흰색 스니커즈"
+        title: "신발"
     )
     private let accessoryClothContentView = FortuneCoordinationContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneAccessory.image,
-        title: "하의",
-        content: "은색 목걸이"
+        title: "하의"
     )
 }
 

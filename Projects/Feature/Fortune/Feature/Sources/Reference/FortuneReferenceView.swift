@@ -8,6 +8,7 @@
 import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol FortuneReferenceViewListener: AnyObject {
     func action(_ action: FortuneReferenceView.Action)
@@ -17,6 +18,10 @@ final class FortuneReferenceView: TouchDetectingView {
     enum Action {
         case prev
         case next
+    }
+    
+    enum State {
+        case fortune(Fortune)
     }
     
     init() {
@@ -31,6 +36,18 @@ final class FortuneReferenceView: TouchDetectingView {
     
     weak var listener: FortuneReferenceViewListener?
     
+    func update(_ state: State) {
+        switch state {
+        case let .fortune(fortune):
+            luckyColorContentView.update(content: fortune.luckyColor)
+            luckyColorContentView.update(color: fortune.luckyCircleColor)
+            avoidColorContentView.update(content: fortune.unluckyColor)
+            avoidColorContentView.update(color: fortune.unluckyCircleColor)
+            recommendFoodContentView.update(content: fortune.luckyFood)
+            recommendFoodContentView.update(icon: FeatureResourcesAsset.svgIcoFortuneFood.image)
+        }
+    }
+    
     override func onTouchOut() {
         listener?.action(.next)
     }
@@ -42,21 +59,9 @@ final class FortuneReferenceView: TouchDetectingView {
     private let titleLabel = UILabel()
     private let paperContainer = UIImageView()
     private let contentStackView = UIStackView()
-    private let luckyColorContentView = FortuneReferenceContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneColorGreen.image,
-        title: "행운의 색",
-        content: "초록색"
-    )
-    private let avoidColorContentView = FortuneReferenceContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneColorRed.image,
-        title: "피해야 할 색",
-        content: "빨간색"
-    )
-    private let recommendFoodContentView = FortuneReferenceContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneFood.image,
-        title: "추천 음식",
-        content: "햄버거"
-    )
+    private let luckyColorContentView = FortuneReferenceContentView(title: "행운의 색")
+    private let avoidColorContentView = FortuneReferenceContentView(title: "피해야 할 색")
+    private let recommendFoodContentView = FortuneReferenceContentView(title: "추천 음식")
 }
 
 private extension FortuneReferenceView {
