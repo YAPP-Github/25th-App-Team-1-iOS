@@ -43,3 +43,20 @@ final class SettingMainInteractor: PresentableInteractor<SettingMainPresentable>
         // TODO: Pause any business logic.
     }
 }
+
+
+// MARK: SettingMainPresentableListener
+extension SettingMainInteractor {
+    func request(_ request: SettingMainPresenterRequest) {
+        switch request {
+        case .executeSettingTask(let id):
+            break
+        case .presentConfigureUserInfo:
+            break
+        case .presentOpinionPage:
+            break
+        case .exitPage:
+            break
+        }
+    }
+}

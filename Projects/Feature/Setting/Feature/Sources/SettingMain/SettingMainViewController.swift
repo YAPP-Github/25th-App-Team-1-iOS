@@ -9,10 +9,15 @@ import RIBs
 import RxSwift
 import UIKit
 
+enum SettingMainPresenterRequest {
+    case executeSettingTask(id: String)
+    case presentConfigureUserInfo
+    case presentOpinionPage
+    case exitPage
+}
+
 protocol SettingMainPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
+    func request(_ request: SettingMainPresenterRequest)
 }
 
 final class SettingMainViewController: UIViewController, SettingMainPresentable, SettingMainViewControllable, SettingMainViewListener {
@@ -30,18 +35,35 @@ final class SettingMainViewController: UIViewController, SettingMainPresentable,
 }
 
 
+// MARK: Public interface
+extension SettingMainViewController {
+    enum Update {
+        case setUserInfo(UserInfoCardRO)
+        case setSettingSection([SettingSectionRO])
+    }
+    func update(_ update: Update) {
+        switch update {
+        case .setSettingSection(let sectionROs):
+            mainView.update(.sections(sections: sectionROs))
+        case .setUserInfo(let infoRO):
+            mainView.update(.userInfoCard(userInfo: infoRO))
+        }
+    }
+}
+
+
 // MARK: SettingMainViewListener
 extension SettingMainViewController {
     func action(_ action: SettingMainView.Action) {
         switch action {
-        case .settingItemIsTapped(let rowId):
-            break
+        case .settingItemIsTapped(let id):
+            listener?.request(.executeSettingTask(id: id))
         case .opinionButtonTapped:
-            break
+            listener?.request(.presentOpinionPage)
         case .userInfoCardTapped:
-            break
+            listener?.request(.presentConfigureUserInfo)
         case .backButtonTapped:
-            break
+            listener?.request(.exitPage)
         }
     }
 }

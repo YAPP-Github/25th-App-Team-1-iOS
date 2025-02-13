@@ -55,12 +55,13 @@ final class SettingMainView: UIView, SettingSectionViewListener, OpinionViewList
 
 extension SettingMainView {
     enum Update {
-        case setSection(sections: [SettingSectionRO])
+        case sections(sections: [SettingSectionRO])
+        case userInfoCard(userInfo: UserInfoCardRO)
     }
     
     func update(_ update: Update) {
         switch update {
-        case .setSection(let sections):
+        case .sections(let sections):
             sections.forEach { ro in
                 let sectionView = SettingSectionView()
                     .update(sectionTitleText: ro.titleText)
@@ -68,6 +69,8 @@ extension SettingMainView {
                 sectionView.listener = self
                 contentStack.addArrangedSubview(sectionView)
             }
+        case .userInfoCard(let userInfo):
+            userInfoCard.update(renderObject: userInfo)
         }
     }
 }
