@@ -5,6 +5,7 @@
 //  Created by choijunios on 1/27/25.
 //
 
+import Foundation
 import RIBs
 import RxSwift
 import FeatureDesignSystem
@@ -13,6 +14,7 @@ import FeatureAlarmMission
 import FeatureCommonDependencies
 import FeatureFortune
 import FeatureAlarmRelease
+import FeatureNetworking
 
 public protocol MainPageActionableItem: AnyObject {
     func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())>
@@ -88,14 +90,29 @@ extension MainPageInteractor {
             self.alarmCellROs = renderObjects
             presenter.request(.setAlarmList(renderObjects))
         case .showFortuneNoti:
-            let config = DSButtonAlert.Config(
-                titleText: "받은 운세가 없어요",
-                subTitleText: """
-                알람이 울린 후 미션을 수행하면
-                오늘의 운세를 받을 수 있어요.
-                """,
-                buttonText: "닫기")
-            router?.request(.presentAlertType1(config, self))
+            guard let fortuneId = UserDefaults.standard.dailyFortuneId() else {
+                let config = DSButtonAlert.Config(
+                    titleText: "받은 운세가 없어요",
+                    subTitleText: """
+                    알람이 울린 후 미션을 수행하면
+                    오늘의 운세를 받을 수 있어요.
+                    """,
+                    buttonText: "닫기")
+                router?.request(.presentAlertType1(config, self))
+                return
+            }
+            
+            let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+            APIClient.request(Fortune.self, request: request) { [weak router] fortune in
+                guard let router else { return }
+                DispatchQueue.main.async {
+                    router.request(.routeToFortune(fortune))
+                }
+            } failure: { error in
+                print(error)
+            }
+
+            
         case .goToSettings:
             router?.request(.routeToAlarmMission)
         case .createAlarm:
@@ -346,6 +363,7 @@ extension MainPageInteractor {
         switch request {
         case .releaseAlarm:
             router?.request(.detachAlarmRelease({ [weak router] in
+                guard UserDefaults.standard.dailyFortuneId() == nil else { return }
                 router?.request(.routeToAlarmMission)
             }))
         }
