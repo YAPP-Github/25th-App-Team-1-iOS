@@ -8,6 +8,7 @@
 import UIKit
 
 import FeatureUIDependencies
+import FeatureCommonDependencies
 
 protocol InputGenderViewListener: AnyObject {
     func action(_ action: InputGenderView.Action)

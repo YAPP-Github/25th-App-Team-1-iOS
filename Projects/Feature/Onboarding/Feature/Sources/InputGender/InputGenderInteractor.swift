@@ -5,6 +5,8 @@
 //  Created by choijunios on 1/7/25.
 //
 
+import FeatureCommonDependencies
+
 import RIBs
 import RxSwift
 

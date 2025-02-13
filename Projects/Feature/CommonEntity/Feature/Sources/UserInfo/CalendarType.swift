@@ -1,8 +1,8 @@
 //
 //  CalendarType.swift
-//  FeatureOnboarding
+//  FeatureCommonEntity
 //
-//  Created by choijunios on 1/8/25.
+//  Created by choijunios on 2/13/25.
 //
 
 import Foundation

@@ -6,6 +6,8 @@
 //
 
 import UIKit
+
+import FeatureCommonDependencies
 import FeatureThirdPartyDependencies
 import FeatureUIDependencies
 

@@ -5,9 +5,12 @@
 //  Created by choijunios on 1/7/25.
 //
 
+import UIKit
+
+import FeatureCommonDependencies
+
 import RIBs
 import RxSwift
-import UIKit
 
 enum InputGenderPresenterRequest {
     case viewDidLoad

@@ -105,10 +105,16 @@ final class RootViewController: UIViewController {
 }
 
 extension RootViewController: RootListener, RootViewControllable {
-    
+    func request(_ request: FeatureOnboarding.RootListenerRequest) {
+        
+    }
 }
 
 extension ExampleComponent: RootDependency {
+    var onboardingRootViewController: RootViewControllable {
+        viewController
+    }
+    
     var rootViewController: RootViewControllable {
         viewController
     }
