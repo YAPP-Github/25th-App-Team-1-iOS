@@ -32,13 +32,15 @@ public extension APIRequest {
         public var parameters: Parameters? {
             switch self {
             case let .addUser(name, birthDate, birthTime, gender, calendarType):
-                return [
+                let parameter = [
                     "name": name,
                     "birthDate": birthDate,
                     "birthTime": birthTime,
                     "gender": gender,
                     "calendarType": calendarType
                 ]
+                print(parameter)
+                return parameter
             default: return nil
             }
         }

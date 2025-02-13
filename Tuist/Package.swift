@@ -13,7 +13,7 @@ import PackageDescription
             "Then": .framework,
             "SnapKit": .framework,
             "Lottie": .staticLibrary,
-            "Alamofire": .staticLibrary
+            "Alamofire": .framework
         ]
     )
 #endif

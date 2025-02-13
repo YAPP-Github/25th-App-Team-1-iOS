@@ -12,9 +12,10 @@ public class APIClient {
     public typealias onSuccess<T> = ((T) -> Void)
     public typealias onFailure = ((_ error: Error) -> Void)
     
-    public static func request<T>(request: APIRequestProtocol,
-                           success: @escaping onSuccess<T>,
-                           failure: @escaping onFailure) where T: Decodable {
+    public static func request<T>(_ object: T.Type,
+                                  request: APIRequestProtocol,
+                                  success: @escaping onSuccess<T>,
+                                  failure: @escaping onFailure) where T: Decodable {
         AF.request(request)
             .validate(statusCode: 200..<500)
             .responseDecodable(of: T.self) { response in
@@ -25,7 +26,7 @@ public class APIClient {
                 case .failure(let err):
                     failure(err)
                 }
-        }
+            }
     }
     
 }

@@ -18,3 +18,9 @@ public struct BirthDateData {
         self.day = day
     }
 }
+
+public extension BirthDateData {
+    func toDateString() -> String {
+        String(format: "%d-%02d-%02d", year.value, month.rawValue, day.value)
+    }
+}

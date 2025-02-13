@@ -7,10 +7,9 @@
 
 import Foundation
 
-public enum CalendarType {
-    
-    case gregorian
-    case lunar
+public enum CalendarType: String, Decodable {
+    case gregorian = "SOLAR"
+    case lunar = "LUNAR"
     
     public static var displayOrderList: [Self] {
         [.gregorian, .lunar]

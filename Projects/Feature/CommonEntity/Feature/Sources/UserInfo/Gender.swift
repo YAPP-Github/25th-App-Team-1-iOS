@@ -5,10 +5,10 @@
 //  Created by choijunios on 2/13/25.
 //
 
-public enum Gender {
+public enum Gender: String, Decodable {
     
-    case male
-    case female
+    case male = "MALE"
+    case female = "FEMALE"
     
     public var displayingName: String {
         switch self {
