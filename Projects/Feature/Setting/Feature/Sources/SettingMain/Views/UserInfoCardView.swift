@@ -10,7 +10,7 @@ import UIKit
 import FeatureUIDependencies
 import FeatureCommonDependencies
 
-final class UserInfoCardView: UIView {
+final class UserInfoCardView: TouchDetectingView {
     // Sub views
     private let nameLabel: UILabel = .init()
     private let genderLabel: UILabel = .init()
@@ -27,12 +27,21 @@ final class UserInfoCardView: UIView {
     private let containerStack: UIStackView = .init()
     
     
+    // Tap action
+    var tapAction: (() -> Void)?
+    
+    
     init() {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
     }
     required init?(coder: NSCoder) { nil }
+    
+    
+    override func onTouchOut() {
+        tapAction?()
+    }
 }
 
 
