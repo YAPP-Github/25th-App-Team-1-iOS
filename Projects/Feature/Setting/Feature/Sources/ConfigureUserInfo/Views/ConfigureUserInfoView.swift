@@ -8,6 +8,8 @@
 import UIKit
 
 import FeatureUIDependencies
+import FeatureCommonEntity
+import FeatureThirdPartyDependencies
 
 protocol ConfigureUserInfoViewListener: AnyObject {
     func action(_ action: ConfigureUserInfoView.Action)
@@ -16,9 +18,13 @@ protocol ConfigureUserInfoViewListener: AnyObject {
 final class ConfigureUserInfoView: UIView, EditBornTimeViewListener {
     // Action
     enum Action {
+        case saveButtonTapped
+        case backButtonTapped
         case nameTextChanged(text: String)
+        case editBirthDateButtonTapped
+        case genderButtonTapped(gender: Gender)
         case bornTimeTextChanged(text: String)
-        case gender
+        case unknownBornTimeTapped
     }
     
     
@@ -78,6 +84,7 @@ final class ConfigureUserInfoView: UIView, EditBornTimeViewListener {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        observeKeyBoardEvent()
     }
     required init?(coder: NSCoder) { nil }
 }
@@ -94,15 +101,21 @@ private extension ConfigureUserInfoView {
         backButton.update(image: FeatureResourcesAsset.chevronLeft.image)
         backButton.buttonAction = { [weak self] in
             guard let self else { return }
+            listener?.action(.backButtonTapped)
         }
         
         
         // saveButton
         saveButton.update(titleText: "저장")
+        saveButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.action(.saveButtonTapped)
+        }
         saveButton.isUserInteractionEnabled = false
         
         
         // navigationBar
+        navigationBar.layer.zPosition = 100
         navigationBar
             .update(titleText: "프로필 수정")
             .insertLeftView(backButton)
@@ -120,7 +133,7 @@ private extension ConfigureUserInfoView {
         // editBirthDateButton
         editBirthDateButton.buttonAction = { [weak self] in
             guard let self else { return }
-            
+            listener?.action(.editBirthDateButtonTapped)
         }
         
         
@@ -143,13 +156,13 @@ private extension ConfigureUserInfoView {
         // maleButton
         maleButton.buttonAction = { [weak self] in
             guard let self else { return }
-            
+            listener?.action(.genderButtonTapped(gender: .male))
         }
         
         // femaleButton
         femaleButton.buttonAction = { [weak self] in
             guard let self else { return }
-            
+            listener?.action(.genderButtonTapped(gender: .female))
         }
         
         // genderButtonStack
@@ -189,6 +202,7 @@ private extension ConfigureUserInfoView {
         
         
         // containerStack
+        containerStack.layer.zPosition = 50
         containerStack.axis = .vertical
         containerStack.spacing = 24
         containerStack.alignment = .fill
@@ -233,9 +247,54 @@ extension ConfigureUserInfoView {
     func action(_ action: EditBornTimeView.Action) {
         switch action {
         case .checkBoxTapped:
-            break
+            listener?.action(.unknownBornTimeTapped)
         case .editingChanged(let text):
-            break
+            listener?.action(.bornTimeTextChanged(text: text))
+        }
+    }
+}
+
+
+// MARK: Keyboard avoidence
+private extension ConfigureUserInfoView {
+    func observeKeyBoardEvent() {
+        NotificationCenter.default
+            .addObserver(self, selector: #selector(onKeyboardAppear(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default
+            .addObserver(self, selector: #selector(onKeyboardDisappear(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc
+    func onKeyboardAppear(_ notification: Notification) {
+        var focusedView: UIView?
+        if nameField.isFirstResponder {
+            focusedView = nameField
+        }
+        if editBornTimeView.isFirstResponder {
+            focusedView = editBornTimeView
+        }
+        guard let focusedView else { return }
+        guard let userInfo = notification.userInfo else { return }
+        
+        guard let keyboardEndFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
+        else { return }
+        let focusViewFrame = focusedView.convert(focusedView.bounds, to: self)
+        
+        if keyboardEndFrame.minY < focusViewFrame.maxY {
+            // 키도드가 해당 뷰를 덮은 경우
+            let gap = focusViewFrame.maxY - keyboardEndFrame.minY
+            UIView.animate(withDuration: animationDuration) {
+                self.scrollView.transform = .init(translationX: 0, y: -gap)
+            }
+        }
+    }
+    
+    @objc
+    func onKeyboardDisappear(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
+        UIView.animate(withDuration: duration) {
+            self.scrollView.transform = .identity
         }
     }
 }

@@ -42,6 +42,9 @@ final class EditBornTimeView: UIView {
     )
     private let unknownTimeStack: UIStackView = .init()
     
+    
+    override var isFirstResponder: Bool { bornTimeField.isFirstResponder }
+    
     init() {
         super.init(frame: .zero)
         setupUI()
