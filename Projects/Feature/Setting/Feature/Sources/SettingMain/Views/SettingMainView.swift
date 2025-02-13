@@ -178,7 +178,7 @@ extension SettingMainView {
 
 #Preview {
     let view = SettingMainView()
-    view.update(.setSection(sections: [
+    view.update(.sections(sections: [
         SettingSectionRO(order: 0, titleText: "테스트", items: [
             .init(id: "0", title: "개인정보 처리방침"),
             .init(id: "1", title: "개인정보 처리방침"),

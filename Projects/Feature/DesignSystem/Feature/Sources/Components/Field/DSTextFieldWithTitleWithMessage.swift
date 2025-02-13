@@ -28,6 +28,7 @@ public final class DSTextFieldWithTitleWithMessage: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
+        update()
     }
     
     public required init?(coder: NSCoder) {

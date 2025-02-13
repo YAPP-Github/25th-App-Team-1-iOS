@@ -24,7 +24,7 @@ public class DSLabelButton: TouchDetectingView {
     
     
     // Configuration
-    let config: Config
+    private var config: Config
     
     
     public init(config: Config) {
@@ -65,6 +65,10 @@ public extension DSLabelButton {
             font: config.font,
             color: config.textColor
         )
+    }
+    
+    func update(config: Config) {
+        self.config = config
     }
 }
 
