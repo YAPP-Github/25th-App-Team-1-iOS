@@ -95,7 +95,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
         ctaButton.buttonAction = { [weak self] in
             self?.listener?.action(.ctaButtonClicked)
         }
-        ctaButton.update(title: "만들기")
+        ctaButton.update(title: "다음")
         addSubview(ctaButton)
         addSubview(policyAgreementLabel)
     }

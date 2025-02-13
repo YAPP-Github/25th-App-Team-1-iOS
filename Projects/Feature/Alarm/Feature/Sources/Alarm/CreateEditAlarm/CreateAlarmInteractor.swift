@@ -24,6 +24,7 @@ enum CreateEditAlarmPresentableRequest {
     case showDeleteButton
     case updateTitle(String)
     case alarmUpdated(Alarm)
+    case presentSnackBar(config: DSSnackBar.SnackBarConfig)
 }
 
 protocol CreateEditAlarmPresentable: Presentable {
@@ -105,6 +106,17 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
             presenter.request(.updateTitle(title))
         case let .selectedDaysChanged(set):
             alarm.repeatDays = set
+            if set.shoundTurnOffHolidayAlarm {
+                let config: DSSnackBar.SnackBarConfig = .init(
+                    status: .success,
+                    titleText: "알람을 끄면 운세가 도착하지 않아요.",
+                    buttonText: "취소") { [weak self, weak presenter] in
+                        guard let self, let presenter else { return }
+                        alarm.repeatDays.shoundTurnOffHolidayAlarm = false
+                        presenter.request(.alarmUpdated(alarm))
+                    }
+                presenter.request(.presentSnackBar(config: config))
+            }
         case .selectSnooze:
             listener?.request(.snoozeOption(alarm.snoozeOption))
         case .selectSound:
