@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import UIKit
 import FeatureCommonDependencies
 import FeatureNetworking
 
@@ -223,12 +224,16 @@ extension RootInteractor {
                 calendarType: onboardingModel.birthDate?.calendarType.rawValue ?? ""
             )
                 
-            APIClient.request(Int.self, request: request) { userId in
-                print(userId)
+            APIClient.request(Int.self, request: request) { [weak self, weak listener] userId in
+                guard let self, let listener else { return }
+                DispatchQueue.main.async {
+                    Preference.userId = userId
+                    listener.request(.start(self.onboardingModel.alarm))
+                }
             } failure: { error in
                 print("Error: \(error)")
             }
-            listener?.request(.start(onboardingModel.alarm))
+            
         }
     }
 }
