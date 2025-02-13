@@ -12,7 +12,8 @@ import PackageDescription
             "RIBs": .framework,
             "Then": .framework,
             "SnapKit": .framework,
-            "Lottie": .staticLibrary
+            "Lottie": .staticLibrary,
+            "Alamofire": .staticLibrary
         ]
     )
 #endif
@@ -24,5 +25,6 @@ let package = Package(
         .package(url: "https://github.com/devxoul/Then.git", from: "3.0.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.5.0"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.0")),
     ]
 )

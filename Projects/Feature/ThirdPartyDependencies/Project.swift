@@ -22,7 +22,8 @@ let project = Project(
                 .thirdParty(library: .Lottie),
                 .thirdParty(library: .RIBs),
                 .thirdParty(library: .SnapKit),
-                .thirdParty(library: .Then)
+                .thirdParty(library: .Then),
+                .thirdParty(library: .Alamofire)
             ]
         ),
     ]
