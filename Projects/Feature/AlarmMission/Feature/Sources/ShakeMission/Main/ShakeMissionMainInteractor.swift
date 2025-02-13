@@ -6,9 +6,11 @@
 //
 
 import FeatureUIDependencies
-
+import Foundation
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
+import FeatureNetworking
 
 public enum ShakeMissionMainRoutingRequest {
     case presentWorkingPage
@@ -30,7 +32,7 @@ protocol ShakeMissionMainPresentable: Presentable {
 }
 
 public enum ShakeMissionMainListenerRequest {
-    case close
+    case close(Fortune?)
 }
 
 public protocol ShakeMissionMainListener: AnyObject {
@@ -48,6 +50,38 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
         super.init(presenter: presenter)
         presenter.listener = self
     }
+    
+    override func didBecomeActive() {
+        super.didBecomeActive()
+        if let fortundId = UserDefaults.standard.dailyFortuneId() {
+            getFortune(fortuneId: fortundId)
+        } else {
+            createFortune()
+        }
+    }
+    
+    private func createFortune() {
+        guard let userId = Preference.userId else { return }
+        let request = APIRequest.Fortune.createFortune(userId: userId)
+        APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+            self?.fortune = fortune
+            UserDefaults.standard.setDailyFortuneId(fortune.id)
+        } failure: { error in
+            print(error)
+        }
+
+    }
+    
+    private func getFortune(fortuneId: Int) {
+        let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+        APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+            self?.fortune = fortune
+        } failure: { error in
+            print(error)
+        }
+    }
+    
+    private var fortune: Fortune?
 }
 
 
@@ -74,7 +108,7 @@ extension ShakeMissionMainInteractor {
             router?.request(.dismissAlert())
         case .rightButtonClicked:
             router?.request(.exitPage)
-            listener?.request(.close)
+            listener?.request(.close(fortune))
         }
     }
 }
@@ -86,6 +120,6 @@ extension ShakeMissionMainInteractor {
     func exitShakeMissionWorkingPage() {
         router?.request(.dissmissWorkingPage)
         router?.request(.exitPage)
-        listener?.request(.close)
+        listener?.request(.close(fortune))
     }
 }

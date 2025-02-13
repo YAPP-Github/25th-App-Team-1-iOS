@@ -7,6 +7,7 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonDependencies
 
 public protocol FortuneRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -30,9 +31,11 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     weak var router: FortuneRouting?
     weak var listener: FortuneListener?
 
-    // TODO: Add additional dependencies to constructor. Do not perform any logic
-    // in constructor.
-    override init(presenter: FortunePresentable) {
+    init(
+        presenter: FortunePresentable,
+        fortune: Fortune
+    ) {
+        self.fortune = fortune
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -43,4 +46,6 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
             listener?.request(.close)
         }
     }
+    
+    private let fortune: Fortune
 }

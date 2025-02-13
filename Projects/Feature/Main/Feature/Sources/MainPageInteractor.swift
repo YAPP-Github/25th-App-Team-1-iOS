@@ -23,7 +23,7 @@ public enum MainPageRouterRequest {
     case detachCreateEditAlarm
     case routeToAlarmMission
     case detachAlarmMission((() -> Void)?)
-    case routeToFortune
+    case routeToFortune(Fortune)
     case detachFortune
     case routeToAlarmRelease(Alarm)
     case detachAlarmRelease((() -> Void)?)
@@ -322,9 +322,10 @@ extension MainPageInteractor {
 extension MainPageInteractor {
     func request(_ request: FeatureAlarmMission.ShakeMissionMainListenerRequest) {
         switch request {
-        case .close:
+        case let .close(fortune):
             router?.request(.detachAlarmMission { [weak router] in
-                router?.request(.routeToFortune)
+                guard let fortune else { return }
+                router?.request(.routeToFortune(fortune))
             })
         }
     }

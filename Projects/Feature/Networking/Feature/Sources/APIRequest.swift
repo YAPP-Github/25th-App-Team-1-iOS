@@ -32,7 +32,9 @@ public extension APIRequestProtocol {
         urlRequest.method = method
         
         // Common Headers
-        urlRequest.setValue(ContentType.json.rawValue, forHTTPHeaderField: HTTPHeaderField.contentType.rawValue)
+        if encoding is JSONEncoding {
+            urlRequest.setValue(ContentType.json.rawValue, forHTTPHeaderField: HTTPHeaderField.contentType.rawValue)
+        }
         
         // Parameters
         if let parameters = parameters {
