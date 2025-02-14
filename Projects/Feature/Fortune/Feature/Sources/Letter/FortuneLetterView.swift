@@ -53,7 +53,11 @@ final class FortuneLetterView: TouchDetectingView {
         }
     }
     
-    override func onTouchOut() {
+    override func onTap() {
+        listener?.action(.next)
+    }
+    
+    override func onSwipeLeft() {
         listener?.action(.next)
     }
     

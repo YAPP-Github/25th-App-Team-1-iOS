@@ -68,8 +68,16 @@ final class FortuneHealthLoveView: TouchDetectingView {
         }
     }
     
-    override func onTouchOut() {
+    override func onTap() {
         listener?.action(.next)
+    }
+    
+    override func onSwipeLeft() {
+        listener?.action(.next)
+    }
+    
+    override func onSwipeRight() {
+        listener?.action(.prev)
     }
     
     private let backgroundImageView = UIImageView()
