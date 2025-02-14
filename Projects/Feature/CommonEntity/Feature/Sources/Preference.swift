@@ -22,4 +22,7 @@ public struct UserDefault<T> {
 public struct Preference {
     @UserDefault(key: "isOnboardingFinished", defaultValue: false)
     public static var isOnboardingFinished: Bool
+    
+    @UserDefault(key: "userId", defaultValue: nil)
+    public static var userId: Int?
 }

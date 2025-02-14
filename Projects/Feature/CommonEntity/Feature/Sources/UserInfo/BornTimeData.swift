@@ -16,3 +16,14 @@ public struct BornTimeData {
         self.minute = minute
     }
 }
+
+public extension BornTimeData {
+    func toTimeString() -> String {
+        switch meridiem {
+        case .am:
+            String(format: "%02d:%02d", hour.value, minute.value)
+        case .pm:
+            String(format: "%02d:%02d", hour.value + 12, minute.value)
+        }
+    }
+}

@@ -11,6 +11,7 @@ import UIKit
 import FeatureUIDependencies
 
 enum FortunePresentableListenerRequest {
+    case viewDidLoad
     case close
 }
 
@@ -43,6 +44,8 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
         step4View.listener = self
         step5View.listener = self
         step6View.listener = self
+        
+        listener?.request(.viewDidLoad)
     }
     
     private let step1View = FortuneLetterView()
@@ -56,6 +59,17 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     @objc
     private func closeButtonTapped() {
         listener?.request(.close)
+    }
+    
+    func request(_ request: FortunePresentableRequest) {
+        switch request {
+        case .setFortune(let fortune):
+            step1View.update(.fortune(fortune))
+            step2View.update(.fortune(fortune))
+            step3View.update(.fortune(fortune))
+            step4View.update(.fortune(fortune))
+            step5View.update(.fortune(fortune))
+        }
     }
 }
 

@@ -11,15 +11,11 @@ import FeatureThirdPartyDependencies
 
 final class TodayFortuneContentView: UIView {
     private let icon: UIImage
-    private let title: String
     private let titleColor: UIColor
-    private let content: String
     
-    init(icon: UIImage, title: String, titleColor: UIColor, content: String) {
+    init(icon: UIImage, titleColor: UIColor) {
         self.icon = icon
-        self.title = title
         self.titleColor = titleColor
-        self.content = content
         super.init(frame: .zero)
         setupUI()
         layout()
@@ -27,6 +23,14 @@ final class TodayFortuneContentView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func update(title: String) {
+        titleLabel.displayText = title.displayText(font: .heading2SemiBold, color: titleColor)
+    }
+    
+    func update(content: String) {
+        contentLabel.displayText = content.displayText(font: .body2Regular, color: R.Color.gray600)
     }
     
     private let titleStackView = UIStackView()
@@ -47,11 +51,7 @@ private extension TodayFortuneContentView {
             $0.image = icon
             $0.contentMode = .scaleAspectFit
         }
-        titleLabel.do {
-            $0.displayText = title.displayText(font: .heading2SemiBold, color: titleColor)
-        }
         contentLabel.do {
-            $0.displayText = content.displayText(font: .body2Regular, color: R.Color.gray600)
             $0.numberOfLines = 0
             $0.textAlignment = .center
         }

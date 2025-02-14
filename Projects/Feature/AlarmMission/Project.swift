@@ -60,6 +60,8 @@ let project = Project(
                 
                 // Internal
                 .feature(implements: .UIDependencies),
+                .feature(implements: .Networking),
+                .feature(implements: .CommonDependencies),
                 
                 // Third party
                 .feature(implements: .ThirdPartyDependencies)

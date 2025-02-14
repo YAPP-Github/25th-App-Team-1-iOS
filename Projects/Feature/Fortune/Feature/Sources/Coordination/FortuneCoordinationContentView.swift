@@ -12,12 +12,10 @@ import FeatureThirdPartyDependencies
 final class FortuneCoordinationContentView: UIView {
     private let icon: UIImage
     private let title: String
-    private let content: String
     
-    init(icon: UIImage, title: String, content: String) {
+    init(icon: UIImage, title: String) {
         self.icon = icon
         self.title = title
-        self.content = content
         super.init(frame: .zero)
         setupUI()
         layout()
@@ -30,6 +28,10 @@ final class FortuneCoordinationContentView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         titleContainer.layer.cornerRadius = titleContainer.frame.height / 2
+    }
+    
+    func update(content: String) {
+        contentLabel.displayText = content.displayText(font: .body2Regular, color: R.Color.gray600, alignment: .center)
     }
     
     private let stackView = UIStackView()
@@ -53,9 +55,7 @@ private extension FortuneCoordinationContentView {
             $0.displayText = title.displayText(font: .label2SemiBold, color: R.Color.gray500)
         }
         contentLabel.do {
-            $0.displayText = content.displayText(font: .body2Regular, color: R.Color.gray600)
             $0.numberOfLines = 0
-            $0.textAlignment = .center
         }
         
         

@@ -50,6 +50,8 @@ public extension ModulePath {
         case Fortune
         case Setting
         
+        case Networking
+        
         public static let categoryName: String = "Feature"
 
     }
@@ -66,6 +68,7 @@ public extension ModulePath {
         case Then
         case SnapKit
         case Lottie
+        case Alamofire
         
         public static let categoryName: String = "ThirdParty"
     }

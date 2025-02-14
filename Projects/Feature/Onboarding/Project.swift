@@ -60,7 +60,8 @@ let project = Project(
             dependencies: [
                 .feature(implements: .UIDependencies),
                 .feature(implements: .CommonDependencies),
-                .feature(implements: .ThirdPartyDependencies)
+                .feature(implements: .ThirdPartyDependencies),
+                .feature(implements: .Networking)
             ]
         ),
     ],

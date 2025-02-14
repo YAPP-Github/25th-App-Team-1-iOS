@@ -164,6 +164,22 @@ public class R {
         
         // Etc
         public static let snoozeBackground = UIColor(hex: "#3D5372")
+        
+        public static func color(title: String) -> UIColor {
+            switch title {
+            case "빨강", "레드": return UIColor(hex: "#EF4444")
+            case "분홍", "핑크": return UIColor.systemPink
+            case "주황", "오렌지": return UIColor.orange
+            case "노랑", "옐로우": return UIColor.yellow
+            case "초록", "그린": return UIColor.green
+            case "파랑", "블루": return UIColor.blue
+            case "보라", "퍼플": return UIColor.purple
+            case "갈색", "브라운": return UIColor.brown
+            case "회색", "그레이": return UIColor.gray
+            case "인디고": return UIColor.systemIndigo
+            default: return R.Color.gray600
+            }
+        }
     }
     
     public enum Font: String, CaseIterable {

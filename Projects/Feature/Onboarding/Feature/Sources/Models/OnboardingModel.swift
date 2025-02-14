@@ -23,3 +23,5 @@ public struct OnboardingModel {
     public var name: String?
     public var gender: Gender?
 }
+
+

@@ -8,6 +8,7 @@
 import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
+import FeatureCommonDependencies
 
 protocol FortuneHealthLoveViewListener: AnyObject {
     func action(_ action: FortuneHealthLoveView.Action)
@@ -17,6 +18,10 @@ final class FortuneHealthLoveView: TouchDetectingView {
     enum Action {
         case prev
         case next
+    }
+    
+    enum State {
+        case fortune(Fortune)
     }
     
     init() {
@@ -31,6 +36,17 @@ final class FortuneHealthLoveView: TouchDetectingView {
     
     weak var listener: FortuneHealthLoveViewListener?
     
+    func update(_ state: State) {
+        switch state {
+        case let .fortune(fortune):
+            healthContentView.update(title: "건강운 \(fortune.healthFortune.score)점")
+            healthContentView.update(content: fortune.healthFortune.description)
+            
+            loveContentView.update(title: "애정운 \(fortune.loveFortune.score)점")
+            loveContentView.update(content: fortune.loveFortune.description)
+        }
+    }
+    
     override func onTouchOut() {
         listener?.action(.next)
     }
@@ -44,19 +60,11 @@ final class FortuneHealthLoveView: TouchDetectingView {
     private let contentStackView = UIStackView()
     private let healthContentView = TodayFortuneContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneStudy.image,
-        title: "건강운 95점",
-        titleColor: R.Color.letterGreen,
-        content: """
-        오늘은 컨디션 최고! 몸이 가볍고 활력이 넘칠 거야. 평소보다 운동을 좀 더 해보거나, 건강한 음식을 챙겨 먹으면 더욱 좋을 거야. 충분한 수면으로 컨디션을 유지하는 것도 잊지 말고!
-        """
+        titleColor: R.Color.letterGreen
     )
     private let loveContentView = TodayFortuneContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneMoney.image,
-        title: "애정운 67점",
-        titleColor: R.Color.letterPink,
-        content: """
-        솔로라면 새로운 만남의 기회가 있을 수 있어. 적극적으로 다가가 보는 것도 좋을 것 같아! 커플이라면 서로의 마음을 확인하는 시간을 가져보는 건 어때? 작은 선물이나 편지를 통해 애정을 표현해보는 것도 좋은 방법일 거야.
-        """
+        titleColor: R.Color.letterPink
     )
 }
 

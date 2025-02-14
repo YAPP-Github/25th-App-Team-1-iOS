@@ -5,6 +5,7 @@
 //  Created by choijunios on 1/27/25.
 //
 
+import Foundation
 import RIBs
 import RxSwift
 import FeatureDesignSystem
@@ -13,6 +14,7 @@ import FeatureAlarmMission
 import FeatureCommonDependencies
 import FeatureFortune
 import FeatureAlarmRelease
+import FeatureNetworking
 
 public protocol MainPageActionableItem: AnyObject {
     func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())>
@@ -23,7 +25,7 @@ public enum MainPageRouterRequest {
     case detachCreateEditAlarm
     case routeToAlarmMission
     case detachAlarmMission((() -> Void)?)
-    case routeToFortune
+    case routeToFortune(Fortune)
     case detachFortune
     case routeToAlarmRelease(Alarm)
     case detachAlarmRelease((() -> Void)?)
@@ -87,15 +89,34 @@ extension MainPageInteractor {
             let renderObjects = transform(alarmList: alarmList)
             self.alarmCellROs = renderObjects
             presenter.request(.setAlarmList(renderObjects))
+            
+            if UserDefaults.standard.dailyFortuneId() != nil {
+                // TODO: 운세버튼 배지 설정하기.
+            }
         case .showFortuneNoti:
-            let config = DSButtonAlert.Config(
-                titleText: "받은 운세가 없어요",
-                subTitleText: """
-                알람이 울린 후 미션을 수행하면
-                오늘의 운세를 받을 수 있어요.
-                """,
-                buttonText: "닫기")
-            router?.request(.presentAlertType1(config, self))
+            guard let fortuneId = UserDefaults.standard.dailyFortuneId() else {
+                let config = DSButtonAlert.Config(
+                    titleText: "받은 운세가 없어요",
+                    subTitleText: """
+                    알람이 울린 후 미션을 수행하면
+                    오늘의 운세를 받을 수 있어요.
+                    """,
+                    buttonText: "닫기")
+                router?.request(.presentAlertType1(config, self))
+                return
+            }
+            
+            let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+            APIClient.request(Fortune.self, request: request) { [weak router] fortune in
+                guard let router else { return }
+                DispatchQueue.main.async {
+                    router.request(.routeToFortune(fortune))
+                }
+            } failure: { error in
+                print(error)
+            }
+
+            
         case .goToSettings:
             router?.request(.routeToAlarmMission)
         case .createAlarm:
@@ -322,9 +343,10 @@ extension MainPageInteractor {
 extension MainPageInteractor {
     func request(_ request: FeatureAlarmMission.ShakeMissionMainListenerRequest) {
         switch request {
-        case .close:
+        case let .close(fortune):
             router?.request(.detachAlarmMission { [weak router] in
-                router?.request(.routeToFortune)
+                guard let fortune else { return }
+                router?.request(.routeToFortune(fortune))
             })
         }
     }
@@ -345,6 +367,7 @@ extension MainPageInteractor {
         switch request {
         case .releaseAlarm:
             router?.request(.detachAlarmRelease({ [weak router] in
+                guard UserDefaults.standard.dailyFortuneId() == nil else { return }
                 router?.request(.routeToAlarmMission)
             }))
         }

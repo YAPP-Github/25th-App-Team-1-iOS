@@ -7,7 +7,9 @@
 
 import RIBs
 import RxSwift
+import UIKit
 import FeatureCommonDependencies
+import FeatureNetworking
 
 public enum RootRouterRequest {
     case cleanUpViews
@@ -214,7 +216,24 @@ extension RootInteractor {
     func request(_ request: OnboardingFortuneGuideListenerRequest) {
         switch request {
         case .start:
-            listener?.request(.start(onboardingModel.alarm))
+            let request = APIRequest.Users.addUser(
+                name: onboardingModel.name ?? "",
+                birthDate: onboardingModel.birthDate?.toDateString() ?? "",
+                birthTime: onboardingModel.bornTime?.toTimeString() ?? "",
+                gender: onboardingModel.gender?.rawValue ?? "",
+                calendarType: onboardingModel.birthDate?.calendarType.rawValue ?? ""
+            )
+                
+            APIClient.request(Int.self, request: request) { [weak self, weak listener] userId in
+                guard let self, let listener else { return }
+                DispatchQueue.main.async {
+                    Preference.userId = userId
+                    listener.request(.start(self.onboardingModel.alarm))
+                }
+            } failure: { error in
+                print("Error: \(error)")
+            }
+            
         }
     }
 }
