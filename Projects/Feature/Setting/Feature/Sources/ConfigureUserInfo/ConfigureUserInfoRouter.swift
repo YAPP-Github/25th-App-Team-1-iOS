@@ -9,7 +9,7 @@ import FeatureUIDependencies
 
 import RIBs
 
-protocol ConfigureUserInfoInteractable: Interactable {
+protocol ConfigureUserInfoInteractable: Interactable, ConfigureBirthDateViewControllerListener {
     var router: ConfigureUserInfoRouting? { get set }
     var listener: ConfigureUserInfoListener? { get set }
 }
@@ -40,10 +40,16 @@ extension ConfigureUserInfoRouter {
             )
         case .dismissAlert:
             dismissAlert(presentingController: self.viewControllable.uiviewController)
-        case .presentEditBirthDatePage:
-            break
+        case .presentEditBirthDatePage(let date):
+            let vc = ConfigureBirthDateViewController(initialDate: date)
+            vc.listener = self.interactor
+            vc.modalPresentationStyle = .fullScreen
+            self.viewControllable.uiviewController.present(vc, animated: true)
         case .dismissEditBirthDatePage:
-            break
+            let presented = self.viewControllable.uiviewController.presentedViewController
+            if let vc = presented as? ConfigureBirthDateViewController {
+                vc.dismiss(animated: true)
+            }
         }
     }
 }

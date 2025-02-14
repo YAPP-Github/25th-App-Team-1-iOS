@@ -15,7 +15,7 @@ import RxSwift
 enum ConfigureUserInfoRoutingRequest {
     case presentAlert(config: DSTwoButtonAlert.Config)
     case dismissAlert
-    case presentEditBirthDatePage
+    case presentEditBirthDatePage(birthDate: BirthDateData)
     case dismissEditBirthDatePage
 }
 
@@ -125,7 +125,7 @@ extension ConfigureUserInfoInteractor {
             presenter.update(.dismissNameFieldErrorMessage)
             presenter.update(.setUserInfo(userInfo: currentUserInfo))
         case .editBirthDate:
-            router?.request(.presentEditBirthDatePage)
+            router?.request(.presentEditBirthDatePage(birthDate: currentUserInfo.birthDate))
         case .editBornTime(let text):
             self.bornTimeIsValid = false
             guard checkTimeLength(text) else {
@@ -203,5 +203,17 @@ private extension ConfigureUserInfoInteractor {
         else { return nil }
         
         return minute
+    }
+}
+
+
+// MARK: ConfigureBirthDateViewControllerListener
+extension ConfigureUserInfoInteractor {
+    func dismiss() {
+        router?.request(.dismissEditBirthDatePage)
+    }
+    func changedBirthDateConfirmed(date changed: BirthDateData) {
+        currentUserInfo.birthDate = changed
+        presenter.update(.setUserInfo(userInfo: currentUserInfo))
     }
 }
