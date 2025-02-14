@@ -34,15 +34,6 @@ final class FortuneStudyMoneyView: TouchDetectingView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        contentScrollView.snp.remakeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.height.lessThanOrEqualTo(paperContainer.frame.height - 40)
-            $0.horizontalEdges.equalToSuperview().inset(28)
-        }
-    }
-    
     weak var listener: FortuneStudyMoneyViewListener?
     
     func update(_ state: State) {
@@ -91,8 +82,6 @@ private extension FortuneStudyMoneyView {
         bubbleView.do {
             $0.update(titleText: "오늘의 운세")
             $0.update(arrowHidden: true)
-            $0.setContentHuggingPriority(.required, for: .vertical)
-            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         decoImageView.do {
             $0.image = FeatureResourcesAsset.imgDecoFortune.image
@@ -104,7 +93,6 @@ private extension FortuneStudyMoneyView {
             행운이 가득해!
             """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
             $0.numberOfLines = 0
-            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         
         paperImageView.do {
@@ -133,7 +121,8 @@ private extension FortuneStudyMoneyView {
         [studyContentView, moneyContentView].forEach {
             contentStackView.addArrangedSubview($0)
         }
-        paperContainer.setContentHuggingPriority(.required, for: .vertical)
+        titleLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
     func layout() {
         backgroundImageView.snp.makeConstraints {
@@ -168,6 +157,12 @@ private extension FortuneStudyMoneyView {
         
         paperImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+        }
+        
+        contentScrollView.snp.remakeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.height.lessThanOrEqualToSuperview().offset(-40)
+            $0.horizontalEdges.equalToSuperview().inset(28)
         }
     }
 }

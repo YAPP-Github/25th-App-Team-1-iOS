@@ -36,15 +36,6 @@ final class FortuneHealthLoveView: TouchDetectingView {
     
     weak var listener: FortuneHealthLoveViewListener?
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        contentScrollView.snp.remakeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.height.lessThanOrEqualTo(paperContainer.frame.height - 40)
-            $0.horizontalEdges.equalToSuperview().inset(28)
-        }
-    }
-    
     func update(_ state: State) {
         switch state {
         case let .fortune(fortune):
@@ -131,7 +122,9 @@ private extension FortuneHealthLoveView {
         [healthContentView, loveContentView].forEach {
             contentStackView.addArrangedSubview($0)
         }
-        paperContainer.setContentHuggingPriority(.required, for: .vertical)
+        
+        titleLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
     func layout() {
         backgroundImageView.snp.makeConstraints {
@@ -165,6 +158,12 @@ private extension FortuneHealthLoveView {
         
         paperImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+        }
+        
+        contentScrollView.snp.remakeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.height.lessThanOrEqualToSuperview().offset(-40)
+            $0.horizontalEdges.equalToSuperview().inset(28)
         }
     }
 }

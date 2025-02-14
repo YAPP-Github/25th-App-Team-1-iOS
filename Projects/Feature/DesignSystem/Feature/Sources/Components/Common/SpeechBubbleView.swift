@@ -29,6 +29,8 @@ public final class SpeechBubbleView: UIStackView {
         // bubbleView corner radius
         let bubbleViewHeight = bubbleView.layer.bounds.height
         bubbleView.layer.cornerRadius = bubbleViewHeight/2
+        titleLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 }
 

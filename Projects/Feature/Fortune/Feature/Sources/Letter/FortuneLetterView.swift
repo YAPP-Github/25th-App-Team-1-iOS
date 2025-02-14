@@ -49,16 +49,6 @@ final class FortuneLetterView: TouchDetectingView {
         listener?.action(.next)
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        print(paperContainer.frame.height)
-        contentScrollView.snp.remakeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.height.lessThanOrEqualTo(paperContainer.frame.height - 40)
-            $0.horizontalEdges.equalToSuperview().inset(28)
-        }
-    }
-    
     // background
     private let cloudStarImageView = UIImageView()
     private let hillImageView = UIImageView()
@@ -89,10 +79,8 @@ private extension FortuneLetterView {
         characterImageView.do {
             $0.image = FeatureResourcesAsset.fortuneCharacterHigh.image
             $0.contentMode = .scaleAspectFit
-            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
 
-        
         hillImageView.do {
             $0.image = FeatureResourcesAsset.imgFortuneHillLarge.image
             $0.contentMode = .scaleAspectFill
@@ -141,11 +129,18 @@ private extension FortuneLetterView {
             addSubview($0)
         }
         
-        paperContainer.setContentHuggingPriority(.required, for: .vertical)
+        [pageIndicatorView, characterImageView].forEach {
+            $0.setContentHuggingPriority(.required, for: .vertical)
+        }
+        
+        [characterImageView].forEach {
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
     }
     func layout() {
         cloudStarImageView.snp.makeConstraints {
             $0.top.equalTo(8)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         pageIndicatorView.snp.makeConstraints {
@@ -179,6 +174,12 @@ private extension FortuneLetterView {
         starImageView.snp.makeConstraints {
             $0.top.equalTo(paperContainer).offset(-21)
             $0.leading.equalTo(paperContainer).offset(21)
+        }
+        
+        contentScrollView.snp.remakeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.height.lessThanOrEqualToSuperview().offset(-40)
+            $0.horizontalEdges.equalToSuperview().inset(28)
         }
     }
 }
