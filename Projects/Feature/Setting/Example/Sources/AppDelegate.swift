@@ -20,9 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SettingMainListener {
         Preference.userId = 24
         
         let navigationController = UINavigationController()
-        let settingBuilder = SettingMainBuilder(dependency: DefaultSettingMainDependency(
-            navigationController: navigationController
-        ))
+        let settingBuilder = SettingMainBuilder(dependency: DefaultSettingMainDependency())
         let router = settingBuilder.build(withListener: self)
         self.router = router
         window = UIWindow(frame: UIScreen.main.bounds)
@@ -36,10 +34,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SettingMainListener {
     func dismiss() { }
 }
 
-class DefaultSettingMainDependency: SettingMainDependency {
-    var navigationController: UINavigationController
-    
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
-    }
-}
+class DefaultSettingMainDependency: SettingMainDependency { }

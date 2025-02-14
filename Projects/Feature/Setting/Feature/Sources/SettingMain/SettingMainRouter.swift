@@ -19,10 +19,6 @@ protocol SettingMainViewControllable: ViewControllable {
 }
 
 final class SettingMainRouter: ViewableRouter<SettingMainInteractable, SettingMainViewControllable>, SettingMainRouting {
-    // Dependency
-    private let navigationController: UINavigationController
-    
-    
     // Builders
     private let configureUserInfoBuilder: ConfigureUserInfoBuilder
     
@@ -34,14 +30,11 @@ final class SettingMainRouter: ViewableRouter<SettingMainInteractable, SettingMa
     init(
         interactor: SettingMainInteractable,
         viewController: SettingMainViewControllable,
-        configureUserInfoBuilder: ConfigureUserInfoBuilder,
-        navigationController: UINavigationController
+        configureUserInfoBuilder: ConfigureUserInfoBuilder
     ) {
         self.configureUserInfoBuilder = configureUserInfoBuilder
-        self.navigationController = navigationController
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
-        navigationController.isNavigationBarHidden = true
     }
 }
 
@@ -55,7 +48,7 @@ extension SettingMainRouter {
             let router = configureUserInfoBuilder.build(userInfo: userInfo, withListener: listener)
             self.configureUserInfoRouter = router
             attachChild(router)
-            navigationController.pushViewController(
+            self.viewControllable.uiviewController.navigationController?.pushViewController(
                 router.viewControllable.uiviewController,
                 animated: true
             )
@@ -63,7 +56,7 @@ extension SettingMainRouter {
             guard let configureUserInfoRouter else { return }
             detachChild(configureUserInfoRouter)
             self.configureUserInfoRouter = nil
-            navigationController.popViewController(animated: true)
+            self.viewControllable.uiviewController.navigationController?.popViewController(animated: true)
         case .presentWebPage(let url):
             UIApplication.shared.open(url)
         }

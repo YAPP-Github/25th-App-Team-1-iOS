@@ -57,6 +57,7 @@ let project = Project(
                 .feature(implements: .AlarmRelease),
                 .feature(implements: .Fortune),
                 .feature(implements: .Networking),
+                .feature(implements: .Setting),
             ]
         ),
     ]

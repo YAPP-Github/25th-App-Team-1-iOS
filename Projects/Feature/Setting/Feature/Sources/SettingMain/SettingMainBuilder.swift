@@ -9,9 +9,7 @@ import UIKit
 
 import RIBs
 
-public protocol SettingMainDependency: Dependency {
-    var navigationController: UINavigationController { get }
-}
+public protocol SettingMainDependency: Dependency { }
 
 final class SettingMainComponent: Component<SettingMainDependency> {
 
@@ -20,7 +18,7 @@ final class SettingMainComponent: Component<SettingMainDependency> {
 
 // MARK: - Builder
 
-protocol SettingMainBuildable: Buildable {
+public protocol SettingMainBuildable: Buildable {
     func build(withListener listener: SettingMainListener) -> SettingMainRouting
 }
 
@@ -39,8 +37,7 @@ public final class SettingMainBuilder: Builder<SettingMainDependency>, SettingMa
         return SettingMainRouter(
             interactor: interactor,
             viewController: viewController,
-            configureUserInfoBuilder: configureUserInfoBuilder,
-            navigationController: dependency.navigationController
+            configureUserInfoBuilder: configureUserInfoBuilder
         )
     }
 }

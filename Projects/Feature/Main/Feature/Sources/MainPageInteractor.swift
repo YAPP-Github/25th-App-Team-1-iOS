@@ -32,6 +32,8 @@ public enum MainPageRouterRequest {
     case presentAlertType1(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
     case presentAlertType2(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
+    case presentSettingPage
+    case dismissSettingPage
 }
 
 public protocol MainPageRouting: ViewableRouting {
@@ -118,7 +120,7 @@ extension MainPageInteractor {
 
             
         case .goToSettings:
-            router?.request(.routeToAlarmMission)
+            router?.request(.presentSettingPage)
         case .createAlarm:
             router?.request(.routeToCreateEditAlarm(mode: .create))
         case let .editAlarm(alarmId):
@@ -381,4 +383,12 @@ extension MainPageInteractor: MainPageActionableItem {
         return .just((self, ()))
     }
 
+}
+
+
+// MARK: SettingMainListener
+extension MainPageInteractor {
+    func dismiss() {
+        router?.request(.dismissSettingPage)
+    }
 }
