@@ -29,4 +29,18 @@ public class APIClient {
             }
     }
     
+    public static func request(request: APIRequestProtocol,
+                               success: @escaping () -> Void,
+                               failure: @escaping onFailure) {
+        AF.request(request)
+            .validate(statusCode: 200..<300)
+            .response { response in
+                switch response.result {
+                case .success:
+                    success()
+                case .failure(let err):
+                    failure(err)
+                }
+            }
+    }
 }
