@@ -59,6 +59,17 @@ extension EditBornTimeView {
     @discardableResult
     func update(isTimeUnknown: Bool) -> Self {
         checkBox.update(state: isTimeUnknown ? .seleceted : .idle)
+        if isTimeUnknown {
+            unknownTimeLabel.displayText = unknownTimeLabel.displayText?.string.displayText(
+                font: .body1Medium,
+                color: R.Color.main100
+            )
+        } else {
+            unknownTimeLabel.displayText = unknownTimeLabel.displayText?.string.displayText(
+                font: .body1Medium,
+                color: R.Color.white100
+            )
+        }
         return self
     }
     
