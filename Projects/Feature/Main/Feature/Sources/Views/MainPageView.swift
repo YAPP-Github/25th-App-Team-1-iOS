@@ -79,7 +79,6 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
     // - ResizableContentView
     private let resizableContentView = UIView()
     private let resizableContentViewDockView = DockView()
-    private let resizableContentViewDockViewDrageArea = UIView()
     private let resizableContentViewDragRecognizer = UIPanGestureRecognizer()
     private var resizableContentViewScreenState: resizableContentViewScreenState = .half
     private var resizableContentViewTopConstraintWhenHalf: Constraint?
@@ -264,13 +263,8 @@ private extension MainPageView {
         resizableContentView.addSubview(deleteAlarmGroupBarView)
         
         
-        // resizableContentViewDockViewDrageArea
-        resizableContentViewDockViewDrageArea.backgroundColor = .clear
-        addSubview(resizableContentViewDockViewDrageArea)
-        setupResizableContentViewDrag()
-        
-        
         // alarmTableView
+        alarmTableView.isScrollEnabled = false
         setupAlarmTableView()
         
         
@@ -281,6 +275,8 @@ private extension MainPageView {
             listener?.action(.alarmsWillDelete)
         }
         resizableContentView.addSubview(deleteGroupAlarmConfirmButton)
+        
+        setupResizableContentViewDrag()
     }
     
     
@@ -562,21 +558,12 @@ private extension MainPageView {
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(resizableContentView.snp.top)
         }
-        
-        
-        // resizableContentViewDockViewDrageArea
-        resizableContentViewDockViewDrageArea.snp.makeConstraints { make in
-            make.top.equalTo(resizableContentViewDockView)
-                .offset(-ResizableContentViewConfig.drageAreaOffsetOverDock)
-            make.bottom.equalTo(alarmToolBarContainerView.snp.top)
-            make.horizontalEdges.equalToSuperview()
-            make.bottom.greaterThanOrEqualTo(self.safeAreaLayoutGuide.snp.top)
-        }
     }
     
     
     func setupResizableContentViewDrag() {
-        resizableContentViewDockViewDrageArea.addGestureRecognizer(resizableContentViewDragRecognizer)
+        resizableContentView.addGestureRecognizer(resizableContentViewDragRecognizer)
+        resizableContentViewDragRecognizer.cancelsTouchesInView = false
         resizableContentViewDragRecognizer.addTarget(self, action: #selector(resizeDragOccurred(_:)))
     }
     
@@ -587,44 +574,55 @@ private extension MainPageView {
         if panGestureVelocity.y < ResizableContentViewConfig.minVelocityForFullScreen {
             // 풀스크린 변환 조건 충족
             if self.resizableContentViewScreenState == .half {
-                resizableContentViewDragRecognizer.isEnabled = false
-                self.resizableContentViewScreenState = .full
-                UIView.animate(withDuration: ResizableContentViewConfig.transitionDuration) {
-                    self.resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenFull
-                    
-                    // 레이아웃 조정
-                    self.resizableContentViewTopConstraintWhenFull?.activate()
-                    self.resizableContentViewTopConstraintWhenHalf?.deactivate()
-                    
-
-                    self.layoutIfNeeded()
-                } completion: { _ in
-                    self.resizableContentViewDragRecognizer.isEnabled = true
-                }
+                chagneTofullScreenMode()
             }
             return
         }
+    }
+    
+    func chagneTofullScreenMode() {
+        // 풀스크린 변환 제스처 비활성화
+        resizableContentViewDragRecognizer.isEnabled = false
         
+        // tableView스크롤 가능
+        alarmTableView.isScrollEnabled = true
         
-        if panGestureVelocity.y > ResizableContentViewConfig.minVelocityForHalfScreen {
-            // 하프스크린 변환 조건 충족
-            if self.resizableContentViewScreenState == .full {
-                self.resizableContentViewScreenState = .half
-                self.resizableContentViewDragRecognizer.isEnabled = false
-                UIView.animate(withDuration: ResizableContentViewConfig.transitionDuration) {
-                    self.resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenHalf
-                    
-                    // 레이아웃 조정
-                    self.resizableContentViewTopConstraintWhenFull?.deactivate()
-                    self.resizableContentViewTopConstraintWhenHalf?.activate()
-                    
-                    self.layoutIfNeeded()
-                } completion: { _ in
-                    self.resizableContentViewDragRecognizer.isEnabled = true
-                }
-            }
+        self.resizableContentViewScreenState = .full
+        resizableContentViewDragRecognizer.isEnabled = false
+        UIView.animate(withDuration: ResizableContentViewConfig.transitionDuration) {
+            self.resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenFull
+            
+            // 레이아웃 조정
+            self.resizableContentViewTopConstraintWhenHalf?.deactivate()
+            self.resizableContentViewTopConstraintWhenFull?.activate()
+            
+
+            self.layoutIfNeeded()
+        } completion: { _ in
+            self.resizableContentViewDragRecognizer.isEnabled = true
         }
+    }
+    
+    func changeToHalfScreenMode() {
+        // 풀스크린 변환 제스처 활성화
+        resizableContentViewDragRecognizer.isEnabled = true
         
+        // tableView스크롤 불가
+        alarmTableView.isScrollEnabled = false
+        
+        self.resizableContentViewScreenState = .half
+        self.resizableContentViewDragRecognizer.isEnabled = false
+        UIView.animate(withDuration: ResizableContentViewConfig.transitionDuration) {
+            self.resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenHalf
+            
+            // 레이아웃 조정
+            self.resizableContentViewTopConstraintWhenFull?.deactivate()
+            self.resizableContentViewTopConstraintWhenHalf?.activate()
+            
+            self.layoutIfNeeded()
+        } completion: { _ in
+            self.resizableContentViewDragRecognizer.isEnabled = true
+        }
     }
 }
 
@@ -698,6 +696,12 @@ extension MainPageView {
         // Swipe to commit
         configuration.performsFirstActionWithFullSwipe = true
         return configuration
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.y < 0, self.resizableContentViewScreenState == .full {
+            changeToHalfScreenMode()
+        }
     }
 }
 
