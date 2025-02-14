@@ -30,7 +30,7 @@ final class AuthorizationRequestViewController: UIViewController, AuthorizationR
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak listener] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak listener] in
             listener?.request(.requestAuthorization)
         }
     }
