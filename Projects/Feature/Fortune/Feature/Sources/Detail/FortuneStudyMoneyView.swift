@@ -21,7 +21,7 @@ final class FortuneStudyMoneyView: TouchDetectingView {
     }
 
     enum State {
-        case fortune(Fortune)
+        case fortune(Fortune, UserInfo)
     }
     
     init() {
@@ -38,7 +38,26 @@ final class FortuneStudyMoneyView: TouchDetectingView {
     
     func update(_ state: State) {
         switch state {
-        case let .fortune(fortune):
+        case let .fortune(fortune, userInfo):
+            let name = userInfo.name
+            switch fortune.avgFortuneScore {
+            case 80...100:
+                titleLabel.displayText = """
+                오늘 \(name)의 하루는 
+                누구보다 빛나!
+                """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
+            case 50...79:
+                titleLabel.displayText = """
+                오늘 \(name)의 하루는 
+                최고야
+                """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
+            default:
+                titleLabel.displayText = """
+                오늘 \(name)의 하루는 
+                주의가 필요해
+                """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
+            }
+            
             studyContentView.update(subject: "학업/직장운 \(fortune.studyCareerFortune.score)점")
             studyContentView.update(title: fortune.studyCareerFortune.title)
             studyContentView.update(content: fortune.studyCareerFortune.description)
@@ -88,10 +107,6 @@ private extension FortuneStudyMoneyView {
             $0.contentMode = .scaleAspectFill
         }
         titleLabel.do {
-            $0.displayText = """
-            오늘 너의 하루는 
-            행운이 가득해!
-            """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
             $0.numberOfLines = 0
         }
         

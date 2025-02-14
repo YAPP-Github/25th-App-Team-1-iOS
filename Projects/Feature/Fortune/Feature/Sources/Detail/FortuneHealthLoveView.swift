@@ -21,7 +21,7 @@ final class FortuneHealthLoveView: TouchDetectingView {
     }
     
     enum State {
-        case fortune(Fortune)
+        case fortune(Fortune, UserInfo)
     }
     
     init() {
@@ -38,7 +38,26 @@ final class FortuneHealthLoveView: TouchDetectingView {
     
     func update(_ state: State) {
         switch state {
-        case let .fortune(fortune):
+        case let .fortune(fortune, userInfo):
+            let name = userInfo.name
+            switch fortune.avgFortuneScore {
+            case 80...100:
+                titleLabel.displayText = """
+                오늘 \(name)의 하루는 
+                누구보다 빛나!
+                """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
+            case 50...79:
+                titleLabel.displayText = """
+                오늘 \(name)의 하루는 
+                최고야
+                """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
+            default:
+                titleLabel.displayText = """
+                오늘 \(name)의 하루는 
+                주의가 필요해
+                """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100, alignment: .center)
+            }
+            
             healthContentView.update(subject: "건강운 \(fortune.healthFortune.score)점")
             healthContentView.update(title: fortune.healthFortune.title)
             healthContentView.update(content: fortune.healthFortune.description)
@@ -88,10 +107,6 @@ private extension FortuneHealthLoveView {
             $0.contentMode = .scaleAspectFill
         }
         titleLabel.do {
-            $0.displayText = """
-            오늘 너의 하루는 
-            행운이 가득해!
-            """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
             $0.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -141,7 +156,7 @@ private extension FortuneHealthLoveView {
         }
         
         bubbleView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualTo(pageIndicatorView.snp.bottom).offset(24)
+            $0.top.equalTo(pageIndicatorView.snp.bottom).offset(24)
             $0.centerX.equalToSuperview()
         }
         

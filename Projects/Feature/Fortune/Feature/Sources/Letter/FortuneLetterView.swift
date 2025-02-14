@@ -42,6 +42,14 @@ final class FortuneLetterView: TouchDetectingView {
             bubbleView.update(arrowHidden: false)
             letterTitleLabel.displayText = fortune.dailyFortuneTitle.displayText(font: .ownglyphPHD_H2, color: R.Color.gray600, alignment: .center)
             letterContentLabel.displayText = fortune.dailyFortuneDescription.displayText(font: .ownglyphPHD_H4, color: R.Color.gray600, alignment: .center)
+            switch fortune.avgFortuneScore {
+            case 80...100:
+                characterImageView.image = FeatureResourcesAsset.fortuneCharacterHigh.image
+            case 50...79:
+                characterImageView.image = FeatureResourcesAsset.fortuneCharacterMiddle.image
+            default:
+                characterImageView.image = FeatureResourcesAsset.fortuneCharacterLow.image
+            }
         }
     }
     
@@ -87,7 +95,7 @@ private extension FortuneLetterView {
         }
         
         paperImageView.do {
-            $0.image = FeatureResourcesAsset.imgPaperContainerWithoutStar.image
+            paperImageView.image = FeatureResourcesAsset.imgPaperContainerWithoutStar.image
             $0.contentMode = .scaleToFill
         }
         

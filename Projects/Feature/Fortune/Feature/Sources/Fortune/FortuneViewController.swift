@@ -63,10 +63,10 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     
     func request(_ request: FortunePresentableRequest) {
         switch request {
-        case .setFortune(let fortune):
+        case let .setFortune(fortune, userInfo):
             step1View.update(.fortune(fortune))
-            step2View.update(.fortune(fortune))
-            step3View.update(.fortune(fortune))
+            step2View.update(.fortune(fortune, userInfo))
+            step3View.update(.fortune(fortune, userInfo))
             step4View.update(.fortune(fortune))
             step5View.update(.fortune(fortune))
         }

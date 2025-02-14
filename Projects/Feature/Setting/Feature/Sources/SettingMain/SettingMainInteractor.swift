@@ -116,51 +116,7 @@ extension SettingMainInteractor {
                 request: APIRequest.Users.getUser(userId: userId),
                 success: { [weak self] userInfo in
                     guard let self else { return }
-                    
-                    let birthdateList = userInfo.birthDate.split(separator: "-")
-                    let calendarType: CalendarType = userInfo.calendarType == .lunar ? .lunar : .gregorian
-                    let year = Year(Int(birthdateList[0])!)
-                    let month = Month(rawValue: Int(birthdateList[1])!)!
-                    let day = Day(
-                        Int(birthdateList[2])!,
-                        calendar: calendarType,
-                        month: month,
-                        year: year
-                    )!
-                    
-                    var bornTimeData: BornTimeData?
-                    if let bornTime = userInfo.birthTime {
-                        let bornTimeList = bornTime.split(separator: ":")
-                        let hour = Int(bornTimeList[0])!
-                        let minute = Int(bornTimeList[1])!
-                        
-                        let meridiemEntity: Meridiem = hour >= 12 ? .pm : .am
-                        var hourEntity: Hour!
-                        if meridiemEntity == .pm {
-                            hourEntity = .init(hour-12)!
-                        } else {
-                            hourEntity = .init(hour)!
-                        }
-                        let minuteEntity: Minute = .init(minute)!
-                        bornTimeData = .init(
-                            meridiem: meridiemEntity,
-                            hour: hourEntity,
-                            minute: minuteEntity
-                        )
-                    }
-                    let userInfoEntity = UserInfo(
-                        id: userId,
-                        name: userInfo.name,
-                        birthDate: .init(
-                            calendarType: calendarType,
-                            year: year,
-                            month: month,
-                            day: day
-                        ),
-                        birthTime: bornTimeData,
-                        gender: userInfo.gender == .male ? .male : .female
-                    )
-                    self.userInfo = userInfoEntity
+                    let userInfoEntity = userInfo.toUserInfo()
                     presenter.update(.setUserInfo(userInfoEntity))
                     presenter.update(.dismissLoading)
                 }) { [weak self] error in

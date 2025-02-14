@@ -25,7 +25,7 @@ public enum MainPageRouterRequest {
     case detachCreateEditAlarm
     case routeToAlarmMission
     case detachAlarmMission((() -> Void)?)
-    case routeToFortune(Fortune)
+    case routeToFortune(Fortune, UserInfo)
     case detachFortune
     case routeToAlarmRelease(Alarm)
     case detachAlarmRelease((() -> Void)?)
@@ -113,10 +113,10 @@ extension MainPageInteractor {
             }
             
             let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
-            APIClient.request(Fortune.self, request: request) { [weak router] fortune in
-                guard let router else { return }
+            APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+                guard let self else { return }
                 DispatchQueue.main.async {
-                    router.request(.routeToFortune(fortune))
+                    self.goToFortune(fortune: fortune)
                 }
             } failure: { error in
                 print(error)
@@ -303,6 +303,24 @@ extension MainPageInteractor {
             )
         }
     }
+    
+    private func goToFortune(fortune: Fortune) {
+        guard let userId = Preference.userId else { return }
+        APIClient.request(
+            UserInfoResponseDTO.self,
+            request: APIRequest.Users.getUser(userId: userId),
+            success: { [weak router] userInfo in
+                guard let router else { return }
+                let userInfoEntity = userInfo.toUserInfo()
+                DispatchQueue.main.async {
+                    router.request(.routeToFortune(fortune, userInfoEntity))
+                }
+            }) { [weak self] error in
+                guard let self else { return }
+                // 유저정보 획득 실패
+                debugPrint(error.localizedDescription)
+            }
+    }
 }
 
 
@@ -340,9 +358,9 @@ extension MainPageInteractor {
     func request(_ request: FeatureAlarmMission.ShakeMissionMainListenerRequest) {
         switch request {
         case let .close(fortune):
-            router?.request(.detachAlarmMission { [weak router] in
-                guard let fortune else { return }
-                router?.request(.routeToFortune(fortune))
+            router?.request(.detachAlarmMission { [weak self] in
+                guard let self, let fortune else { return }
+                goToFortune(fortune: fortune)
             })
         }
     }
