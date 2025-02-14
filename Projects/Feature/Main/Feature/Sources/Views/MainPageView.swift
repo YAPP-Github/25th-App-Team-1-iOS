@@ -660,9 +660,12 @@ extension MainPageView {
                         isDeletionViewPresenting = true
                         presentAlarmDeletionView(alarm: ro)
                     case .cellIsTapped:
-                        listener?.action(.alarmSelected(alarmId: cellId))
-                    case .checkBoxButtonTapped:
-                        listener?.action(.alarmIsChecked(alarmId: cellId))
+                        switch ro.mode {
+                        case .idle:
+                            listener?.action(.alarmSelected(alarmId: cellId))
+                        case .deletion:
+                            listener?.action(.alarmIsChecked(alarmId: cellId))
+                        }
                     }
                 }
                 return cell.update(renderObject: ro)

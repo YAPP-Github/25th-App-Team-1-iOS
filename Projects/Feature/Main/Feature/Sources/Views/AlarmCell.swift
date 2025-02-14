@@ -23,7 +23,6 @@ final class AlarmCell: UITableViewCell {
         case activityToggleTapped
         case cellIsLongPressed
         case cellIsTapped
-        case checkBoxButtonTapped
     }
     
     
@@ -129,10 +128,6 @@ private extension AlarmCell {
         
         // checkBox
         checkBox.isHidden = true
-        checkBox.buttonAction = { [weak self] in
-            guard let self else { return }
-            action?(.checkBoxButtonTapped)
-        }
         contentView.addSubview(checkBox)
         
         
@@ -186,7 +181,6 @@ private extension AlarmCell {
         contentView.addGestureRecognizer(tapGesture)
         tapGesture.addTarget(self, action: #selector(onTap(_:)))
         tapGesture.cancelsTouchesInView = false
-        tapGesture.delegate = self
     }
     @objc
     func onTap(_ sender: UITapGestureRecognizer) {
@@ -251,23 +245,15 @@ extension AlarmCell {
             checkBox.isHidden = true
             toggle.isHidden = false
             checkBoxRightConstraint?.deactivate()
+            contentView.backgroundColor = R.Color.gray900
         case .deletion:
             checkBox.isHidden = false
             toggle.isHidden = true
             checkBoxRightConstraint?.activate()
             checkBox.update(state: ro.isChecked ? .seleceted : .idle)
+            contentView.backgroundColor = ro.isChecked ? R.Color.gray800 : R.Color.gray900
         }
         
         return self
-    }
-}
-
-// MARK: UIGestureRecognizerDelegate
-extension AlarmCell {
-    override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        if touch.view === checkBox || touch.view === toggle {
-            return false
-        }
-        return true
     }
 }
