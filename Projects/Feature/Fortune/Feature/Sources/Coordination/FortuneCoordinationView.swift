@@ -105,7 +105,7 @@ private extension FortuneCoordinationView {
         
         paperContainer.do {
             $0.image = FeatureResourcesAsset.imgPaperContainerWithoutStar.image
-            $0.contentMode = .scaleAspectFill
+            $0.contentMode = .scaleToFill
         }
         
         topBottomClothStackView.do {
@@ -143,6 +143,9 @@ private extension FortuneCoordinationView {
             contentStackView.addArrangedSubview($0)
         }
         
+        
+        titleLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
     func layout() {
         backgroundImageView.snp.makeConstraints {
@@ -170,6 +173,7 @@ private extension FortuneCoordinationView {
         paperContainer.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(32.5)
+            $0.bottom.equalToSuperview().inset(32)
         }
         contentStackView.snp.makeConstraints {
             $0.center.equalToSuperview()
