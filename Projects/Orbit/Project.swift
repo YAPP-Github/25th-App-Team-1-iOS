@@ -16,7 +16,7 @@ let project = Project(
                     "UIInterfaceOrientationPortrait"
                 ],
                 "CFBundleDisplayName": "Orbit",
-                "CFBundleShortVersionString": "1.0"
+                "CFBundleShortVersionString": "1.0.0"
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],

@@ -43,6 +43,8 @@ final class SettingMainView: UIView, SettingSectionViewListener, OpinionViewList
     private let scrollView: UIScrollView = .init()
     private let contentStack: UIStackView = .init()
     
+    private let appVersionLabel: UILabel = .init()
+    
     
     init() {
         super.init(frame: .zero)
@@ -57,6 +59,7 @@ extension SettingMainView {
     enum Update {
         case sections(sections: [SettingSectionRO])
         case userInfoCard(userInfo: UserInfoCardRO)
+        case versionText(text: String)
     }
     
     func update(_ update: Update) {
@@ -71,6 +74,11 @@ extension SettingMainView {
             }
         case .userInfoCard(let userInfo):
             userInfoCard.update(renderObject: userInfo)
+        case .versionText(let text):
+            appVersionLabel.displayText = text.displayText(
+                font: .body1Regular,
+                color: R.Color.gray300
+            )
         }
     }
 }
@@ -125,6 +133,10 @@ private extension SettingMainView {
         
         // scrollView
         addSubview(scrollView)
+        
+        
+        // appVersionLabel
+        addSubview(appVersionLabel)
     }
     
     func setupLayout() {
@@ -149,6 +161,13 @@ private extension SettingMainView {
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalToSuperview()
+        }
+        
+        
+        // appVersionLabel
+        appVersionLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(24)
         }
     }
 }

@@ -82,8 +82,15 @@ extension SettingMainInteractor {
     func request(_ request: SettingMainPresenterRequest) {
         switch request {
         case .viewDidLoad:
+            // Sections
             presenter.update(.setSettingSection(sections))
             loadUserInfo()
+            
+            // Version
+            if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                let versionText = "v.\(appVersion)"
+                presenter.update(.setVersion(versionText: versionText))
+            }
         case .viewWillAppear:
             loadUserInfo()
         case .exectureSectionItemTask(let sectionId, let id):
