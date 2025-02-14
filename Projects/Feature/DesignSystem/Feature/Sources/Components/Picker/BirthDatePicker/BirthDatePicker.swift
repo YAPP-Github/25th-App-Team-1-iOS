@@ -214,10 +214,12 @@ public final class BirthDatePicker: UIView {
                     fatalError()
                 }
                 
-                guard let dayInt = Int(dayValue),
-                      let day = Day(dayInt, calendar: calendarType, month: month, year: year)
-                else { fatalError() }
-                
+                let dayInt = Int(dayValue)!
+                var day: Day! = Day(dayInt, calendar: calendarType, month: month, year: year)
+                if day == nil {
+                    let lastDay = Day.lastDay(calendar: calendarType, of: month, in: year)
+                    day = .init(lastDay, calendar: calendarType, month: month, year: year)!
+                }
                 listener?.latestDate(calendar: calendarType, year: year, month: month, day: day)
             })
             .disposed(by: disposeBag)
