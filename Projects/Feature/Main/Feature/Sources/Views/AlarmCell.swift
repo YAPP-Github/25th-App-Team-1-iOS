@@ -222,7 +222,9 @@ extension AlarmCell {
             color: dayColor
         )
         let dayDisplayText = if !alarmDays.days.isEmpty {
-            alarmDays.days.map { $0.toShortKoreanFormat }.joined(separator: ", ")
+            alarmDays.days
+                .sorted(by: { $0.rawValue < $1.rawValue })
+                .map { $0.toShortKoreanFormat }.joined(separator: ", ")
         } else {
             "Not implemented"
         }
@@ -269,43 +271,3 @@ extension AlarmCell {
         return true
     }
 }
-
-
-
-//// MARK: Previews
-//#Preview("공휴일 미포함") {
-//    AlarmCell()
-//        .update(renderObject: .init(
-//            meridiem: .am,
-//            hour: Hour(1)!,
-//            minute: Minute(5)!,
-//            repeatDays: AlarmDays(days: [.monday, .thursday, .wednesday, .friday, .tuesday], shoundTurnOffHolidayAlarm: true),
-//            snoozeOption: SnoozeOption(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes),
-//            soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: ""),
-//            isActive: true
-//        ))
-//}
-//#Preview("공휴일 포함") {
-//    AlarmCell()
-//        .update(renderObject: .init(
-//            meridiem: .am,
-//            hour: Hour(1)!,
-//            minute: Minute(5)!,
-//            repeatDays: AlarmDays(days: [.monday, .thursday, .wednesday, .friday, .tuesday], shoundTurnOffHolidayAlarm: false),
-//            snoozeOption: SnoozeOption(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes),
-//            soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: ""),
-//            isActive: true
-//        ))
-//}
-//#Preview("반복없는 특정일") {
-//    AlarmCell()
-//        .update(renderObject: .init(
-//            meridiem: .am,
-//            hour: Hour(1)!,
-//            minute: Minute(5)!,
-//            repeatDays: AlarmDays(days: []),
-//            snoozeOption: SnoozeOption(isSnoozeOn: false, frequency: .fiveMinutes, count: .fiveTimes),
-//            soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: ""),
-//            isActive: true
-//        ))
-//}
