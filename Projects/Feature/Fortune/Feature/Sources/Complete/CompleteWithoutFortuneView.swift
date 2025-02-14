@@ -38,6 +38,15 @@ final class CompleteWithoutFortuneView: UIView {
     private let characterImageView = UIImageView()
     private let descriptionLabel = UILabel()
     private let doneButton = DSDefaultCTAButton()
+    
+    private let titles: [String] = [
+        "운세는 여기까지야\n오늘 하루도 화이팅!",
+        "좋은 아침!\n오늘도 운세처럼 잘 풀릴 거야!",
+        "행운이 깃든 아침,\n하루가 더 특별해질 거야!",
+        "오늘 운세는 여기까지야.\n이제 아침을 시작해보자!",
+        "운세를 확인했으니,\n이제 일어나볼까?",
+        "운세 확인 끝!\n이제 든든하게 하루 시작해봐"
+    ]
 }
 
 private extension CompleteWithoutFortuneView {
@@ -48,10 +57,9 @@ private extension CompleteWithoutFortuneView {
             $0.contentMode = .scaleAspectFill
         }
         titleLabel.do {
-            $0.displayText = """
-            운세 확인 끝!
-            이제 든든하게 하루 시작해봐
-            """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
+            if let randomTitle = titles.randomElement() {
+                $0.displayText = randomTitle.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
+            }
             $0.numberOfLines = 0
             $0.textAlignment = .center
         }
