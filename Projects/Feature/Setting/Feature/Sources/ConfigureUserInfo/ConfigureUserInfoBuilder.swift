@@ -5,6 +5,8 @@
 //  Created by choijunios on 2/13/25.
 //
 
+import FeatureCommonEntity
+
 import RIBs
 
 protocol ConfigureUserInfoDependency: Dependency {
@@ -20,7 +22,7 @@ final class ConfigureUserInfoComponent: Component<ConfigureUserInfoDependency> {
 // MARK: - Builder
 
 protocol ConfigureUserInfoBuildable: Buildable {
-    func build(withListener listener: ConfigureUserInfoListener) -> ConfigureUserInfoRouting
+    func build(userInfo: UserInfo, withListener listener: ConfigureUserInfoListener) -> ConfigureUserInfoRouting
 }
 
 final class ConfigureUserInfoBuilder: Builder<ConfigureUserInfoDependency>, ConfigureUserInfoBuildable {
@@ -29,10 +31,13 @@ final class ConfigureUserInfoBuilder: Builder<ConfigureUserInfoDependency>, Conf
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: ConfigureUserInfoListener) -> ConfigureUserInfoRouting {
+    func build(userInfo: UserInfo, withListener listener: ConfigureUserInfoListener) -> ConfigureUserInfoRouting {
         let component = ConfigureUserInfoComponent(dependency: dependency)
         let viewController = ConfigureUserInfoViewController()
-        let interactor = ConfigureUserInfoInteractor(presenter: viewController)
+        let interactor = ConfigureUserInfoInteractor(
+            userInfo: userInfo,
+            presenter: viewController
+        )
         interactor.listener = listener
         return ConfigureUserInfoRouter(interactor: interactor, viewController: viewController)
     }

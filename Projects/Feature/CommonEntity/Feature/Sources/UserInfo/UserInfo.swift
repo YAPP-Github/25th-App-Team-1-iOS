@@ -14,6 +14,14 @@ public struct UserInfo: Decodable, Equatable {
     public var birthTime: BornTimeData?
     public var gender: Gender
     
+    public init(id: Int, name: String, birthDate: BirthDateData, birthTime: BornTimeData? = nil, gender: Gender) {
+        self.id = id
+        self.name = name
+        self.birthDate = birthDate
+        self.birthTime = birthTime
+        self.gender = gender
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case name

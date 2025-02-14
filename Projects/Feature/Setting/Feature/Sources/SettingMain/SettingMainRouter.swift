@@ -17,10 +17,30 @@ protocol SettingMainViewControllable: ViewControllable {
 }
 
 final class SettingMainRouter: ViewableRouter<SettingMainInteractable, SettingMainViewControllable>, SettingMainRouting {
+    
+    
 
-    // TODO: Constructor inject child builder protocols to allow building children.
-    override init(interactor: SettingMainInteractable, viewController: SettingMainViewControllable) {
+    // Builders
+    private let configureUserInfoBuilder: ConfigureUserInfoBuilder
+    
+    init(
+        interactor: SettingMainInteractable,
+        viewController: SettingMainViewControllable,
+        configureUserInfoBuilder: ConfigureUserInfoBuilder
+    ) {
+        self.configureUserInfoBuilder = configureUserInfoBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
+    }
+}
+
+
+// MARK: SettingMainRouting
+extension SettingMainRouter {
+    func request(_ request: SettingMainRoutingRequest) {
+        switch request {
+        case .presentEditUserInfo:
+            break
+        }
     }
 }
