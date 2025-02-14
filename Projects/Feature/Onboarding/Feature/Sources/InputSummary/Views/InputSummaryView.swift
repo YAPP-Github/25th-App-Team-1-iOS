@@ -205,17 +205,17 @@ private extension InputSummaryView {
 }
 
 
-#Preview {
-    let view = InputSummaryView()
-    let year = Year(2024)
-    let month = Month(rawValue: 12)!
-    let day = Day(21, month: month, year: year)!
-    let hour = Hour(6)!
-    let minute = Minute(0)!
-    let model = OnboardingModel(
-        birthDate: .init(calendarType: .gregorian, year: Year(2024), month: month, day: day),
-        bornTime: .init(meridiem: .am, hour: hour, minute: minute),
-        name: "이름", gender: .male)
-    view.update(model: model)
-    return view
-}
+//#Preview {
+//    let view = InputSummaryView()
+//    let year = Year(2024)
+//    let month = Month(rawValue: 12)!
+//    let day = Day(21, month: month, year: year)!
+//    let hour = Hour(6)!
+//    let minute = Minute(0)!
+//    let model = OnboardingModel(
+//        birthDate: .init(calendarType: .gregorian, year: Year(2024), month: month, day: day),
+//        bornTime: .init(meridiem: .am, hour: hour, minute: minute),
+//        name: "이름", gender: .male)
+//    view.update(model: model)
+//    return view
+//}

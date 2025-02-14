@@ -27,6 +27,7 @@ enum SettingMainPresenterUpdate {
     case setSettingSection([SettingSectionRO])
     case presentLoading
     case dismissLoading
+    case setVersion(versionText: String)
 }
 
 protocol SettingMainPresentableListener: AnyObject {
@@ -103,6 +104,8 @@ extension SettingMainViewController {
                 loadingView.removeFromSuperview()
                 self.loadingView = nil
             }
+        case .setVersion(let versionText):
+            mainView.update(.versionText(text: versionText))
         }
     }
 }

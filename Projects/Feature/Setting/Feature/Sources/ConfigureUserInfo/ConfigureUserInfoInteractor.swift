@@ -8,6 +8,7 @@
 import Foundation
 import FeatureCommonDependencies
 import FeatureUIDependencies
+import FeatureNetworking
 
 import RIBs
 import RxSwift
@@ -82,11 +83,40 @@ extension ConfigureUserInfoInteractor {
             presenter.update(.setUserInfo(userInfo: initialUserInfo))
         case .save:
             presenter.update(.presentLoading)
-            DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
-                guard let self else { return }
-                presenter.update(.dismissLoading)
-                listener?.dismiss()
+            if let userId = Preference.userId {
+//                let dto: UserInfoUpdateRequestDTO = .init(
+//                    name: initialUserInfo.name != currentUserInfo.name ? currentUserInfo.name : nil,
+//                    birthDate: initialUserInfo.birthDate != currentUserInfo.birthDate ? currentUserInfo.birthDate.toDateString() : nil,
+//                    birthTime: initialUserInfo.birthTime != currentUserInfo.birthTime ? currentUserInfo.birthTime?.toTimeString() : nil,
+//                    gender: initialUserInfo.gender != currentUserInfo.gender ? currentUserInfo.gender.rawValue : nil,
+//                    calendarType: initialUserInfo.birthDate != currentUserInfo.birthDate ? currentUserInfo.birthDate.calendarType.rawValue : nil
+//                )
+                let dto: UserInfoUpdateRequestDTO = .init(
+                    name: currentUserInfo.name,
+                    birthDate: currentUserInfo.birthDate.toDateString(),
+                    birthTime: currentUserInfo.birthTime?.toTimeString(),
+                    gender: currentUserInfo.gender.rawValue,
+                    calendarType: currentUserInfo.birthDate.calendarType.rawValue
+                )
+                APIClient.request(
+                    request: APIRequest.Users.updateUser(
+                        userId: userId,
+                        updateInfo: dto
+                    ),
+                    success: { [weak self] in
+                        guard let self else { return }
+                        presenter.update(.dismissLoading)
+                        listener?.dismiss()
+                    },
+                    failure: { [weak self] error in
+                        guard let self else { return }
+                        debugPrint(error.localizedDescription)
+                        presenter.update(.dismissLoading)
+                        listener?.dismiss()
+                    }
+                )
             }
+            
         case .back:
             let isChanged = initialUserInfo != currentUserInfo
             if isChanged {

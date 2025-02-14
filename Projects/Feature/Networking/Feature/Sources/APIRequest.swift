@@ -40,7 +40,7 @@ public extension APIRequestProtocol {
         if let parameters = parameters {
             return try encoding.encode(urlRequest, with: parameters)
         }
-
+        
         return urlRequest
     }
 }

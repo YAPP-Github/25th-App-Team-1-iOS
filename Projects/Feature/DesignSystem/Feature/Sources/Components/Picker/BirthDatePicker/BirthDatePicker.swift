@@ -214,10 +214,12 @@ public final class BirthDatePicker: UIView {
                     fatalError()
                 }
                 
-                guard let dayInt = Int(dayValue),
-                      let day = Day(dayInt, month: month, year: year)
-                else { fatalError() }
-                
+                let dayInt = Int(dayValue)!
+                var day: Day! = Day(dayInt, calendar: calendarType, month: month, year: year)
+                if day == nil {
+                    let lastDay = Day.lastDay(calendar: calendarType, of: month, in: year)
+                    day = .init(lastDay, calendar: calendarType, month: month, year: year)!
+                }
                 listener?.latestDate(calendar: calendarType, year: year, month: month, day: day)
             })
             .disposed(by: disposeBag)
@@ -238,7 +240,11 @@ public extension BirthDatePicker {
         
         guard let yearValue = dateComponents.year, let monthValue = dateComponents.month, let dayValue = dateComponents.day else { return }
         let year = Year(yearValue)
-        guard let month = Month(rawValue: monthValue), let day = Day(dayValue, month: month, year: year) else { return }
+        guard let month = Month(rawValue: monthValue), let day = Day(
+            dayValue,
+            calendar: .gregorian,
+            month: month,
+            year: year) else { return }
         
         let calendarType: CalendarType = .gregorian
         
@@ -267,17 +273,11 @@ public extension BirthDatePicker {
     /// 새롭게 업데이트되는 일수를 반환
     @discardableResult
     func updateDay(calendarType: CalendarType, year: Year, month: Month) -> Range<Int> {
-        
-        let calendar = Calendar(identifier: calendarType.calendarIdentifier)
-        
-        let lastDay = Day.lastDay(of: month, in: year)
-        
+        let lastDay = Day.lastDay(calendar: calendarType, of: month, in: year)
         let range = 1...lastDay
         let updatedItems: [BirthDaySelectionItem] = range.map { day in
-            var displayingText = String(format: "%02d", day)
-            
+            let displayingText = String(format: "%02d", day)
             let selectionItemViewSize: CGSize = .init(width: 42, height: 38)
-            
             return BirthDaySelectionItem(
                 content: String(day),
                 displayingText: displayingText,

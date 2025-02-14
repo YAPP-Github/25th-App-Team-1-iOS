@@ -60,6 +60,11 @@ final class ConfigureBirthDateViewController: UIViewController, BirthDatePickerL
         setupLayout()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        setBirthDate(initialDate)
+    }
+    
     private func checkSaveAbility() {
         if isChanged {
             confirmButton.isUserInteractionEnabled = true
@@ -118,7 +123,6 @@ private extension ConfigureBirthDateViewController {
         
         // birthDatePicker
         birthDatePicker.listener = self
-        setBirthDate(initialDate)
         view.addSubview(birthDatePicker)
     }
     

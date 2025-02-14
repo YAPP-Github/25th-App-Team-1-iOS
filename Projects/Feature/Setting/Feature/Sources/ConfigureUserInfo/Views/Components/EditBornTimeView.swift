@@ -28,7 +28,7 @@ final class EditBornTimeView: UIView {
     // Sub views
     private let bornTimeField = DSTextFieldWithTitleWithMessage(config: .init(
         textFieldConfig: .init(
-            placeholder: "00:00",
+            placeholder: "시간 모름",
             alignment: .left,
             keyboardType: .default
         ),
@@ -59,6 +59,17 @@ extension EditBornTimeView {
     @discardableResult
     func update(isTimeUnknown: Bool) -> Self {
         checkBox.update(state: isTimeUnknown ? .seleceted : .idle)
+        if isTimeUnknown {
+            unknownTimeLabel.displayText = unknownTimeLabel.displayText?.string.displayText(
+                font: .body1Medium,
+                color: R.Color.main100
+            )
+        } else {
+            unknownTimeLabel.displayText = unknownTimeLabel.displayText?.string.displayText(
+                font: .body1Medium,
+                color: R.Color.white100
+            )
+        }
         return self
     }
     

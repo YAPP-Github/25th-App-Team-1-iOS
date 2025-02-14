@@ -215,7 +215,12 @@ final class BirthDatePicker: UIView {
                 }
                 
                 guard let dayInt = Int(dayValue),
-                      let day = Day(dayInt, month: month, year: year)
+                      let day = Day(
+                        dayInt,
+                        calendar: calendarType,
+                        month: month,
+                        year: year
+                      )
                 else { fatalError() }
                 
                 listener?.latestDate(calendar: calendarType, year: year, month: month, day: day)
@@ -238,7 +243,11 @@ extension BirthDatePicker {
         
         guard let yearValue = dateComponents.year, let monthValue = dateComponents.month, let dayValue = dateComponents.day else { return }
         let year = Year(yearValue)
-        guard let month = Month(rawValue: monthValue), let day = Day(dayValue, month: month, year: year) else { return }
+        guard let month = Month(rawValue: monthValue), let day = Day(
+            dayValue,
+            calendar: .gregorian,
+            month: month,
+            year: year) else { return }
         
         let calendarType: CalendarType = .gregorian
         
@@ -270,7 +279,7 @@ extension BirthDatePicker {
         
         let calendar = Calendar(identifier: calendarType.calendarIdentifier)
         
-        let lastDay = Day.lastDay(of: month, in: year)
+        let lastDay = Day.lastDay(calendar: calendarType, of: month, in: year)
         
         let range = 1...lastDay
         let updatedItems: [BirthDaySelectionItem] = range.map { day in

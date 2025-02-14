@@ -82,8 +82,15 @@ extension SettingMainInteractor {
     func request(_ request: SettingMainPresenterRequest) {
         switch request {
         case .viewDidLoad:
+            // Sections
             presenter.update(.setSettingSection(sections))
             loadUserInfo()
+            
+            // Version
+            if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                let versionText = "v.\(appVersion)"
+                presenter.update(.setVersion(versionText: versionText))
+            }
         case .viewWillAppear:
             loadUserInfo()
         case .exectureSectionItemTask(let sectionId, let id):
@@ -111,9 +118,15 @@ extension SettingMainInteractor {
                     guard let self else { return }
                     
                     let birthdateList = userInfo.birthDate.split(separator: "-")
+                    let calendarType: CalendarType = userInfo.calendarType == .lunar ? .lunar : .gregorian
                     let year = Year(Int(birthdateList[0])!)
                     let month = Month(rawValue: Int(birthdateList[1])!)!
-                    let day = Day(Int(birthdateList[2])!, month: month, year: year)!
+                    let day = Day(
+                        Int(birthdateList[2])!,
+                        calendar: calendarType,
+                        month: month,
+                        year: year
+                    )!
                     
                     var bornTimeData: BornTimeData?
                     if let bornTime = userInfo.birthTime {
@@ -139,7 +152,7 @@ extension SettingMainInteractor {
                         id: userId,
                         name: userInfo.name,
                         birthDate: .init(
-                            calendarType: userInfo.calendarType == .lunar ? .lunar : .gregorian,
+                            calendarType: calendarType,
                             year: year,
                             month: month,
                             day: day

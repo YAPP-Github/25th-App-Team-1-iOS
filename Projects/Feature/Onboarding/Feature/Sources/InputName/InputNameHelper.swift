@@ -84,7 +84,9 @@ struct InputNameHelper {
     
     // 한글 문자 여부 확인
     private func isKorean(_ character: Character) -> Bool {
-        return ("가"..."힣").contains(character)
+        return ("가"..."힣").contains(character) ||
+        ("ㄱ"..."ㅎ").contains(character) ||
+        ("ㅏ"..."ㅣ").contains(character)
     }
     
     // 영어 문자 여부 확인

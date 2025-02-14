@@ -93,7 +93,7 @@ private extension OpinionView {
         [
             contentStack,
             SpacerView(height: 20).update(color: .clear),
-            SpacerView(height: 16).update(color: R.Color.gray800),
+            SpacerView(height: 8).update(color: R.Color.gray800),
             SpacerView(height: 8).update(color: .clear),
         ].forEach {
             mainContainerStack.addArrangedSubview($0)
