@@ -66,6 +66,11 @@ private extension SpeechBubbleView {
             make.verticalEdges.equalToSuperview().inset(6)
             make.horizontalEdges.equalToSuperview().inset(20)
         }
+        
+        arrowView.snp.makeConstraints {
+            $0.width.equalTo(12)
+            $0.height.equalTo(8)
+        }
     }
 }
 

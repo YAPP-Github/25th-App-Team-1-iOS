@@ -36,13 +36,24 @@ final class FortuneHealthLoveView: TouchDetectingView {
     
     weak var listener: FortuneHealthLoveViewListener?
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        contentScrollView.snp.remakeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.height.lessThanOrEqualTo(paperContainer.frame.height - 40)
+            $0.horizontalEdges.equalToSuperview().inset(28)
+        }
+    }
+    
     func update(_ state: State) {
         switch state {
         case let .fortune(fortune):
-            healthContentView.update(title: "건강운 \(fortune.healthFortune.score)점")
+            healthContentView.update(subject: "건강운 \(fortune.healthFortune.score)점")
+            healthContentView.update(title: fortune.healthFortune.title)
             healthContentView.update(content: fortune.healthFortune.description)
             
-            loveContentView.update(title: "애정운 \(fortune.loveFortune.score)점")
+            loveContentView.update(subject: "애정운 \(fortune.loveFortune.score)점")
+            loveContentView.update(title: fortune.loveFortune.title)
             loveContentView.update(content: fortune.loveFortune.description)
         }
     }
@@ -56,15 +67,17 @@ final class FortuneHealthLoveView: TouchDetectingView {
     private let decoImageView = UIImageView()
     private let bubbleView = SpeechBubbleView()
     private let titleLabel = UILabel()
-    private let paperContainer = UIImageView()
+    private let paperContainer = UIView()
+    private let paperImageView = UIImageView()
+    private let contentScrollView = ScrollStackView()
     private let contentStackView = UIStackView()
     private let healthContentView = TodayFortuneContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneStudy.image,
-        titleColor: R.Color.letterGreen
+        subjectColor: R.Color.letterGreen
     )
     private let loveContentView = TodayFortuneContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneMoney.image,
-        titleColor: R.Color.letterPink
+        subjectColor: R.Color.letterPink
     )
 }
 
@@ -90,11 +103,16 @@ private extension FortuneHealthLoveView {
             """.displayText(font: .ownglyphPHD_H2, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         
-        paperContainer.do {
+        paperImageView.do {
             $0.image = FeatureResourcesAsset.imgPaperContainerWithoutStar.image
-            $0.contentMode = .scaleAspectFill
+            $0.contentMode = .scaleToFill
+        }
+        
+        contentScrollView.do {
+            $0.showsVerticalScrollIndicator = false
         }
         
         contentStackView.do {
@@ -106,11 +124,14 @@ private extension FortuneHealthLoveView {
         [backgroundImageView, pageIndicatorView, decoImageView, bubbleView, titleLabel, paperContainer].forEach {
             addSubview($0)
         }
-        paperContainer.addSubview(contentStackView)
+        [paperImageView, contentScrollView].forEach {
+            paperContainer.addSubview($0)
+        }
+        contentScrollView.addArrangedSubview(contentStackView)
         [healthContentView, loveContentView].forEach {
             contentStackView.addArrangedSubview($0)
         }
-        
+        paperContainer.setContentHuggingPriority(.required, for: .vertical)
     }
     func layout() {
         backgroundImageView.snp.makeConstraints {
@@ -127,9 +148,10 @@ private extension FortuneHealthLoveView {
         }
         
         bubbleView.snp.makeConstraints {
-            $0.top.equalTo(pageIndicatorView.snp.bottom).offset(24)
+            $0.top.greaterThanOrEqualTo(pageIndicatorView.snp.bottom).offset(24)
             $0.centerX.equalToSuperview()
         }
+        
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(bubbleView.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
@@ -137,11 +159,12 @@ private extension FortuneHealthLoveView {
         
         paperContainer.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview().inset(32.5)
-        }
-        contentStackView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(32)
-            $0.centerY.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-32)
+        }
+        
+        paperImageView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
 }
