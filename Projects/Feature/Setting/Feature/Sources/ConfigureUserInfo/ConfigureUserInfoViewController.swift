@@ -83,6 +83,7 @@ extension ConfigureUserInfoViewController {
                 mainView.update(.bornTime(text: bornTimeText))
                 mainView.update(.unknownTime(isChecked: false))
             } else {
+                mainView.update(.bornTime(text: ""))
                 mainView.update(.unknownTime(isChecked: true))
             }
         case .showNameFieldErrorMessage:

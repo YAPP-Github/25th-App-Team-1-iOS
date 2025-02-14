@@ -127,7 +127,7 @@ private extension EditBornTimeView {
         
         // unknownTimeStack
         unknownTimeStack.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
+            make.top.equalToSuperview().inset(14)
             make.right.equalToSuperview()
         }
     }
