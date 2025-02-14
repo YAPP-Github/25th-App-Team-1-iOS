@@ -39,7 +39,8 @@ final class FortuneLetterView: TouchDetectingView {
         switch state {
         case let .fortune(fortune):
             bubbleView.update(titleText: "오늘 운세점수 \(fortune.avgFortuneScore)점")
-            letterContentLabel.displayText = fortune.dailyFortune.displayText(font: .ownglyphPHD_H3, color: R.Color.gray600)
+            letterTitleLabel.displayText = fortune.dailyFortuneTitle.displayText(font: .ownglyphPHD_H2, color: R.Color.gray600, alignment: .center)
+            letterContentLabel.displayText = fortune.dailyFortuneDescription.displayText(font: .ownglyphPHD_H4, color: R.Color.gray600, alignment: .center)
         }
     }
     
@@ -47,11 +48,15 @@ final class FortuneLetterView: TouchDetectingView {
         listener?.action(.next)
     }
     
-    private let backgroundImageView = UIImageView()
+    private let cloudStarImageView = UIImageView()
+    private let hillImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 1, totalCount: 6)
     private let bubbleView = SpeechBubbleView()
     private let characterImageView = UIImageView()
     private let paperContainer = UIImageView()
+    private let starImageView = UIImageView()
+    private let letterStackView = UIStackView()
+    private let letterTitleLabel = UILabel()
     private let letterContentLabel = UILabel()
     private let fromLabel = UILabel()
 }
@@ -59,36 +64,57 @@ final class FortuneLetterView: TouchDetectingView {
 private extension FortuneLetterView {
     func setupUI() {
         backgroundColor = .init(red: 72/255, green: 145/255, blue: 240/255, alpha: 1)
-        backgroundImageView.do {
-            $0.image = FeatureResourcesAsset.backgroundLetter.image
+        cloudStarImageView.do {
+            $0.image = FeatureResourcesAsset.imgFortuneCloudStar.image
             $0.contentMode = .scaleAspectFill
         }
         characterImageView.do {
             $0.image = FeatureResourcesAsset.fortuneCharacterHigh.image
             $0.contentMode = .scaleAspectFit
         }
-        paperContainer.do {
-            $0.image = FeatureResourcesAsset.imgPaperContainer.image
+        
+        hillImageView.do {
+            $0.image = FeatureResourcesAsset.imgFortuneHillLarge.image
             $0.contentMode = .scaleAspectFill
         }
+        
+        paperContainer.do {
+            $0.image = FeatureResourcesAsset.imgPaperContainerWithoutStar.image
+            $0.contentMode = .scaleToFill
+        }
+        
+        starImageView.do {
+            $0.image = FeatureResourcesAsset.imgFortuneStar.image
+            $0.contentMode = .scaleAspectFit
+        }
+        letterStackView.do {
+            $0.axis = .vertical
+            $0.alignment = .fill
+            $0.distribution = .fill
+            $0.spacing = 12
+        }
+        letterTitleLabel.do {
+            $0.numberOfLines = 0
+        }
+        
         letterContentLabel.do {
             $0.numberOfLines = 0
-            $0.textAlignment = .center
         }
         fromLabel.do {
-            $0.displayText = "From. 오르비".displayText(font: .ownglyphPHD_H4, color: R.Color.gray600)
+            $0.displayText = "From. 오르비".displayText(font: .ownglyphPHD_H4, color: R.Color.gray600, alignment: .center)
         }
-        [backgroundImageView, pageIndicatorView, bubbleView, characterImageView, paperContainer].forEach {
+        [letterTitleLabel, letterContentLabel, fromLabel].forEach {
+            letterStackView.addArrangedSubview($0)
+        }
+        [cloudStarImageView, hillImageView, pageIndicatorView, bubbleView, characterImageView, paperContainer, starImageView].forEach {
             addSubview($0)
         }
-        [letterContentLabel, fromLabel].forEach {
-            paperContainer.addSubview($0)
-        }
+        paperContainer.addSubview(letterStackView)
         
     }
     func layout() {
-        backgroundImageView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalToSuperview()
+        cloudStarImageView.snp.makeConstraints {
+            $0.top.equalTo(8)
         }
         pageIndicatorView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -102,18 +128,26 @@ private extension FortuneLetterView {
             $0.top.equalTo(bubbleView.snp.bottom)
             $0.centerX.equalToSuperview()
         }
+        hillImageView.snp.makeConstraints {
+            $0.top.equalTo(characterImageView.snp.bottom).offset(-50)
+            $0.leading.trailing.equalToSuperview()
+        }
         paperContainer.snp.makeConstraints {
             $0.top.equalTo(characterImageView.snp.bottom).offset(13)
-            $0.horizontalEdges.equalToSuperview().inset(32.5)
+            $0.horizontalEdges.equalToSuperview().inset(25.5)
+            $0.bottom.equalToSuperview().offset(-32)
         }
-        letterContentLabel.snp.makeConstraints {
-            $0.top.equalTo(60)
-            $0.horizontalEdges.equalToSuperview().inset(30)
+        
+        starImageView.snp.makeConstraints {
+            $0.top.equalTo(paperContainer).offset(-21)
+            $0.leading.equalTo(paperContainer).offset(21)
         }
-        fromLabel.snp.makeConstraints {
-            $0.top.equalTo(letterContentLabel.snp.bottom).offset(12)
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(-60)
+        
+        letterStackView.snp.makeConstraints {
+            $0.top.greaterThanOrEqualToSuperview().inset(20)
+            $0.bottom.lessThanOrEqualToSuperview().offset(-20)
+            $0.centerY.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(28)
         }
     }
 }

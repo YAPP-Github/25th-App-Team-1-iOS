@@ -10,7 +10,8 @@ import FeatureResources
 
 public struct Fortune: Codable {
     public let id: Int
-    public let dailyFortune: String
+    public let dailyFortuneTitle: String
+    public let dailyFortuneDescription: String
     public let avgFortuneScore: Int
     public let studyCareerFortune: FortuneDetail
     public let wealthFortune: FortuneDetail
