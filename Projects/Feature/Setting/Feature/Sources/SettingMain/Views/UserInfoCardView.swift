@@ -56,7 +56,7 @@ extension UserInfoCardView {
         
         // 성별
         genderLabel.displayText = ro.genderText.displayText(
-            font: .heading1SemiBold,
+            font: .headline1SemiBold,
             color: R.Color.white100
         )
         
