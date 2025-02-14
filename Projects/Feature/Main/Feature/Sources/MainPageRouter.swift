@@ -68,10 +68,10 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToAlarmRelease(alarm: alarm)
         case let .detachAlarmRelease(completion):
             detachAlarmRelease(completion: completion)
-        case .presentAlertType1(let config, let listener):
+        case .presentAlertType1(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
-                listener: listener,
+                listener: nil,
                 config: config
             )
         case .presentAlertType2(let config, let listener):

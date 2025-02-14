@@ -8,12 +8,12 @@
 import UIKit
 
 public protocol DSButtonAlertPresentable: DSAlertDismissable {
-    func presentAlert(presentingController viewController: UIViewController, listener: DSButtonAlertViewControllerListener, config: DSButtonAlert.Config)
+    func presentAlert(presentingController viewController: UIViewController, listener: DSButtonAlertViewControllerListener?, config: DSButtonAlert.Config)
 }
 
 public extension DSButtonAlertPresentable {
     
-    func presentAlert(presentingController viewController: UIViewController, listener: DSButtonAlertViewControllerListener, config: DSButtonAlert.Config) {
+    func presentAlert(presentingController viewController: UIViewController, listener: DSButtonAlertViewControllerListener?, config: DSButtonAlert.Config) {
         
         let alertController = DSButtonAlertViewController(config: config)
         alertController.listener = listener

@@ -29,7 +29,7 @@ public enum MainPageRouterRequest {
     case detachFortune
     case routeToAlarmRelease(Alarm)
     case detachAlarmRelease((() -> Void)?)
-    case presentAlertType1(DSButtonAlert.Config, DSButtonAlertViewControllerListener)
+    case presentAlertType1(DSButtonAlert.Config)
     case presentAlertType2(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
     case dismissAlert(completion: (()->Void)?=nil)
     case presentSettingPage
@@ -108,7 +108,7 @@ extension MainPageInteractor {
                         guard let self else { return }
                         router?.request(.dismissAlert())
                     })
-                router?.request(.presentAlertType1(config, self))
+                router?.request(.presentAlertType1(config))
                 return
             }
             
@@ -301,16 +301,6 @@ extension MainPageInteractor {
                 isChecked: isChecked,
                 mode: self.alarmListMode
             )
-        }
-    }
-}
-
-// MARK: - DSButtonAlertViewControllerListener
-extension MainPageInteractor: DSButtonAlertViewControllerListener {
-    func action(_ action: DSButtonAlertViewController.Action) {
-        switch action {
-        case .buttonClicked:
-            router?.request(.dismissAlert())
         }
     }
 }

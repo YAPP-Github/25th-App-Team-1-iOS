@@ -13,7 +13,8 @@ public protocol DSAlertDismissable {
 
 public extension DSAlertDismissable {
     func dismissAlert(presentingController viewController: UIViewController, completion: (()->Void)?=nil) {
-        if viewController.presentedViewController is DSTwoButtonAlertViewController {
+        if viewController.presentedViewController is DSTwoButtonAlertViewController ||
+            viewController.presentedViewController is DSButtonAlertViewController {
             viewController.dismiss(animated: true, completion: completion)
         }
     }
