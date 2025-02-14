@@ -53,7 +53,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     private let step3View = FortuneHealthLoveView()
     private let step4View = FortuneCoordinationView()
     private let step5View = FortuneReferenceView()
-    private let step6View = CompleteWithFortuneView()
+    private let step6View = CompleteWithoutFortuneView()
     private let step7View = CharmView()
     
     @objc
@@ -123,16 +123,16 @@ extension FortuneViewController: FortuneReferenceViewListener {
     }
 }
 
-//extension FortuneViewController: CompleteWithoutFortuneViewListener {
-//    func action(_ action: CompleteWithoutFortuneView.Action) {
-//        switch action {
-//        case .prev:
-//            view = step5View
-//        case .next:
-//            view = step7View
-//        }
-//    }
-//}
+extension FortuneViewController: CompleteWithoutFortuneViewListener {
+    func action(_ action: CompleteWithoutFortuneView.Action) {
+        switch action {
+        case .prev:
+            view = step5View
+        case .done:
+            listener?.request(.close)
+        }
+    }
+}
 
 extension FortuneViewController: CompleteWithFortuneViewListener {
     func action(_ action: CompleteWithFortuneView.Action) {

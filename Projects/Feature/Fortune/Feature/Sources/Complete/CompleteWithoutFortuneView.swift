@@ -16,7 +16,7 @@ protocol CompleteWithoutFortuneViewListener: AnyObject {
 final class CompleteWithoutFortuneView: UIView {
     enum Action {
         case prev
-        case next
+        case done
     }
     
     init() {
@@ -34,6 +34,7 @@ final class CompleteWithoutFortuneView: UIView {
     private let decoImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
     private let titleLabel = UILabel()
+    private let hillImageView = UIImageView()
     private let characterImageView = UIImageView()
     private let descriptionLabel = UILabel()
     private let doneButton = DSDefaultCTAButton()
@@ -55,6 +56,11 @@ private extension CompleteWithoutFortuneView {
             $0.textAlignment = .center
         }
         
+        hillImageView.do {
+            $0.image = FeatureResourcesAsset.imgFortuneHillSmall.image
+            $0.contentMode = .scaleAspectFill
+        }
+        
         characterImageView.do {
             $0.image = FeatureResourcesAsset.imgCharacterNoFortune.image
             $0.contentMode = .scaleAspectFit
@@ -67,11 +73,11 @@ private extension CompleteWithoutFortuneView {
         doneButton.do {
             $0.update(title: "완료")
             $0.buttonAction = { [weak self] in
-                self?.listener?.action(.next)
+                self?.listener?.action(.done)
             }
         }
         
-        [decoImageView, pageIndicatorView, titleLabel, characterImageView, descriptionLabel, doneButton].forEach {
+        [decoImageView, pageIndicatorView, titleLabel, hillImageView, characterImageView, descriptionLabel, doneButton].forEach {
             addSubview($0)
         }
         
@@ -92,6 +98,11 @@ private extension CompleteWithoutFortuneView {
         characterImageView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(95)
             $0.centerX.equalToSuperview()
+        }
+        
+        hillImageView.snp.makeConstraints {
+            $0.top.equalTo(characterImageView).offset(136)
+            $0.horizontalEdges.equalToSuperview()
         }
         doneButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)
