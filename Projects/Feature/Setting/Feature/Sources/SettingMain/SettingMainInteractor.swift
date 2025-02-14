@@ -62,7 +62,7 @@ final class SettingMainInteractor: PresentableInteractor<SettingMainPresentable>
 extension SettingMainInteractor {
     func request(_ request: SettingMainPresenterRequest) {
         switch request {
-        case .viewDidLoad:
+        case .viewDidLoad, .viewWillAppear:
             // 로딩화면 시작
             presenter.update(.presentLoading)
             if let userId = Preference.userId {
@@ -136,10 +136,7 @@ extension SettingMainInteractor {
 
 // MARK: ConfigureUserInfoListener
 extension SettingMainInteractor {
-    func dismiss(changed userInfo: UserInfo?) {
-        if let userInfo {
-            presenter.update(.setUserInfo(userInfo))
-        }
+    func dismiss() {
         router?.request(.dismissEditUserInfoPage)
     }
 }

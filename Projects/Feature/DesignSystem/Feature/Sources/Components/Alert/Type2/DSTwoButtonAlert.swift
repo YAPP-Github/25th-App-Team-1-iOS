@@ -78,17 +78,41 @@ private extension DSTwoButtonAlert {
         self.layer.cornerRadius = 20
         
         
+        // leftButton
+        leftButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            config.leftButtonTapped?()
+        }
+        
+        
+        // rightButton
+        rightButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            config.rightButtonTapped?()
+        }
+        
+        
+        // titleLabel
+        titleLabel.numberOfLines = 0
+        titleLabel.displayText = config.titleText.displayText(
+            font: .heading1SemiBold,
+            color: R.Color.gray50,
+            alignment: .center
+        )
+        
+        
+        // subTitleLabel
+        subTitleLabel.numberOfLines = 0
+        subTitleLabel.displayText = config.subTitleText.displayText(
+            font: .body1Regular,
+            color: R.Color.gray300,
+            alignment: .center
+        )
+        
+        
         // labels
         [titleLabel, subTitleLabel].forEach({labelStack.addArrangedSubview($0)})
         addSubview(labelStack)
-        titleLabel.displayText = config.titleText.displayText(
-            font: .heading1SemiBold,
-            color: R.Color.gray50
-        )
-        subTitleLabel.displayText = config.subTitleText.displayText(
-            font: .body1Regular,
-            color: R.Color.gray300
-        )
         
         
         // buttons
@@ -120,12 +144,16 @@ public extension DSTwoButtonAlert {
         let subTitleText: String
         let leftButtonText: String
         let rightButtonText: String
+        var leftButtonTapped: (() -> Void)?
+        var rightButtonTapped: (() -> Void)?
         
-        public init(titleText: String, subTitleText: String, leftButtonText: String, rightButtonText: String) {
+        public init(titleText: String, subTitleText: String, leftButtonText: String, rightButtonText: String, leftButtonTapped: (() -> Void)? = nil, rightButtonTapped: (() -> Void)? = nil) {
             self.titleText = titleText
             self.subTitleText = subTitleText
             self.leftButtonText = leftButtonText
             self.rightButtonText = rightButtonText
+            self.leftButtonTapped = leftButtonTapped
+            self.rightButtonTapped = rightButtonTapped
         }
     }
 }

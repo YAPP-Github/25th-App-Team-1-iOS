@@ -46,11 +46,17 @@ public final class DSTwoButtonAlertViewController: UIViewController, UIViewContr
         view.backgroundColor = UIColor(hex: "#17191F").withAlphaComponent(0.9)
         
         // alertView
+        let leftButtonActionClosure = alertView.leftButton.buttonAction
         alertView.leftButton.buttonAction = { [weak self] in
-            self?.listener?.action(.leftButtonClicked)
+            guard let self else { return }
+            leftButtonActionClosure?()
+            listener?.action(.leftButtonClicked)
         }
+        let rightButtonActionClosure = alertView.rightButton.buttonAction
         alertView.rightButton.buttonAction = { [weak self] in
-            self?.listener?.action(.rightButtonClicked)
+            guard let self else { return }
+            rightButtonActionClosure?()
+            listener?.action(.rightButtonClicked)
         }
         view.addSubview(alertView)
     }

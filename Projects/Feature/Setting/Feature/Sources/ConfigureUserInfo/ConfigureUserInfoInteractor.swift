@@ -5,13 +5,22 @@
 //  Created by choijunios on 2/13/25.
 //
 
+import Foundation
 import FeatureCommonDependencies
+import FeatureUIDependencies
 
 import RIBs
 import RxSwift
 
+enum ConfigureUserInfoRoutingRequest {
+    case presentAlert(config: DSTwoButtonAlert.Config)
+    case dismissAlert
+    case presentEditBirthDatePage
+    case dismissEditBirthDatePage
+}
+
 protocol ConfigureUserInfoRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func request(_ request: ConfigureUserInfoRoutingRequest)
 }
 
 protocol ConfigureUserInfoPresentable: Presentable {
@@ -20,7 +29,7 @@ protocol ConfigureUserInfoPresentable: Presentable {
 }
 
 public protocol ConfigureUserInfoListener: AnyObject {
-    func dismiss(changed: UserInfo?)
+    func dismiss()
 }
 
 final class ConfigureUserInfoInteractor: PresentableInteractor<ConfigureUserInfoPresentable>, ConfigureUserInfoInteractable, ConfigureUserInfoPresentableListener {
@@ -31,9 +40,15 @@ final class ConfigureUserInfoInteractor: PresentableInteractor<ConfigureUserInfo
     
     // State
     private let initialUserInfo: UserInfo
-    private var currentUserInfo: UserInfo
-    private var nameIsValid: Bool = true
-    private var bornTimeIsValid: Bool = true
+    private var currentUserInfo: UserInfo {
+        didSet { checkSaveEnablity() }
+    }
+    private var nameIsValid: Bool = true {
+        didSet { checkSaveEnablity() }
+    }
+    private var bornTimeIsValid: Bool = true {
+        didSet { checkSaveEnablity() }
+    }
     
     
     // Helper
@@ -66,52 +81,73 @@ extension ConfigureUserInfoInteractor {
         case .viewDidLoad:
             presenter.update(.setUserInfo(userInfo: initialUserInfo))
         case .save:
-            break
+            presenter.update(.presentLoading)
+            DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
+                guard let self else { return }
+                presenter.update(.dismissLoading)
+                listener?.dismiss()
+            }
         case .back:
             let isChanged = initialUserInfo != currentUserInfo
-            listener?.dismiss(changed: isChanged ? currentUserInfo : nil)
+            if isChanged {
+                // 변경사항이 있는 경우 Alert표출
+                let config = DSTwoButtonAlert.Config(
+                    titleText: "변경 사항 삭제",
+                    subTitleText: "변경 사항을 저장하지 않고\n나가시겠어요?",
+                    leftButtonText: "취소",
+                    rightButtonText: "나가기",
+                    leftButtonTapped: { [weak self] in
+                        guard let self else { return }
+                        router?.request(.dismissAlert)
+                    },
+                    rightButtonTapped: { [weak self] in
+                        guard let self else { return }
+                        router?.request(.dismissAlert)
+                        listener?.dismiss()
+                    }
+                )
+                router?.request(.presentAlert(config: config))
+            } else {
+                listener?.dismiss()
+            }
         case .editName(let text):
+            self.nameIsValid = false
             guard validateNameLength(text) else {
-                self.nameIsValid = false
                 presenter.update(.showNameFieldErrorMessage)
                 return
             }
             guard validateName(text) else {
-                self.nameIsValid = false
                 presenter.update(.showNameFieldErrorMessage)
                 return
             }
             self.nameIsValid = true
             self.currentUserInfo.name = text
+            presenter.update(.dismissNameFieldErrorMessage)
             presenter.update(.setUserInfo(userInfo: currentUserInfo))
-            checkSaveEnablity()
         case .editBirthDate:
-            checkSaveEnablity()
+            router?.request(.presentEditBirthDatePage)
         case .editBornTime(let text):
+            self.bornTimeIsValid = false
             guard checkTimeLength(text) else {
-                self.bornTimeIsValid = false
                 presenter.update(.showBornTimeFieldErrorMessage)
                 return
             }
             guard let (meridiem, hour) = validateHour(text),
                   let minute = validateMinute(text) else {
-                self.bornTimeIsValid = false
                 presenter.update(.showBornTimeFieldErrorMessage)
                 return
             }
             self.bornTimeIsValid = true
             self.currentUserInfo.birthTime = .init(meridiem: meridiem, hour: hour, minute: minute)
+            presenter.update(.dismissBornTimeFieldErrorMessage)
             presenter.update(.setUserInfo(userInfo: currentUserInfo))
-            checkSaveEnablity()
         case .editGender(let gender):
             self.currentUserInfo.gender = gender
             presenter.update(.setUserInfo(userInfo: currentUserInfo))
-            checkSaveEnablity()
         case .changeBornTimeUnknownState:
             self.bornTimeIsValid = true
             self.currentUserInfo.birthTime = nil
             presenter.update(.setUserInfo(userInfo: currentUserInfo))
-            checkSaveEnablity()
         }
     }
     

@@ -15,6 +15,7 @@ import UIKit
 
 enum SettingMainPresenterRequest {
     case viewDidLoad
+    case viewWillAppear
     case presentPage(id: String)
     case presentConfigureUserInfo
     case presentOpinionPage
@@ -50,6 +51,11 @@ final class SettingMainViewController: UIViewController, SettingMainPresentable,
     override func viewDidLoad() {
         super.viewDidLoad()
         listener?.request(.viewDidLoad)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        listener?.request(.viewWillAppear)
     }
 }
 

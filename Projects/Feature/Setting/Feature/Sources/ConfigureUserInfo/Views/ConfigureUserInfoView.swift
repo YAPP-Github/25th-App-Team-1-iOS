@@ -114,7 +114,7 @@ extension ConfigureUserInfoView {
             } else {
                 saveButton.update(config: .init(
                     font: .body1Medium,
-                    textColor: R.Color.main100
+                    textColor: R.Color.gray500
                 ))
                 saveButton.isUserInteractionEnabled = false
             }
@@ -175,6 +175,15 @@ private extension ConfigureUserInfoView {
             .insertLeftView(backButton)
             .insertRightView(saveButton)
         addSubview(navigationBar)
+        
+        
+        // MARK: SetupUI: 이름
+        nameField.editingChanged = { [weak self] textField in
+            guard let self else { return }
+            if let text = textField.text {
+                listener?.action(.nameTextChanged(text: text))
+            }
+        }
         
         
         // MARK: SetupUI: 생년월일

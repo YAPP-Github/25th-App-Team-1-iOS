@@ -69,6 +69,10 @@ public extension DSLabelButton {
     
     func update(config: Config) {
         self.config = config
+        self.titleLabel.displayText = titleLabel.displayText?.string.displayText(
+            font: config.font,
+            color: config.textColor
+        )
     }
 }
 

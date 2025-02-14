@@ -6,6 +6,7 @@
 //
 
 import FeatureCommonEntity
+import FeatureUIDependencies
 
 import RIBs
 import RxSwift
@@ -29,6 +30,8 @@ enum ConfigureUserInfoPresenterUpdate {
     case showNameFieldErrorMessage
     case dismissBornTimeFieldErrorMessage
     case dismissNameFieldErrorMessage
+    case presentLoading
+    case dismissLoading
 }
 
 protocol ConfigureUserInfoPresentableListener: AnyObject {
@@ -38,6 +41,7 @@ protocol ConfigureUserInfoPresentableListener: AnyObject {
 final class ConfigureUserInfoViewController: UIViewController, ConfigureUserInfoPresentable, ConfigureUserInfoViewControllable, ConfigureUserInfoViewListener {
     
     private var mainView: ConfigureUserInfoView!
+    private var loadingView: DSDefaultLoadingView?
 
     weak var listener: ConfigureUserInfoPresentableListener?
     
@@ -60,7 +64,7 @@ extension ConfigureUserInfoViewController {
     func update(_ update: ConfigureUserInfoPresenterUpdate) {
         switch update {
         case .setSaveButtonState(let isEanbled):
-            break
+            mainView.update(.saveButton(isEnabled: isEanbled))
         case .setUserInfo(let userInfo):
             // name
             mainView.update(.name(text: userInfo.name))
@@ -89,6 +93,25 @@ extension ConfigureUserInfoViewController {
             mainView.update(.bornTimeFieldMsg(messageState: .error("입력한 숫자를 확인해 주세요", .left)))
         case .dismissBornTimeFieldErrorMessage:
             mainView.update(.bornTimeFieldMsg(messageState: .none))
+        case .presentLoading:
+            if loadingView != nil { return }
+            let loadingView = DSDefaultLoadingView()
+            view.addSubview(loadingView)
+            loadingView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            loadingView.layer.zPosition = 1000
+            loadingView.play()
+            self.loadingView = loadingView
+        case .dismissLoading:
+            guard let loadingView else { return }
+            UIView.animate(withDuration: 0.35) {
+                loadingView.alpha = 0
+            } completion: { _ in
+                loadingView.stop()
+                loadingView.removeFromSuperview()
+                self.loadingView = nil
+            }
         }
     }
 }

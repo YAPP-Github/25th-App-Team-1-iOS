@@ -26,7 +26,7 @@ public final class DSDefaultLoadingView: UIView {
     
     private func setupUI() {
         // self
-        self.backgroundColor = R.Color.gray900
+        self.backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
         
         
         // indicatorView
