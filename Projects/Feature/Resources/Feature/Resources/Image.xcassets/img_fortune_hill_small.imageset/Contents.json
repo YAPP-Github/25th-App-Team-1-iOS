@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "img_background_complete.png",
+      "filename" : "img_fortune_hill_small.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "img_background_complete@2x.png",
+      "filename" : "img_fortune_hill_small@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "img_background_complete@3x.png",
+      "filename" : "img_fortune_hill_small@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

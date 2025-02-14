@@ -20,7 +20,7 @@ final class CharmView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private let backgroundImageView = UIImageView()
+    private let decoImageView = UIImageView()
     private let titleLabel = UILabel()
     private let charmImageView = UIImageView()
     private let doneButton = DSDefaultCTAButton()
@@ -30,8 +30,8 @@ final class CharmView: UIView {
 private extension CharmView {
     func setupUI() {
         backgroundColor = .init(red: 72/255, green: 145/255, blue: 240/255, alpha: 1)
-        backgroundImageView.do {
-            $0.image = FeatureResourcesAsset.imgBackgroundComplete.image
+        decoImageView.do {
+            $0.image = FeatureResourcesAsset.imgDecoFortune.image
             $0.contentMode = .scaleAspectFill
         }
         titleLabel.do {
@@ -62,14 +62,15 @@ private extension CharmView {
             $0.tintColor = .white
         }
         
-        [backgroundImageView, titleLabel, charmImageView, doneButton, shareButton].forEach {
+        [decoImageView, titleLabel, charmImageView, doneButton, shareButton].forEach {
             addSubview($0)
         }
         
     }
     func layout() {
-        backgroundImageView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalToSuperview()
+        decoImageView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
         }
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)

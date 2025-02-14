@@ -31,7 +31,7 @@ final class CompleteWithoutFortuneView: UIView {
     
     weak var listener: CompleteWithoutFortuneViewListener?
     
-    private let backgroundImageView = UIImageView()
+    private let decoImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
     private let titleLabel = UILabel()
     private let characterImageView = UIImageView()
@@ -42,8 +42,8 @@ final class CompleteWithoutFortuneView: UIView {
 private extension CompleteWithoutFortuneView {
     func setupUI() {
         backgroundColor = .init(red: 72/255, green: 145/255, blue: 240/255, alpha: 1)
-        backgroundImageView.do {
-            $0.image = FeatureResourcesAsset.imgBackgroundComplete.image
+        decoImageView.do {
+            $0.image = FeatureResourcesAsset.imgDecoFortune.image
             $0.contentMode = .scaleAspectFill
         }
         titleLabel.do {
@@ -71,14 +71,15 @@ private extension CompleteWithoutFortuneView {
             }
         }
         
-        [backgroundImageView, pageIndicatorView, titleLabel, characterImageView, descriptionLabel, doneButton].forEach {
+        [decoImageView, pageIndicatorView, titleLabel, characterImageView, descriptionLabel, doneButton].forEach {
             addSubview($0)
         }
         
     }
     func layout() {
-        backgroundImageView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalToSuperview()
+        decoImageView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
         }
         pageIndicatorView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
