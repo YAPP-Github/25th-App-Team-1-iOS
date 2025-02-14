@@ -17,7 +17,7 @@ protocol SettingMainViewListener: AnyObject {
 final class SettingMainView: UIView, SettingSectionViewListener, OpinionViewListener {
     // Action
     enum Action {
-        case settingItemIsTapped(rowId: String)
+        case settingItemIsTapped(sectionId: Int, rowId: Int)
         case opinionButtonTapped
         case userInfoCardTapped
         case backButtonTapped
@@ -65,7 +65,7 @@ extension SettingMainView {
             sections.forEach { ro in
                 let sectionView = SettingSectionView()
                     .update(sectionTitleText: ro.titleText)
-                    .update(items: ro.items)
+                    .update(sectionId: ro.id, items: ro.items)
                 sectionView.listener = self
                 contentStack.addArrangedSubview(sectionView)
             }
@@ -158,8 +158,8 @@ private extension SettingMainView {
 extension SettingMainView {
     func action(_ action: SettingSectionView.Action) {
         switch action {
-        case .rowIsTapped(let id):
-            listener?.action(.settingItemIsTapped(rowId: id))
+        case .rowIsTapped(let sectionId, let rowId):
+            listener?.action(.settingItemIsTapped(sectionId: sectionId, rowId: rowId))
         }
     }
 }
@@ -173,17 +173,4 @@ extension SettingMainView {
             listener?.action(.opinionButtonTapped)
         }
     }
-}
-
-
-#Preview {
-    let view = SettingMainView()
-    view.update(.sections(sections: [
-        SettingSectionRO(order: 0, titleText: "테스트", items: [
-            .init(id: "0", title: "개인정보 처리방침"),
-            .init(id: "1", title: "개인정보 처리방침"),
-            .init(id: "2", title: "개인정보 처리방침"),
-        ])
-    ]))
-    return view
 }

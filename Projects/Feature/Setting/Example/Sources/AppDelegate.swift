@@ -32,6 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SettingMainListener {
         
         return true
     }
+    
+    func dismiss() { }
 }
 
 class DefaultSettingMainDependency: SettingMainDependency {

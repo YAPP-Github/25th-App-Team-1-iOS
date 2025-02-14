@@ -5,7 +5,8 @@
 //  Created by choijunios on 2/13/25.
 //
 
-struct SettingSectionRO {
+struct SettingSectionRO: Identifiable {
+    var id: Int { order}
     let order: Int
     let titleText: String
     let items: [SettingSectionItemRO]

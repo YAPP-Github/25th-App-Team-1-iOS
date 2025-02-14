@@ -64,6 +64,8 @@ extension SettingMainRouter {
             detachChild(configureUserInfoRouter)
             self.configureUserInfoRouter = nil
             navigationController.popViewController(animated: true)
+        case .presentWebPage(let url):
+            UIApplication.shared.open(url)
         }
     }
 }

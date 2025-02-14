@@ -16,6 +16,7 @@ import RxSwift
 public enum SettingMainRoutingRequest {
     case presentEditUserInfoPage(userInfo: UserInfo, listener: ConfigureUserInfoListener)
     case dismissEditUserInfoPage
+    case presentWebPage(url: URL)
 }
 
 public protocol SettingMainRouting: ViewableRouting {
@@ -29,7 +30,7 @@ protocol SettingMainPresentable: Presentable {
 }
 
 public protocol SettingMainListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func dismiss()
 }
 
 final class SettingMainInteractor: PresentableInteractor<SettingMainPresentable>, SettingMainInteractable, SettingMainPresentableListener, ConfigureUserInfoListener {
@@ -39,6 +40,24 @@ final class SettingMainInteractor: PresentableInteractor<SettingMainPresentable>
 
     // State
     private var userInfo: UserInfo!
+    private lazy var sections: [SettingSectionRO] = [
+        SettingSectionRO(
+            order: 0,
+            titleText: "서비스 약관",
+            items: [
+                .init(id: 0, title: "이용약관", task: { [weak self] in
+                    guard let self else { return }
+                    let url = URL(string: "https://www.orbitalarm.net/terms.html")!
+                    router?.request(.presentWebPage(url: url))
+                }),
+                .init(id: 1, title: "개인정보 처리방침", task: { [weak self] in
+                    guard let self else { return }
+                    let url = URL(string: "https://www.orbitalarm.net/privacy.html")!
+                    router?.request(.presentWebPage(url: url))
+                }),
+            ]
+        )
+    ]
     
     
     override init(presenter: SettingMainPresentable) {
@@ -62,73 +81,82 @@ final class SettingMainInteractor: PresentableInteractor<SettingMainPresentable>
 extension SettingMainInteractor {
     func request(_ request: SettingMainPresenterRequest) {
         switch request {
-        case .viewDidLoad, .viewWillAppear:
-            // 로딩화면 시작
-            presenter.update(.presentLoading)
-            if let userId = Preference.userId {
-                APIClient.request(
-                    UserInfoResponseDTO.self,
-                    request: APIRequest.Users.getUser(userId: userId),
-                    success: { [weak self] userInfo in
-                        guard let self else { return }
-                        
-                        let birthdateList = userInfo.birthDate.split(separator: "-")
-                        let year = Year(Int(birthdateList[0])!)
-                        let month = Month(rawValue: Int(birthdateList[1])!)!
-                        let day = Day(Int(birthdateList[2])!, month: month, year: year)!
-                        
-                        var bornTimeData: BornTimeData?
-                        if let bornTime = userInfo.birthTime {
-                            let bornTimeList = bornTime.split(separator: ":")
-                            let hour = Int(bornTimeList[0])!
-                            let minute = Int(bornTimeList[1])!
-                            
-                            let meridiemEntity: Meridiem = hour >= 12 ? .pm : .am
-                            var hourEntity: Hour!
-                            if meridiemEntity == .pm {
-                                hourEntity = .init(hour-12)!
-                            } else {
-                                hourEntity = .init(hour)!
-                            }
-                            let minuteEntity: Minute = .init(minute)!
-                            bornTimeData = .init(
-                                meridiem: meridiemEntity,
-                                hour: hourEntity,
-                                minute: minuteEntity
-                            )
-                        }
-                        let userInfoEntity = UserInfo(
-                            id: userId,
-                            name: userInfo.name,
-                            birthDate: .init(
-                                calendarType: userInfo.calendarType == .lunar ? .lunar : .gregorian,
-                                year: year,
-                                month: month,
-                                day: day
-                            ),
-                            birthTime: bornTimeData,
-                            gender: userInfo.gender == .male ? .male : .female
-                        )
-                        self.userInfo = userInfoEntity
-                        presenter.update(.setUserInfo(userInfoEntity))
-                        presenter.update(.dismissLoading)
-                    }) { [weak self] error in
-                        guard let self else { return }
-                        // 유저정보 획득 실패
-                        debugPrint(error.localizedDescription)
-                    }
-            } else {
-                // 유저아이디가 없는 경우
-            }
-            break
-        case .presentPage(let id):
-            break
+        case .viewDidLoad:
+            presenter.update(.setSettingSection(sections))
+            loadUserInfo()
+        case .viewWillAppear:
+            loadUserInfo()
+        case .exectureSectionItemTask(let sectionId, let id):
+            guard let item = sections
+                .first(where: { $0.id == sectionId })?
+                .items.first(where: { $0.id == id }) else { return }
+            item.task?()
         case .presentConfigureUserInfo:
             router?.request(.presentEditUserInfoPage(userInfo: userInfo, listener: self))
         case .presentOpinionPage:
-            break
+            let url = URL(string: "http://pf.kakao.com/_YxiPsn/chat")!
+            router?.request(.presentWebPage(url: url))
         case .exitPage:
-            break
+            listener?.dismiss()
+        }
+    }
+    
+    private func loadUserInfo() {
+        presenter.update(.presentLoading)
+        if let userId = Preference.userId {
+            APIClient.request(
+                UserInfoResponseDTO.self,
+                request: APIRequest.Users.getUser(userId: userId),
+                success: { [weak self] userInfo in
+                    guard let self else { return }
+                    
+                    let birthdateList = userInfo.birthDate.split(separator: "-")
+                    let year = Year(Int(birthdateList[0])!)
+                    let month = Month(rawValue: Int(birthdateList[1])!)!
+                    let day = Day(Int(birthdateList[2])!, month: month, year: year)!
+                    
+                    var bornTimeData: BornTimeData?
+                    if let bornTime = userInfo.birthTime {
+                        let bornTimeList = bornTime.split(separator: ":")
+                        let hour = Int(bornTimeList[0])!
+                        let minute = Int(bornTimeList[1])!
+                        
+                        let meridiemEntity: Meridiem = hour >= 12 ? .pm : .am
+                        var hourEntity: Hour!
+                        if meridiemEntity == .pm {
+                            hourEntity = .init(hour-12)!
+                        } else {
+                            hourEntity = .init(hour)!
+                        }
+                        let minuteEntity: Minute = .init(minute)!
+                        bornTimeData = .init(
+                            meridiem: meridiemEntity,
+                            hour: hourEntity,
+                            minute: minuteEntity
+                        )
+                    }
+                    let userInfoEntity = UserInfo(
+                        id: userId,
+                        name: userInfo.name,
+                        birthDate: .init(
+                            calendarType: userInfo.calendarType == .lunar ? .lunar : .gregorian,
+                            year: year,
+                            month: month,
+                            day: day
+                        ),
+                        birthTime: bornTimeData,
+                        gender: userInfo.gender == .male ? .male : .female
+                    )
+                    self.userInfo = userInfoEntity
+                    presenter.update(.setUserInfo(userInfoEntity))
+                    presenter.update(.dismissLoading)
+                }) { [weak self] error in
+                    guard let self else { return }
+                    // 유저정보 획득 실패
+                    debugPrint(error.localizedDescription)
+                }
+        } else {
+            // 유저아이디가 없는 경우
         }
     }
 }

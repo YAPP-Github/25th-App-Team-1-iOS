@@ -19,7 +19,7 @@ protocol SettingSectionViewListener: AnyObject {
 final class SettingSectionView: UIStackView {
     // Action
     enum Action {
-        case rowIsTapped(id: String)
+        case rowIsTapped(sectionId: Int, id: Int)
     }
     
     
@@ -54,7 +54,7 @@ extension SettingSectionView {
     }
     
     @discardableResult
-    func update(items: [SettingSectionItemRO]) -> Self {
+    func update(sectionId: Int, items: [SettingSectionItemRO]) -> Self {
         itemStack.arrangedSubviews.forEach {
             $0.removeFromSuperview()
         }
@@ -64,7 +64,7 @@ extension SettingSectionView {
             let itemId = item.id
             itemView.tapAction = { [weak self] in
                 guard let self else { return }
-                listener?.action(.rowIsTapped(id: itemId))
+                listener?.action(.rowIsTapped(sectionId: sectionId, id: itemId))
             }
             itemStack.addArrangedSubview(itemView)
         }
@@ -108,14 +108,4 @@ private extension SettingSectionView {
             make.horizontalEdges.equalToSuperview().inset(24)
         }
     }
-}
-
-
-#Preview {
-    SettingSectionView()
-        .update(sectionTitleText: "서비스 약관")
-        .update(items: [
-            .init(id: "1", title: "이용약관"),
-            .init(id: "2", title: "개인정보 처리방침"),
-        ])
 }

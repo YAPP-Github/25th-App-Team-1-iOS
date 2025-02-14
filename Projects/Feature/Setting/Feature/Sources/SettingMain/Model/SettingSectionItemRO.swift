@@ -6,6 +6,7 @@
 //
 
 struct SettingSectionItemRO: Identifiable {
-    let id: String
+    let id: Int
     let title: String
+    let task: (() -> Void)?
 }
