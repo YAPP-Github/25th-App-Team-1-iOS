@@ -99,7 +99,11 @@ public extension DSTextFieldWithTitleWithMessage {
         public let titleState: TitleState
         public let messageState: MessageState
         
-        public init(textFieldConfig: DSTextField.Config, titleState: TitleState, messageState: MessageState) {
+        public init(
+            textFieldConfig: DSTextField.Config,
+            titleState: TitleState,
+            messageState: MessageState
+        ) {
             self.textFieldConfig = textFieldConfig
             self.titleState = titleState
             self.messageState = messageState
@@ -126,6 +130,7 @@ private extension DSTextFieldWithTitleWithMessage {
             $0.distribution = .fill
             $0.spacing = 12
         }
+        textField
         [titleLabel, textField, messageLabel].forEach {
             stackView.addArrangedSubview($0)
         }

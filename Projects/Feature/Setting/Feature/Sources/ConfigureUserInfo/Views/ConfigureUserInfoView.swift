@@ -137,6 +137,10 @@ extension ConfigureUserInfoView {
             editBornTimeView.update(text: text)
         case .bornTimeFieldMsg(let msgState):
             editBornTimeView.update(messageState: msgState)
+            if editBornTimeView.isFirstResponder {
+                self.layoutIfNeeded()
+                scrollView.contentOffset.y = (scrollView.contentSize.height-scrollView.bounds.height)
+            }
         case .unknownTime(let isChecked):
             editBornTimeView.update(isTimeUnknown: isChecked)
         }
@@ -152,6 +156,7 @@ private extension ConfigureUserInfoView {
         
         
         // backButton
+        backButton.layer.zPosition = 100
         backButton.update(image: FeatureResourcesAsset.chevronLeft.image)
         backButton.buttonAction = { [weak self] in
             guard let self else { return }
@@ -169,7 +174,7 @@ private extension ConfigureUserInfoView {
         
         
         // navigationBar
-        navigationBar.layer.zPosition = 100
+        navigationBar.backgroundColor = R.Color.gray900
         navigationBar
             .update(titleText: "프로필 수정")
             .insertLeftView(backButton)
@@ -275,6 +280,7 @@ private extension ConfigureUserInfoView {
         scrollView.addSubview(containerStack)
         
         // scrollView
+        scrollView.layer.zPosition = 50
         addSubview(scrollView)
     }
     
@@ -346,9 +352,13 @@ private extension ConfigureUserInfoView {
         
         if keyboardEndFrame.minY < focusViewFrame.maxY {
             // 키도드가 해당 뷰를 덮은 경우
-            let gap = focusViewFrame.maxY - keyboardEndFrame.minY
             UIView.animate(withDuration: animationDuration) {
-                self.scrollView.transform = .init(translationX: 0, y: -gap)
+                let scrollView = self.scrollView
+                scrollView.snp.updateConstraints { make in
+                    make.bottom.equalToSuperview().inset(keyboardEndFrame.height)
+                }
+                self.layoutIfNeeded()
+                scrollView.contentOffset.y = (scrollView.contentSize.height-scrollView.bounds.height)
             }
         }
     }
@@ -357,7 +367,10 @@ private extension ConfigureUserInfoView {
     func onKeyboardDisappear(_ notification: Notification) {
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
         UIView.animate(withDuration: duration) {
-            self.scrollView.transform = .identity
+            self.scrollView.snp.updateConstraints { make in
+                make.bottom.equalToSuperview()
+            }
+            self.layoutIfNeeded()
         }
     }
 }

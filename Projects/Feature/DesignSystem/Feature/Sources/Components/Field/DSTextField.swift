@@ -9,7 +9,7 @@ import UIKit
 import FeatureThirdPartyDependencies
 import FeatureResources
 
-public class DSTextField: UIView {
+public class DSTextField: UIView, UITextFieldDelegate {
     private var state: State = .normal
     private let config: Config
     
@@ -144,11 +144,13 @@ public extension DSTextField {
         let placeholder: String
         let alignment: NSTextAlignment
         let keyboardType: UIKeyboardType
+        let dismissWithReturn: Bool
         
-        public init(placeholder: String, alignment: NSTextAlignment, keyboardType: UIKeyboardType) {
+        public init(placeholder: String, alignment: NSTextAlignment, keyboardType: UIKeyboardType, dismissWithReturn: Bool = true) {
             self.placeholder = placeholder
             self.alignment = alignment
             self.keyboardType = keyboardType
+            self.dismissWithReturn = dismissWithReturn
         }
     }
 }
@@ -163,6 +165,7 @@ private extension DSTextField {
         
         textField.do {
             $0.attributedPlaceholder = config.placeholder.displayText(font: .body1Regular, color: R.Color.gray500)
+            $0.delegate = self
             $0.font = R.Font.body1Regular.toUIFont()
             $0.textAlignment = config.alignment
             $0.textColor = R.Color.white100
@@ -196,6 +199,16 @@ private extension DSTextField {
         }
     }
 }
+
+public extension DSTextField {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if config.dismissWithReturn {
+            textField.resignFirstResponder()
+        }
+        return true
+    }
+}
+
 
 public extension DSTextField {
     override var isFirstResponder: Bool {
