@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ShakeMissionMainListener 
         let builder = ShakeMissionMainBuilder(dependency: RootComponent())
         let router = builder.build(withListener: self)
         self.router = router
+        navigationController.isNavigationBarHidden = true
         navigationController.viewControllers = [
             router.viewControllable.uiviewController
         ]

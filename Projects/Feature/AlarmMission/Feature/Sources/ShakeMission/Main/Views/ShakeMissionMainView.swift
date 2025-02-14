@@ -158,7 +158,7 @@ private extension ShakeMissionMainView {
         // tagLabel
         tagLabelView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(self.safeAreaLayoutGuide).inset(59)
+            make.top.equalTo(self.safeAreaLayoutGuide).offset(49)
         }
         
         
@@ -174,9 +174,10 @@ private extension ShakeMissionMainView {
         amuletImage.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         amuletImage.snp.makeConstraints { make in
             make.top.equalTo(titleLabelStack.snp.bottom).offset(76)
+            make.centerX.equalToSuperview()
             make.left.greaterThanOrEqualTo(self.safeAreaInsets).inset(38)
             make.right.lessThanOrEqualTo(self.safeAreaInsets).inset(38)
-            make.bottom.lessThanOrEqualTo(startMissionButton.snp.top).inset(-41)
+            make.bottom.lessThanOrEqualTo(startMissionButton.snp.top).inset(-41).priority(.low)
         }
         
         
