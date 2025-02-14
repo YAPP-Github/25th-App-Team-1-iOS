@@ -50,7 +50,7 @@ extension UserInfoCardView {
     func update(renderObject ro: UserInfoCardRO) {
         // 이름
         nameLabel.displayText = ro.nameText.displayText(
-            font: .heading1SemiBold,
+            font: .headline1SemiBold,
             color: R.Color.white100
         )
         
