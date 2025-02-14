@@ -65,17 +65,27 @@ private extension DSButtonAlert {
         self.layer.cornerRadius = 20
         
         
-        // labels
-        [titleLabel, subTitleLabel].forEach({labelStack.addArrangedSubview($0)})
-        addSubview(labelStack)
+        // titleLabel
+        titleLabel.numberOfLines = 0
         titleLabel.displayText = config.titleText.displayText(
             font: .heading1SemiBold,
-            color: R.Color.gray50
+            color: R.Color.gray50,
+            alignment: .center
         )
+        
+        
+        // subTitleLabel
+        subTitleLabel.numberOfLines = 0
         subTitleLabel.displayText = config.subTitleText.displayText(
             font: .body1Regular,
-            color: R.Color.gray300
+            color: R.Color.gray300,
+            alignment: .center
         )
+        
+        
+        // labelStack
+        [titleLabel, subTitleLabel].forEach({labelStack.addArrangedSubview($0)})
+        addSubview(labelStack)
         
         
         // buttons
