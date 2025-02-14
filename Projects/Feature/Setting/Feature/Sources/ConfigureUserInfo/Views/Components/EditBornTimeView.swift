@@ -61,6 +61,18 @@ extension EditBornTimeView {
         checkBox.update(state: isTimeUnknown ? .seleceted : .idle)
         return self
     }
+    
+    @discardableResult
+    func update(text: String) -> Self {
+        bornTimeField.text = text
+        return self
+    }
+    
+    @discardableResult
+    func update(messageState: DSTextFieldWithTitleWithMessage.MessageState) -> Self {
+        bornTimeField.update(messageState: messageState)
+        return self
+    }
 }
 
 

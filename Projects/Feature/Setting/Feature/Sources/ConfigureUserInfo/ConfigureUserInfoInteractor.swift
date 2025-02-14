@@ -43,3 +43,26 @@ final class ConfigureUserInfoInteractor: PresentableInteractor<ConfigureUserInfo
         // TODO: Pause any business logic.
     }
 }
+
+
+// MARK: ConfigureUserInfoPresentableListener
+extension ConfigureUserInfoInteractor {
+    func request(_ request: ConfigureUserInfoPresenterRequest) {
+        switch request {
+        case .save:
+            break
+        case .back:
+            break
+        case .editName(let text):
+            break
+        case .editBirthDate:
+            break
+        case .editBornTime(let text):
+            break
+        case .editGender(let gender):
+            break
+        case .changeBornTimeUnknownState:
+            break
+        }
+    }
+}

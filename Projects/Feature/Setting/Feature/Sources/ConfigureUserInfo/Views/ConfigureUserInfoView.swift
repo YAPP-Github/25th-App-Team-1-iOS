@@ -90,6 +90,60 @@ final class ConfigureUserInfoView: UIView, EditBornTimeViewListener {
 }
 
 
+// MARK: Public interface
+extension ConfigureUserInfoView {
+    enum Update {
+        case saveButton(isEnabled: Bool)
+        case name(text: String)
+        case nameFieldMsg(messageState: DSTextFieldWithTitleWithMessage.MessageState)
+        case birthDate(text: String)
+        case gender(gender: Gender)
+        case bornTime(text: String)
+        case bornTimeFieldMsg(messageState: DSTextFieldWithTitleWithMessage.MessageState)
+        case unknownTime(isChecked: Bool)
+    }
+    func update(_ update: Update) {
+        switch update {
+        case .saveButton(let isEnabled):
+            if isEnabled {
+                saveButton.update(config: .init(
+                    font: .body1Medium,
+                    textColor: R.Color.main100
+                ))
+                saveButton.isUserInteractionEnabled = true
+            } else {
+                saveButton.update(config: .init(
+                    font: .body1Medium,
+                    textColor: R.Color.main100
+                ))
+                saveButton.isUserInteractionEnabled = false
+            }
+        case .name(let text):
+            nameField.text = text
+        case .nameFieldMsg(let msgState):
+            nameField.update(messageState: msgState)
+        case .birthDate(let text):
+            editBirthDateButton.update(text: text)
+        case .gender(let gender):
+            switch gender {
+            case .male:
+                maleButton.update(state: .selected)
+                femaleButton.update(state: .idle)
+            case .female:
+                maleButton.update(state: .idle)
+                femaleButton.update(state: .selected)
+            }
+        case .bornTime(let text):
+            editBornTimeView.update(text: text)
+        case .bornTimeFieldMsg(let msgState):
+            editBornTimeView.update(messageState: msgState)
+        case .unknownTime(let isChecked):
+            editBornTimeView.update(isTimeUnknown: isChecked)
+        }
+    }
+}
+
+
 // MARK: Setup
 private extension ConfigureUserInfoView {
     func setupUI() {
