@@ -39,7 +39,7 @@ class ShakeMissionMainView: UIView {
         $0.displayText = "10회를 흔들어".displayText(font: .headline2Medium, color: .white)
     }
     private let titleLabel: UILabel = .init().then {
-        $0.displayText = "부적을 뒤집어줘".displayText(font: .title1Bold, color: .white)
+        $0.displayText = "부적을 뒤집어줘".displayText(font: .title2Bold, color: .white)
     }
     private let amuletImage: UIImageView = .init().then {
         $0.image = FeatureResourcesAsset.shakeMissionAmulet.image
@@ -177,7 +177,7 @@ private extension ShakeMissionMainView {
             make.centerX.equalToSuperview()
             make.left.greaterThanOrEqualTo(self.safeAreaInsets).inset(38)
             make.right.lessThanOrEqualTo(self.safeAreaInsets).inset(38)
-            make.bottom.lessThanOrEqualTo(startMissionButton.snp.top).inset(-41).priority(.low)
+            make.bottom.lessThanOrEqualTo(startMissionButton.snp.top).inset(-75).priority(.low)
         }
         
         
