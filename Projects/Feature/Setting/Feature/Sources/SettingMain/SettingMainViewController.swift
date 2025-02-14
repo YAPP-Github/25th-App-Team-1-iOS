@@ -15,7 +15,7 @@ import UIKit
 
 enum SettingMainPresenterRequest {
     case viewDidLoad
-    case executeSettingTask(id: String)
+    case presentPage(id: String)
     case presentConfigureUserInfo
     case presentOpinionPage
     case exitPage
@@ -107,7 +107,7 @@ extension SettingMainViewController {
     func action(_ action: SettingMainView.Action) {
         switch action {
         case .settingItemIsTapped(let id):
-            listener?.request(.executeSettingTask(id: id))
+            listener?.request(.presentPage(id: id))
         case .opinionButtonTapped:
             listener?.request(.presentOpinionPage)
         case .userInfoCardTapped:

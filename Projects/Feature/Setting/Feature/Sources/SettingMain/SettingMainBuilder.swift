@@ -5,11 +5,12 @@
 //  Created by choijunios on 2/13/25.
 //
 
+import UIKit
+
 import RIBs
 
 public protocol SettingMainDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var navigationController: UINavigationController { get }
 }
 
 final class SettingMainComponent: Component<SettingMainDependency> {
@@ -38,7 +39,8 @@ public final class SettingMainBuilder: Builder<SettingMainDependency>, SettingMa
         return SettingMainRouter(
             interactor: interactor,
             viewController: viewController,
-            configureUserInfoBuilder: configureUserInfoBuilder
+            configureUserInfoBuilder: configureUserInfoBuilder,
+            navigationController: dependency.navigationController
         )
     }
 }

@@ -14,7 +14,8 @@ import RIBs
 import RxSwift
 
 public enum SettingMainRoutingRequest {
-    case presentEditUserInfo
+    case presentEditUserInfoPage(userInfo: UserInfo, listener: ConfigureUserInfoListener)
+    case dismissEditUserInfoPage
 }
 
 public protocol SettingMainRouting: ViewableRouting {
@@ -120,10 +121,10 @@ extension SettingMainInteractor {
                 // 유저아이디가 없는 경우
             }
             break
-        case .executeSettingTask(let id):
+        case .presentPage(let id):
             break
         case .presentConfigureUserInfo:
-            break
+            router?.request(.presentEditUserInfoPage(userInfo: userInfo, listener: self))
         case .presentOpinionPage:
             break
         case .exitPage:
@@ -135,7 +136,10 @@ extension SettingMainInteractor {
 
 // MARK: ConfigureUserInfoListener
 extension SettingMainInteractor {
-    func dismiss(changed: UserInfo?) {
-        //
+    func dismiss(changed userInfo: UserInfo?) {
+        if let userInfo {
+            presenter.update(.setUserInfo(userInfo))
+        }
+        router?.request(.dismissEditUserInfoPage)
     }
 }

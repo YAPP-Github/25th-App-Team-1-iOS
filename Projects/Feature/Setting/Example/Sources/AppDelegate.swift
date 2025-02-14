@@ -19,11 +19,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SettingMainListener {
         // 테스트 유저 등록
         Preference.userId = 24
         
-        let settingBuilder = SettingMainBuilder(dependency: DefaultSettingMainDependency())
+        let navigationController = UINavigationController()
+        let settingBuilder = SettingMainBuilder(dependency: DefaultSettingMainDependency(
+            navigationController: navigationController
+        ))
         let router = settingBuilder.build(withListener: self)
         self.router = router
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = router.viewControllable.uiviewController
+        navigationController.viewControllers = [router.viewControllable.uiviewController]
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
         
         return true
@@ -31,5 +35,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SettingMainListener {
 }
 
 class DefaultSettingMainDependency: SettingMainDependency {
+    var navigationController: UINavigationController
     
+    init(navigationController: UINavigationController) {
+        self.navigationController = navigationController
+    }
 }

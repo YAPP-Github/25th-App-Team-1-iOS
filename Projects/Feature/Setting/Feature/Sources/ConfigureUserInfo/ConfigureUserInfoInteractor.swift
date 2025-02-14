@@ -19,7 +19,7 @@ protocol ConfigureUserInfoPresentable: Presentable {
     func update(_ update: ConfigureUserInfoPresenterUpdate)
 }
 
-protocol ConfigureUserInfoListener: AnyObject {
+public protocol ConfigureUserInfoListener: AnyObject {
     func dismiss(changed: UserInfo?)
 }
 
@@ -68,7 +68,8 @@ extension ConfigureUserInfoInteractor {
         case .save:
             break
         case .back:
-            break
+            let isChanged = initialUserInfo != currentUserInfo
+            listener?.dismiss(changed: isChanged ? currentUserInfo : nil)
         case .editName(let text):
             guard validateNameLength(text) else {
                 self.nameIsValid = false
