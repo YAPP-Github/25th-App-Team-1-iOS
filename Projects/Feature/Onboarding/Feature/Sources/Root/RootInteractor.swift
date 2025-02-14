@@ -219,7 +219,7 @@ extension RootInteractor {
             let request = APIRequest.Users.addUser(
                 name: onboardingModel.name ?? "",
                 birthDate: onboardingModel.birthDate?.toDateString() ?? "",
-                birthTime: onboardingModel.bornTime?.toTimeString() ?? "",
+                birthTime: onboardingModel.bornTime?.toTimeString(),
                 gender: onboardingModel.gender?.rawValue ?? "",
                 calendarType: onboardingModel.birthDate?.calendarType.rawValue ?? ""
             )

@@ -7,12 +7,12 @@
 
 import Foundation
 
-public struct UserInfo: Decodable {
+public struct UserInfo: Decodable, Equatable {
     public let id: Int
-    public let name: String
-    public let birthDate: BirthDateData
-    public let birthTime: BornTimeData
-    public let gender: Gender
+    public var name: String
+    public var birthDate: BirthDateData
+    public var birthTime: BornTimeData?
+    public var gender: Gender
     
     enum CodingKeys: String, CodingKey {
         case id

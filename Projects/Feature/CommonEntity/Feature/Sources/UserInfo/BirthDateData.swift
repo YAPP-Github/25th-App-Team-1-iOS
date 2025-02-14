@@ -5,7 +5,7 @@
 //  Created by choijunios on 2/13/25.
 //
 
-public struct BirthDateData {
+public struct BirthDateData: Equatable {
     public let calendarType: CalendarType
     public let year: Year
     public let month: Month

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Year {
+public struct Year: Equatable {
     public let value: Int
     
     public init(_ value: Int) {

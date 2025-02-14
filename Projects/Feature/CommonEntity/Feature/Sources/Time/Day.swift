@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Day {
+public struct Day: Equatable {
     public let value: Int
     
     public init?(_ value: Int, month: Month, year: Year) {

@@ -9,7 +9,7 @@ import Alamofire
 
 public extension APIRequest {
     enum Users: APIRequestProtocol {
-        case addUser(name: String, birthDate: String, birthTime: String, gender: String, calendarType: String)
+        case addUser(name: String, birthDate: String, birthTime: String?, gender: String, calendarType: String)
         case getUser(userId: Int)
         public var method: HTTPMethod {
             switch self {
