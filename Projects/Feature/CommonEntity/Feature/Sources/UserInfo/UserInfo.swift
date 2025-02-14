@@ -55,13 +55,14 @@ public struct UserInfo: Decodable, Equatable {
             throw dateDecodingError
         }
         
-        let yearValue = Calendar.current.component(.year, from: date)
-        let monthValue = Calendar.current.component(.month, from: date)
-        let dayValue = Calendar.current.component(.day, from: date)
+        let calendar = Calendar(identifier: calendarType.calendarIdentifier)
+        let yearValue = calendar.component(.year, from: date)
+        let monthValue = calendar.component(.month, from: date)
+        let dayValue = calendar.component(.day, from: date)
         
         let year = Year(yearValue)
         guard let month = Month(rawValue: monthValue),
-              let day = Day(dayValue, month: month, year: year)
+              let day = Day(dayValue, calendar: calendarType, month: month, year: year)
         else {
             throw dateDecodingError
         }
