@@ -65,9 +65,9 @@ struct InputNameHelper {
         
         switch type {
         case .korean:
-            return input.count <= 6
+            return Array(input).count <= 6
         case .english:
-            return input.count <= 13
+            return Array(input).count <= 13
         case .mixed:
             // 한글은 1, 영어는 0.5로 계산
             var totalWeight: Double = 0.0
@@ -84,7 +84,9 @@ struct InputNameHelper {
     
     // 한글 문자 여부 확인
     private func isKorean(_ character: Character) -> Bool {
-        return ("가"..."힣").contains(character)
+        return ("가"..."힣").contains(character) ||
+        ("ㄱ"..."ㅎ").contains(character) ||
+        ("ㅏ"..."ㅣ").contains(character)
     }
     
     // 영어 문자 여부 확인

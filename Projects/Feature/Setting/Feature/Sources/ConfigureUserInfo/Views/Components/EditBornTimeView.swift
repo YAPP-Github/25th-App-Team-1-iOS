@@ -28,7 +28,7 @@ final class EditBornTimeView: UIView {
     // Sub views
     private let bornTimeField = DSTextFieldWithTitleWithMessage(config: .init(
         textFieldConfig: .init(
-            placeholder: "00:00",
+            placeholder: "시간 모름",
             alignment: .left,
             keyboardType: .default
         ),
