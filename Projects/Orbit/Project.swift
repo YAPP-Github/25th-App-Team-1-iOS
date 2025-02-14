@@ -16,7 +16,8 @@ let project = Project(
                     "UIInterfaceOrientationPortrait"
                 ],
                 "CFBundleDisplayName": "Orbit",
-                "CFBundleShortVersionString": "1.0.0"
+                "CFBundleShortVersionString": "1.0.0",
+                "NSPhotoLibraryUsageDescription": "부적 이미지를 저장하기 위해서는 앨범 접근 권한이 필요해요!"
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],

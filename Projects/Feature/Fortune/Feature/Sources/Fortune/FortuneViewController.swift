@@ -44,6 +44,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
         step4View.listener = self
         step5View.listener = self
         step6View.listener = self
+        charmView.listener = self
         
         listener?.request(.viewDidLoad)
     }
@@ -53,8 +54,8 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     private let step3View = FortuneHealthLoveView()
     private let step4View = FortuneCoordinationView()
     private let step5View = FortuneReferenceView()
-    private let step6View = CompleteWithoutFortuneView()
-    private let step7View = CharmView()
+    private let step6View = CompleteWithFortuneView()
+    private let charmView = CharmView()
     
     @objc
     private func closeButtonTapped() {
@@ -69,6 +70,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
             step3View.update(.fortune(fortune, userInfo))
             step4View.update(.fortune(fortune))
             step5View.update(.fortune(fortune))
+            charmView.update(.user(userInfo))
         }
     }
 }
@@ -140,7 +142,16 @@ extension FortuneViewController: CompleteWithFortuneViewListener {
         case .prev:
             view = step5View
         case .next:
-            view = step7View
+            view = charmView
+        }
+    }
+}
+
+extension FortuneViewController: CharmViewListener {
+    func action(_ action: CharmView.Action) {
+        switch action {
+        case .done:
+            listener?.request(.close)
         }
     }
 }
