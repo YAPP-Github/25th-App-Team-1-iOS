@@ -45,6 +45,7 @@ enum MainPagePresentableRequest {
     case setAlarmListMode(AlarmListMode)
     case setCountForAlarmsCheckedForDeletion(countOfAlarms: Int)
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
+    case setFortuneDeliverMark(isMarked: Bool)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -93,7 +94,7 @@ extension MainPageInteractor {
             presenter.request(.setAlarmList(renderObjects))
             
             if UserDefaults.standard.dailyFortuneId() != nil {
-                // TODO: 운세버튼 배지 설정하기.
+                presenter.request(.setFortuneDeliverMark(isMarked: true))
             }
         case .showFortuneNoti:
             guard let fortuneId = UserDefaults.standard.dailyFortuneId() else {
@@ -103,7 +104,10 @@ extension MainPageInteractor {
                     알람이 울린 후 미션을 수행하면
                     오늘의 운세를 받을 수 있어요.
                     """,
-                    buttonText: "닫기")
+                    buttonText: "닫기", buttonAction: { [weak self] in
+                        guard let self else { return }
+                        router?.request(.dismissAlert())
+                    })
                 router?.request(.presentAlertType1(config, self))
                 return
             }

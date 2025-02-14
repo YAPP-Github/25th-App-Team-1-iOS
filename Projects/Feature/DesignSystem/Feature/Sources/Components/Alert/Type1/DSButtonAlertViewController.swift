@@ -45,7 +45,9 @@ public final class DSButtonAlertViewController: UIViewController, UIViewControll
         view.backgroundColor = UIColor(hex: "#17191F").withAlphaComponent(0.9)
         
         // alertView
+        let configAction = alertView.button.buttonAction
         alertView.button.buttonAction = { [weak self] in
+            configAction?()
             self?.listener?.action(.buttonClicked)
         }
         view.addSubview(alertView)

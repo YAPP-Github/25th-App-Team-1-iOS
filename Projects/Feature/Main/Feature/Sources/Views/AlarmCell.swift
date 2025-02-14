@@ -220,7 +220,7 @@ extension AlarmCell {
                 .sorted(by: { $0.rawValue < $1.rawValue })
                 .map { $0.toShortKoreanFormat }.joined(separator: ", ")
         } else {
-            "Not implemented"
+            "알람시간이 선택되지 않음"
         }
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,

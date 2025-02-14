@@ -79,8 +79,13 @@ private extension DSButtonAlert {
         
         
         // buttons
+        button.buttonAction = { [weak self] in
+            guard let self else { return }
+            config.buttonAction?()
+        }
         addSubview(button)
         button.update(title: config.buttonText)
+        
         
         // containerStack
         [labelStack, button].forEach({containerStack.addArrangedSubview($0)})
@@ -102,11 +107,13 @@ public extension DSButtonAlert {
         let titleText: String
         let subTitleText: String
         let buttonText: String
+        var buttonAction: (() -> Void)?
         
-        public init(titleText: String, subTitleText: String, buttonText: String) {
+        public init(titleText: String, subTitleText: String, buttonText: String, buttonAction: (() -> Void)? = nil) {
             self.titleText = titleText
             self.subTitleText = subTitleText
             self.buttonText = buttonText
+            self.buttonAction = buttonAction
         }
     }
 }

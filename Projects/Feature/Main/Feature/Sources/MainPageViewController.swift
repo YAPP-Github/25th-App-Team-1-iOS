@@ -48,6 +48,8 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
     
     func request(_ request: MainPagePresentableRequest) {
         switch request {
+        case .setFortuneDeliverMark(let isMarked):
+            mainView.update(.turnOnFortuneNoti(isMarked))
         case let .setAlarmList(alarmCellROs):
             if alarmCellROs.isEmpty {
                 view = emptyView
