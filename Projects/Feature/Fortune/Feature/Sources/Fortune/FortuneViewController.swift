@@ -54,7 +54,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     private let step3View = FortuneHealthLoveView()
     private let step4View = FortuneCoordinationView()
     private let step5View = FortuneReferenceView()
-    private let step6View = CompleteWithFortuneView()
+    private let step6View = CompleteWithoutFortuneView()
     private let charmView = CharmView()
     
     @objc
