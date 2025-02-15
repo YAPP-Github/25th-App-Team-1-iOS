@@ -122,7 +122,7 @@ public extension DSTextField {
             case .normal:
                 return R.Color.gray600.cgColor
             case .focused:
-                return R.Color.main20.cgColor
+                return R.Color.main20.withAlphaComponent(0.2).cgColor
             case .completed:
                 return R.Color.gray800.cgColor
             case .error:
