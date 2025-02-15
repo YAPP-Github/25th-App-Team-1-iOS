@@ -84,13 +84,17 @@ final class SelectWeekDayView: UIView {
     private let holidayLabel = UILabel()
     private let holidayToggle = UISwitch()
     
+    private let snoozeContainer = UIView()
     private let snoozeDivider = UIView()
     private let snoozeTitleLabel = UILabel()
     private let snoozeValueButton = UIButton()
+    private let snoozeContainerButton = UIButton()
     
+    private let soundContainer = UIView()
     private let soundDivider = UIView()
     private let soundTitleLabel = UILabel()
     private let soundValueButton = UIButton()
+    private let soundContainerButton = UIButton()
     
     @objc
     private func holidayToggleChanged(toggle: UISwitch) {
@@ -242,25 +246,39 @@ private extension SelectWeekDayView {
         snoozeValueButton.do {
             $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
             $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
-            $0.addTarget(self, action: #selector(snoozeButtonTapped), for: .touchUpInside)
         }
+        
+        snoozeContainerButton.addTarget(self, action: #selector(snoozeButtonTapped), for: .touchUpInside)
         
         soundTitleLabel.do {
             $0.displayText = "사운드".displayText(font: .body1SemiBold, color: R.Color.white100)
         }
         
+        [snoozeDivider, soundDivider].forEach {
+            $0.backgroundColor = R.Color.gray700
+        }
+        
         soundValueButton.do {
             $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
             $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
-            $0.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
+        }
+        
+        soundContainerButton.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
+        
+        [snoozeDivider, snoozeTitleLabel, snoozeValueButton, snoozeContainerButton].forEach {
+            snoozeContainer.addSubview($0)
+        }
+        
+        [soundDivider, soundTitleLabel, soundValueButton, soundContainerButton].forEach {
+            soundContainer.addSubview($0)
         }
         
         [
             weekdayRepeatLabel, weekdayToggleButton, weekendToggleButton,
             dayButtonsStackView,
             holidayImageView, holidayLabel, holidayToggle,
-            snoozeDivider, snoozeTitleLabel, snoozeValueButton,
-            soundDivider, soundTitleLabel, soundValueButton
+            snoozeContainer,
+            soundContainer
         ].forEach {
             addSubview($0)
         }
@@ -312,11 +330,18 @@ private extension SelectWeekDayView {
         
         snoozeDivider.snp.makeConstraints {
             $0.top.equalTo(holidayToggle.snp.bottom).offset(19)
+            $0.height.equalTo(1)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
+        snoozeContainer.snp.makeConstraints {
+            $0.top.equalTo(snoozeDivider.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(54)
+        }
+        
         snoozeTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(snoozeDivider.snp.bottom).offset(14)
+            $0.centerY.equalToSuperview()
             $0.leading.equalTo(20)
         }
         
@@ -325,20 +350,35 @@ private extension SelectWeekDayView {
             $0.centerY.equalTo(snoozeTitleLabel)
         }
         
+        snoozeContainerButton.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         soundDivider.snp.makeConstraints {
-            $0.top.equalTo(snoozeTitleLabel.snp.bottom).offset(15)
+            $0.top.equalTo(snoozeContainer.snp.bottom)
+            $0.height.equalTo(1)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
+        soundContainer.snp.makeConstraints {
+            $0.top.equalTo(soundDivider.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(54)
+            $0.bottom.equalToSuperview()
+        }
+        
         soundTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(soundDivider.snp.bottom).offset(14)
+            $0.centerY.equalToSuperview()
             $0.leading.equalTo(20)
-            $0.bottom.equalTo(-14)
         }
         
         soundValueButton.snp.makeConstraints {
             $0.trailing.equalTo(-16)
             $0.centerY.equalTo(soundTitleLabel)
+        }
+        
+        soundContainerButton.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
 }
