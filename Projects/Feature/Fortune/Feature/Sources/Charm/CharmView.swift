@@ -49,6 +49,7 @@ final class CharmView: UIView {
     private let decoImageView = UIImageView()
     private let titleLabel = UILabel()
     private let charmImageView = UIImageView()
+    private let shadowImageView = UIImageView()
     private let buttonStackView = UIStackView()
     private let doneButton = DSDefaultCTAButton(style: .init(type: .secondary))
     private let saveButton = DSDefaultCTAButton()
@@ -101,6 +102,11 @@ private extension CharmView {
             $0.contentMode = .scaleAspectFit
         }
         
+        shadowImageView.do {
+            $0.image = FeatureResourcesAsset.imgCharmShadow.image
+            $0.contentMode = .scaleAspectFill
+        }
+        
         saveButton.do {
             $0.update(title: "앨범에 저장")
             $0.buttonAction = { [weak self] in
@@ -121,11 +127,19 @@ private extension CharmView {
             $0.spacing = 12
         }
         
+        [titleLabel, shadowImageView].forEach {
+            $0.setContentHuggingPriority(.defaultHigh, for: .vertical)
+            $0.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        }
+        
+        charmImageView.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        charmImageView.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        
         [doneButton, saveButton].forEach {
             buttonStackView.addArrangedSubview($0)
         }
         
-        [decoImageView, titleLabel, charmImageView, buttonStackView].forEach {
+        [decoImageView, titleLabel, charmImageView, shadowImageView, buttonStackView].forEach {
             addSubview($0)
         }
         
@@ -143,7 +157,16 @@ private extension CharmView {
             $0.top.equalTo(titleLabel.snp.bottom).offset(37)
             $0.centerX.equalToSuperview()
         }
+        
+        shadowImageView.snp.makeConstraints {
+            $0.top.equalTo(charmImageView.snp.bottom).offset(29)
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(240)
+            $0.height.equalTo(22)
+        }
+        
         buttonStackView.snp.makeConstraints {
+            $0.top.equalTo(shadowImageView.snp.bottom).offset(41)
             $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }

@@ -381,7 +381,6 @@ extension MainPageInteractor {
         switch request {
         case .releaseAlarm:
             router?.request(.detachAlarmRelease({ [weak router] in
-                guard UserDefaults.standard.dailyFortuneId() == nil else { return }
                 router?.request(.routeToAlarmMission)
             }))
         }
