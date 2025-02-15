@@ -215,12 +215,15 @@ extension AlarmCell {
             font: .label1SemiBold,
             color: dayColor
         )
-        let dayDisplayText = if !alarmDays.days.isEmpty {
-            alarmDays.days
+        var dayDisplayText = ""
+        if !alarmDays.days.isEmpty {
+            dayDisplayText = alarmDays.days
                 .sorted(by: { $0.rawValue < $1.rawValue })
                 .map { $0.toShortKoreanFormat }.joined(separator: ", ")
         } else {
-            "알람시간이 선택되지 않음"
+            let month = Calendar.current.component(.month, from: .now)
+            let day = Calendar.current.component(.day, from: .now)
+            dayDisplayText = "\(month)월 \(day)일"
         }
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
