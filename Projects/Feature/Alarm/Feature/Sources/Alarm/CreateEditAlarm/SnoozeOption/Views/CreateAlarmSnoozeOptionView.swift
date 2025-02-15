@@ -59,6 +59,7 @@ final class CreateEditAlarmSnoozeOptionView: UIView {
     // MARK: Internal
     func updateOption(option: SnoozeOption) {
         if option.isSnoozeOn {
+            onOffSwitch.isOn = true
             frequencyView.selectOption(option.frequency)
             countView.selectOption(option.count)
             guideView.isHidden = false
@@ -70,6 +71,7 @@ final class CreateEditAlarmSnoozeOptionView: UIView {
                 $0.bottom.equalTo(safeAreaLayoutGuide)
             }
         } else {
+            onOffSwitch.isOn = false
             frequencyView.disableOptions()
             countView.disableOptions()
             guideView.isHidden = true

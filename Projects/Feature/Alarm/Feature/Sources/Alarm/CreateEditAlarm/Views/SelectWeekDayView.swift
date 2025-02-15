@@ -39,7 +39,7 @@ final class SelectWeekDayView: UIView {
         updateButtons()
         
         if alarm.snoozeOption.isSnoozeOn {
-            snoozeValueButton.setAttributedTitle("\(alarm.snoozeOption.frequency.toKoreanFormat), \(alarm.snoozeOption.count.toKoreanValueFormat)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+            snoozeValueButton.setAttributedTitle("\(alarm.snoozeOption.frequency.toKoreanFormat), \(alarm.snoozeOption.count.toKoreanTitleFormat)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
             snoozeValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         }
