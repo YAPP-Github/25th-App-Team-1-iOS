@@ -90,10 +90,10 @@ extension InputSummaryView {
         if let gender = model.gender {
             generateSummaryView(key: "성별", value: gender.displayingName)
         }
-        if let birthDate = model.birthDate {
-            let birthDateText = "\(birthDate.calendarType.displayKoreanText) \(birthDate.year.value)년 \(birthDate.month.rawValue)월 \(birthDate.day.value)일"
-            generateSummaryView(key: "생년월일", value: birthDateText)
-        }
+        
+        let birthDateText = "\(model.birthDate.calendarType.displayKoreanText) \(model.birthDate.year.value)년 \(model.birthDate.month.rawValue)월 \(model.birthDate.day.value)일"
+        generateSummaryView(key: "생년월일", value: birthDateText)
+        
         if let bornTime = model.bornTime {
             let hourValue = bornTime.hour.to24Hour(with: bornTime.meridiem)
             let bornTimeText = String(format: "%02d시 %02d분", hourValue, bornTime.minute.value)

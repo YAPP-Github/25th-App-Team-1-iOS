@@ -218,10 +218,10 @@ extension RootInteractor {
         case .start:
             let request = APIRequest.Users.addUser(
                 name: onboardingModel.name ?? "",
-                birthDate: onboardingModel.birthDate?.toDateString() ?? "",
+                birthDate: onboardingModel.birthDate.toDateString() ?? "",
                 birthTime: onboardingModel.bornTime?.toTimeString(),
                 gender: onboardingModel.gender?.rawValue ?? "",
-                calendarType: onboardingModel.birthDate?.calendarType.rawValue ?? ""
+                calendarType: onboardingModel.birthDate.calendarType.rawValue ?? ""
             )
                 
             APIClient.request(Int.self, request: request) { [weak self, weak listener] userId in

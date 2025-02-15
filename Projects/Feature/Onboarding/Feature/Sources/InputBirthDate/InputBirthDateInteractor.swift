@@ -62,9 +62,7 @@ extension InputBirthDateInteractor {
     func request(_ request: InputBirthDatePresenterRequest) {
         switch request {
         case .viewDidLoad:
-            if let birthDate = model.birthDate {
-                presenter.request(.setBirthDate(birthDate))
-            }
+            presenter.request(.setBirthDate(model.birthDate))
         case .exitPage:
             listener?.request(.back)
         case .confirmUserInputAndExit:
