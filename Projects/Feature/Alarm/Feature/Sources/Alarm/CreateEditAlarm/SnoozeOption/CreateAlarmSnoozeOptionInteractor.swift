@@ -23,6 +23,7 @@ protocol CreateEditAlarmSnoozeOptionPresentable: Presentable {
 }
 
 enum CreateEditAlarmSnoozeOptionListenerRequest {
+    case cancel
     case done(SnoozeOption)
 }
 
@@ -52,6 +53,8 @@ final class CreateEditAlarmSnoozeOptionInteractor: PresentableInteractor<CreateE
         switch request {
         case .viewDidLoad:
             presenter.request(.updateOption(snoozeOption))
+        case .cancel:
+            listener?.request(.cancel)
         case let .isOnChanged(isOn):
             snoozeOption.isSnoozeOn = isOn
             presenter.request(.updateOption(snoozeOption))

@@ -98,6 +98,8 @@ extension RootInteractor {
     func request(_ request: CreateEditAlarmSnoozeOptionListenerRequest) {
         
         switch request {
+        case .cancel:
+            router?.request(.detachSnoozeOption)
         case let .done(snoozeOption):
             router?.request(.detachSnoozeOption)
             createAlarmMutableStream.mutableSnoozeOption.onNext(snoozeOption)
@@ -109,6 +111,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: CreateEditAlarmSoundOptionListenerRequest) {
         switch request {
+        case .cancel:
+            router?.request(.detachSoundOption)
         case let .done(soundOption):
             router?.request(.detachSoundOption)
             createAlarmMutableStream.mutableSoundOption.onNext(soundOption)

@@ -18,6 +18,7 @@ protocol CreateEditAlarmSoundOptionViewListener: AnyObject {
 
 final class CreateEditAlarmSoundOptionView: UIView {
     enum Action {
+        case backgroundTapped
         case isVibrateOnChanged(Bool)
         case isSoundOnChanged(Bool)
         case volumeChanged(Float)
@@ -29,6 +30,7 @@ final class CreateEditAlarmSoundOptionView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
+        setupGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -62,6 +64,7 @@ final class CreateEditAlarmSoundOptionView: UIView {
         }
     }
     
+    private let backgroundView = UIView()
     private let containerView = UIView()
     private let titleLabel = UILabel()
     private let vibrateLabel = UILabel()
@@ -96,11 +99,16 @@ final class CreateEditAlarmSoundOptionView: UIView {
         }
         listener?.action(.volumeChanged(slider.value))
     }
+    
+    @objc
+    private func backgroundTapped() {
+        listener?.action(.backgroundTapped)
+    }
 }
 
 private extension CreateEditAlarmSoundOptionView {
     func setupUI() {
-        backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
+        backgroundView.backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
         containerView.do {
             $0.backgroundColor = R.Color.gray800
             $0.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -165,6 +173,7 @@ private extension CreateEditAlarmSoundOptionView {
                 self?.listener?.action(.doneButtonTapped)
             }
         }
+        addSubview(backgroundView)
         addSubview(containerView)
         [
             titleLabel,
@@ -180,6 +189,9 @@ private extension CreateEditAlarmSoundOptionView {
     }
     
     func layout() {
+        backgroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         containerView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(52)
             $0.bottom.equalToSuperview()
@@ -240,6 +252,11 @@ private extension CreateEditAlarmSoundOptionView {
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.bottom.equalTo(safeAreaLayoutGuide)
         }
+    }
+    
+    func setupGesture() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+        backgroundView.addGestureRecognizer(gesture)
     }
 }
 
