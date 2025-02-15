@@ -84,7 +84,6 @@ extension SettingMainInteractor {
         case .viewDidLoad:
             // Sections
             presenter.update(.setSettingSection(sections))
-            loadUserInfo()
             
             // Version
             if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
