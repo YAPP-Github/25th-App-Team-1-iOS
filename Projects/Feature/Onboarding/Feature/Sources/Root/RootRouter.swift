@@ -89,8 +89,12 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             detachAuthorizationDenied()
         case .routeToMissionGuide:
             routeToMissionGuide()
+        case .detachMissionGuide:
+            detachMissionGuide()
         case .routeToFortuneGuide:
             routeToFortunenGuide()
+        case .detachFortuneGuide:
+            detachFortuneGuide()
         case let .routeToInputSummary(model):
             routeToInputSummary(model: model)
         case let .detachInputSummary(completion):
@@ -289,12 +293,27 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPushViewController(with: router)
     }
     
+    
+    private func detachMissionGuide() {
+        guard let router = onboardingMissionGuideRouter else { return }
+        onboardingMissionGuideRouter = nil
+        detachChild(router)
+        dismissOrPopViewController()
+    }
+    
     private func routeToFortunenGuide() {
         guard onboardingFortuneGuideRouter == nil else { return }
         let router = onboardingFortuneGuideBuilder.build(withListener: interactor)
         onboardingFortuneGuideRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
+    }
+    
+    private func detachFortuneGuide() {
+        guard let router = onboardingFortuneGuideRouter else { return }
+        onboardingFortuneGuideRouter = nil
+        detachChild(router)
+        dismissOrPopViewController()
     }
     
     private func routeToInputSummary(model: OnboardingModel) {

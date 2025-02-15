@@ -29,7 +29,9 @@ public enum RootRouterRequest {
     case routeToAuthorizationDenied
     case detachAuthorizationDenied
     case routeToMissionGuide
+    case detachMissionGuide
     case routeToFortuneGuide
+    case detachFortuneGuide
     case routeToInputSummary(OnboardingModel)
     case detachInputSummary(completion: (() -> Void)?)
 }
@@ -204,6 +206,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: OnboardingMissionGuideListenerRequest) {
         switch request {
+        case .back:
+            router?.request(.detachMissionGuide)
         case .next:
             router?.request(.routeToFortuneGuide)
         }
@@ -215,6 +219,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: OnboardingFortuneGuideListenerRequest) {
         switch request {
+        case .back:
+            router?.request(.detachFortuneGuide)
         case .start:
             let request = APIRequest.Users.addUser(
                 name: onboardingModel.name ?? "",
