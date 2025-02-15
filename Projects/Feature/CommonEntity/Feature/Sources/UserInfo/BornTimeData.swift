@@ -19,11 +19,6 @@ public struct BornTimeData: Equatable {
 
 public extension BornTimeData {
     func toTimeString() -> String {
-        switch meridiem {
-        case .am:
-            String(format: "%02d:%02d", hour.value, minute.value)
-        case .pm:
-            String(format: "%02d:%02d", hour.value + 12, minute.value)
-        }
+        String(format: "%02d:%02d", hour.to24Hour(with: meridiem), minute.value)
     }
 }
