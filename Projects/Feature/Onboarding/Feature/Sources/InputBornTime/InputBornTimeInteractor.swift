@@ -108,17 +108,18 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
     
     private func validateHour(_ time: String) -> (Meridiem, Hour)? {
         let hourString = time.prefix(2)
-        guard let hourInt = Int(hourString),
+        guard var hourInt = Int(hourString),
               (0...23).contains(hourInt) else { return nil }
         let meridiem: Meridiem = hourInt < 12 ? .am : .pm
-        switch meridiem {
-        case .am:
-            guard let hour = Hour(hourInt) else { return nil }
-            return (meridiem, hour)
-        case .pm:
-            guard let hour = Hour(hourInt - 12) else { return nil }
-            return (meridiem, hour)
+        
+        if hourInt == 0 {
+            hourInt = 12
+        } else if hourInt > 12 {
+            hourInt -= 12
         }
+        guard let hour = Hour(hourInt) else { return nil }
+        
+        return (meridiem, hour)
     }
     
     private func validateMinute(_ time: String) -> Minute? {

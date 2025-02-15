@@ -14,7 +14,7 @@ public protocol FortuneRouting: ViewableRouting {
 }
 
 enum FortunePresentableRequest {
-    case setFortune(Fortune)
+    case setFortune(Fortune, UserInfo)
 }
 
 protocol FortunePresentable: Presentable {
@@ -37,9 +37,11 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
 
     init(
         presenter: FortunePresentable,
-        fortune: Fortune
+        fortune: Fortune,
+        userInfo: UserInfo
     ) {
         self.fortune = fortune
+        self.userInfo = userInfo
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -47,11 +49,12 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     func request(_ request: FortunePresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
-            presenter.request(.setFortune(fortune))
+            presenter.request(.setFortune(fortune, userInfo))
         case .close:
             listener?.request(.close)
         }
     }
     
     private let fortune: Fortune
+    private let userInfo: UserInfo
 }

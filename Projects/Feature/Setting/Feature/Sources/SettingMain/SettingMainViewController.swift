@@ -71,10 +71,7 @@ extension SettingMainViewController {
             let birthDateText = "\(info.birthDate.year.value)년 \(info.birthDate.month.rawValue)월 \(info.birthDate.day.value)일"
             var bornTimeText: String?
             if let birthTime = info.birthTime {
-                var hourText = String(birthTime.hour.value)
-                if birthTime.meridiem == .pm {
-                    hourText = String(birthTime.hour.value+12)
-                }
+                var hourText = String(birthTime.hour.to24Hour(with: birthTime.meridiem))
                 bornTimeText = "\(hourText)시 \(birthTime.minute.value)분"
             }
             let userInfoRO = UserInfoCardRO(

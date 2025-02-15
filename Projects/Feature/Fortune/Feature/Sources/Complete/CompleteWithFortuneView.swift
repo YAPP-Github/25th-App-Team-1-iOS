@@ -31,9 +31,10 @@ final class CompleteWithFortuneView: UIView {
     
     weak var listener: CompleteWithFortuneViewListener?
     
-    private let backgroundImageView = UIImageView()
+    private let decoImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
     private let titleLabel = UILabel()
+    private let hillImageView = UIImageView()
     private let characterImageView = UIImageView()
     private let descriptionLabel = UILabel()
     private let doneButton = DSDefaultCTAButton()
@@ -42,8 +43,8 @@ final class CompleteWithFortuneView: UIView {
 private extension CompleteWithFortuneView {
     func setupUI() {
         backgroundColor = .init(red: 72/255, green: 145/255, blue: 240/255, alpha: 1)
-        backgroundImageView.do {
-            $0.image = FeatureResourcesAsset.imgBackgroundComplete.image
+        decoImageView.do {
+            $0.image = FeatureResourcesAsset.imgDecoFortune.image
             $0.contentMode = .scaleAspectFill
         }
         titleLabel.do {
@@ -53,6 +54,11 @@ private extension CompleteWithFortuneView {
             """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
             $0.numberOfLines = 0
             $0.textAlignment = .center
+        }
+        
+        hillImageView.do {
+            $0.image = FeatureResourcesAsset.imgFortuneHillSmall.image
+            $0.contentMode = .scaleAspectFill
         }
         
         characterImageView.do {
@@ -71,14 +77,15 @@ private extension CompleteWithFortuneView {
             }
         }
         
-        [backgroundImageView, pageIndicatorView, titleLabel, characterImageView, descriptionLabel, doneButton].forEach {
+        [decoImageView, pageIndicatorView, titleLabel, hillImageView, characterImageView, descriptionLabel, doneButton].forEach {
             addSubview($0)
         }
         
     }
     func layout() {
-        backgroundImageView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalToSuperview()
+        decoImageView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
         }
         pageIndicatorView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -88,16 +95,21 @@ private extension CompleteWithFortuneView {
             $0.top.equalTo(pageIndicatorView.snp.bottom).offset(46)
             $0.centerX.equalToSuperview()
         }
-        characterImageView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(49)
-            $0.centerX.equalToSuperview()
-        }
         doneButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
         }
         descriptionLabel.snp.makeConstraints {
             $0.bottom.equalTo(doneButton.snp.top).offset(-18)
+            $0.horizontalEdges.equalToSuperview()
+        }
+        characterImageView.snp.makeConstraints {
+            $0.bottom.equalTo(descriptionLabel.snp.top)
+            $0.horizontalEdges.equalToSuperview()
+        }
+        
+        hillImageView.snp.makeConstraints {
+            $0.top.equalTo(characterImageView).offset(180)
             $0.horizontalEdges.equalToSuperview()
         }
     }

@@ -44,6 +44,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
         step4View.listener = self
         step5View.listener = self
         step6View.listener = self
+        charmView.listener = self
         
         listener?.request(.viewDidLoad)
     }
@@ -54,7 +55,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     private let step4View = FortuneCoordinationView()
     private let step5View = FortuneReferenceView()
     private let step6View = CompleteWithFortuneView()
-    private let step7View = CharmView()
+    private let charmView = CharmView()
     
     @objc
     private func closeButtonTapped() {
@@ -63,12 +64,13 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     
     func request(_ request: FortunePresentableRequest) {
         switch request {
-        case .setFortune(let fortune):
+        case let .setFortune(fortune, userInfo):
             step1View.update(.fortune(fortune))
-            step2View.update(.fortune(fortune))
-            step3View.update(.fortune(fortune))
+            step2View.update(.fortune(fortune, userInfo))
+            step3View.update(.fortune(fortune, userInfo))
             step4View.update(.fortune(fortune))
             step5View.update(.fortune(fortune))
+            charmView.update(.user(userInfo))
         }
     }
 }
@@ -123,16 +125,16 @@ extension FortuneViewController: FortuneReferenceViewListener {
     }
 }
 
-//extension FortuneViewController: CompleteWithoutFortuneViewListener {
-//    func action(_ action: CompleteWithoutFortuneView.Action) {
-//        switch action {
-//        case .prev:
-//            view = step5View
-//        case .next:
-//            view = step7View
-//        }
-//    }
-//}
+extension FortuneViewController: CompleteWithoutFortuneViewListener {
+    func action(_ action: CompleteWithoutFortuneView.Action) {
+        switch action {
+        case .prev:
+            view = step5View
+        case .done:
+            listener?.request(.close)
+        }
+    }
+}
 
 extension FortuneViewController: CompleteWithFortuneViewListener {
     func action(_ action: CompleteWithFortuneView.Action) {
@@ -140,7 +142,16 @@ extension FortuneViewController: CompleteWithFortuneViewListener {
         case .prev:
             view = step5View
         case .next:
-            view = step7View
+            view = charmView
+        }
+    }
+}
+
+extension FortuneViewController: CharmViewListener {
+    func action(_ action: CharmView.Action) {
+        switch action {
+        case .done:
+            listener?.request(.close)
         }
     }
 }

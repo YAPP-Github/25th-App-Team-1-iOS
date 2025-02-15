@@ -52,8 +52,7 @@ final class InputBornTImeView: UIView {
     func update(_ state: State) {
         switch state {
         case let .setBornTime(bornTime):
-            var hourValue = bornTime.hour.value
-            hourValue += bornTime.meridiem == .am ? 0 : 12
+            var hourValue = bornTime.hour.to24Hour(with: bornTime.meridiem)
             let hourString = String(format: "%02d", hourValue)
             let minuteString = String(format: "%02d", bornTime.minute.value)
             timeField.text = "\(hourString):\(minuteString)"

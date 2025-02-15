@@ -56,20 +56,10 @@ public struct Alarm: Identifiable, Equatable, Codable, Hashable {
 extension Alarm {
     public func nextDateComponents(from now: Date = Date()) -> DateComponents {
         let calendar = Calendar.current
-
-        // 12시간제를 24시간제로 변환
-        let hour24: Int = {
-            switch meridiem {
-            case .am:
-                return hour.value     // 0은 자정(12AM)으로 간주
-            case .pm:
-                return (hour.value == 0 ? 12 : hour.value + 12)  // 0은 정오(12PM)으로 간주
-            }
-        }()
         
         // 오늘 날짜를 기준으로 알람 시간 생성
         guard let alarmToday = calendar.date(
-            bySettingHour: hour24,
+            bySettingHour: hour.to24Hour(with: meridiem),
             minute: minute.value,
             second: 0,
             of: now

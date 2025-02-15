@@ -16,7 +16,7 @@ protocol CompleteWithoutFortuneViewListener: AnyObject {
 final class CompleteWithoutFortuneView: UIView {
     enum Action {
         case prev
-        case next
+        case done
     }
     
     init() {
@@ -31,28 +31,42 @@ final class CompleteWithoutFortuneView: UIView {
     
     weak var listener: CompleteWithoutFortuneViewListener?
     
-    private let backgroundImageView = UIImageView()
+    private let decoImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
     private let titleLabel = UILabel()
+    private let hillImageView = UIImageView()
     private let characterImageView = UIImageView()
     private let descriptionLabel = UILabel()
     private let doneButton = DSDefaultCTAButton()
+    
+    private let titles: [String] = [
+        "운세는 여기까지야\n오늘 하루도 화이팅!",
+        "좋은 아침!\n오늘도 운세처럼 잘 풀릴 거야!",
+        "행운이 깃든 아침,\n하루가 더 특별해질 거야!",
+        "오늘 운세는 여기까지야.\n이제 아침을 시작해보자!",
+        "운세를 확인했으니,\n이제 일어나볼까?",
+        "운세 확인 끝!\n이제 든든하게 하루 시작해봐"
+    ]
 }
 
 private extension CompleteWithoutFortuneView {
     func setupUI() {
         backgroundColor = .init(red: 72/255, green: 145/255, blue: 240/255, alpha: 1)
-        backgroundImageView.do {
-            $0.image = FeatureResourcesAsset.imgBackgroundComplete.image
+        decoImageView.do {
+            $0.image = FeatureResourcesAsset.imgDecoFortune.image
             $0.contentMode = .scaleAspectFill
         }
         titleLabel.do {
-            $0.displayText = """
-            운세 확인 끝!
-            이제 든든하게 하루 시작해봐
-            """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
+            if let randomTitle = titles.randomElement() {
+                $0.displayText = randomTitle.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
+            }
             $0.numberOfLines = 0
             $0.textAlignment = .center
+        }
+        
+        hillImageView.do {
+            $0.image = FeatureResourcesAsset.imgFortuneHillSmall.image
+            $0.contentMode = .scaleAspectFill
         }
         
         characterImageView.do {
@@ -67,18 +81,19 @@ private extension CompleteWithoutFortuneView {
         doneButton.do {
             $0.update(title: "완료")
             $0.buttonAction = { [weak self] in
-                self?.listener?.action(.next)
+                self?.listener?.action(.done)
             }
         }
         
-        [backgroundImageView, pageIndicatorView, titleLabel, characterImageView, descriptionLabel, doneButton].forEach {
+        [decoImageView, pageIndicatorView, titleLabel, hillImageView, characterImageView, descriptionLabel, doneButton].forEach {
             addSubview($0)
         }
         
     }
     func layout() {
-        backgroundImageView.snp.makeConstraints {
-            $0.top.horizontalEdges.equalToSuperview()
+        decoImageView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
         }
         pageIndicatorView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
@@ -91,6 +106,11 @@ private extension CompleteWithoutFortuneView {
         characterImageView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(95)
             $0.centerX.equalToSuperview()
+        }
+        
+        hillImageView.snp.makeConstraints {
+            $0.top.equalTo(characterImageView).offset(136)
+            $0.horizontalEdges.equalToSuperview()
         }
         doneButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)

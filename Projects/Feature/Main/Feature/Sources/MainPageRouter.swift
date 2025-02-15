@@ -60,8 +60,8 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToAlarmMission()
         case let .detachAlarmMission(completion):
             detachAlarmMission(completion)
-        case let .routeToFortune(fortune):
-            routeToFortune(fortune: fortune)
+        case let .routeToFortune(fortune, userInfo):
+            routeToFortune(fortune: fortune, userInfo: userInfo)
         case .detachFortune:
             detachFortune()
         case let .routeToAlarmRelease(alarm):
@@ -141,9 +141,9 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         }
     }
     
-    private func routeToFortune(fortune: Fortune) {
+    private func routeToFortune(fortune: Fortune, userInfo: UserInfo) {
         guard fortuneRouter == nil else { return }
-        let router = fortuneBuilder.build(withListener: interactor, fortune: fortune)
+        let router = fortuneBuilder.build(withListener: interactor, fortune: fortune, userInfo: userInfo)
         self.fortuneRouter = router
         attachChild(router)
         let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)

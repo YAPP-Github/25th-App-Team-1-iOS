@@ -19,7 +19,7 @@ public protocol AlarmPickerListener: AnyObject {
 
 public final class AlarmPicker: UIView {
     private let meridiemColumns: [Meridiem] = [.am, .pm]
-    private var hourColumns: [Hour] = (0...11).compactMap { Hour($0) }
+    private var hourColumns: [Hour] = (1...12).compactMap { Hour($0) }
     private let minuteColumns: [Minute] = (0...59).compactMap { Minute($0) }
     
     // Sub view

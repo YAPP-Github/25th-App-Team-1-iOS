@@ -48,8 +48,16 @@ final class FortuneReferenceView: TouchDetectingView {
         }
     }
     
-    override func onTouchOut() {
+    override func onTap() {
         listener?.action(.next)
+    }
+    
+    override func onSwipeLeft() {
+        listener?.action(.next)
+    }
+    
+    override func onSwipeRight() {
+        listener?.action(.prev)
     }
     
     private let backgroundImageView = UIImageView()
@@ -77,7 +85,7 @@ private extension FortuneReferenceView {
         }
         decoImageView.do {
             $0.image = FeatureResourcesAsset.imgDecoFortune.image
-            $0.contentMode = .scaleAspectFill
+            $0.contentMode = .scaleToFill
         }
         titleLabel.do {
             $0.displayText = """
@@ -90,7 +98,7 @@ private extension FortuneReferenceView {
         
         paperContainer.do {
             $0.image = FeatureResourcesAsset.imgPaperContainerWithoutStar.image
-            $0.contentMode = .scaleAspectFill
+            $0.contentMode = .scaleToFill
         }
         
         contentStackView.do {
@@ -106,7 +114,8 @@ private extension FortuneReferenceView {
         [luckyColorContentView, avoidColorContentView, recommendFoodContentView].forEach {
             contentStackView.addArrangedSubview($0)
         }
-        
+        titleLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
     func layout() {
         backgroundImageView.snp.makeConstraints {
@@ -134,6 +143,7 @@ private extension FortuneReferenceView {
         paperContainer.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(32.5)
+            $0.bottom.equalToSuperview().inset(32)
         }
         contentStackView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()

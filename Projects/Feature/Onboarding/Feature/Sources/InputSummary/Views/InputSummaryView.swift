@@ -95,7 +95,7 @@ extension InputSummaryView {
             generateSummaryView(key: "생년월일", value: birthDateText)
         }
         if let bornTime = model.bornTime {
-            let hourValue = bornTime.hour.value + (bornTime.meridiem == .am ? 0 : 12)
+            let hourValue = bornTime.hour.to24Hour(with: bornTime.meridiem)
             let bornTimeText = String(format: "%02d시 %02d분", hourValue, bornTime.minute.value)
             generateSummaryView(key: "태어난 시간", value: bornTimeText)
         } else {

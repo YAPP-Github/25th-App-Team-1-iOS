@@ -198,6 +198,7 @@ public class R {
         case headline2SemiBold
         case headline2Medium
         
+        case body1Bold
         case body1SemiBold
         case body1Medium
         case body1Regular
@@ -246,6 +247,8 @@ public class R {
                 return 17
             case .headline2Medium:
                 return 17
+            case .body1Bold:
+                return 16
             case .body1SemiBold:
                 return 16
             case .body1Medium:
@@ -311,6 +314,8 @@ public class R {
                 return 1.412
             case .headline2Medium:
                 return 1.412
+            case .body1Bold:
+                return 1.625
             case .body1SemiBold:
                 return 1.625
             case .body1Medium:
@@ -375,6 +380,8 @@ public class R {
             case .headline2SemiBold:
                 return -1
             case .headline2Medium:
+                return -1
+            case .body1Bold:
                 return -1
             case .body1SemiBold:
                 return -1
@@ -441,6 +448,8 @@ public class R {
                 return FeatureResourcesFontFamily.Pretendard.semiBold.font(size: size)
             case .headline2Medium:
                 return FeatureResourcesFontFamily.Pretendard.medium.font(size: size)
+            case .body1Bold:
+                return FeatureResourcesFontFamily.Pretendard.bold.font(size: size)
             case .body1SemiBold:
                 return FeatureResourcesFontFamily.Pretendard.semiBold.font(size: size)
             case .body1Medium:
