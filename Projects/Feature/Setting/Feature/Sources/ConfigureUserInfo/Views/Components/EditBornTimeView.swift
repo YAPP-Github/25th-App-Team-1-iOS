@@ -16,7 +16,7 @@ protocol EditBornTimeViewListener: AnyObject {
 final class EditBornTimeView: UIView {
     // Action
     enum Action {
-        case checkBoxTapped
+        case timeUnknownTapped
         case editingChanged(text: String)
     }
     
@@ -30,7 +30,7 @@ final class EditBornTimeView: UIView {
         textFieldConfig: .init(
             placeholder: "시간 모름",
             alignment: .left,
-            keyboardType: .default
+            keyboardType: .decimalPad
         ),
         titleState: .none,
         messageState: .none
@@ -43,14 +43,24 @@ final class EditBornTimeView: UIView {
     private let unknownTimeStack: UIStackView = .init()
     
     
+    // Gesture
+    private let tapGesture: UITapGestureRecognizer = .init()
+    
+    
     override var isFirstResponder: Bool { bornTimeField.isFirstResponder }
     
     init() {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setupGesture()
     }
     required init?(coder: NSCoder) { nil }
+    
+    @discardableResult
+    override func resignFirstResponder() -> Bool {
+        bornTimeField.resignFirstResponder()
+    }
 }
 
 
@@ -84,6 +94,13 @@ extension EditBornTimeView {
         bornTimeField.update(messageState: messageState)
         return self
     }
+    
+    @discardableResult
+    func update(isTextFieldEnabled: Bool) -> Self {
+        bornTimeField.update(textFieldState: isTextFieldEnabled ? .normal : .disabled)
+        bornTimeField.isUserInteractionEnabled = isTextFieldEnabled
+        return self
+    }
 }
 
 
@@ -105,10 +122,7 @@ private extension EditBornTimeView {
         
         
         // checkBox
-        checkBox.buttonAction = { [weak self] in
-            guard let self else { return }
-            listener?.action(.checkBoxTapped)
-        }
+        checkBox.isUserInteractionEnabled = false
         
         
         // unknownTimeStack
@@ -141,5 +155,14 @@ private extension EditBornTimeView {
             make.top.equalToSuperview().inset(14)
             make.right.equalToSuperview()
         }
+    }
+    
+    func setupGesture() {
+        unknownTimeStack.addGestureRecognizer(tapGesture)
+        tapGesture.addTarget(self, action: #selector(onTapUnknownButton(_:)))
+    }
+    
+    @objc func onTapUnknownButton(_ sender: UITapGestureRecognizer) {
+        listener?.action(.timeUnknownTapped)
     }
 }

@@ -32,6 +32,10 @@ final class ConfigureUserInfoView: UIView, EditBornTimeViewListener {
     weak var listener: ConfigureUserInfoViewListener?
     
     
+    // Gesture
+    private let tapGestureRecognizer: UITapGestureRecognizer = .init()
+    
+    
     // Sub views
     private let navigationBar: DSAppBar = .init()
     private let backButton: DSDefaultIconButton = .init(
@@ -84,6 +88,7 @@ final class ConfigureUserInfoView: UIView, EditBornTimeViewListener {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setupGesture()
         observeKeyBoardEvent()
     }
     required init?(coder: NSCoder) { nil }
@@ -100,6 +105,7 @@ extension ConfigureUserInfoView {
         case gender(gender: Gender)
         case bornTime(text: String)
         case bornTimeFieldMsg(messageState: DSTextFieldWithTitleWithMessage.MessageState)
+        case bornTimeFieldEnability(isEnabled: Bool)
         case unknownTime(isChecked: Bool)
     }
     func update(_ update: Update) {
@@ -141,6 +147,8 @@ extension ConfigureUserInfoView {
                 self.layoutIfNeeded()
                 scrollView.contentOffset.y = (scrollView.contentSize.height-scrollView.bounds.height)
             }
+        case .bornTimeFieldEnability(let isEnabled):
+            editBornTimeView.update(isTextFieldEnabled: isEnabled)
         case .unknownTime(let isChecked):
             editBornTimeView.update(isTimeUnknown: isChecked)
         }
@@ -308,6 +316,21 @@ private extension ConfigureUserInfoView {
             make.bottom.equalToSuperview()
         }
     }
+    
+    func setupGesture() {
+        tapGestureRecognizer.cancelsTouchesInView = false
+        self.addGestureRecognizer(tapGestureRecognizer)
+        tapGestureRecognizer.addTarget(self, action: #selector(onTapAnyWhere(_:)))
+    }
+    @objc
+    func onTapAnyWhere(_ sender: UITapGestureRecognizer) {
+        if editBornTimeView.isFirstResponder {
+            editBornTimeView.resignFirstResponder()
+        }
+        if nameField.isFirstResponder {
+            nameField.resignFirstResponder()
+        }
+    }
 }
 
 
@@ -315,7 +338,7 @@ private extension ConfigureUserInfoView {
 extension ConfigureUserInfoView {
     func action(_ action: EditBornTimeView.Action) {
         switch action {
-        case .checkBoxTapped:
+        case .timeUnknownTapped:
             listener?.action(.unknownBornTimeTapped)
         case .editingChanged(let text):
             listener?.action(.bornTimeTextChanged(text: text))
