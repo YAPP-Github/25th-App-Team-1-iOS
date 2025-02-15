@@ -117,6 +117,7 @@ extension SettingMainInteractor {
                 success: { [weak self] userInfo in
                     guard let self else { return }
                     let userInfoEntity = userInfo.toUserInfo()
+                    self.userInfo = userInfoEntity
                     presenter.update(.setUserInfo(userInfoEntity))
                     presenter.update(.dismissLoading)
                 }) { [weak self] error in
