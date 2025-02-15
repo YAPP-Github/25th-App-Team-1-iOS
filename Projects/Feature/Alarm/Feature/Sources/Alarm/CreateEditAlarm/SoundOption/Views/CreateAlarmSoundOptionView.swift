@@ -46,6 +46,7 @@ final class CreateEditAlarmSoundOptionView: UIView {
         vibrateOnOffSwitch.isOn = option.isVibrationOn
         soundOnOffSwitch.isOn = option.isSoundOn
         soundSlider.value = option.volume
+        soundSlider.isEnabled = option.isSoundOn
         
         soundSlider.tintColor = option.isSoundOn ? R.Color.main100 : R.Color.gray500
             
@@ -137,7 +138,7 @@ private extension CreateEditAlarmSoundOptionView {
         }
         
         soundLabel.do {
-            $0.displayText = "알림음".displayText(font: .headline2Medium, color: R.Color.gray50)
+            $0.displayText = "알람음".displayText(font: .headline2Medium, color: R.Color.gray50)
         }
         
         soundOnOffSwitch.do {
@@ -282,6 +283,7 @@ extension CreateEditAlarmSoundOptionView: UITableViewDelegate {
         return 44
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard isSoundOn else { return }
         let selectedSound = alarmSounds[indexPath.row]
         self.selectedSound = selectedSound
         listener?.action(.soundSelected(selectedSound))
