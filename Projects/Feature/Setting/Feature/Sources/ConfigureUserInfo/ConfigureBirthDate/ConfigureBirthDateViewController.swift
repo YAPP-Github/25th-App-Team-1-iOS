@@ -58,10 +58,7 @@ final class ConfigureBirthDateViewController: UIViewController, BirthDatePickerL
         super.viewDidLoad()
         setupUI()
         setupLayout()
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+        view.layoutIfNeeded()
         setBirthDate(initialDate)
     }
     
