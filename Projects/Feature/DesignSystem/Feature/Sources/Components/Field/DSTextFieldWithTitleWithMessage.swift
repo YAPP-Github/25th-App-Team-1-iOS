@@ -130,7 +130,6 @@ private extension DSTextFieldWithTitleWithMessage {
             $0.distribution = .fill
             $0.spacing = 12
         }
-        textField
         [titleLabel, textField, messageLabel].forEach {
             stackView.addArrangedSubview($0)
         }
@@ -153,6 +152,7 @@ public extension DSTextFieldWithTitleWithMessage {
         textField.becomeFirstResponder()
     }
     
+    @discardableResult
     override func resignFirstResponder() -> Bool {
         textField.resignFirstResponder()
     }

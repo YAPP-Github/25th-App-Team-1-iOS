@@ -41,6 +41,7 @@ final class ConfigureUserInfoInteractor: PresentableInteractor<ConfigureUserInfo
     
     // State
     private let initialUserInfo: UserInfo
+    private var isBornTimeUnknown: Bool
     private var currentUserInfo: UserInfo {
         didSet { checkSaveEnablity() }
     }
@@ -59,6 +60,7 @@ final class ConfigureUserInfoInteractor: PresentableInteractor<ConfigureUserInfo
     init(userInfo: UserInfo, presenter: ConfigureUserInfoPresentable) {
         self.initialUserInfo = userInfo
         self.currentUserInfo = userInfo
+        self.isBornTimeUnknown = userInfo.birthTime == nil
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -81,6 +83,7 @@ extension ConfigureUserInfoInteractor {
         switch request {
         case .viewDidLoad:
             presenter.update(.setUserInfo(userInfo: initialUserInfo))
+            presenter.update(.setTimeIsUnknownState(isUnknown: self.isBornTimeUnknown))
         case .save:
             presenter.update(.presentLoading)
             if let userId = Preference.userId {
@@ -175,9 +178,20 @@ extension ConfigureUserInfoInteractor {
             self.currentUserInfo.gender = gender
             presenter.update(.setUserInfo(userInfo: currentUserInfo))
         case .changeBornTimeUnknownState:
-            self.bornTimeIsValid = true
-            self.currentUserInfo.birthTime = nil
-            presenter.update(.setUserInfo(userInfo: currentUserInfo))
+            let current = self.isBornTimeUnknown
+            let next = !current
+            self.isBornTimeUnknown = next
+            if next {
+                // 시간모름 상태로 변경
+                self.bornTimeIsValid = true
+                self.currentUserInfo.birthTime = nil
+                presenter.update(.setTimeIsUnknownState(isUnknown: true))
+                presenter.update(.setUserInfo(userInfo: currentUserInfo))
+            } else {
+                // 시간 모름상태 해제, 하지만 공백으로 인해 검증은 실패한 상태
+                self.bornTimeIsValid = false
+                presenter.update(.setTimeIsUnknownState(isUnknown: false))
+            }
         }
     }
     
@@ -212,17 +226,17 @@ private extension ConfigureUserInfoInteractor {
     
     func validateHour(_ time: String) -> (Meridiem, Hour)? {
         let hourString = time.prefix(2)
-        guard let hourInt = Int(hourString),
+        guard var hourInt = Int(hourString),
               (0...23).contains(hourInt) else { return nil }
         let meridiem: Meridiem = hourInt < 12 ? .am : .pm
-        switch meridiem {
-        case .am:
-            guard let hour = Hour(hourInt) else { return nil }
-            return (meridiem, hour)
-        case .pm:
-            guard let hour = Hour(hourInt - 12) else { return nil }
-            return (meridiem, hour)
+        if hourInt == 0 {
+            hourInt = 12
+        } else if hourInt > 12 {
+            hourInt -= 12
         }
+        guard let hour = Hour(hourInt) else { return nil }
+        
+        return (meridiem, hour)
     }
     
     func validateMinute(_ time: String) -> Minute? {

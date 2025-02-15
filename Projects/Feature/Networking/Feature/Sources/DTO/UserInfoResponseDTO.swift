@@ -48,7 +48,11 @@ public extension UserInfoResponseDTO {
             let meridiemEntity: Meridiem = hour >= 12 ? .pm : .am
             var hourEntity: Hour!
             if meridiemEntity == .pm {
-                hourEntity = .init(hour-12)!
+                if (hour-12) == 0 {
+                    hourEntity = .init(hour)!
+                } else {
+                    hourEntity = .init(hour-12)!
+                }
             } else {
                 hourEntity = .init(hour)!
             }

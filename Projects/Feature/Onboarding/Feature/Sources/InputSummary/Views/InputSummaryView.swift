@@ -207,7 +207,6 @@ private extension InputSummaryView {
     
     
     func clipContainerView() {
-        
         let path = UIBezierPath(
             roundedRect: bounds,
             byRoundingCorners: [.topLeft, .topRight],
@@ -217,6 +216,14 @@ private extension InputSummaryView {
         clippingLayer.path = path.cgPath
         clippingLayer.frame = containerView.layer.bounds
         containerView.layer.mask = clippingLayer
+        
+        let borderLayer = CAShapeLayer()
+        borderLayer.path = path.cgPath
+        borderLayer.frame = containerView.layer.bounds
+        borderLayer.strokeColor = R.Color.gray700.cgColor
+        borderLayer.fillColor = UIColor.clear.cgColor
+        borderLayer.lineWidth = 2
+        containerView.layer.addSublayer(borderLayer)
     }
 }
 

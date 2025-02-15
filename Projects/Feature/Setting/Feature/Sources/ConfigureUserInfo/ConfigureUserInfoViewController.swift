@@ -26,6 +26,7 @@ enum ConfigureUserInfoPresenterRequest {
 enum ConfigureUserInfoPresenterUpdate {
     case setSaveButtonState(isEanbled: Bool)
     case setUserInfo(userInfo: UserInfo)
+    case setTimeIsUnknownState(isUnknown: Bool)
     case showBornTimeFieldErrorMessage
     case showNameFieldErrorMessage
     case dismissBornTimeFieldErrorMessage
@@ -81,10 +82,8 @@ extension ConfigureUserInfoViewController {
             if let bornTimeData = userInfo.birthTime {
                 let bornTimeText = bornTimeData.toTimeString()
                 mainView.update(.bornTime(text: bornTimeText))
-                mainView.update(.unknownTime(isChecked: false))
             } else {
                 mainView.update(.bornTime(text: ""))
-                mainView.update(.unknownTime(isChecked: true))
             }
         case .showNameFieldErrorMessage:
             mainView.update(.nameFieldMsg(messageState: .error("입력한 내용을 확인해 주세요", .left)))
@@ -112,6 +111,17 @@ extension ConfigureUserInfoViewController {
                 loadingView.stop()
                 loadingView.removeFromSuperview()
                 self.loadingView = nil
+            }
+        case .setTimeIsUnknownState(let isUnknown):
+            if isUnknown {
+                // 시간을 모르는 상태
+                // - 공백처리, 체킹상태 변화, 텍스트 필드 비활성화
+                mainView.update(.unknownTime(isChecked: true))
+                mainView.update(.bornTimeFieldEnability(isEnabled: false))
+            } else {
+                // - 체킹상태 변화, 텍스트 필드 활성화
+                mainView.update(.unknownTime(isChecked: false))
+                mainView.update(.bornTimeFieldEnability(isEnabled: true))
             }
         }
     }
