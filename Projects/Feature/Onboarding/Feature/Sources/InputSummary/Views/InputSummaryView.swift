@@ -31,6 +31,7 @@ final class InputSummaryView: UIView {
     
     
     // Sub views
+    private let backgroundView = UIView()
     private let containerView: UIView = .init()
     private let titleLabel: UILabel = .init()
     private let inputSummaryStack: UIStackView = .init().then {
@@ -57,6 +58,7 @@ final class InputSummaryView: UIView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setupGestur()
     }
     required init?(coder: NSCoder) { nil }
     
@@ -64,6 +66,11 @@ final class InputSummaryView: UIView {
         super.layoutSubviews()
         
         clipContainerView()
+    }
+    
+    @objc
+    private func backgroundTapped() {
+        listener?.action(.disagreeInSummary)
     }
 }
 
@@ -73,10 +80,10 @@ extension InputSummaryView {
     
     func update(isPresent: Bool) {
         if isPresent {
-            self.backgroundColor = .black.withAlphaComponent(0.8)
+            backgroundView.backgroundColor = .black.withAlphaComponent(0.8)
             containerView.transform = .identity
         } else {
-            self.backgroundColor = .clear
+            backgroundView.backgroundColor = .clear
             let height = containerView.layer.bounds.height
             containerView.transform = containerView.transform.translatedBy(x: 0, y: height)
         }
@@ -117,6 +124,7 @@ extension InputSummaryView {
 private extension InputSummaryView {
     
     func setupUI() {
+        addSubview(backgroundView)
         
         // containerView
         containerView.backgroundColor = R.Color.gray800
@@ -159,6 +167,9 @@ private extension InputSummaryView {
     
     
     func setupLayout() {
+        backgroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         
         // containerView
         containerView.snp.makeConstraints { make in
@@ -187,6 +198,11 @@ private extension InputSummaryView {
             make.horizontalEdges.equalToSuperview().inset(20)
             make.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
         }
+    }
+    
+    func setupGestur() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+        backgroundView.addGestureRecognizer(gesture)
     }
     
     

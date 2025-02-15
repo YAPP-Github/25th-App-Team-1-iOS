@@ -18,7 +18,6 @@ protocol AuthorizationDeniedPresentable: Presentable {
 }
 
 enum AuthorizationDeniedListenerRequest {
-    case back
     case later
     case allowed
 }
@@ -51,8 +50,6 @@ final class AuthorizationDeniedInteractor: PresentableInteractor<AuthorizationDe
     
     func request(_ request: AuthorizationDeniedPresentableListenerRequest) {
         switch request {
-        case .back:
-            listener?.request(.back)
         case .later:
             listener?.request(.later)
         case .allowed:

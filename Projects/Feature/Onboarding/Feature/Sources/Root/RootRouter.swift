@@ -85,8 +85,6 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             detachAuthorizationRequest()
         case .routeToAuthorizationDenied:
             routeToAuthorizationDenied()
-        case .detachAuthorizationDenied:
-            detachAuthorizationDenied()
         case .routeToMissionGuide:
             routeToMissionGuide()
         case .detachMissionGuide:
@@ -276,13 +274,6 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         authorizationDeniedRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
-    }
-    
-    private func detachAuthorizationDenied() {
-        guard let router = authorizationDeniedRouter else { return }
-        authorizationDeniedRouter = nil
-        detachChild(router)
-        dismissOrPopViewController()
     }
     
     private func routeToMissionGuide() {
