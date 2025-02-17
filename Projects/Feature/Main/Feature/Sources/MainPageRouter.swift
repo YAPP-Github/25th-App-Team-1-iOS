@@ -56,16 +56,16 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToCreateAlarm(mode: mode)
         case .detachCreateEditAlarm:
             detachCreateEditAlarm()
-        case .routeToAlarmMission:
-            routeToAlarmMission()
+        case let .routeToAlarmMission(isFirstAlarm):
+            routeToAlarmMission(isFirstAlarm: isFirstAlarm)
         case let .detachAlarmMission(completion):
             detachAlarmMission(completion)
-        case let .routeToFortune(fortune, userInfo):
-            routeToFortune(fortune: fortune, userInfo: userInfo)
+        case let .routeToFortune(fortune, userInfo, fortuneInfo):
+            routeToFortune(fortune: fortune, userInfo: userInfo, fortuneInfo: fortuneInfo)
         case .detachFortune:
             detachFortune()
-        case let .routeToAlarmRelease(alarm):
-            routeToAlarmRelease(alarm: alarm)
+        case let .routeToAlarmRelease(alarm, isFirstAlarm):
+            routeToAlarmRelease(alarm: alarm, isFirstAlarm: isFirstAlarm)
         case let .detachAlarmRelease(completion):
             detachAlarmRelease(completion: completion)
         case .presentAlertType1(let config):
@@ -123,9 +123,9 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         detachChild(router)
     }
     
-    private func routeToAlarmMission() {
+    private func routeToAlarmMission(isFirstAlarm: Bool) {
         guard alarmMissionRouter == nil else { return }
-        let router = alarmMissionBuilder.build(withListener: interactor)
+        let router = alarmMissionBuilder.build(withListener: interactor, isFirstAlarm: isFirstAlarm)
         self.alarmMissionRouter = router
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
@@ -141,9 +141,9 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         }
     }
     
-    private func routeToFortune(fortune: Fortune, userInfo: UserInfo) {
+    private func routeToFortune(fortune: Fortune, userInfo: UserInfo, fortuneInfo: FortuneSaveInfo) {
         guard fortuneRouter == nil else { return }
-        let router = fortuneBuilder.build(withListener: interactor, fortune: fortune, userInfo: userInfo)
+        let router = fortuneBuilder.build(withListener: interactor, fortune: fortune, userInfo: userInfo, fortuneInfo: fortuneInfo)
         self.fortuneRouter = router
         attachChild(router)
         let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
@@ -166,9 +166,9 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         navigationController = nil
     }
     
-    private func routeToAlarmRelease(alarm: Alarm) {
+    private func routeToAlarmRelease(alarm: Alarm, isFirstAlarm: Bool) {
         guard alarmReleaseRouter == nil else { return }
-        let router = alarmReleaseBuilder.build(withListener: interactor, alarm: alarm)
+        let router = alarmReleaseBuilder.build(withListener: interactor, alarm: alarm, isFirstAlarm: isFirstAlarm)
         self.alarmReleaseRouter = router
         attachChild(router)
         let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)

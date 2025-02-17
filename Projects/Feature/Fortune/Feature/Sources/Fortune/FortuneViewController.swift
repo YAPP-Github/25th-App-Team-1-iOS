@@ -12,6 +12,7 @@ import FeatureUIDependencies
 
 enum FortunePresentableListenerRequest {
     case viewDidLoad
+    case charmSelected(Int)
     case close
 }
 
@@ -43,7 +44,6 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
         step3View.listener = self
         step4View.listener = self
         step5View.listener = self
-        step6View.listener = self
         charmView.listener = self
         
         listener?.request(.viewDidLoad)
@@ -54,7 +54,9 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     private let step3View = FortuneHealthLoveView()
     private let step4View = FortuneCoordinationView()
     private let step5View = FortuneReferenceView()
-    private let step6View = CompleteWithoutFortuneView()
+    private var step6View: UIView?
+    private lazy var withoutFortuneView = CompleteWithoutFortuneView()
+    private lazy var withFortuneView = CompleteWithFortuneView()
     private let charmView = CharmView()
     
     @objc
@@ -64,13 +66,22 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     
     func request(_ request: FortunePresentableRequest) {
         switch request {
-        case let .setFortune(fortune, userInfo):
+        case let .setFortune(fortune, userInfo, fortuneInfo):
             step1View.update(.fortune(fortune))
             step2View.update(.fortune(fortune, userInfo))
             step3View.update(.fortune(fortune, userInfo))
             step4View.update(.fortune(fortune))
             step5View.update(.fortune(fortune))
-            charmView.update(.user(userInfo))
+            if fortuneInfo.isFirstAlarm {
+                step6View = withFortuneView
+                withFortuneView.listener = self
+                charmView.update(.user(userInfo))
+                charmView.update(.charm(fortuneInfo))
+            } else {
+                step6View = withoutFortuneView
+                withoutFortuneView.listener = self
+            }
+            
         }
     }
 }
@@ -152,6 +163,8 @@ extension FortuneViewController: CharmViewListener {
         switch action {
         case .done:
             listener?.request(.close)
+        case let .charmSelected(index):
+            listener?.request(.charmSelected(index))
         }
     }
 }

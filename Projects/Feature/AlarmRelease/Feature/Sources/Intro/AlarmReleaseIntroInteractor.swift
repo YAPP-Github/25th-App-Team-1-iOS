@@ -32,7 +32,7 @@ protocol AlarmReleaseIntroPresentable: Presentable {
 }
 
 public enum AlarmReleaseIntroListenerRequest {
-    case releaseAlarm
+    case releaseAlarm(Bool)
 }
 
 public protocol AlarmReleaseIntroListener: AnyObject {
@@ -48,9 +48,11 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     // in constructor.
     init(
         presenter: AlarmReleaseIntroPresentable,
-        alarm: Alarm
+        alarm: Alarm,
+        isFirstAlarm: Bool
     ) {
         self.alarm = alarm
+        self.isFirstAlarm = isFirstAlarm
         remainSnoozeCount = alarm.snoozeOption.count.rawValue
         super.init(presenter: presenter)
         presenter.listener = self
@@ -70,11 +72,12 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
             router?.request(.routeToSnooze(alarm.snoozeOption))
         case .releaseAlarm:
             stopAlarm()
-            listener?.request(.releaseAlarm)
+            listener?.request(.releaseAlarm(isFirstAlarm))
         }
     }
     
     private let alarm: Alarm
+    private let isFirstAlarm: Bool
     private var remainSnoozeCount: Int?
     
     private func updateSnoozeCount() {
@@ -110,7 +113,7 @@ extension AlarmReleaseIntroInteractor {
         case .releaseAlarm:
             presenter.request(.stopTimer)
             stopAlarm()
-            listener?.request(.releaseAlarm)
+            listener?.request(.releaseAlarm(isFirstAlarm))
         case .snoozeFinished:
             updateSnoozeCount()
             playAlarm()

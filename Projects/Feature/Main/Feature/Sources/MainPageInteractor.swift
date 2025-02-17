@@ -23,11 +23,11 @@ public protocol MainPageActionableItem: AnyObject {
 public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
     case detachCreateEditAlarm
-    case routeToAlarmMission
+    case routeToAlarmMission(Bool)
     case detachAlarmMission((() -> Void)?)
-    case routeToFortune(Fortune, UserInfo)
+    case routeToFortune(Fortune, UserInfo, FortuneSaveInfo)
     case detachFortune
-    case routeToAlarmRelease(Alarm)
+    case routeToAlarmRelease(Alarm, Bool)
     case detachAlarmRelease((() -> Void)?)
     case presentAlertType1(DSButtonAlert.Config)
     case presentAlertType2(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
@@ -93,11 +93,11 @@ extension MainPageInteractor {
             self.alarmCellROs = renderObjects
             presenter.request(.setAlarmList(renderObjects))
             
-            if UserDefaults.standard.dailyFortuneId() != nil {
+            if UserDefaults.standard.dailyFortune() != nil {
                 presenter.request(.setFortuneDeliverMark(isMarked: true))
             }
         case .showFortuneNoti:
-            guard let fortuneId = UserDefaults.standard.dailyFortuneId() else {
+            guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
                 let config = DSButtonAlert.Config(
                     titleText: "받은 운세가 없어요",
                     subTitleText: """
@@ -112,11 +112,11 @@ extension MainPageInteractor {
                 return
             }
             
-            let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+            let request = APIRequest.Fortune.getFortune(fortuneId: fortuneInfo.id)
             APIClient.request(Fortune.self, request: request) { [weak self] fortune in
                 guard let self else { return }
                 DispatchQueue.main.async {
-                    self.goToFortune(fortune: fortune)
+                    self.goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
                 }
             } failure: { error in
                 print(error)
@@ -304,7 +304,7 @@ extension MainPageInteractor {
         }
     }
     
-    private func goToFortune(fortune: Fortune) {
+    private func goToFortune(fortune: Fortune, fortuneInfo: FortuneSaveInfo) {
         guard let userId = Preference.userId else { return }
         APIClient.request(
             UserInfoResponseDTO.self,
@@ -313,13 +313,22 @@ extension MainPageInteractor {
                 guard let router else { return }
                 let userInfoEntity = userInfo.toUserInfo()
                 DispatchQueue.main.async {
-                    router.request(.routeToFortune(fortune, userInfoEntity))
+                    router.request(.routeToFortune(fortune, userInfoEntity, fortuneInfo))
                 }
             }) { [weak self] error in
                 guard let self else { return }
                 // 유저정보 획득 실패
                 debugPrint(error.localizedDescription)
             }
+    }
+    
+    private func checkIsFirstAlarm(with alarm: Alarm) -> Bool {
+        let alarmList = service.getAllAlarm()
+        let activeAlarmList = alarmList.filter { $0.isActive }
+        if let firstAlarm = activeAlarmList.sorted(by: { $0.hour.value < $1.hour.value }).sorted(by: { $0.minute.value < $1.minute.value }).first {
+            return firstAlarm.id == alarm.id
+        }
+        return false
     }
 }
 
@@ -357,10 +366,15 @@ extension MainPageInteractor {
 extension MainPageInteractor {
     func request(_ request: FeatureAlarmMission.ShakeMissionMainListenerRequest) {
         switch request {
-        case let .close(fortune):
+        case let .missionCompleted(fortune, fortuneInfo):
             router?.request(.detachAlarmMission { [weak self] in
-                guard let self, let fortune else { return }
-                goToFortune(fortune: fortune)
+                guard let self else { return }
+                goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
+            })
+        case let .close(fortune, fortuneInfo):
+            router?.request(.detachAlarmMission { [weak self] in
+                guard let self else { return }
+                goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
             })
         }
     }
@@ -379,9 +393,9 @@ extension MainPageInteractor {
 extension MainPageInteractor {
     func request(_ request: FeatureAlarmRelease.AlarmReleaseIntroListenerRequest) {
         switch request {
-        case .releaseAlarm:
+        case let .releaseAlarm(isFirstAlarm):
             router?.request(.detachAlarmRelease({ [weak router] in
-                router?.request(.routeToAlarmMission)
+                router?.request(.routeToAlarmMission(isFirstAlarm))
             }))
         }
     }
@@ -390,7 +404,8 @@ extension MainPageInteractor {
 extension MainPageInteractor: MainPageActionableItem {
     func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())> {
         guard let alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return .just((self, ())) }
-        router?.request(.routeToAlarmRelease(alarm))
+        let isFirstAlarm = self.checkIsFirstAlarm(with: alarm)
+        router?.request(.routeToAlarmRelease(alarm, isFirstAlarm))
         return .just((self, ()))
     }
 

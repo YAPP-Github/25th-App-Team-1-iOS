@@ -32,7 +32,8 @@ protocol ShakeMissionMainPresentable: Presentable {
 }
 
 public enum ShakeMissionMainListenerRequest {
-    case close(Fortune?)
+    case missionCompleted(Fortune, FortuneSaveInfo)
+    case close(Fortune, FortuneSaveInfo)
 }
 
 public protocol ShakeMissionMainListener: AnyObject {
@@ -46,15 +47,19 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: ShakeMissionMainPresentable) {
+    init(
+        presenter: ShakeMissionMainPresentable,
+        isFirstAlarm: Bool
+    ) {
+        self.isFirstAlarm = isFirstAlarm
         super.init(presenter: presenter)
         presenter.listener = self
     }
     
     override func didBecomeActive() {
         super.didBecomeActive()
-        if let fortundId = UserDefaults.standard.dailyFortuneId() {
-            getFortune(fortuneId: fortundId)
+        if let fortuneInfo = UserDefaults.standard.dailyFortune() {
+            getFortune(fortuneId: fortuneInfo.id)
         } else {
             createFortune()
         }
@@ -64,8 +69,15 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
         guard let userId = Preference.userId else { return }
         let request = APIRequest.Fortune.createFortune(userId: userId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
-            self?.fortune = fortune
-            UserDefaults.standard.setDailyFortuneId(fortune.id)
+            guard let self else { return }
+            self.fortune = fortune
+            let info = FortuneSaveInfo(
+                id: fortune.id,
+                isFirstAlarm: isFirstAlarm,
+                charmIndex: nil
+            )
+            self.fortuneInfo = info
+            UserDefaults.standard.setDailyFortune(info: info)
         } failure: { error in
             print(error)
         }
@@ -73,15 +85,19 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
     }
     
     private func getFortune(fortuneId: Int) {
+        guard let fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
         let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
             self?.fortune = fortune
+            self?.fortuneInfo = fortuneInfo
         } failure: { error in
             print(error)
         }
     }
     
     private var fortune: Fortune?
+    private var fortuneInfo: FortuneSaveInfo?
+    private let isFirstAlarm: Bool
 }
 
 
@@ -108,7 +124,8 @@ extension ShakeMissionMainInteractor {
             router?.request(.dismissAlert())
         case .rightButtonClicked:
             router?.request(.exitPage)
-            listener?.request(.close(fortune))
+            guard let fortune, let fortuneInfo else { return }
+            listener?.request(.close(fortune, fortuneInfo))
         }
     }
 }
@@ -117,9 +134,15 @@ extension ShakeMissionMainInteractor {
 // MARK: ShakeMissionWorkingListener
 extension ShakeMissionMainInteractor {
     
-    func exitShakeMissionWorkingPage() {
+    func exitShakeMissionWorkingPage(isSucceeded: Bool) {
         router?.request(.dissmissWorkingPage)
         router?.request(.exitPage)
-        listener?.request(.close(fortune))
+        guard let fortune, let fortuneInfo else { return }
+        if isSucceeded {
+            listener?.request(.missionCompleted(fortune, fortuneInfo))
+        } else {
+            listener?.request(.close(fortune, fortuneInfo))
+        }
+        
     }
 }

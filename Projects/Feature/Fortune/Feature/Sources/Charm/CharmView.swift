@@ -17,10 +17,12 @@ protocol CharmViewListener: AnyObject {
 final class CharmView: UIView {
     enum Action {
         case done
+        case charmSelected(Int)
     }
     
     enum State {
         case user(UserInfo)
+        case charm(FortuneSaveInfo)
     }
     
     init() {
@@ -43,6 +45,14 @@ final class CharmView: UIView {
             부적을 가지고 있으면
             행운이 찾아올거야
             """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
+        case let .charm(fortuneInfo):
+            if let index = fortuneInfo.charmIndex {
+                self.selectedImage = charmImages[index]
+            } else {
+                let (image, index) = getRandomCharmImage()
+                self.selectedImage = image
+                listener?.action(.charmSelected(index))
+            }
         }
     }
     
@@ -62,9 +72,17 @@ final class CharmView: UIView {
         FeatureResourcesAsset.imgCharm5.image
     ]
     
-    private lazy var selectedImage: UIImage? = {
-        return charmImages.randomElement()
-    }()
+    private var selectedImage: UIImage? {
+        didSet {
+            self.charmImageView.image = selectedImage
+        }
+    }
+    
+    private func getRandomCharmImage() -> (image: UIImage, index: Int) {
+        let randomIndex = Int.random(in: 0..<charmImages.count)
+        let image = charmImages[randomIndex]
+        return (image, randomIndex)
+    }
     
     private func saveImage() {
         guard let selectedImage else { return }
@@ -98,7 +116,6 @@ private extension CharmView {
         }
         
         charmImageView.do {
-            $0.image = selectedImage
             $0.contentMode = .scaleAspectFit
         }
         

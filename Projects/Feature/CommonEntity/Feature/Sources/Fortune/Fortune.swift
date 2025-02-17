@@ -33,3 +33,15 @@ public struct Fortune: Codable {
         return R.Color.color(title: unluckyColor)
     }
 }
+
+public struct FortuneSaveInfo: Codable {
+    public let id: Int
+    public var isFirstAlarm: Bool
+    public var charmIndex: Int?
+    
+    public init(id: Int, isFirstAlarm: Bool, charmIndex: Int?) {
+        self.id = id
+        self.isFirstAlarm = isFirstAlarm
+        self.charmIndex = charmIndex
+    }
+}
