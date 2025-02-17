@@ -72,7 +72,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
             step3View.update(.fortune(fortune, userInfo))
             step4View.update(.fortune(fortune))
             step5View.update(.fortune(fortune))
-            if fortuneInfo.isFirstAlarm {
+            if fortuneInfo.shouldShowCharm {
                 step6View = withFortuneView
                 withFortuneView.listener = self
                 charmView.update(.user(userInfo))

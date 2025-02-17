@@ -73,10 +73,9 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
             self.fortune = fortune
             let info = FortuneSaveInfo(
                 id: fortune.id,
-                isFirstAlarm: isFirstAlarm,
+                shouldShowCharm: false,
                 charmIndex: nil
             )
-            self.fortuneInfo = info
             UserDefaults.standard.setDailyFortune(info: info)
         } failure: { error in
             print(error)
@@ -89,21 +88,18 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
         let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
             self?.fortune = fortune
-            self?.fortuneInfo = fortuneInfo
         } failure: { error in
             print(error)
         }
     }
     
     private var fortune: Fortune?
-    private var fortuneInfo: FortuneSaveInfo?
     private let isFirstAlarm: Bool
 }
 
 
 // MARK: ShakeMissionMainPresentableListener
 extension ShakeMissionMainInteractor {
-    
     func request(_ request: ShakeMissionMainPresenterRequest) {
         switch request {
         case .startMission:
@@ -124,7 +120,7 @@ extension ShakeMissionMainInteractor {
             router?.request(.dismissAlert())
         case .rightButtonClicked:
             router?.request(.exitPage)
-            guard let fortune, let fortuneInfo else { return }
+            guard let fortune, let fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
             listener?.request(.close(fortune, fortuneInfo))
         }
     }
@@ -137,8 +133,12 @@ extension ShakeMissionMainInteractor {
     func exitShakeMissionWorkingPage(isSucceeded: Bool) {
         router?.request(.dissmissWorkingPage)
         router?.request(.exitPage)
-        guard let fortune, let fortuneInfo else { return }
+        guard let fortune, var fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
         if isSucceeded {
+            if fortuneInfo.shouldShowCharm == false {
+                fortuneInfo.shouldShowCharm = isFirstAlarm
+            }
+            UserDefaults.standard.setDailyFortune(info: fortuneInfo)
             listener?.request(.missionCompleted(fortune, fortuneInfo))
         } else {
             listener?.request(.close(fortune, fortuneInfo))

@@ -36,12 +36,12 @@ public struct Fortune: Codable {
 
 public struct FortuneSaveInfo: Codable {
     public let id: Int
-    public var isFirstAlarm: Bool
+    public var shouldShowCharm: Bool
     public var charmIndex: Int?
     
-    public init(id: Int, isFirstAlarm: Bool, charmIndex: Int?) {
+    public init(id: Int, shouldShowCharm: Bool, charmIndex: Int?) {
         self.id = id
-        self.isFirstAlarm = isFirstAlarm
+        self.shouldShowCharm = shouldShowCharm
         self.charmIndex = charmIndex
     }
 }
