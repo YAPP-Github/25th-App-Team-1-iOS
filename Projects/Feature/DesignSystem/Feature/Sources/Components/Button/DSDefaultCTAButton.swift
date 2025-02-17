@@ -86,8 +86,7 @@ public final class DSDefaultCTAButton: TouchDetectingView {
     }
     
     
-    private func setupLayout() {
-        // titleLabel
+    private func setupLayout() {        
         leftIconImageView.do {
             $0.contentMode = .scaleAspectFit
             $0.isHidden = true

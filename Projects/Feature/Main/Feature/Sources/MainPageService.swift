@@ -27,6 +27,11 @@ struct MainPageService: MainPageServiceable {
     }
     func updateAlarm(_ alarm: Alarm) {
         AlarmStore.shared.update(alarm)
+        removeScheduledNotification(alarm: alarm)
+        if alarm.isActive,
+           let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm {
+            scheduleNotification(for: alarm, soundUrl: soundUrl)
+        }
     }
     func deleteAlarm(_ alarm: Alarm) {
         AlarmStore.shared.delete(alarm)
@@ -74,7 +79,7 @@ extension MainPageService {
             for i in 0..<64 {
                 let delay = initialDelay + Double(i * 5)
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
-                let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.hour ?? 0)_\(components.minute ?? 0)_\(i)"
+                let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.day ?? 0)_\(i)"
                 let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
                 
                 center.add(request) { error in
@@ -130,5 +135,23 @@ extension MainPageService {
         }
         
         return UNNotificationSound(named: UNNotificationSoundName(destinationURL.lastPathComponent))
+    }
+    
+    func removeScheduledNotification(alarm: Alarm) {
+        let center = UNUserNotificationCenter.current()
+        center.getPendingNotificationRequests { requests in
+            let identifiersToRemove = requests.compactMap { request -> String? in
+                // 우리가 예약할 때 "\(alarm.id)_\(i)" 형태로 식별자를 생성했으므로,
+                // alarmId가 포함된 식별자를 제거하도록 함
+                if request.identifier.hasPrefix("\(alarm.id)_"){
+                    return request.identifier
+                }
+                return nil
+            }
+            
+            // 필터링된 식별자들의 알림 제거
+            center.removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
+            print("삭제된 알림 식별자들: \(identifiersToRemove)")
+        }
     }
 }
