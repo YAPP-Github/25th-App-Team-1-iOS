@@ -129,6 +129,9 @@ private extension CharmView {
             $0.buttonAction = { [weak self] in
                 self?.saveImage()
             }
+            
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+            $0.setContentHuggingPriority(.required, for: .vertical)
         }
         
         doneButton.do {
@@ -136,6 +139,9 @@ private extension CharmView {
             $0.buttonAction = { [weak self] in
                 self?.listener?.action(.done)
             }
+            
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+            $0.setContentHuggingPriority(.required, for: .vertical)
         }
         
         buttonStackView.do {
