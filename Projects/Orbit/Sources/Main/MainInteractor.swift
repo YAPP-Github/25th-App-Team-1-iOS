@@ -71,60 +71,56 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
     private func scheduleNotification(for alarm: Alarm, soundUrl: URL) {
         let center = UNUserNotificationCenter.current()
         
-        // 알림 콘텐츠 구성
-        let content = UNMutableNotificationContent()
-        content.title = "알람"
-        content.body = "설정한 알람 시간입니다."
-        content.userInfo = ["alarmId": alarm.id]
-        if let sound = copySoundFileToLibrary(with: soundUrl) {
-            content.sound = sound
-        } else {
-            content.sound = .default
-        }
+        let sound = copySoundFileToLibrary(with: soundUrl) ?? .default
         
-        guard let alarmDate = Calendar.current.date(from: alarm.nextDateComponents()) else {
-            print("유효한 날짜를 가져올 수 없습니다.")
-            return
-        }
-        
+        let alarmComponentsList = alarm.nextDateComponents()
         let now = Date()
-        let initialDelay = alarmDate.timeIntervalSince(now)
         
-        // 알람 시간이 이미 지난 경우 처리
-        if initialDelay < 0 {
-            print("알람 시간이 이미 지난 시간입니다.")
-            return
-        }
-        
-        // 첫 알람부터 5초 간격으로 총 64번 예약
-        for i in 0..<64 {
-            let delay = initialDelay + Double(i * 5)
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
-            let identifier = "\(alarm.id)_\(i)"
+        for components in alarmComponentsList {
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+            
+            let content = UNMutableNotificationContent()
+            content.title = "알람"
+            content.body = "선택한 요일에 울리는 알람입니다."
+            content.userInfo = ["alarmId": alarm.id]
+            content.sound = sound
+            
+            guard let alarmDate = Calendar.current.date(from: components) else { continue }
+            let initialDelay = alarmDate.timeIntervalSince(now)
+            
+            if initialDelay < 0 {
+                continue
+            }
+            
+            // 식별자에 요일 정보를 포함하면 관리하기 편함
+            let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.hour ?? 0)_\(components.minute ?? 0)"
+            
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
             
-            center.add(request) { error in
+            UNUserNotificationCenter.current().add(request) { error in
                 if let error = error {
-                    print("알림 스케줄링 오류 (\(identifier)): \(error.localizedDescription)")
+                    print("알림 예약 실패 (\(identifier)): \(error.localizedDescription)")
                 } else {
                     print("알림 예약 성공: \(identifier)")
                 }
             }
+            
+            for i in 0..<64 {
+                let delay = initialDelay + Double(i * 5)
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+                let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.hour ?? 0)_\(components.minute ?? 0)_\(i)"
+                let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+                
+                center.add(request) { error in
+                    if let error = error {
+                        print("알림 스케줄링 오류 (\(identifier)): \(error.localizedDescription)")
+                    } else {
+                        print("알림 예약 성공: \(identifier)")
+                    }
+                }
+            }
         }
-    }
-    
-    private func scheduleTimer(with alarm: Alarm, soundUrl: URL) {
-        AlarmManager.shared.activateSession()
-        let calendar = Calendar.current
-        guard let date = calendar.date(from: alarm.nextDateComponents()) else { return }
-        let currentDate = Date()
-        let timeInterval = date.timeIntervalSince(currentDate)
-        print(timeInterval)
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeInterval) {
-            VolumeManager.setVolume(alarm.soundOption.volume) // 설정한 볼륨값 0.0~1.0으로 설정
-            AlarmManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume)
-        }
-
+        
     }
     
     @discardableResult
@@ -180,7 +176,6 @@ extension MainInteractor {
             AlarmStore.shared.add(alarm)
             guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
             scheduleNotification(for: alarm, soundUrl: soundUrl)
-            scheduleTimer(with: alarm, soundUrl: soundUrl)
             router?.request(.routeToMain { [weak self] actionableItem in
                 self?.mainPageActionableItemSubject.onNext(actionableItem)
             })
