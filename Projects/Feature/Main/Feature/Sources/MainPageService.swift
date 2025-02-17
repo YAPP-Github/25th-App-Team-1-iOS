@@ -49,19 +49,33 @@ extension MainPageService {
             content.sound = .default
         }
         
-
-        // 알림 트리거 구성
-        let dateComponents = alarm.nextDateComponents()
+        guard let alarmDate = Calendar.current.date(from: alarm.nextDateComponents()) else {
+            print("유효한 날짜를 가져올 수 없습니다.")
+            return
+        }
         
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
-        let identifier = alarm.id
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-
-        center.add(request) { error in
-            if let error = error {
-                print("알림 스케줄링 오류: \(error.localizedDescription)")
-            } else {
-                print("알림이 성공적으로 스케줄되었습니다. 식별자: \(identifier)")
+        let now = Date()
+        let initialDelay = alarmDate.timeIntervalSince(now)
+        
+        // 알람 시간이 이미 지난 경우 처리
+        if initialDelay < 0 {
+            print("알람 시간이 이미 지난 시간입니다.")
+            return
+        }
+        
+        // 첫 알람부터 5초 간격으로 총 64번 예약
+        for i in 0..<64 {
+            let delay = initialDelay + Double(i * 5)
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+            let identifier = "\(alarm.id)_\(i)"
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+            
+            center.add(request) { error in
+                if let error = error {
+                    print("알림 스케줄링 오류 (\(identifier)): \(error.localizedDescription)")
+                } else {
+                    print("알림 예약 성공: \(identifier)")
+                }
             }
         }
     }
