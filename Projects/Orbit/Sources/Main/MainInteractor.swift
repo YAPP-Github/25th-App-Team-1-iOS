@@ -5,12 +5,15 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import Foundation
 import RIBs
 import RxSwift
 import RxRelay
 import FeatureOnboarding
 import FeatureCommonDependencies
+import FeatureResources
 import FeatureMain
+import UserNotifications
 
 protocol RootActionableItem: AnyObject {
     func waitFoOnboarding() -> Observable<(MainPageActionableItem, ())>
@@ -64,6 +67,45 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
     }
     
     private let mainPageActionableItemSubject = ReplaySubject<MainPageActionableItem>.create(bufferSize: 1)
+    
+    private func scheduleNotification(for alarm: Alarm) {
+        let center = UNUserNotificationCenter.current()
+        
+        // 알림 콘텐츠 구성
+        let content = UNMutableNotificationContent()
+        content.title = "알람"
+        content.body = "설정한 알람 시간입니다."
+        content.userInfo = ["alarmId": alarm.id]
+
+        // 알림 트리거 구성
+        let dateComponents = alarm.nextDateComponents()
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let identifier = alarm.id
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+
+        center.add(request) { error in
+            if let error = error {
+                print("알림 스케줄링 오류: \(error.localizedDescription)")
+            } else {
+                print("알림이 성공적으로 스케줄되었습니다. 식별자: \(identifier)")
+            }
+        }
+    }
+    
+    private func scheduleTimer(with alarm: Alarm, soundUrl: URL) {
+        AlarmManager.shared.activateSession()
+        let calendar = Calendar.current
+        guard let date = calendar.date(from: alarm.nextDateComponents()) else { return }
+        let currentDate = Date()
+        let timeInterval = date.timeIntervalSince(currentDate)
+        print(timeInterval)
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeInterval) {
+            VolumeManager.setVolume(alarm.soundOption.volume) // 설정한 볼륨값 0.0~1.0으로 설정
+            AlarmManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume)
+        }
+
+    }
 }
 
 // MARK: OnboardRootListenerRequest
@@ -73,6 +115,9 @@ extension MainInteractor {
         case let .start(alarm):
             router?.request(.detachOnboarding)
             AlarmStore.shared.add(alarm)
+            guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
+            scheduleNotification(for: alarm)
+            scheduleTimer(with: alarm, soundUrl: soundUrl)
             router?.request(.routeToMain { [weak self] actionableItem in
                 self?.mainPageActionableItemSubject.onNext(actionableItem)
             })
