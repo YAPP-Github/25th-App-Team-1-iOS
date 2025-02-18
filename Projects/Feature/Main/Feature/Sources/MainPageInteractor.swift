@@ -94,24 +94,33 @@ extension MainPageInteractor {
             self.alarmCellROs = renderObjects
             presenter.request(.setAlarmList(renderObjects))
         case .viewWillAppear:
+            // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
             let userInfo = Preference.userInfo
+            
             if let todayFortune = UserDefaults.standard.dailyFortune() {
-                let fortuneId = todayFortune.id
-                let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
-                APIClient.request(Fortune.self, request: request) { [weak self] fortune in
-                    guard let self else { return }
-                    let score = fortune.avgFortuneScore
-                    presenter.request(.setFortuneScore(score: score, userName: userInfo?.name))
-                } failure: { error in
-                    print(error)
+                // 오늘의 운세가 있는 경우
+                let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
+                if isDailyForuneIsChecked {
+                    // 오늘 운세가 확인된 경우, API를 통해 점수를 산출하고
+                    let fortuneId = todayFortune.id
+                    let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+                    APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+                        guard let self else { return }
+                        let score = fortune.avgFortuneScore
+                        presenter.request(.setFortuneScore(score: score, userName: userInfo?.name))
+                    } failure: { error in
+                        print(error)
+                    }
+                } else {
+                    // 오늘 운세가 확인되지 않은 경우, 편지함에 빨간점 추가
+                    presenter.request(.setFortuneDeliverMark(isMarked: true))
                 }
             } else {
+                // 운세가 없는 경우
                 presenter.request(.setFortuneScore(score: nil, userName: nil))
+                presenter.request(.setFortuneDeliverMark(isMarked: false))
             }
-            
-            let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
-            presenter.request(.setFortuneDeliverMark(isMarked: !isDailyForuneIsChecked))
-            
+
         case .showFortuneNoti:
             guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
                 let config = DSButtonAlert.Config(
