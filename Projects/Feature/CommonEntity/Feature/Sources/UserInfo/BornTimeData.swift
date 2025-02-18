@@ -5,7 +5,7 @@
 //  Created by choijunios on 2/13/25.
 //
 
-public struct BornTimeData: Equatable {
+public struct BornTimeData: Codable, Equatable {
     public var meridiem: Meridiem
     public var hour: Hour
     public var minute: Minute

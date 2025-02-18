@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct UserInfo: Decodable, Equatable {
+public struct UserInfo: Codable, Equatable {
     public let id: Int
     public var name: String
     public var birthDate: BirthDateData
@@ -20,6 +20,15 @@ public struct UserInfo: Decodable, Equatable {
         self.birthDate = birthDate
         self.birthTime = birthTime
         self.gender = gender
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try Self.encodeBirthDate(birthDate, to: &container)
+        try Self.encodeBornTime(birthTime, to: &container)
+        try container.encode(gender, forKey: .gender)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -99,5 +108,65 @@ public struct UserInfo: Decodable, Equatable {
         }
         
         return .init(meridiem: meridiem, hour: hour, minute: minute)
+    }
+}
+
+
+extension UserInfo {
+    static func encodeBirthDate(_ birthDate: BirthDateData, to container: inout KeyedEncodingContainer<CodingKeys>) throws {
+        try container.encode(birthDate.calendarType, forKey: .calendarType)
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        let dateComponents = DateComponents(
+            calendar: Calendar(identifier: birthDate.calendarType.calendarIdentifier),
+            year: birthDate.year.value,
+            month: birthDate.month.rawValue,
+            day: birthDate.day.value
+        )
+        
+        guard let date = dateComponents.date else {
+            throw EncodingError.invalidValue(
+                birthDate,
+                EncodingError.Context(
+                    codingPath: container.codingPath,
+                    debugDescription: "날짜 변환에 실패했습니다."
+                )
+            )
+        }
+        
+        let birthDateString = dateFormatter.string(from: date)
+        try container.encode(birthDateString, forKey: .birthDate)
+    }
+    
+    static func encodeBornTime(_ birthTime: BornTimeData?, to container: inout KeyedEncodingContainer<CodingKeys>) throws {
+        guard let birthTime = birthTime else { return }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+
+        var hour = birthTime.hour.value
+        if birthTime.meridiem == .pm {
+            hour += 12
+        }
+        
+        let dateComponents = DateComponents(
+            hour: hour,
+            minute: birthTime.minute.value
+        )
+        
+        guard let time = Calendar.current.date(from: dateComponents) else {
+            throw EncodingError.invalidValue(
+                birthTime,
+                EncodingError.Context(
+                    codingPath: container.codingPath,
+                    debugDescription: "시간 변환에 실패했습니다."
+                )
+            )
+        }
+        
+        let birthTimeString = dateFormatter.string(from: time)
+        try container.encode(birthTimeString, forKey: .birthTime)
     }
 }

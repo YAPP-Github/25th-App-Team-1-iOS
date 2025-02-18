@@ -119,6 +119,10 @@ extension SettingMainInteractor {
                     self.userInfo = userInfoEntity
                     presenter.update(.setUserInfo(userInfoEntity))
                     presenter.update(.dismissLoading)
+                    
+                    // 유저정보 저장
+                    Preference.userInfo = userInfoEntity
+                    
                 }) { [weak self] error in
                     guard let self else { return }
                     // 유저정보 획득 실패

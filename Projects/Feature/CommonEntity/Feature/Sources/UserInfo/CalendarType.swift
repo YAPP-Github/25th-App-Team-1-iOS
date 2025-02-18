@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum CalendarType: String, Decodable {
+public enum CalendarType: String, Codable {
     case gregorian = "SOLAR"
     case lunar = "LUNAR"
     

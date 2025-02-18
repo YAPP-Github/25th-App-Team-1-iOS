@@ -46,6 +46,7 @@ enum MainPagePresentableRequest {
     case setCountForAlarmsCheckedForDeletion(countOfAlarms: Int)
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
     case setFortuneDeliverMark(isMarked: Bool)
+    case setFortuneScore(score: Int?, userName: String?)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -92,10 +93,25 @@ extension MainPageInteractor {
             let renderObjects = transform(alarmList: alarmList)
             self.alarmCellROs = renderObjects
             presenter.request(.setAlarmList(renderObjects))
-            
-            if UserDefaults.standard.dailyFortune() != nil {
-                presenter.request(.setFortuneDeliverMark(isMarked: true))
+        case .viewWillAppear:
+            let userInfo = Preference.userInfo
+            if let todayFortune = UserDefaults.standard.dailyFortune() {
+                let fortuneId = todayFortune.id
+                let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+                APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+                    guard let self else { return }
+                    let score = fortune.avgFortuneScore
+                    presenter.request(.setFortuneScore(score: score, userName: userInfo?.name))
+                } failure: { error in
+                    print(error)
+                }
+            } else {
+                presenter.request(.setFortuneScore(score: nil, userName: nil))
             }
+            
+            let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
+            presenter.request(.setFortuneDeliverMark(isMarked: !isDailyForuneIsChecked))
+            
         case .showFortuneNoti:
             guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
                 let config = DSButtonAlert.Config(
