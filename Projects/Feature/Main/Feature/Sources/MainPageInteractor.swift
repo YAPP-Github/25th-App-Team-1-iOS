@@ -179,6 +179,7 @@ extension MainPageInteractor {
             self.checkedState = [:]
             let newROs = self.alarmCellROs.map { ro in
                 var newRO = ro
+                newRO.isChecked = false
                 newRO.mode = mode
                 return newRO
             }
