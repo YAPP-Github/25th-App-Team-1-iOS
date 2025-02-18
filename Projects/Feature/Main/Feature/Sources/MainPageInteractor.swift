@@ -101,7 +101,7 @@ extension MainPageInteractor {
                 // 오늘의 운세가 있는 경우
                 let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
                 if isDailyForuneIsChecked {
-                    // 오늘 운세가 확인된 경우, API를 통해 점수를 산출하고
+                    // 오늘 운세가 확인된 경우, API를 통해 점수를 확인
                     let fortuneId = todayFortune.id
                     let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
                     APIClient.request(Fortune.self, request: request) { [weak self] fortune in
