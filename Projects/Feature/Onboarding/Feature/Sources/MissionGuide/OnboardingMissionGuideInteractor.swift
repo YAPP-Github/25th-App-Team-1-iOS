@@ -18,6 +18,7 @@ protocol OnboardingMissionGuidePresentable: Presentable {
 }
 
 enum OnboardingMissionGuideListenerRequest {
+    case back
     case next
 }
 
@@ -39,6 +40,8 @@ final class OnboardingMissionGuideInteractor: PresentableInteractor<OnboardingMi
 
     func request(_ request: OnboardingMissionGuidePresentableListenerRequest) {
         switch request {
+        case .back:
+            listener?.request(.back)
         case .next:
             listener?.request(.next)
         }

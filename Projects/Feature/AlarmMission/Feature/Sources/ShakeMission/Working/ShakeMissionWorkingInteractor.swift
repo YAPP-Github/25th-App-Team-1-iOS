@@ -55,7 +55,7 @@ enum ShakeMissionWorkingInteractorRequest {
 
 
 public protocol ShakeMissionWorkingListener: AnyObject {
-    func exitShakeMissionWorkingPage()
+    func exitShakeMissionWorkingPage(isSucceeded: Bool)
 }
 
 final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWorkingPresentable>, ShakeMissionWorkingInteractable, ShakeMissionWorkingPresentableListener, DSTwoButtonAlertViewControllerListener {
@@ -101,9 +101,7 @@ extension ShakeMissionWorkingInteractor {
             presenter.request(.missionFlow(.start))
             presenter.request(.shakeMotionDetactor(.start))
         case .missionSuccessEventFinished:
-            
-            // MARK: 임시 조치, 변경예정
-            listener?.exitShakeMissionWorkingPage()
+            listener?.exitShakeMissionWorkingPage(isSucceeded: true)
             
         case .presentExitAlert(let config):
             
@@ -157,7 +155,7 @@ extension ShakeMissionWorkingInteractor {
         case .rightButtonClicked:
             let completion = { [weak self] in
                 guard let self else { return }
-                listener?.exitShakeMissionWorkingPage()
+                listener?.exitShakeMissionWorkingPage(isSucceeded: false)
             }
             router?.request(.dismissAlert(completion: completion))
         }

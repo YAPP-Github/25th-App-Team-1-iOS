@@ -16,6 +16,7 @@ protocol OnboardingMissionGuideViewListener: AnyObject {
 
 final class OnboardingMissionGuideView: UIView {
     enum Action {
+        case backButtonTapped
         case nextButtonTapped
     }
     init() {
@@ -34,6 +35,7 @@ final class OnboardingMissionGuideView: UIView {
         animationView.play()
     }
     
+    private let navigationBar: OnBoardingNavBarView = .init()
     private let welcomeLabel = UILabel()
     private let guideLabel = UILabel()
     private let animationView = LottieAnimationView(name: "onboarding_2", bundle: Bundle.resources)
@@ -43,6 +45,9 @@ final class OnboardingMissionGuideView: UIView {
 private extension OnboardingMissionGuideView {
     func setupUI() {
         backgroundColor = R.Color.gray900
+        navigationBar.do {
+            $0.listener = self
+        }
         
         welcomeLabel.do {
             $0.displayText = "환영해요!".displayText(font: .body2Regular, color: R.Color.main100)
@@ -70,12 +75,16 @@ private extension OnboardingMissionGuideView {
             }
         }
         
-        [welcomeLabel, guideLabel, animationView, nextButton].forEach { addSubview($0) }
+        [animationView, navigationBar, welcomeLabel, guideLabel, nextButton].forEach { addSubview($0) }
     }
     
     func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.horizontalEdges.equalTo(safeAreaLayoutGuide)
+        }
+        
         welcomeLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(86)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(30)
             $0.centerX.equalToSuperview()
         }
         
@@ -93,6 +102,17 @@ private extension OnboardingMissionGuideView {
             $0.center.equalToSuperview()
             $0.width.equalToSuperview()
             $0.height.equalToSuperview()
+        }
+    }
+}
+
+extension OnboardingMissionGuideView: OnBoardingNavBarViewListener {
+    func action(_ action: OnBoardingNavBarView.Action) {
+        switch action {
+        case .backButtonClicked:
+            listener?.action(.backButtonTapped)
+        case .rightButtonClicked:
+            break
         }
     }
 }

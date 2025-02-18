@@ -12,14 +12,17 @@ import RIBs
 public protocol ShakeMissionMainDependency: Dependency {}
 
 final class ShakeMissionMainComponent: Component<ShakeMissionMainDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    fileprivate let isFirstAlarm: Bool
+    init(dependency: ShakeMissionMainDependency, isFirstAlarm: Bool) {
+        self.isFirstAlarm = isFirstAlarm
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 public protocol ShakeMissionMainBuildable: Buildable {
-    func build(withListener listener: ShakeMissionMainListener) -> ShakeMissionMainRouting
+    func build(withListener listener: ShakeMissionMainListener, isFirstAlarm: Bool) -> ShakeMissionMainRouting
 }
 
 public final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeMissionMainBuildable {
@@ -28,10 +31,10 @@ public final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>,
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ShakeMissionMainListener) -> ShakeMissionMainRouting {
-        let component = ShakeMissionMainComponent(dependency: dependency)
+    public func build(withListener listener: ShakeMissionMainListener, isFirstAlarm: Bool) -> ShakeMissionMainRouting {
+        let component = ShakeMissionMainComponent(dependency: dependency, isFirstAlarm: isFirstAlarm)
         let viewController = ShakeMissionMainViewController()
-        let interactor = ShakeMissionMainInteractor(presenter: viewController)
+        let interactor = ShakeMissionMainInteractor(presenter: viewController, isFirstAlarm: isFirstAlarm)
         interactor.listener = listener
         let shakeMissionWorkingBuilder = ShakeMissionWorkingBuilder(dependency: component)
         return ShakeMissionMainRouter(

@@ -45,16 +45,16 @@ public extension UserInfoResponseDTO {
             let hour = Int(bornTimeList[0])!
             let minute = Int(bornTimeList[1])!
             
-            let meridiemEntity: Meridiem = hour >= 12 ? .pm : .am
+            let meridiemEntity: Meridiem = hour > 12 ? .pm : .am
             var hourEntity: Hour!
-            if meridiemEntity == .pm {
+            if meridiemEntity == .am {
                 if (hour-12) == 0 {
-                    hourEntity = .init(hour)!
+                    hourEntity = .init(12)!
                 } else {
-                    hourEntity = .init(hour-12)!
+                    hourEntity = .init(hour)!
                 }
             } else {
-                hourEntity = .init(hour)!
+                hourEntity = .init(hour - 12)!
             }
             let minuteEntity: Minute = .init(minute)!
             bornTimeData = .init(

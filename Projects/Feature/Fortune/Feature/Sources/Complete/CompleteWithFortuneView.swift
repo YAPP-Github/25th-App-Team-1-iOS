@@ -8,6 +8,7 @@
 import UIKit
 import FeatureUIDependencies
 import FeatureThirdPartyDependencies
+import Lottie
 
 protocol CompleteWithFortuneViewListener: AnyObject {
     func action(_ action: CompleteWithFortuneView.Action)
@@ -23,6 +24,7 @@ final class CompleteWithFortuneView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
+        characterImageView.play()
     }
     
     required init?(coder: NSCoder) {
@@ -35,7 +37,7 @@ final class CompleteWithFortuneView: UIView {
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
     private let titleLabel = UILabel()
     private let hillImageView = UIImageView()
-    private let characterImageView = UIImageView()
+    private let characterImageView = LottieAnimationView()
     private let descriptionLabel = UILabel()
     private let doneButton = DSDefaultCTAButton()
 }
@@ -62,8 +64,11 @@ private extension CompleteWithFortuneView {
         }
         
         characterImageView.do {
-            $0.image = FeatureResourcesAsset.imgCharacterHasFortune.image
+            let lottileBundle = Bundle.resources
+            let path =  lottileBundle.path(forResource: "fortune_with_reward", ofType: "json")!
             $0.contentMode = .scaleAspectFit
+            $0.animation = .filepath(path)
+            $0.loopMode = .loop
         }
         descriptionLabel.do {
             $0.displayText = "오늘의 운세는 하루 동안 홈 화면에서 볼 수 있어요.".displayText(font: .body2Regular, color: R.Color.white70)
@@ -106,6 +111,7 @@ private extension CompleteWithFortuneView {
         characterImageView.snp.makeConstraints {
             $0.bottom.equalTo(descriptionLabel.snp.top)
             $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(362)
         }
         
         hillImageView.snp.makeConstraints {

@@ -36,6 +36,11 @@ public final class DSDefaultCTAButton: TouchDetectingView {
             color: style.type.pressedTitleColor
         )
         self.layer.cornerRadius = style.cornerRadius.pressedValue
+        let originalWidth = bounds.width
+        let originalHeight = bounds.height
+        let widthScaleFactor = (originalWidth - 4) / originalWidth
+        let heightScaleFactor = (originalHeight - 4) / originalHeight
+        self.transform = CGAffineTransform(scaleX: widthScaleFactor, y: heightScaleFactor)
     }
     
     public override func onTouchOut() {
@@ -44,6 +49,8 @@ public final class DSDefaultCTAButton: TouchDetectingView {
             font: style.size.font,
             color: style.type.titleColor
         )
+            self.transform = .identity
+        
         self.layer.cornerRadius = style.cornerRadius.value
     }
     
@@ -79,8 +86,7 @@ public final class DSDefaultCTAButton: TouchDetectingView {
     }
     
     
-    private func setupLayout() {
-        // titleLabel
+    private func setupLayout() {        
         leftIconImageView.do {
             $0.contentMode = .scaleAspectFit
             $0.isHidden = true

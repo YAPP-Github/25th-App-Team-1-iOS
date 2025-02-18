@@ -83,7 +83,7 @@ final class InputBornTImeView: UIView {
     )
     private let errorLabel = UILabel()
     private let nextButton = DSDefaultCTAButton()
-    private let iDontKnowButton = UIButton(type: .system)
+    private let iDontKnowButton = UIButton()
     
     private var labelBottomAnchor: Constraint?
     
@@ -163,13 +163,20 @@ private extension InputBornTImeView {
         
         iDontKnowButton.do {
             $0.imageView?.contentMode = .center
-            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
+            $0.setImage(FeatureResourcesAsset.svgChevronRightYellow.image.withRenderingMode(.alwaysOriginal), for: .highlighted)
             $0.setAttributedTitle("태어난 시간을 몰라요".displayText(font: .body1Medium, color: R.Color.white100), for: .normal)
-            $0.tintColor = R.Color.white100
+            $0.setAttributedTitle("태어난 시간을 몰라요".displayText(font: .body1Medium, color: R.Color.main100), for: .highlighted)
+            
+            $0.setBackgroundImage(.from(color: R.Color.gray800), for: .highlighted)
             $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
             $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
-            $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 0)
+            $0.contentEdgeInsets = UIEdgeInsets(top: 6, left: 28, bottom: 6, right: 24)
+            
+            $0.layer.cornerRadius = 12
+            $0.layer.masksToBounds = true
             $0.addTarget(self, action: #selector(iDontKnowButtonTapped), for: .touchUpInside)
+            
         }
         
         
@@ -203,7 +210,6 @@ private extension InputBornTImeView {
         iDontKnowButton.snp.makeConstraints {
             $0.bottom.equalTo(nextButton.snp.top).offset(-32)
             $0.centerX.equalToSuperview()
-            $0.height.equalTo(24)
         }
     }
 }
@@ -252,5 +258,17 @@ extension InputBornTImeView: OnBoardingNavBarViewListener {
         case .rightButtonClicked:
             break
         }
+    }
+}
+
+extension UIImage {
+    static func from(color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
+        let rect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        color.setFill()
+        UIRectFill(rect)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image ?? UIImage()
     }
 }

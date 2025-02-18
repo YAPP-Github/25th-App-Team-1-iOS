@@ -32,7 +32,8 @@ protocol ShakeMissionMainPresentable: Presentable {
 }
 
 public enum ShakeMissionMainListenerRequest {
-    case close(Fortune?)
+    case missionCompleted(Fortune, FortuneSaveInfo)
+    case close(Fortune, FortuneSaveInfo)
 }
 
 public protocol ShakeMissionMainListener: AnyObject {
@@ -46,15 +47,19 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: ShakeMissionMainPresentable) {
+    init(
+        presenter: ShakeMissionMainPresentable,
+        isFirstAlarm: Bool
+    ) {
+        self.isFirstAlarm = isFirstAlarm
         super.init(presenter: presenter)
         presenter.listener = self
     }
     
     override func didBecomeActive() {
         super.didBecomeActive()
-        if let fortundId = UserDefaults.standard.dailyFortuneId() {
-            getFortune(fortuneId: fortundId)
+        if let fortuneInfo = UserDefaults.standard.dailyFortune() {
+            getFortune(fortuneId: fortuneInfo.id)
         } else {
             createFortune()
         }
@@ -64,8 +69,14 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
         guard let userId = Preference.userId else { return }
         let request = APIRequest.Fortune.createFortune(userId: userId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
-            self?.fortune = fortune
-            UserDefaults.standard.setDailyFortuneId(fortune.id)
+            guard let self else { return }
+            self.fortune = fortune
+            let info = FortuneSaveInfo(
+                id: fortune.id,
+                shouldShowCharm: false,
+                charmIndex: nil
+            )
+            UserDefaults.standard.setDailyFortune(info: info)
         } failure: { error in
             print(error)
         }
@@ -73,6 +84,7 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
     }
     
     private func getFortune(fortuneId: Int) {
+        guard let fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
         let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
             self?.fortune = fortune
@@ -82,12 +94,12 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
     }
     
     private var fortune: Fortune?
+    private let isFirstAlarm: Bool
 }
 
 
 // MARK: ShakeMissionMainPresentableListener
 extension ShakeMissionMainInteractor {
-    
     func request(_ request: ShakeMissionMainPresenterRequest) {
         switch request {
         case .startMission:
@@ -108,7 +120,8 @@ extension ShakeMissionMainInteractor {
             router?.request(.dismissAlert())
         case .rightButtonClicked:
             router?.request(.exitPage)
-            listener?.request(.close(fortune))
+            guard let fortune, let fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
+            listener?.request(.close(fortune, fortuneInfo))
         }
     }
 }
@@ -117,9 +130,19 @@ extension ShakeMissionMainInteractor {
 // MARK: ShakeMissionWorkingListener
 extension ShakeMissionMainInteractor {
     
-    func exitShakeMissionWorkingPage() {
+    func exitShakeMissionWorkingPage(isSucceeded: Bool) {
         router?.request(.dissmissWorkingPage)
         router?.request(.exitPage)
-        listener?.request(.close(fortune))
+        guard let fortune, var fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
+        if isSucceeded {
+            if fortuneInfo.shouldShowCharm == false {
+                fortuneInfo.shouldShowCharm = isFirstAlarm
+            }
+            UserDefaults.standard.setDailyFortune(info: fortuneInfo)
+            listener?.request(.missionCompleted(fortune, fortuneInfo))
+        } else {
+            listener?.request(.close(fortune, fortuneInfo))
+        }
+        
     }
 }

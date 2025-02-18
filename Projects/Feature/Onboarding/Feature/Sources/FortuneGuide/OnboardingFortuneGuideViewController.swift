@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum OnboardingFortuneGuidePresentableListenerRequest {
+    case back
     case start
 }
 
@@ -38,6 +39,8 @@ final class OnboardingFortuneGuideViewController: UIViewController, OnboardingFo
 extension OnboardingFortuneGuideViewController: OnboardingFortuneGuideViewListener {
     func action(_ action: OnboardingFortuneGuideView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.request(.back)
         case .startButtonTapped:
             listener?.request(.start)
         }

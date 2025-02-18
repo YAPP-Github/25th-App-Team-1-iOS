@@ -5,6 +5,7 @@
 //  Created by ever on 2/8/25.
 //
 
+import Foundation
 import RIBs
 import RxSwift
 import FeatureCommonDependencies
@@ -14,7 +15,7 @@ public protocol FortuneRouting: ViewableRouting {
 }
 
 enum FortunePresentableRequest {
-    case setFortune(Fortune, UserInfo)
+    case setFortune(Fortune, UserInfo, FortuneSaveInfo)
 }
 
 protocol FortunePresentable: Presentable {
@@ -38,10 +39,12 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     init(
         presenter: FortunePresentable,
         fortune: Fortune,
-        userInfo: UserInfo
+        userInfo: UserInfo,
+        fortuneInfo: FortuneSaveInfo
     ) {
         self.fortune = fortune
         self.userInfo = userInfo
+        self.fortuneInfo = fortuneInfo
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -49,7 +52,10 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     func request(_ request: FortunePresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
-            presenter.request(.setFortune(fortune, userInfo))
+            presenter.request(.setFortune(fortune, userInfo, fortuneInfo))
+        case let .charmSelected(index):
+            fortuneInfo.charmIndex = index
+            UserDefaults.standard.setDailyFortune(info: fortuneInfo)
         case .close:
             listener?.request(.close)
         }
@@ -57,4 +63,5 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     
     private let fortune: Fortune
     private let userInfo: UserInfo
+    private var fortuneInfo: FortuneSaveInfo
 }

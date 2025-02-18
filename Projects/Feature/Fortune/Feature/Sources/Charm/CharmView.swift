@@ -17,10 +17,12 @@ protocol CharmViewListener: AnyObject {
 final class CharmView: UIView {
     enum Action {
         case done
+        case charmSelected(Int)
     }
     
     enum State {
         case user(UserInfo)
+        case charm(FortuneSaveInfo)
     }
     
     init() {
@@ -43,12 +45,21 @@ final class CharmView: UIView {
             부적을 가지고 있으면
             행운이 찾아올거야
             """.displayText(font: .ownglyphPHD_H1, color: R.Color.white100)
+        case let .charm(fortuneInfo):
+            if let index = fortuneInfo.charmIndex {
+                self.selectedImage = charmImages[index]
+            } else {
+                let (image, index) = getRandomCharmImage()
+                self.selectedImage = image
+                listener?.action(.charmSelected(index))
+            }
         }
     }
     
     private let decoImageView = UIImageView()
     private let titleLabel = UILabel()
     private let charmImageView = UIImageView()
+    private let shadowImageView = UIImageView()
     private let buttonStackView = UIStackView()
     private let doneButton = DSDefaultCTAButton(style: .init(type: .secondary))
     private let saveButton = DSDefaultCTAButton()
@@ -61,9 +72,17 @@ final class CharmView: UIView {
         FeatureResourcesAsset.imgCharm5.image
     ]
     
-    private lazy var selectedImage: UIImage? = {
-        return charmImages.randomElement()
-    }()
+    private var selectedImage: UIImage? {
+        didSet {
+            self.charmImageView.image = selectedImage
+        }
+    }
+    
+    private func getRandomCharmImage() -> (image: UIImage, index: Int) {
+        let randomIndex = Int.random(in: 0..<charmImages.count)
+        let image = charmImages[randomIndex]
+        return (image, randomIndex)
+    }
     
     private func saveImage() {
         guard let selectedImage else { return }
@@ -97,8 +116,12 @@ private extension CharmView {
         }
         
         charmImageView.do {
-            $0.image = selectedImage
             $0.contentMode = .scaleAspectFit
+        }
+        
+        shadowImageView.do {
+            $0.image = FeatureResourcesAsset.imgCharmShadow.image
+            $0.contentMode = .scaleAspectFill
         }
         
         saveButton.do {
@@ -106,6 +129,9 @@ private extension CharmView {
             $0.buttonAction = { [weak self] in
                 self?.saveImage()
             }
+            
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+            $0.setContentHuggingPriority(.required, for: .vertical)
         }
         
         doneButton.do {
@@ -113,6 +139,9 @@ private extension CharmView {
             $0.buttonAction = { [weak self] in
                 self?.listener?.action(.done)
             }
+            
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+            $0.setContentHuggingPriority(.required, for: .vertical)
         }
         
         buttonStackView.do {
@@ -121,11 +150,19 @@ private extension CharmView {
             $0.spacing = 12
         }
         
+        [titleLabel, shadowImageView].forEach {
+            $0.setContentHuggingPriority(.defaultHigh, for: .vertical)
+            $0.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        }
+        
+        charmImageView.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        charmImageView.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        
         [doneButton, saveButton].forEach {
             buttonStackView.addArrangedSubview($0)
         }
         
-        [decoImageView, titleLabel, charmImageView, buttonStackView].forEach {
+        [decoImageView, titleLabel, charmImageView, shadowImageView, buttonStackView].forEach {
             addSubview($0)
         }
         
@@ -143,7 +180,16 @@ private extension CharmView {
             $0.top.equalTo(titleLabel.snp.bottom).offset(37)
             $0.centerX.equalToSuperview()
         }
+        
+        shadowImageView.snp.makeConstraints {
+            $0.top.equalTo(charmImageView.snp.bottom).offset(29)
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(240)
+            $0.height.equalTo(22)
+        }
+        
         buttonStackView.snp.makeConstraints {
+            $0.top.equalTo(shadowImageView.snp.bottom).offset(41)
             $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }

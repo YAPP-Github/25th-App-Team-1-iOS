@@ -25,6 +25,7 @@ protocol CreateEditAlarmSoundOptionPresentable: Presentable {
 }
 
 enum CreateEditAlarmSoundOptionListenerRequest {
+    case cancel
     case done(SoundOption)
 }
 
@@ -57,6 +58,8 @@ final class CreateEditAlarmSoundOptionInteractor: PresentableInteractor<CreateEd
         switch request {
         case .viewDidLoad:
             presenter.request(.updateOption(soundOption))
+        case .cancel:
+            listener?.request(.cancel)
         case let .isVibrateOnChanged(isVibrateOn):
             soundOption.isVibrationOn = isVibrateOn
             if isVibrateOn {

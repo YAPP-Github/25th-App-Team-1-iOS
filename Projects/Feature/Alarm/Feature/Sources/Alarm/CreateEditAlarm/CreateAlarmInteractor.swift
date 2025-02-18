@@ -106,6 +106,8 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
             presenter.request(.updateTitle(title))
         case let .selectedDaysChanged(set):
             alarm.repeatDays = set
+            let title = alarm.timeRemainingDescription()
+            presenter.request(.updateTitle(title))
             if set.shoundTurnOffHolidayAlarm {
                 let config: DSSnackBar.SnackBarConfig = .init(
                     status: .success,
@@ -209,12 +211,13 @@ extension Alarm {
         let calendar = Calendar.current
         
         // nextDateComponents를 이용해 알람이 울릴 Date 생성
-        guard let nextDate = calendar.date(from: self.nextDateComponents(from: now)) else {
+        guard let component = earliestDateComponent(),
+              let nextDate = calendar.date(from: component) else {
             return "알 수 없음"
         }
         
         // 현재 시간과 알람 시간의 차이를 구함 (일, 시간, 분)
-        let diffComponents = calendar.dateComponents([.day, .hour, .minute], from: now, to: nextDate)
+        let diffComponents = calendar.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: now, to: nextDate)
         
         var parts: [String] = []
         

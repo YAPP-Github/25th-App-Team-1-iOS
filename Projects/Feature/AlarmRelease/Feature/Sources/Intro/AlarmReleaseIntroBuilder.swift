@@ -16,9 +16,11 @@ public protocol AlarmReleaseIntroDependency: Dependency {
 
 final class AlarmReleaseIntroComponent: Component<AlarmReleaseIntroDependency> {
     fileprivate let alarm: Alarm
+    fileprivate let isFirstAlarm: Bool
     
-    init(dependency: AlarmReleaseIntroDependency, alarm: Alarm) {
+    init(dependency: AlarmReleaseIntroDependency, alarm: Alarm, isFirstAlarm: Bool) {
         self.alarm = alarm
+        self.isFirstAlarm = isFirstAlarm
         super.init(dependency: dependency)
     }
 }
@@ -26,7 +28,7 @@ final class AlarmReleaseIntroComponent: Component<AlarmReleaseIntroDependency> {
 // MARK: - Builder
 
 public protocol AlarmReleaseIntroBuildable: Buildable {
-    func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm) -> AlarmReleaseIntroRouting
+    func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm, isFirstAlarm: Bool) -> AlarmReleaseIntroRouting
 }
 
 public final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency>, AlarmReleaseIntroBuildable {
@@ -35,10 +37,10 @@ public final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm) -> AlarmReleaseIntroRouting {
-        let component = AlarmReleaseIntroComponent(dependency: dependency, alarm: alarm)
+    public func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm, isFirstAlarm: Bool) -> AlarmReleaseIntroRouting {
+        let component = AlarmReleaseIntroComponent(dependency: dependency, alarm: alarm, isFirstAlarm: isFirstAlarm)
         let viewController = AlarmReleaseIntroViewController()
-        let interactor = AlarmReleaseIntroInteractor(presenter: viewController, alarm: component.alarm)
+        let interactor = AlarmReleaseIntroInteractor(presenter: viewController, alarm: component.alarm, isFirstAlarm: isFirstAlarm)
         interactor.listener = listener
         
         let snoozeBuilder = AlarmReleaseSnoozeBuilder(dependency: component)

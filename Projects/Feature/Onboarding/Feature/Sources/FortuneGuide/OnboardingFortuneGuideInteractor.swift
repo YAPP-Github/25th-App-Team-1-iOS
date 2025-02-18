@@ -19,6 +19,7 @@ protocol OnboardingFortuneGuidePresentable: Presentable {
 }
 
 enum OnboardingFortuneGuideListenerRequest {
+    case back
     case start
 }
 
@@ -40,6 +41,8 @@ final class OnboardingFortuneGuideInteractor: PresentableInteractor<OnboardingFo
     
     func request(_ request: OnboardingFortuneGuidePresentableListenerRequest) {
         switch request {
+        case .back:
+            listener?.request(.back)
         case .start:
             Preference.isOnboardingFinished = true
             listener?.request(.start)

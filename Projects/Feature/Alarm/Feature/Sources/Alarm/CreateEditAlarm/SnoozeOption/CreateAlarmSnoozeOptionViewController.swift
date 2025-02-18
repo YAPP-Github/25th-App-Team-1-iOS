@@ -12,6 +12,7 @@ import FeatureCommonDependencies
 
 enum CreateEditAlarmSnoozeOptionPresentableListenerRequest {
     case viewDidLoad
+    case cancel
     case isOnChanged(Bool)
     case frequencyChanged(SnoozeFrequency)
     case countChanged(SnoozeCount)
@@ -49,6 +50,8 @@ final class CreateEditAlarmSnoozeOptionViewController: UIViewController, CreateE
 extension CreateEditAlarmSnoozeOptionViewController: CreateEditAlarmSnoozeOptionViewListener {
     func action(_ action: CreateEditAlarmSnoozeOptionView.Action) {
         switch action {
+        case .backgroundTapped:
+            listener?.request(.cancel)
         case let .isOnChanged(isOn):
             listener?.request(.isOnChanged(isOn))
         case let .frequencyChanged(frequency):

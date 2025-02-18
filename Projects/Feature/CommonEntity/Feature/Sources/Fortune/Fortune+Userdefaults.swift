@@ -16,14 +16,19 @@ public extension UserDefaults {
     }
     
     /// Fortune의 id를 저장
-    func setDailyFortuneId(_ id: Int, for date: Date = Date()) {
+    func setDailyFortune(info: FortuneSaveInfo, for date: Date = Date()) {
+        let encoder = JSONEncoder()
         let key = fortuneIdKey(for: date)
-        self.set(id, forKey: key)
+        if let encoded = try? encoder.encode(info) {
+            UserDefaults.standard.set(encoded, forKey: key)
+        }
     }
     
     /// 오늘 날짜 기준으로 저장된 DailyFortuneResponse의 id를 읽어옴
-    func dailyFortuneId(for date: Date = Date()) -> Int? {
+    func dailyFortune(for date: Date = Date()) -> FortuneSaveInfo? {
         let key = fortuneIdKey(for: date)
-        return self.object(forKey: key) as? Int
+        guard let savedData = UserDefaults.standard.data(forKey: key) else { return nil }
+        let decoder = JSONDecoder()
+        return try? decoder.decode(FortuneSaveInfo.self, from: savedData)
     }
 }

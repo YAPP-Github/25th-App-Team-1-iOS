@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "img_character_has_fortune.png",
+      "filename" : "img_charm_shadow.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "img_character_has_fortune@2x.png",
+      "filename" : "img_charm_shadow@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "img_character_has_fortune@3x.png",
+      "filename" : "img_charm_shadow@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

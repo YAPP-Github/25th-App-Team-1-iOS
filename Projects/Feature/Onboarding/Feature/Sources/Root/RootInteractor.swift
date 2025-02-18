@@ -27,9 +27,10 @@ public enum RootRouterRequest {
     case routeToAuthorizationRequest
     case detachAuthorizationRequest
     case routeToAuthorizationDenied
-    case detachAuthorizationDenied
     case routeToMissionGuide
+    case detachMissionGuide
     case routeToFortuneGuide
+    case detachFortuneGuide
     case routeToInputSummary(OnboardingModel)
     case detachInputSummary(completion: (() -> Void)?)
 }
@@ -189,8 +190,6 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: AuthorizationDeniedListenerRequest) {
         switch request {
-        case .back:
-            router?.request(.detachAuthorizationDenied)
         case .later:
             router?.request(.routeToMissionGuide)
         case .allowed:
@@ -204,6 +203,8 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: OnboardingMissionGuideListenerRequest) {
         switch request {
+        case .back:
+            router?.request(.detachMissionGuide)
         case .next:
             router?.request(.routeToFortuneGuide)
         }
@@ -215,13 +216,15 @@ extension RootInteractor {
 extension RootInteractor {
     func request(_ request: OnboardingFortuneGuideListenerRequest) {
         switch request {
+        case .back:
+            router?.request(.detachFortuneGuide)
         case .start:
             let request = APIRequest.Users.addUser(
                 name: onboardingModel.name ?? "",
-                birthDate: onboardingModel.birthDate?.toDateString() ?? "",
+                birthDate: onboardingModel.birthDate.toDateString(),
                 birthTime: onboardingModel.bornTime?.toTimeString(),
                 gender: onboardingModel.gender?.rawValue ?? "",
-                calendarType: onboardingModel.birthDate?.calendarType.rawValue ?? ""
+                calendarType: onboardingModel.birthDate.calendarType.rawValue
             )
                 
             APIClient.request(Int.self, request: request) { [weak self, weak listener] userId in

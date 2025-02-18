@@ -12,6 +12,7 @@ import FeatureResources
 
 enum CreateEditAlarmSoundOptionPresentableListenerRequest {
     case viewDidLoad
+    case cancel
     case isVibrateOnChanged(Bool)
     case isSoundOnChanged(Bool)
     case volumeChanged(Float)
@@ -49,6 +50,8 @@ final class CreateEditAlarmSoundOptionViewController: UIViewController, CreateEd
 extension CreateEditAlarmSoundOptionViewController: CreateEditAlarmSoundOptionViewListener {
     func action(_ action: CreateEditAlarmSoundOptionView.Action) {
         switch action {
+        case .backgroundTapped:
+            listener?.request(.cancel)
         case let .isVibrateOnChanged(isVabrateOn):
             listener?.request(.isVibrateOnChanged(isVabrateOn))
         case let .isSoundOnChanged(isSoundOn):

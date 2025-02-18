@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum OnboardingMissionGuidePresentableListenerRequest {
+    case back
     case next
 }
 
@@ -38,6 +39,8 @@ final class OnboardingMissionGuideViewController: UIViewController, OnboardingMi
 extension OnboardingMissionGuideViewController: OnboardingMissionGuideViewListener {
     func action(_ action: OnboardingMissionGuideView.Action) {
         switch action {
+        case .backButtonTapped:
+            listener?.request(.back)
         case .nextButtonTapped:
             listener?.request(.next)
         }

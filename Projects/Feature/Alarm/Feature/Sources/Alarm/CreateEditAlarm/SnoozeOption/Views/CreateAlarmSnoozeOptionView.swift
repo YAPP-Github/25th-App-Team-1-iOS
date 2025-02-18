@@ -18,6 +18,7 @@ protocol CreateEditAlarmSnoozeOptionViewListener: AnyObject {
 
 final class CreateEditAlarmSnoozeOptionView: UIView {
     enum Action {
+        case backgroundTapped
         case isOnChanged(Bool)
         case frequencyChanged(SnoozeFrequency)
         case countChanged(SnoozeCount)
@@ -28,6 +29,7 @@ final class CreateEditAlarmSnoozeOptionView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
+        setupGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -36,6 +38,7 @@ final class CreateEditAlarmSnoozeOptionView: UIView {
     
     weak var listener: CreateEditAlarmSnoozeOptionViewListener?
     
+    private let backgroundView = UIView()
     private let containerView = UIView()
     private let titleLabel = UILabel()
     private let onOffSwitch = UISwitch()
@@ -56,6 +59,7 @@ final class CreateEditAlarmSnoozeOptionView: UIView {
     // MARK: Internal
     func updateOption(option: SnoozeOption) {
         if option.isSnoozeOn {
+            onOffSwitch.isOn = true
             frequencyView.selectOption(option.frequency)
             countView.selectOption(option.count)
             guideView.isHidden = false
@@ -67,6 +71,7 @@ final class CreateEditAlarmSnoozeOptionView: UIView {
                 $0.bottom.equalTo(safeAreaLayoutGuide)
             }
         } else {
+            onOffSwitch.isOn = false
             frequencyView.disableOptions()
             countView.disableOptions()
             guideView.isHidden = true
@@ -84,11 +89,16 @@ final class CreateEditAlarmSnoozeOptionView: UIView {
         toggle.thumbTintColor = toggle.isOn ? R.Color.gray800 : R.Color.gray300
         listener?.action(.isOnChanged(toggle.isOn))
     }
+    
+    @objc
+    private func backgroundTapped() {
+        listener?.action(.backgroundTapped)
+    }
 }
 
 private extension CreateEditAlarmSnoozeOptionView {
     func setupUI() {
-        backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
+        backgroundView.backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
         containerView.do {
             $0.backgroundColor = R.Color.gray800
             $0.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -134,12 +144,16 @@ private extension CreateEditAlarmSnoozeOptionView {
                 self?.listener?.action(.doneButtonTapped)
             }
         }
+        addSubview(backgroundView)
         addSubview(containerView)
         guideView.addSubview(guideLabel)
         [titleLabel, onOffSwitch, frequencyView, countView, guideView, doneButton].forEach { containerView.addSubview($0) }
     }
     
     func layout() {
+        backgroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         containerView.snp.makeConstraints {
             $0.bottom.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
@@ -179,5 +193,10 @@ private extension CreateEditAlarmSnoozeOptionView {
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.bottom.equalTo(safeAreaLayoutGuide)
         }
+    }
+    
+    func setupGesture() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+        backgroundView.addGestureRecognizer(gesture)
     }
 }

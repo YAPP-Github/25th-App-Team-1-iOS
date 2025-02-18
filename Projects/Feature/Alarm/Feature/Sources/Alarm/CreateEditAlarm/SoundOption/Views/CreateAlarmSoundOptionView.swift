@@ -18,6 +18,7 @@ protocol CreateEditAlarmSoundOptionViewListener: AnyObject {
 
 final class CreateEditAlarmSoundOptionView: UIView {
     enum Action {
+        case backgroundTapped
         case isVibrateOnChanged(Bool)
         case isSoundOnChanged(Bool)
         case volumeChanged(Float)
@@ -29,6 +30,7 @@ final class CreateEditAlarmSoundOptionView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
+        setupGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -44,6 +46,7 @@ final class CreateEditAlarmSoundOptionView: UIView {
         vibrateOnOffSwitch.isOn = option.isVibrationOn
         soundOnOffSwitch.isOn = option.isSoundOn
         soundSlider.value = option.volume
+        soundSlider.isEnabled = option.isSoundOn
         
         soundSlider.tintColor = option.isSoundOn ? R.Color.main100 : R.Color.gray500
             
@@ -62,6 +65,7 @@ final class CreateEditAlarmSoundOptionView: UIView {
         }
     }
     
+    private let backgroundView = UIView()
     private let containerView = UIView()
     private let titleLabel = UILabel()
     private let vibrateLabel = UILabel()
@@ -96,11 +100,16 @@ final class CreateEditAlarmSoundOptionView: UIView {
         }
         listener?.action(.volumeChanged(slider.value))
     }
+    
+    @objc
+    private func backgroundTapped() {
+        listener?.action(.backgroundTapped)
+    }
 }
 
 private extension CreateEditAlarmSoundOptionView {
     func setupUI() {
-        backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
+        backgroundView.backgroundColor = R.Color.gray900.withAlphaComponent(0.8)
         containerView.do {
             $0.backgroundColor = R.Color.gray800
             $0.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
@@ -129,7 +138,7 @@ private extension CreateEditAlarmSoundOptionView {
         }
         
         soundLabel.do {
-            $0.displayText = "알림음".displayText(font: .headline2Medium, color: R.Color.gray50)
+            $0.displayText = "알람음".displayText(font: .headline2Medium, color: R.Color.gray50)
         }
         
         soundOnOffSwitch.do {
@@ -165,6 +174,7 @@ private extension CreateEditAlarmSoundOptionView {
                 self?.listener?.action(.doneButtonTapped)
             }
         }
+        addSubview(backgroundView)
         addSubview(containerView)
         [
             titleLabel,
@@ -180,6 +190,9 @@ private extension CreateEditAlarmSoundOptionView {
     }
     
     func layout() {
+        backgroundView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         containerView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide).offset(52)
             $0.bottom.equalToSuperview()
@@ -241,6 +254,11 @@ private extension CreateEditAlarmSoundOptionView {
             $0.bottom.equalTo(safeAreaLayoutGuide)
         }
     }
+    
+    func setupGesture() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+        backgroundView.addGestureRecognizer(gesture)
+    }
 }
 
 extension CreateEditAlarmSoundOptionView: UITableViewDataSource {
@@ -265,6 +283,7 @@ extension CreateEditAlarmSoundOptionView: UITableViewDelegate {
         return 44
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard isSoundOn else { return }
         let selectedSound = alarmSounds[indexPath.row]
         self.selectedSound = selectedSound
         listener?.action(.soundSelected(selectedSound))
