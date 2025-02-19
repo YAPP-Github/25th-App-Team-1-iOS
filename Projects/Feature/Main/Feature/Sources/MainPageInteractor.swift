@@ -46,6 +46,7 @@ enum MainPagePresentableRequest {
     case setCountForAlarmsCheckedForDeletion(countOfAlarms: Int)
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
     case setFortuneDeliverMark(isMarked: Bool)
+    case setFortuneScore(score: Int?, userName: String?)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -92,10 +93,34 @@ extension MainPageInteractor {
             let renderObjects = transform(alarmList: alarmList)
             self.alarmCellROs = renderObjects
             presenter.request(.setAlarmList(renderObjects))
+        case .viewWillAppear:
+            // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
+            let userInfo = Preference.userInfo
             
-            if UserDefaults.standard.dailyFortune() != nil {
-                presenter.request(.setFortuneDeliverMark(isMarked: true))
+            if let todayFortune = UserDefaults.standard.dailyFortune() {
+                // 오늘의 운세가 있는 경우
+                let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
+                if isDailyForuneIsChecked {
+                    // 오늘 운세가 확인된 경우, API를 통해 점수를 확인
+                    let fortuneId = todayFortune.id
+                    let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+                    APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+                        guard let self else { return }
+                        let score = fortune.avgFortuneScore
+                        presenter.request(.setFortuneScore(score: score, userName: userInfo?.name))
+                    } failure: { error in
+                        print(error)
+                    }
+                } else {
+                    // 오늘 운세가 확인되지 않은 경우, 편지함에 빨간점 추가
+                    presenter.request(.setFortuneDeliverMark(isMarked: true))
+                }
+            } else {
+                // 운세가 없는 경우
+                presenter.request(.setFortuneScore(score: nil, userName: nil))
+                presenter.request(.setFortuneDeliverMark(isMarked: false))
             }
+
         case .showFortuneNoti:
             guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
                 let config = DSButtonAlert.Config(
@@ -163,6 +188,7 @@ extension MainPageInteractor {
             self.checkedState = [:]
             let newROs = self.alarmCellROs.map { ro in
                 var newRO = ro
+                newRO.isChecked = false
                 newRO.mode = mode
                 return newRO
             }

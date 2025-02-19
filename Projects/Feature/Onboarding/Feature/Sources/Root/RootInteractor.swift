@@ -219,6 +219,7 @@ extension RootInteractor {
         case .back:
             router?.request(.detachFortuneGuide)
         case .start:
+            let onboardingModel = onboardingModel
             let request = APIRequest.Users.addUser(
                 name: onboardingModel.name ?? "",
                 birthDate: onboardingModel.birthDate.toDateString(),
@@ -230,7 +231,17 @@ extension RootInteractor {
             APIClient.request(Int.self, request: request) { [weak self, weak listener] userId in
                 guard let self, let listener else { return }
                 DispatchQueue.main.async {
+                    // 유저 아이디 저장
                     Preference.userId = userId
+                    
+                    // 유저정보 저장
+                    Preference.userInfo = .init(
+                        id: userId,
+                        name: onboardingModel.name!,
+                        birthDate: onboardingModel.birthDate,
+                        birthTime: onboardingModel.bornTime,
+                        gender: onboardingModel.gender!
+                    )
                     listener.request(.start(self.onboardingModel.alarm))
                 }
             } failure: { error in

@@ -5,7 +5,7 @@
 //  Created by choijunios on 2/13/25.
 //
 
-public enum Gender: String, Decodable {
+public enum Gender: String, Codable {
     
     case male = "MALE"
     case female = "FEMALE"

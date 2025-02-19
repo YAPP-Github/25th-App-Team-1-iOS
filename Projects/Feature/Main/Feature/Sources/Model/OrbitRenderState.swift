@@ -20,7 +20,7 @@ enum OrbitRenderState {
     var bubbleSpeechKorText: String {
         switch self {
         case .emptyAlarm:
-            "알람을 설정해줘..ㄴ"
+            "알람을 설정해줘.."
         case .beforeFortune:
             "안녕, 난 오르비야!"
         case .luckScoreOver80:

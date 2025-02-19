@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Month: Int, CaseIterable, Hashable {
+public enum Month: Int, CaseIterable, Codable, Hashable {
     case january = 1, february, march, april, may, june
     case july, august, september, october, november, december
 

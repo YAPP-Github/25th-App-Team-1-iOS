@@ -173,12 +173,15 @@ private extension AlarmCell {
     func setupGesture() {
         // longPressGesture
         contentView.addGestureRecognizer(longPressGesture)
+        longPressGesture.delegate = self
         longPressGesture.addTarget(self, action: #selector(onLongPress(_:)))
         longPressGesture.minimumPressDuration = 0.5
+        longPressGesture.cancelsTouchesInView = false
         
         
         // tapGesture
         contentView.addGestureRecognizer(tapGesture)
+        tapGesture.delegate = self
         tapGesture.addTarget(self, action: #selector(onTap(_:)))
         tapGesture.cancelsTouchesInView = false
     }
@@ -258,5 +261,16 @@ extension AlarmCell {
         }
         
         return self
+    }
+}
+
+
+// MARK: UIGestureRecognizerDelegate
+extension AlarmCell {
+    override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.view === toggle {
+            return false
+        }
+        return true
     }
 }
