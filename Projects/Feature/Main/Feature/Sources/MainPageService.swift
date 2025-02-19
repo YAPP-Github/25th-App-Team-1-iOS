@@ -51,8 +51,8 @@ extension MainPageService {
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
             
             let content = UNMutableNotificationContent()
-            content.title = "알람"
-            content.body = "선택한 요일에 울리는 알람입니다."
+            content.title = "오르비 알람"
+            content.body = "알람을 해제할 시간이에요!"
             content.userInfo = ["alarmId": alarm.id]
             content.sound = sound
             
@@ -63,20 +63,7 @@ extension MainPageService {
                 continue
             }
             
-            // 식별자에 요일 정보를 포함하면 관리하기 편함
-            let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.hour ?? 0)_\(components.minute ?? 0)"
-            
-            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-            
-            UNUserNotificationCenter.current().add(request) { error in
-                if let error = error {
-                    print("알림 예약 실패 (\(identifier)): \(error.localizedDescription)")
-                } else {
-                    print("알림 예약 성공: \(identifier)")
-                }
-            }
-            
-            for i in 0..<64 {
+            for i in 0..<20 {
                 let delay = initialDelay + Double(i * 5)
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
                 let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.day ?? 0)_\(i)"
