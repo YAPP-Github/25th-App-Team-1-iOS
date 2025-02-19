@@ -90,11 +90,11 @@ final class FortuneHealthLoveView: TouchDetectingView {
     private let contentScrollView = ScrollStackView()
     private let contentStackView = UIStackView()
     private let healthContentView = TodayFortuneContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneStudy.image,
+        icon: FeatureResourcesAsset.svgIcoFortuneHealth.image,
         subjectColor: R.Color.letterGreen
     )
     private let loveContentView = TodayFortuneContentView(
-        icon: FeatureResourcesAsset.svgIcoFortuneMoney.image,
+        icon: FeatureResourcesAsset.svgIcoFortuneLove.image,
         subjectColor: R.Color.letterPink
     )
 }
