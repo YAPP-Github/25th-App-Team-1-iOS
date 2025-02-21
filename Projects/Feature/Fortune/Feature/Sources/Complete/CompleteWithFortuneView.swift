@@ -14,7 +14,7 @@ protocol CompleteWithFortuneViewListener: AnyObject {
     func action(_ action: CompleteWithFortuneView.Action)
 }
 
-final class CompleteWithFortuneView: UIView {
+final class CompleteWithFortuneView: TouchDetectingView {
     enum Action {
         case prev
         case next
@@ -32,6 +32,10 @@ final class CompleteWithFortuneView: UIView {
     }
     
     weak var listener: CompleteWithFortuneViewListener?
+    
+    override func onSwipeRight() {
+        listener?.action(.prev)
+    }
     
     private let decoImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
