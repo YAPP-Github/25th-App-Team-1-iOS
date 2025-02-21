@@ -130,7 +130,12 @@ private extension FortuneLetterView {
         [letterTitleLabel, letterContentLabel, fromLabel].forEach {
             letterStackView.addArrangedSubview($0)
         }
-        
+        contentScrollView.tapped = { [weak self] in
+            self?.listener?.action(.next)
+        }
+        contentScrollView.swipeLeft = { [weak self] in
+            self?.listener?.action(.next)
+        }
         contentScrollView.addArrangedSubview(letterStackView)
         
         [paperImageView, starImageView, contentScrollView].forEach {

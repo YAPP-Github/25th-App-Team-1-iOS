@@ -140,6 +140,15 @@ private extension FortuneStudyMoneyView {
         [paperImageView, contentScrollView].forEach {
             paperContainer.addSubview($0)
         }
+        contentScrollView.tapped = { [weak self] in
+            self?.listener?.action(.next)
+        }
+        contentScrollView.swipeLeft = { [weak self] in
+            self?.listener?.action(.next)
+        }
+        contentScrollView.swipeRight = { [weak self] in
+            self?.listener?.action(.prev)
+        }
         contentScrollView.addArrangedSubview(contentStackView)
         [studyContentView, moneyContentView].forEach {
             contentStackView.addArrangedSubview($0)
