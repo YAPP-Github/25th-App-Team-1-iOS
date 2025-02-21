@@ -145,7 +145,12 @@ extension ConfigureUserInfoView {
             editBornTimeView.update(messageState: msgState)
             if editBornTimeView.isFirstResponder {
                 self.layoutIfNeeded()
-                scrollView.contentOffset.y = (scrollView.contentSize.height-scrollView.bounds.height)
+                let contentHeight = scrollView.contentSize.height
+                let scrollViewHeight = scrollView.bounds.height
+                if contentHeight > scrollViewHeight {
+                    // 키보드에 의해 컨텐츠가 밀어올려져 스크롤이 가능한 상태, 스크롤을 가장 아래로 이동
+                    scrollView.contentOffset.y = contentHeight-scrollViewHeight
+                }
             }
         case .bornTimeFieldEnability(let isEnabled):
             editBornTimeView.update(isTextFieldEnabled: isEnabled)
@@ -358,31 +363,20 @@ private extension ConfigureUserInfoView {
     
     @objc
     func onKeyboardAppear(_ notification: Notification) {
-        var focusedView: UIView?
-        if nameField.isFirstResponder {
-            focusedView = nameField
-        }
-        if editBornTimeView.isFirstResponder {
-            focusedView = editBornTimeView
-        }
-        guard let focusedView else { return }
         guard let userInfo = notification.userInfo else { return }
         
         guard let keyboardEndFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
         else { return }
-        let focusViewFrame = focusedView.convert(focusedView.bounds, to: self)
         
-        if keyboardEndFrame.minY < focusViewFrame.maxY {
-            // 키도드가 해당 뷰를 덮은 경우
-            UIView.animate(withDuration: animationDuration) {
-                let scrollView = self.scrollView
-                scrollView.snp.updateConstraints { make in
-                    make.bottom.equalToSuperview().inset(keyboardEndFrame.height)
-                }
-                self.layoutIfNeeded()
-                scrollView.contentOffset.y = (scrollView.contentSize.height-scrollView.bounds.height)
+        // 뷰의 하단 제약을 갱신
+        UIView.animate(withDuration: animationDuration) {
+            let scrollView = self.scrollView
+            scrollView.snp.updateConstraints { make in
+                make.bottom.equalToSuperview().inset(keyboardEndFrame.height)
             }
+            self.layoutIfNeeded()
+            scrollView.contentOffset.y = (scrollView.contentSize.height-scrollView.bounds.height)
         }
     }
     
