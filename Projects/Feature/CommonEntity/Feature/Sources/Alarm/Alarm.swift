@@ -73,7 +73,9 @@ extension Alarm {
             ? calendar.date(byAdding: .day, value: 1, to: alarmToday)!
             : alarmToday
         
-        return [calendar.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: finalDate)]
+        let components = calendar.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: finalDate)
+        
+        return [components]
     }
     
     private func nextDateComponents(for selectedWeekDays: Set<WeekDay>, hour: Hour, minute: Minute) -> [DateComponents] {
@@ -90,10 +92,18 @@ extension Alarm {
             components.weekday = weekDay.rawValue
             
             // now 이후에 해당 요일에 해당하는 다음 날짜를 계산
-            if let nextDate = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) {
-                // 반복 알람을 위한 DateComponents를 생성할 때는 연,월,일 정보 없이 요일과 시간만 사용해도 무방해
-                let finalComponents = calendar.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: nextDate)
-                componentsList.append(finalComponents)
+            if var nextDate = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) {
+                // 예: 앞으로 10주간 알람 생성
+                for _ in 0..<10 {
+                    let finalComponents = calendar.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: nextDate)
+                    componentsList.append(finalComponents)
+                    // 다음 주 같은 요일로 이동 (7일 추가)
+                    if let newDate = calendar.date(byAdding: .day, value: 7, to: nextDate) {
+                        nextDate = newDate
+                    } else {
+                        break
+                    }
+                }
             }
         }
         return componentsList
