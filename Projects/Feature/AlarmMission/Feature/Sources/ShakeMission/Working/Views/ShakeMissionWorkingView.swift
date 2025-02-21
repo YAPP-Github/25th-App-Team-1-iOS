@@ -25,7 +25,7 @@ final class ShakeMissionWorkingView: UIView {
     
     // Listener
     weak var listener: ShakeMissionWorkingViewListener?
-    
+    var workItem: DispatchWorkItem?
     var group: CAAnimationGroup?
     
     // Sub views
@@ -67,6 +67,13 @@ final class ShakeMissionWorkingView: UIView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        
+        workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            startShakeMissionView?.removeFromSuperview()
+            startShakeMissionView = nil
+            listener?.action(.missionGuideAnimationCompleted)
+        }
     }
     required init?(coder: NSCoder) { nil }
     
@@ -79,6 +86,19 @@ final class ShakeMissionWorkingView: UIView {
         
         // invisibleLayer
         invisibleLayer.frame = amuletCardBackImage.layer.frame
+    }
+}
+
+extension ShakeMissionWorkingView: StartShakeMissionViewListener {
+    func action(_ action: StartShakeMissionView.Action) {
+        switch action {
+        case .shakeDetected:
+            workItem?.cancel()
+            workItem = nil
+            startShakeMissionView?.removeFromSuperview()
+            startShakeMissionView = nil
+            listener?.action(.missionGuideAnimationCompleted)
+        }
     }
 }
 
@@ -198,18 +218,16 @@ extension ShakeMissionWorkingView {
         switch state {
         case .guide:
             let startMissionView = StartShakeMissionView()
+            startMissionView.listener = self
             addSubview(startMissionView)
             startMissionView.snp.makeConstraints({ $0.edges.equalToSuperview() })
             self.startShakeMissionView = startMissionView
             
             startMissionView.startShowUpAnimation()
+            guard let workItem else { return self }
             DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
-                guard let self else { return }
-                startShakeMissionView?.removeFromSuperview()
-                startShakeMissionView = nil
-                listener?.action(.missionGuideAnimationCompleted)
+                self?.workItem?.perform()
             }
-            
         case .working:
             missionProgressView.alpha = 1
             labelStackView.alpha = 1

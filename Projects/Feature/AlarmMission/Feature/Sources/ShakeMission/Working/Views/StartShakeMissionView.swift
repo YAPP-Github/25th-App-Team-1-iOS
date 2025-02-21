@@ -11,8 +11,15 @@ import FeatureUIDependencies
 
 import FeatureThirdPartyDependencies
 
+protocol StartShakeMissionViewListener: AnyObject {
+    func action(_ action: StartShakeMissionView.Action)
+}
+
 final class StartShakeMissionView: UIView {
     
+    enum Action {
+        case shakeDetected
+    }
     // Sub view
     private let titleLabel: UILabel = .init().then {
         $0.displayText = "흔들기 시작!".displayText(
@@ -24,8 +31,12 @@ final class StartShakeMissionView: UIView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setShakeDetector()
     }
     required init?(coder: NSCoder) { nil }
+    
+    weak var listener: StartShakeMissionViewListener?
+    private var shakeDetector: ShakeDetecter?
     
     private func setupUI() {
         
@@ -44,6 +55,15 @@ final class StartShakeMissionView: UIView {
             make.top.equalTo(self.safeAreaLayoutGuide).inset(140)
             make.centerX.equalToSuperview()
         }
+    }
+    
+    private func setShakeDetector() {
+        let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.25) { [weak self] in
+            self?.listener?.action(.shakeDetected)
+            self?.shakeDetector = nil
+        }
+        self.shakeDetector = shakeDetector
+        shakeDetector.startDetection()
     }
 }
 

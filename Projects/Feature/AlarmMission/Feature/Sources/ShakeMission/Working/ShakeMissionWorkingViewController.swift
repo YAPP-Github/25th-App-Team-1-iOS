@@ -86,7 +86,7 @@ extension ShakeMissionWorkingViewController {
         case .shakeMotionDetactor(let state):
             switch state {
             case .start:
-                let shakeDetector = ShakeDetecter(shakeThreshold: 1.0, detectionInterval: 0.25) { [weak self] in
+                let shakeDetector = ShakeDetecter(shakeThreshold: 1.5, detectionInterval: 0.25) { [weak self] in
                     guard let self else { return }
                     listener?.request(.shakeIsDetected)
                 }
