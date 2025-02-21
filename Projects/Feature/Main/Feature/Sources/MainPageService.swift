@@ -64,7 +64,6 @@ extension MainPageService {
                     print("알림 스케줄링 오류 (\(identifier)): \(error.localizedDescription)")
                 } else {
                     print("알림 예약 성공: \(identifier)")
-                    print(request)
                 }
             }
             generateRepeatedAlarm(for: alarm, sound: sound, components: components)
