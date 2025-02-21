@@ -287,7 +287,7 @@ private extension ConfigureUserInfoView {
         containerStack.axis = .vertical
         containerStack.spacing = 24
         containerStack.alignment = .fill
-        [nameField, birthDateStack, genderContainerStack, bornTimeContainerStack,  UIView()].forEach {
+        [nameField, birthDateStack, genderContainerStack, bornTimeContainerStack].forEach {
             containerStack.addArrangedSubview($0)
         }
         scrollView.addSubview(containerStack)
@@ -365,6 +365,15 @@ private extension ConfigureUserInfoView {
     func onKeyboardAppear(_ notification: Notification) {
         guard let userInfo = notification.userInfo else { return }
         
+        var focusedView: UIView?
+        if nameField.isFirstResponder {
+            focusedView = nameField
+        }
+        if editBornTimeView.isFirstResponder {
+            focusedView = editBornTimeView
+        }
+        guard let focusedView else { return }
+        
         guard let keyboardEndFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
         else { return }
@@ -376,7 +385,13 @@ private extension ConfigureUserInfoView {
                 make.bottom.equalToSuperview().inset(keyboardEndFrame.height)
             }
             self.layoutIfNeeded()
-            scrollView.contentOffset.y = (scrollView.contentSize.height-scrollView.bounds.height)
+            
+            let focusViewFrame = focusedView.convert(focusedView.bounds, to: self)
+            if focusViewFrame.maxY > keyboardEndFrame.minY {
+                // 인풋 뷰를 덮은 경우, 스크롤을 입력뷰 아래로 이동
+                let gap = focusViewFrame.maxY-keyboardEndFrame.minY
+                scrollView.contentOffset.y += gap
+            }
         }
     }
     
