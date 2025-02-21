@@ -351,7 +351,8 @@ extension MainPageInteractor {
     private func checkIsFirstAlarm(with alarm: Alarm) -> Bool {
         let alarmList = service.getAllAlarm()
         let activeAlarmList = alarmList.filter { $0.isActive }
-        if let firstAlarm = activeAlarmList.sorted(by: { $0.hour.value < $1.hour.value }).sorted(by: { $0.minute.value < $1.minute.value }).first {
+        let meridiem = alarm.meridiem
+        if let firstAlarm = activeAlarmList.sorted(by: { $0.hour.to24Hour(with: meridiem) < $1.hour.to24Hour(with: meridiem) }).sorted(by: { $0.minute.value < $1.minute.value }).first {
             return firstAlarm.id == alarm.id
         }
         return false

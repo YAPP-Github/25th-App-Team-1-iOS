@@ -86,7 +86,7 @@ extension Alarm {
         for weekDay in selectedWeekDays {
             // 원하는 시간으로 기본 컴포넌트를 구성
             var components = DateComponents()
-            components.hour = hour.value
+            components.hour = hour.to24Hour(with: meridiem)
             components.minute = minute.value
             components.second = 0
             components.weekday = weekDay.rawValue
@@ -94,7 +94,7 @@ extension Alarm {
             // now 이후에 해당 요일에 해당하는 다음 날짜를 계산
             if var nextDate = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) {
                 // 예: 앞으로 10주간 알람 생성
-                for _ in 0..<10 {
+                for _ in 0..<1 {
                     let finalComponents = calendar.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: nextDate)
                     componentsList.append(finalComponents)
                     // 다음 주 같은 요일로 이동 (7일 추가)
