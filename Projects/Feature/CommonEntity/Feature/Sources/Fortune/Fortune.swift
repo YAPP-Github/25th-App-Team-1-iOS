@@ -34,7 +34,7 @@ public struct Fortune: Codable {
     }
 }
 
-public struct FortuneSaveInfo: Codable {
+public struct FortuneSaveInfo: Codable, Equatable {
     public let id: Int
     public var shouldShowCharm: Bool
     public var charmIndex: Int?

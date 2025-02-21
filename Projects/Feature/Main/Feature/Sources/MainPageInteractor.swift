@@ -67,6 +67,9 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var checkedState: [String: Bool] = [:]
     private var alarmListMode: AlarmListMode = .idle
     
+    // Fortune
+    private var fortune: FortuneSaveInfo?
+    
     
     // AlertListener
     private var alertListener: [String: AlertListener] = [:]
@@ -98,6 +101,10 @@ extension MainPageInteractor {
             let userInfo = Preference.userInfo
             
             if let todayFortune = UserDefaults.standard.dailyFortune() {
+                if fortune == todayFortune {
+                    // 운세가 이미 UI로 표현된 경우
+                    return
+                }
                 // 오늘의 운세가 있는 경우
                 let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
                 if isDailyForuneIsChecked {
@@ -108,6 +115,7 @@ extension MainPageInteractor {
                         guard let self else { return }
                         let score = fortune.avgFortuneScore
                         presenter.request(.setFortuneScore(score: score, userName: userInfo?.name))
+                        self.fortune = todayFortune
                     } failure: { error in
                         print(error)
                     }
@@ -143,6 +151,10 @@ extension MainPageInteractor {
                 DispatchQueue.main.async {
                     self.goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
                 }
+                
+                // 오늘 운세는 확인된 상태로 변경
+                UserDefaults.standard.setDailyFortuneChecked(isChecked: true)
+                
             } failure: { error in
                 print(error)
             }
