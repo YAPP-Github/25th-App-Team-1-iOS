@@ -45,9 +45,9 @@ extension MainPageService {
         let sound = copySoundFileToLibrary(with: soundUrl) ?? .default
         
         let alarmComponentsList = alarm.nextDateComponents()
-        let now = Date()
         
         for components in alarmComponentsList {
+            // 첫 알람 생성
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
             
             let content = UNMutableNotificationContent()
@@ -56,29 +56,59 @@ extension MainPageService {
             content.userInfo = ["alarmId": alarm.id]
             content.sound = sound
             
-            guard let alarmDate = Calendar.current.date(from: components) else { continue }
-            let initialDelay = alarmDate.timeIntervalSince(now)
+            let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.day ?? 0)_\(0)"
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
             
-            if initialDelay < 0 {
-                continue
-            }
-            
-            for i in 0..<20 {
-                let delay = initialDelay + Double(i * 5)
-                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
-                let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.day ?? 0)_\(i)"
-                let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-                
-                center.add(request) { error in
-                    if let error = error {
-                        print("알림 스케줄링 오류 (\(identifier)): \(error.localizedDescription)")
-                    } else {
-                        print("알림 예약 성공: \(identifier)")
-                    }
+            center.add(request) { error in
+                if let error = error {
+                    print("알림 스케줄링 오류 (\(identifier)): \(error.localizedDescription)")
+                } else {
+                    print("알림 예약 성공: \(identifier)")
+                    print(request)
                 }
             }
+            generateRepeatedAlarm(for: alarm, sound: sound, components: components)
         }
         
+    }
+    
+    private func generateRepeatedAlarm(for alarm: Alarm, sound: UNNotificationSound, components: DateComponents) {
+        guard let alarmDate = Calendar.current.date(from: components) else { return }
+        let now = Date()
+        let center = UNUserNotificationCenter.current()
+        
+        let initialDelay = alarmDate.timeIntervalSince(now)
+        
+        if initialDelay < 5 {
+            return
+        }
+        
+        for i in 1..<20 {
+            let content = UNMutableNotificationContent()
+            content.title = "오르비 알람"
+            content.body = "알람을 해제할 시간이에요!"
+            content.userInfo = ["alarmId": alarm.id]
+            content.sound = sound
+            let delay = initialDelay + Double(i * 5)
+            if i % 6 == 0 {
+                content.sound = sound
+            } else {
+                content.sound = nil
+            }
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+            let identifier = "\(alarm.id)_\(components.weekday ?? 0)_\(components.day ?? 0)_\(i)"
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+            
+            center.add(request) { error in
+                if let error = error {
+                    print("알림 스케줄링 오류 (\(identifier)): \(error.localizedDescription)")
+                } else {
+                    print("알림 예약 성공: \(identifier)")
+                    print(request)
+                }
+            }
+            
+        }
     }
     
     @discardableResult
