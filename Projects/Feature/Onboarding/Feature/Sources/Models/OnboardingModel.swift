@@ -16,7 +16,7 @@ public struct OnboardingModel {
         minute: .init(0)!,
         repeatDays: AlarmDays(days: [.monday, .tuesday, .wednesday, .thursday, .friday]),
         snoozeOption: .init(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
-        soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: R.AlarmSound.allCases.sorted(by: { $0.title < $1.title }).first?.title ?? "")
+        soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: R.AlarmSound.Marimba.title)
     )
     public var birthDate: BirthDateData = {
         let calendar = CalendarType.gregorian

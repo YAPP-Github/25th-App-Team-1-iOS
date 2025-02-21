@@ -58,14 +58,13 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
         self.mode = mode
         switch mode {
         case .create:
-            let selectedSound = R.AlarmSound.allCases.sorted { $0.title < $1.title }.first?.title ?? ""
             self.alarm = .init(
                 meridiem: .am,
                 hour: Hour(6)!,
                 minute: Minute(0)!,
                 repeatDays: AlarmDays(days: []),
                 snoozeOption: SnoozeOption(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
-                soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: selectedSound)
+                soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound:  R.AlarmSound.Marimba.title)
             )
         case .edit(let alarm):
             self.alarm = alarm
