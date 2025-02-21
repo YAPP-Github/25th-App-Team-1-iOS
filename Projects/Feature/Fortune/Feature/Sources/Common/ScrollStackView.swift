@@ -32,6 +32,10 @@ final class ScrollStackView: UIScrollView {
         setupUI()
     }
     
+    var swipeLeft: (() -> Void)?
+    var swipeRight: (() -> Void)?
+    var tapped: (() -> Void)?
+    
     func addArrangedSubview(_ view: UIView){
         self.stackView.addArrangedSubview(view)
     }
@@ -47,6 +51,15 @@ final class ScrollStackView: UIScrollView {
         stackView.snp.makeConstraints{
             $0.leading.trailing.top.bottom.equalToSuperview()
         }
+        
+        let rightGesture = UISwipeGestureRecognizer(target: self, action: #selector(swiped))
+        rightGesture.direction = .right
+        let leftGesture = UISwipeGestureRecognizer(target: self, action: #selector(swiped))
+        leftGesture.direction = .left
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        addGestureRecognizer(rightGesture)
+        addGestureRecognizer(leftGesture)
+        addGestureRecognizer(tapGesture)
     }
     
     override func layoutSubviews() {
@@ -56,5 +69,26 @@ final class ScrollStackView: UIScrollView {
         let height = stackView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
         contentSize = CGSize(width: frame.width, height: height)
         invalidateIntrinsicContentSize()
+    }
+    
+    @objc
+    private func swiped(gesture: UISwipeGestureRecognizer) {
+        switch gesture.direction {
+        case .up:
+            print("up")
+        case .down:
+            print("down")
+        case .left:
+            swipeLeft?()
+        case .right:
+            swipeRight?()
+        default:
+            break
+        }
+    }
+    
+    @objc
+    private func viewTapped() {
+        tapped?()
     }
 }

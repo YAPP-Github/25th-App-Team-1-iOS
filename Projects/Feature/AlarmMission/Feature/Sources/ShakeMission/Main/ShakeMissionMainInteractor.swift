@@ -84,7 +84,6 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
     }
     
     private func getFortune(fortuneId: Int) {
-        guard let fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
         let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
             self?.fortune = fortune
