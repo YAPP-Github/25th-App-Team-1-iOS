@@ -58,10 +58,28 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
         self.mode = mode
         switch mode {
         case .create:
+            var hour = Hour(6)!
+            var minute = Minute(0)!
+            var meridiem: Meridiem = .am
+            let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: .now)
+            
+            if let currentHour = dateComponents.hour {
+                if currentHour >= 12 {
+                    meridiem = .pm
+                }
+                if currentHour >= 13, let formatted = Hour(currentHour-12) {
+                    hour = formatted
+                } else if let formatted = Hour(currentHour) {
+                    hour = formatted
+                }
+            }
+            if let currentMinute = dateComponents.minute, let formatted = Minute(currentMinute) {
+                minute = formatted
+            }
             self.alarm = .init(
-                meridiem: .am,
-                hour: Hour(6)!,
-                minute: Minute(0)!,
+                meridiem: meridiem,
+                hour: hour,
+                minute: minute,
                 repeatDays: AlarmDays(days: []),
                 snoozeOption: SnoozeOption(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
                 soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound:  R.AlarmSound.Marimba.title)
