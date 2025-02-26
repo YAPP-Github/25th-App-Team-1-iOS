@@ -424,6 +424,10 @@ extension MainPageInteractor {
     func request(_ request: FeatureFortune.FortuneListenerRequest) {
         switch request {
         case .close:
+            // 운세페이지를 닫을 경우 읽음 처리
+            UserDefaults.standard.setDailyFortuneChecked(isChecked: true)
+            
+            // 운세페이지 종료
             router?.request(.detachFortune)
         }
     }
