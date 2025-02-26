@@ -152,6 +152,7 @@ extension InputWakeUpAlarmView {
 // MARK: AlarmPickerListener
 extension InputWakeUpAlarmView {
     func latestSelection(meridiem: Meridiem, hour: Hour, minute: Minute) {
+        self.layoutIfNeeded()
         listener?.action(.alarmPicker(meridiem, hour, minute))
     }
 }
