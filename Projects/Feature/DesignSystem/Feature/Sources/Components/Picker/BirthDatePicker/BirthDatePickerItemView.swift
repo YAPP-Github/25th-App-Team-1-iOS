@@ -26,9 +26,7 @@ public final class BirthDatePickerItemView: UIView {
     private var titleLabelConfig: TitleLabelConfig?
     
     
-    public override var intrinsicContentSize: CGSize {
-        return viewSize
-    }
+    public override var intrinsicContentSize: CGSize { viewSize }
     
     
     public init(content: String, viewSize: CGSize) {

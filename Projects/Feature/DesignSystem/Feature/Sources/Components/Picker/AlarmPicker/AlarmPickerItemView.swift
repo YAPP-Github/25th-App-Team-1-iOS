@@ -56,6 +56,7 @@ final class AlarmPickerItemView: UIView {
     func setContentSize(_ size: CGSize) -> Self {
         
         self.contentSize = size
+        self.invalidateIntrinsicContentSize()
         
         return self
     }
