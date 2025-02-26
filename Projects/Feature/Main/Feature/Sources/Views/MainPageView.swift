@@ -683,6 +683,10 @@ extension MainPageView {
         alarmTableView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
         alarmTableView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
         resizableContentView.addSubview(alarmTableView)
+        
+        // iOS 15+ cell Swipe 관련 버그 해결 코드
+        alarmTableView.isEditing = true
+        alarmTableView.isEditing = false
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
