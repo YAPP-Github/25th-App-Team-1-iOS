@@ -45,7 +45,6 @@ final class BirthDatePickerColumnView: UIView, UIScrollViewDelegate {
     // Observable
     fileprivate let changeContent: BehaviorRelay<Content?> = .init(value: nil)
     fileprivate let currentSelectedContent: BehaviorRelay<Content?> = .init(value: nil)
-    private let layoutSubViews: BehaviorSubject<Void?> = .init(value: nil)
     private let disposeBag = DisposeBag()
     
     override var intrinsicContentSize: CGSize {
@@ -70,13 +69,6 @@ final class BirthDatePickerColumnView: UIView, UIScrollViewDelegate {
     }
     
     required init?(coder: NSCoder) { nil }
-    
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        layoutSubViews.onNext(())
-    }
     
     
     private func setupUI() {
@@ -156,13 +148,9 @@ final class BirthDatePickerColumnView: UIView, UIScrollViewDelegate {
     private func setReactive() {
         
         // changeContent
-        Observable
-            .combineLatest(
-                changeContent.compactMap({ $0 }),
-                layoutSubViews.take(1)
-            )
+        changeContent.compactMap({ $0 })
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { [weak self] content, _ in
+            .subscribe(onNext: { [weak self] content in
                 guard let self else { return }
                     
                 scrollView.isScrollEnabled = false

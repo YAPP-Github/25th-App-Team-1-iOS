@@ -106,7 +106,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
         // navigationBar
         navigationBar.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top)
-            make.horizontalEdges.equalTo(safeAreaLayoutGuide.snp.horizontalEdges)
+            make.horizontalEdges.equalTo(safeAreaLayoutGuide)
         }
         
         
@@ -119,8 +119,8 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
         
         // birthDataPicker
         birthDatePicker.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).inset(-69)
-            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
+            make.top.equalTo(titleLabel.snp.bottom).offset(69)
+            make.horizontalEdges.equalTo(safeAreaLayoutGuide)
                 .inset(20)
         }
         
@@ -132,10 +132,8 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
         
         // ctaButton
         ctaButton.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(self.safeAreaLayoutGuide.snp.horizontalEdges)
-                .inset(20)
-            make.bottom.equalTo(policyAgreementLabel.snp.top)
-                .offset(-12)
+            make.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
+            make.bottom.equalTo(policyAgreementLabel.snp.top).offset(-12)
         }
     }
 }
