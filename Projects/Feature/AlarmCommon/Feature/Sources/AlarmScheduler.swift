@@ -9,6 +9,7 @@ import Foundation
 import FeatureCommonDependencies
 import FeatureResources
 import UserNotifications
+import BackgroundTasks
 
 public struct AlarmScheduler {
     public static let shared = AlarmScheduler()
@@ -143,6 +144,60 @@ public struct AlarmScheduler {
         }
         
         semaphore.wait()
+    }
+}
+
+extension AlarmScheduler {
+    public func registerBackgroundTask() {
+        // BGTaskScheduler를 통해 백그라운드 작업 예약
+        let request = BGAppRefreshTaskRequest(identifier: "com.yaf.orbit.checkAndScheduleAlarm")
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 60 * 60) // 한시간 뒤에 실행되도록 설정
+        
+        do {
+            try BGTaskScheduler.shared.submit(request)
+        } catch {
+            print("Failed to submit background task: \(error)")
+        }
+    }
+    
+    public func handleBackgroundTask(_ task: BGTask) {
+        // 백그라운드에서 작업을 실행할 때 호출되는 메서드
+        task.expirationHandler = {
+            // 작업이 만료될 때 실행할 코드 (예: 백그라운드에서 완료되지 않았을 때 처리)
+            task.setTaskCompleted(success: false)
+        }
+        
+        // 알람을 체크하고 추가하는 메서드 실행
+        checkAndSheduleAlarmIfNeeded {
+            task.setTaskCompleted(success: true)
+            registerBackgroundTask()
+        }
+
+        registerBackgroundTask()
+    }
+    
+    private func checkAndSheduleAlarmIfNeeded(completion: () -> Void) {
+        let alarmList = AlarmStore.shared.getAll().filter { $0.isActive }
+        let idList = alarmList.map { $0.id }
+        var unscheduledAlarmIds: [String] = []
+        
+        let semaphore = DispatchSemaphore(value: 0)
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            idList.forEach { alarmId in
+                if !requests.contains(where: { $0.identifier.hasPrefix("\(alarmId)_")}) {
+                    unscheduledAlarmIds.append(alarmId)
+                }
+            }
+            semaphore.signal()
+        }
+        semaphore.wait()
+        
+        for alarmId in unscheduledAlarmIds {
+            if let alarm = alarmList.first(where: { $0.id == alarmId }) {
+                guard let soundUrl = alarm.selectedSoundUrl else { continue }
+                scheduleNotification(for: alarm, soundUrl: soundUrl)
+            }
+        }
     }
 }
 

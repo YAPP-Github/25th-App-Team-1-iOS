@@ -9,6 +9,7 @@ import UserNotifications
 import FeatureCommonDependencies
 import FeatureMain
 import FeatureAlarmCommon
+import BackgroundTasks
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -25,6 +26,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = window
         
         UNUserNotificationCenter.current().delegate = self
+        
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.yaf.orbit.checkAndScheduleAlarm", using: nil) { task in
+            // 백그라운드 작업이 실행될 때 handleBackgroundTask 호출
+            AlarmScheduler.shared.handleBackgroundTask(task)
+        }
+        
+        // 백그라운드 작업 등록
+        AlarmScheduler.shared.registerBackgroundTask()
+        
+        
         return true
     }
     
