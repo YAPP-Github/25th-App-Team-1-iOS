@@ -30,7 +30,7 @@ public enum MainPageRouterRequest {
     case routeToAlarmRelease(Alarm, Bool)
     case detachAlarmRelease((() -> Void)?)
     case presentAlertType1(DSButtonAlert.Config)
-    case presentAlertType2(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
+    case presentAlertType2(DSTwoButtonAlert.Config)
     case dismissAlert(completion: (()->Void)?=nil)
     case presentSettingPage
     case dismissSettingPage
@@ -71,10 +71,6 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     
     // Fortune
     private var fortune: FortuneSaveInfo?
-    
-    
-    // AlertListener
-    private var alertListener: [String: AlertListener] = [:]
     
     
     init(
@@ -170,22 +166,50 @@ extension MainPageInteractor {
             router?.request(.routeToCreateEditAlarm(mode: .edit(alarm)))
         case let .changeAlarmActivityState(alarmId):
             guard var alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return }
-            // 로직 업데이트
             let nextState = !alarm.isActive
-            alarm.isActive = nextState
-            service.updateAlarm(alarm)
             
-            // UI업데이트
-            let updatedROs = alarmCellROs.map { ro in
-                if ro.id == alarmId {
-                    var newRO = ro
-                    newRO.isToggleOn = nextState
-                    return newRO
+            let changeAlarmActivity = { [weak self] in
+                guard let self else { return }
+                // 로직 업데이트
+                alarm.isActive = nextState
+                service.updateAlarm(alarm)
+                
+                // UI업데이트
+                let updatedROs = alarmCellROs.map { ro in
+                    if ro.id == alarmId {
+                        var newRO = ro
+                        newRO.isToggleOn = nextState
+                        return newRO
+                    }
+                    return ro
                 }
-                return ro
+                self.alarmCellROs = updatedROs
+                presenter.request(.setAlarmList(updatedROs))
             }
-            self.alarmCellROs = updatedROs
-            presenter.request(.setAlarmList(updatedROs))
+            
+            let currentActiveAlarmCount = alarmCellROs.filter({ $0.isToggleOn }).count
+            if nextState == false, currentActiveAlarmCount == 1 {
+                // 알람을 비활성화할 때 현재 활성화된 알람의 수가 한개밖에 없는 경우
+                let alertConfig: DSTwoButtonAlert.Config = .init(
+                    titleText: "모든 알람 해제",
+                    subTitleText: "알람을 설정하지 않으면\n운세 편지를 받을 수 없어요.",
+                    leftButtonText: "취소",
+                    rightButtonText: "확인",
+                    leftButtonTapped: { [weak self] in
+                        guard let self else { return }
+                        router?.request(.dismissAlert())
+                    },
+                    rightButtonTapped: { [weak self] in
+                        guard let self else { return }
+                        changeAlarmActivity()
+                        router?.request(.dismissAlert())
+                    }
+                )
+                router?.request(.presentAlertType2(alertConfig))
+                break
+            } else {
+                changeAlarmActivity()
+            }
         case let .deleteAlarm(alarmId):
             guard let alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return }
             // 비즈니스 로직 업데이트
@@ -256,67 +280,62 @@ extension MainPageInteractor {
                 titleText: "알람 삭제",
                 subTitleText: "삭제하시겠어요?",
                 leftButtonText: "취소",
-                rightButtonText: "삭제"
-            )
-            let alertListenerKey = "deleteAlarms"
-            let alertListener = AlertListener()
-            alertListener.leftTapped = { [weak self] in
-                guard let self else { return }
-                router?.request(.dismissAlert())
-                self.alertListener.removeValue(forKey: alertListenerKey)
-            }
-            alertListener.rightTapped = { [weak self] in
-                guard let self else { return }
-                router?.request(.dismissAlert())
-                self.alertListener.removeValue(forKey: alertListenerKey)
-                
-                // 비즈니스 로직
-                let alarms = service.getAllAlarm()
-                let willDeleteAlarms = alarms.filter { alarm in
-                    self.checkedState[alarm.id] == true
-                }
-                willDeleteAlarms.forEach { alarm in
-                    self.service.deleteAlarm(alarm)
-                }
-                
-                // UI 업데이트
-                let newROs = alarmCellROs.filter { ro in
-                    self.checkedState[ro.id] != true
-                }.map { ro in
-                    var newRO = ro
-                    newRO.mode = .idle
-                    newRO.isChecked = false
-                    return newRO
-                }
-                self.alarmCellROs = newROs
-                self.checkedState = [:]
-                self.alarmListMode = .idle
-                presenter.request(.setAlarmListMode(.idle))
-                presenter.request(.setAlarmList(newROs))
-                presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
-                
-                let config: DSSnackBar.SnackBarConfig = .init(
-                    status: .success,
-                    titleText: "삭제되었어요.",
-                    buttonText: "취소",
-                    buttonCompletion: { [weak self] in
-                        guard let self else { return }
-                        willDeleteAlarms.forEach { alarm in
-                            // 복구
-                            self.service.addAlarm(alarm)
-                        }
-                        // UI업데이트
-                        let newAlarmList = service.getAllAlarm()
-                        let alarmCellROs = transform(alarmList: newAlarmList)
-                        self.alarmCellROs = alarmCellROs
-                        presenter.request(.setAlarmList(alarmCellROs))
+                rightButtonText: "삭제",
+                leftButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    router?.request(.dismissAlert())
+                },
+                rightButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    router?.request(.dismissAlert())
+                    
+                    // 비즈니스 로직
+                    let alarms = service.getAllAlarm()
+                    let willDeleteAlarms = alarms.filter { alarm in
+                        self.checkedState[alarm.id] == true
                     }
-                )
-                presenter.request(.presentSnackBar(config: config))
-            }
-            
-            self.alertListener[alertListenerKey] = alertListener
-            router?.request(.presentAlertType2(alertConfig, alertListener))
+                    willDeleteAlarms.forEach { alarm in
+                        self.service.deleteAlarm(alarm)
+                    }
+                    
+                    // UI 업데이트
+                    let newROs = alarmCellROs.filter { ro in
+                        self.checkedState[ro.id] != true
+                    }.map { ro in
+                        var newRO = ro
+                        newRO.mode = .idle
+                        newRO.isChecked = false
+                        return newRO
+                    }
+                    self.alarmCellROs = newROs
+                    self.checkedState = [:]
+                    self.alarmListMode = .idle
+                    presenter.request(.setAlarmListMode(.idle))
+                    presenter.request(.setAlarmList(newROs))
+                    presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
+                    
+                    let config: DSSnackBar.SnackBarConfig = .init(
+                        status: .success,
+                        titleText: "삭제되었어요.",
+                        buttonText: "취소",
+                        buttonCompletion: { [weak self] in
+                            guard let self else { return }
+                            willDeleteAlarms.forEach { alarm in
+                                // 복구
+                                self.service.addAlarm(alarm)
+                            }
+                            // UI업데이트
+                            let newAlarmList = service.getAllAlarm()
+                            let alarmCellROs = transform(alarmList: newAlarmList)
+                            self.alarmCellROs = alarmCellROs
+                            presenter.request(.setAlarmList(alarmCellROs))
+                        }
+                    )
+                    presenter.request(.presentSnackBar(config: config))
+                    
+                }
+            )
+            router?.request(.presentAlertType2(alertConfig))
             
         case .checkAllAlarmForDeletionButtonTapped:
             let prevState = deleteAllAlarmsChecked

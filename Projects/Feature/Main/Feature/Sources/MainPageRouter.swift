@@ -74,10 +74,10 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
                 listener: nil,
                 config: config
             )
-        case .presentAlertType2(let config, let listener):
+        case .presentAlertType2(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
-                listener: listener,
+                listener: nil,
                 config: config
             )
         case .dismissAlert(let completion):
