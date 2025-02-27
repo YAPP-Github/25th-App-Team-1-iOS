@@ -28,7 +28,7 @@ final class OpinionButton: TouchDetectingView {
     }
     required init?(coder: NSCoder) { nil }
     
-    override func onTouchOut() {
+    override func onTouchOut(isInbound: Bool?) {
         buttonAction?()
     }
 }

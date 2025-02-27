@@ -78,7 +78,7 @@ final class AlarmDeleteButton: TouchDetectingView {
         )
         trashImage.tintColor = R.Color.statusAlert50.withAlphaComponent(0.5)
     }
-    override func onTouchOut() {
+    override func onTouchOut(isInbound: Bool?) {
         self.backgroundColor = R.Color.gray700
         titleLabel.displayText = titleLabel.displayText?.string.displayText(
             font: .body1SemiBold,

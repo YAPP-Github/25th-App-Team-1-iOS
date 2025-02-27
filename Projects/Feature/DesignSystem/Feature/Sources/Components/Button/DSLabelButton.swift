@@ -36,7 +36,7 @@ public class DSLabelButton: TouchDetectingView {
     required init?(coder: NSCoder) { nil }
     
     
-    public override func onTouchOut() {
+    public override func onTouchOut(isInbound: Bool?) {
         buttonAction?()
     }
 }

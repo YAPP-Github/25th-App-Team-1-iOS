@@ -33,7 +33,7 @@ final class ExitButton: TouchDetectingView {
     }
     required init?(coder: NSCoder) { nil }
     
-    override func onTouchOut() { buttonAction?() }
+    override func onTouchOut(isInbound: Bool?) { buttonAction?() }
 }
 
 

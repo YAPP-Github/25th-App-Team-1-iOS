@@ -63,7 +63,7 @@ public final class DSCheckBox: TouchDetectingView {
     }
     
     
-    public override func onTouchOut() {
+    public override func onTouchOut(isInbound: Bool?) {
         buttonAction?()
     }
     

@@ -43,7 +43,7 @@ public final class DSDefaultCTAButton: TouchDetectingView {
         self.transform = CGAffineTransform(scaleX: widthScaleFactor, y: heightScaleFactor)
     }
     
-    public override func onTouchOut() {
+    public override func onTouchOut(isInbound: Bool?) {
         self.backgroundColor = style.type.backgroundColor
         self.titleLabel.displayText = title.displayText(
             font: style.size.font,

@@ -13,7 +13,7 @@ open class TouchDetectingView: UIView {
 
     // 클릭, 왼쪽 스와이프, 오른쪽 스와이프 이벤트를 처리할 함수들
     open func onTouchIn() {}
-    open func onTouchOut() {}
+    open func onTouchOut(isInbound: Bool?) {}
     open func onTap() {}
     open func onSwipeLeft() {}
     open func onSwipeRight() {}
@@ -53,9 +53,9 @@ open class TouchDetectingView: UIView {
         
         // 터치가 끝났을 때 클릭 이벤트 발생
         if let touch = touches.first {
+            onTouchOut(isInbound: judgeTouchIsInbound(touch))
             let currentLocation = touch.location(in: self)
             if currentLocation == initialTouchLocation {
-                onTouchOut()
                 onTap()
             }
         }
@@ -66,9 +66,21 @@ open class TouchDetectingView: UIView {
         
         // 터치가 취소되었을 때 처리
         onTouchCancelled()
-        onTouchOut()
+        if let touch = touches.first { onTouchOut(isInbound: judgeTouchIsInbound(touch)) }
+        else { onTouchOut(isInbound: nil) }
     }
     
     // 터치 취소 시 처리할 함수
     open func onTouchCancelled() {}
+    
+    
+    private func judgeTouchIsInbound(_ touch: UITouch) -> Bool {
+        let currentLocation = touch.location(in: self)
+        let xPos = currentLocation.x
+        let yPos = currentLocation.y
+        let inbound_on_horizontality = 0 <= xPos && xPos <= self.bounds.width
+        let inbound_on_verticality = 0 <= yPos && yPos <= self.bounds.height
+        let isInbound = inbound_on_horizontality && inbound_on_verticality
+        return isInbound
+    }
 }

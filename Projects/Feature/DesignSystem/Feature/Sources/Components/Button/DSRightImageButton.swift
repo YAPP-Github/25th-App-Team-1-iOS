@@ -123,7 +123,7 @@ public final class DSRightImageButton: TouchDetectingView {
         )
         imageView.tintColor = R.Color.white80
     }
-    public override func onTouchOut() {
+    public override func onTouchOut(isInbound: Bool?) {
         // Pressing
         self.isPressing = false
         setNeedsLayout()

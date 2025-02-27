@@ -49,7 +49,7 @@ final public class DSDefaultIconButton: TouchDetectingView {
     }
     
     
-    public override func onTouchOut() {
+    public override func onTouchOut(isInbound: Bool?) {
         self.imageView.tintColor = style.type.defaultImageTintColor
         buttonAction?()
     }

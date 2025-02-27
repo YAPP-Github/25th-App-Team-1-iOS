@@ -50,7 +50,7 @@ public final class DSToggle: TouchDetectingView {
         switchBall.layer.cornerRadius = switchBall.layer.bounds.height/2
     }
     
-    public override func onTouchOut() {
+    public override func onTouchOut(isInbound: Bool?) {
         if isEnabled {
             toggleAction?()
         }

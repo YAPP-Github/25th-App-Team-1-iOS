@@ -30,7 +30,7 @@ final class InfoButton: TouchDetectingView {
     }
     required init?(coder: NSCoder) { nil }
 
-    override func onTouchOut() {
+    override func onTouchOut(isInbound: Bool?) {
         buttonAction?()
     }
 }
