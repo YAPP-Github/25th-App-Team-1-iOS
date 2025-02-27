@@ -34,6 +34,7 @@ public extension ModulePath {
         case Root
         case Onboarding
         case Alarm
+        case AlarmCommon
         
         case UIDependencies
         case Resources

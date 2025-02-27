@@ -9,6 +9,7 @@ import RIBs
 import RxSwift
 import FeatureCommonDependencies
 import FeatureResources
+import FeatureAlarmCommon
 
 public enum AlarmReleaseIntroRouterRequest {
     case routeToSnooze(SnoozeOption)
@@ -96,13 +97,13 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     
     private func playAlarm() {
         guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
-        AlarmManager.shared.activateSession()
+        AudioPlayerManager.shared.activateSession()
         VolumeManager.setVolume(alarm.soundOption.volume)
-        AlarmManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
+        AudioPlayerManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
     }
     
     private func stopAlarm() {
-        AlarmManager.shared.stopPlayingSound()
+        AudioPlayerManager.shared.stopPlayingSound()
     }
 }
 

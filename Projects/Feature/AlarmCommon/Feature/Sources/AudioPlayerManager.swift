@@ -1,14 +1,14 @@
 //
-//  AlarmManager.swift
-//  FeatureCommonDependencies
+//  AudioPlayerManager.swift
+//  FeatureAlarmCommon
 //
-//  Created by ever on 2/8/25.
+//  Created by ever on 2/26/25.
 //
 
 import AVFoundation
 
-public final class AlarmManager: NSObject, AVAudioPlayerDelegate {
-    public static let shared = AlarmManager()
+public final class AudioPlayerManager: NSObject, AVAudioPlayerDelegate {
+    public static let shared = AudioPlayerManager()
     private var audioPlayer: AVAudioPlayer?
     
     private override init() {

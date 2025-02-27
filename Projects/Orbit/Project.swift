@@ -17,7 +17,13 @@ let project = Project(
                 ],
                 "CFBundleDisplayName": "오르비 알람",
                 "CFBundleShortVersionString": "1.0.1",
-                "NSPhotoLibraryUsageDescription": "부적 이미지를 저장하기 위해서는 앨범 접근 권한이 필요해요!"
+                "NSPhotoLibraryUsageDescription": "부적 이미지를 저장하기 위해서는 앨범 접근 권한이 필요해요!",
+                "UIBackgroundModes": [
+                    "processing"
+                ],
+                "BGTaskSchedulerPermittedIdentifiers": [
+                    "com.yaf.orbit.checkAndScheduleAlarm"
+                ]
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
@@ -27,6 +33,7 @@ let project = Project(
                 .feature(implements: .Onboarding),
                 .feature(implements: .Main),
                 .feature(implements: .Alarm),
+                .feature(implements: .AlarmCommon),
                 // Third party
                 .feature(implements: .ThirdPartyDependencies)
             ]
