@@ -57,11 +57,7 @@ public final class BirthDatePicker: UIView {
     private let dayColumn: BirthDatePickerColumnView = {
         let selectionItemViewSize: CGSize = .init(width: 42, height: 38)
         let selectionItems = (1...30).map { dayItem in
-            
-            var displayingText = "\(dayItem)"
-            if dayItem < 10 {
-                displayingText = "0\(dayItem)"
-            }
+            let displayingText = String(format: "%2d", dayItem)
             return BirthDaySelectionItem(
                 content: String(dayItem),
                 displayingText: displayingText,
@@ -276,7 +272,7 @@ public extension BirthDatePicker {
         let lastDay = Day.lastDay(calendar: calendarType, of: month, in: year)
         let range = 1...lastDay
         let updatedItems: [BirthDaySelectionItem] = range.map { day in
-            let displayingText = String(format: "%02d", day)
+            let displayingText = String(format: "%2d", day)
             let selectionItemViewSize: CGSize = .init(width: 42, height: 38)
             return BirthDaySelectionItem(
                 content: String(day),
