@@ -81,8 +81,9 @@ private extension DSDefaultIconButton {
     func setupLayout() {
         // imageView
         imageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-                .inset(style.size.imageInset)
+            make.width.equalTo(style.size.buttonSize.width-style.size.imageInset*2)
+            make.height.equalTo(style.size.buttonSize.height-style.size.imageInset*2)
+            make.center.equalToSuperview()
         }
     }
 }
