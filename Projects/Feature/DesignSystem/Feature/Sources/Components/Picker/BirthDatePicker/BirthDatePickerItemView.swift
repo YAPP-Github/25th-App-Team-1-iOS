@@ -43,17 +43,15 @@ public final class BirthDatePickerItemView: UIView {
     
     
     private func setupUI() {
-        
-        
         self.backgroundColor = .clear
+        
+        // label
+        addSubview(label)
     }
     
 
     private func setupLayout() {
-        
-        addSubview(label)
         label.snp.makeConstraints { make in
-            
             make.center.equalToSuperview()
         }
     }

@@ -31,7 +31,7 @@ public final class BirthDatePicker: UIView {
         return BirthDatePickerColumnView(itemSpacing: 12, items: selectionItems)
     }()
     private let yearColumn: BirthDatePickerColumnView = {
-        let selectionItemViewSize: CGSize = .init(width: 63, height: 38)
+        let selectionItemViewSize: CGSize = .init(width: 68, height: 38)
         let currentYear = Calendar.current.dateComponents([.year], from: .now).year!
         let selectionItems = (1900...(currentYear-1)).map { yearItem in
             BirthDaySelectionItem(
