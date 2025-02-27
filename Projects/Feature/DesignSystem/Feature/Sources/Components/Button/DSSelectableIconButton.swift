@@ -55,10 +55,12 @@ final public class DSSelectableIconButton: TouchDetectingView {
     
     
     public override func onTouchOut(isInbound: Bool?) {
-        let state: ButtonState = state == .idle ? .selected : .idle
-        self.state = state
-        apply(state: state)
-        buttonAction?(state)
+        if isInbound == true {
+            let state: ButtonState = state == .idle ? .selected : .idle
+            self.state = state
+            apply(state: state)
+            buttonAction?(state)
+        }
     }
     
     private func apply(state: ButtonState) {

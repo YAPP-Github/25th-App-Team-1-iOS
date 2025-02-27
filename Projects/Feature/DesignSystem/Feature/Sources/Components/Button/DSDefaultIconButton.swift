@@ -48,11 +48,11 @@ final public class DSDefaultIconButton: TouchDetectingView {
         self.imageView.tintColor = style.type.pressedImageTintColor
     }
     
-    
     public override func onTouchOut(isInbound: Bool?) {
         self.imageView.tintColor = style.type.defaultImageTintColor
-        buttonAction?()
     }
+    
+    public override func onTap() { buttonAction?() }
 }
 
 

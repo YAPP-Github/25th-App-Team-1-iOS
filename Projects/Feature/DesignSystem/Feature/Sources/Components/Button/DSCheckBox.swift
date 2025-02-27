@@ -62,10 +62,9 @@ public final class DSCheckBox: TouchDetectingView {
         }
     }
     
+    public override func onTouchOut(isInbound: Bool?) { }
     
-    public override func onTouchOut(isInbound: Bool?) {
-        buttonAction?()
-    }
+    public override func onTap() { buttonAction?() }
     
     private func apply(state: ButtonState) {
         self.backgroundColor = state.backgroundColor

@@ -28,9 +28,9 @@ public final class DSSharedListItemView: TouchDetectingView {
     }
     required init?(coder: NSCoder) { nil }
     
-    public override func onTouchOut(isInbound: Bool?) {
-        tapAction?()
-    }
+    public override func onTouchOut(isInbound: Bool?) { }
+    
+    public override func onTap() { tapAction?() }
 }
 
 
