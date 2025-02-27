@@ -28,8 +28,7 @@ enum MainPageViewPresenterRequest {
     case deleteAlarm(alarmId: String)
     case changeAlarmListMode(mode: AlarmListMode)
     case deleteAlarms
-    case selectAllAlarmsForDeletion
-    case releaseAllAlarmsForDeletion
+    case checkAllAlarmForDeletionButtonTapped
 }
 
 final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable, MainPageViewListener {
@@ -103,6 +102,8 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
                 make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(12)
             }
             snackBar.play()
+        case .setCheckForDeleteAllAlarms(let isOn):
+            mainView.update(.setDeleteAllAlarmCheckBox(isOn: isOn))
         }
     }
     
@@ -135,10 +136,8 @@ extension MainPageViewController {
             listener?.request(.changeAlarmListMode(mode: .deletion))
         case .changeModeToIdleButtonClicked:
             listener?.request(.changeAlarmListMode(mode: .idle))
-        case .allAlarmsForDeletionSelected:
-            listener?.request(.selectAllAlarmsForDeletion)
-        case .allAlarmsForDeletionUnSelected:
-            listener?.request(.releaseAllAlarmsForDeletion)
+        case .deleteAllAlarmCheckBoxTapped:
+            listener?.request(.checkAllAlarmForDeletionButtonTapped)
         }
     }
 }

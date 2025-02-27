@@ -32,8 +32,7 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
         case alarmsWillDelete
         case changeModeToDeletionButtonClicked
         case changeModeToIdleButtonClicked
-        case allAlarmsForDeletionSelected
-        case allAlarmsForDeletionUnSelected
+        case deleteAllAlarmCheckBoxTapped
     }
     
     
@@ -445,6 +444,7 @@ extension MainPageView {
         case presentAlarmGroupDeletionView
         case dismissAlarmGroupDeletionView
         case alarmGroupDeletionButton(isActive: Bool, text: String)
+        case setDeleteAllAlarmCheckBox(isOn: Bool)
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -472,6 +472,8 @@ extension MainPageView {
         case .alarmGroupDeletionButton(let isActive, let text):
             deleteGroupAlarmConfirmButton.update(state: isActive ? .active : .inactive)
             deleteGroupAlarmConfirmButton.update(title: text)
+        case .setDeleteAllAlarmCheckBox(let isOn):
+            deleteAlarmGroupBarView.update(isDeleteAllCheckBoxChecked: isOn)
         }
         return self
     }
@@ -809,7 +811,6 @@ extension MainPageView {
 extension MainPageView {
     func presentDeleteAllAlarmBarView() {
         alarmToolBarContainerView.alpha = 0
-        deleteAlarmGroupBarView.clearState()
         deleteAlarmGroupBarView.isHidden = false
     }
     
@@ -823,8 +824,8 @@ extension MainPageView {
         case .cancelButtonTapped:
             dismissDeleteAllAlarmBarView()
             listener?.action(.changeModeToIdleButtonClicked)
-        case .selectionStateChanged(let isSelected):
-            listener?.action(isSelected ? .allAlarmsForDeletionSelected : .allAlarmsForDeletionUnSelected)
+        case .selectAllButtonTapped:
+            listener?.action(.deleteAllAlarmCheckBoxTapped)
         }
     }
 }

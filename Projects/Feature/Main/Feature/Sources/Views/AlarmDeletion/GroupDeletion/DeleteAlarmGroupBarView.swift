@@ -19,16 +19,11 @@ protocol DeleteAlarmGroupBarViewListener: AnyObject {
 
 
 final class DeleteAlarmGroupBarView: UIView {
-    
     // Action
     enum Action {
         case cancelButtonTapped
-        case selectionStateChanged(isSelected: Bool)
+        case selectAllButtonTapped
     }
-    
-    
-    // State
-    private var isDeleteAllChecked: Bool = false
     
     
     // Listener
@@ -66,9 +61,8 @@ final class DeleteAlarmGroupBarView: UIView {
 
 // MARK: Public interface
 extension DeleteAlarmGroupBarView {
-    func clearState() {
-        self.isDeleteAllChecked = false
-        checkBox.update(state: .idle)
+    func update(isDeleteAllCheckBoxChecked: Bool) {
+        checkBox.update(state: isDeleteAllCheckBoxChecked ? .seleceted : .idle)
     }
 }
 
@@ -84,10 +78,7 @@ private extension DeleteAlarmGroupBarView {
         // checkBox
         checkBox.buttonAction = { [weak self] in
             guard let self else { return }
-            let nextState = !isDeleteAllChecked
-            listener?.action(.selectionStateChanged(isSelected: nextState))
-            isDeleteAllChecked = nextState
-            checkBox.update(state: nextState ? .seleceted : .idle)
+            listener?.action(.selectAllButtonTapped)
         }
             
         // firstStack

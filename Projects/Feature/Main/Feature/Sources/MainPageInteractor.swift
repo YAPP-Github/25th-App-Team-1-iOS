@@ -47,6 +47,7 @@ enum MainPagePresentableRequest {
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
     case setFortuneDeliverMark(isMarked: Bool)
     case setFortuneScore(score: Int?, userName: String?)
+    case setCheckForDeleteAllAlarms(isOn: Bool)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -66,6 +67,7 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     // - 알림이 삭제를 위해 체크된 상태관리
     private var checkedState: [String: Bool] = [:]
     private var alarmListMode: AlarmListMode = .idle
+    private var deleteAllAlarmsChecked: Bool = false
     
     // Fortune
     private var fortune: FortuneSaveInfo?
@@ -158,7 +160,6 @@ extension MainPageInteractor {
             } failure: { error in
                 print(error)
             }
-
             
         case .goToSettings:
             router?.request(.presentSettingPage)
@@ -205,6 +206,8 @@ extension MainPageInteractor {
                 return newRO
             }
             self.alarmCellROs = newROs
+            self.deleteAllAlarmsChecked = false
+            presenter.request(.setCheckForDeleteAllAlarms(isOn: false))
             presenter.request(.setAlarmList(alarmCellROs))
             presenter.request(.setAlarmListMode(mode))
             presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
@@ -233,6 +236,20 @@ extension MainPageInteractor {
             presenter.request(.setCountForAlarmsCheckedForDeletion(
                 countOfAlarms: self.checkedState.keys.count
             ))
+            
+            let alarmCellCount = alarmCellROs.count
+            let checkedForDeletionAlarmCount = checkedState.count
+            if checkedForDeletionAlarmCount == alarmCellCount, !deleteAllAlarmsChecked {
+                // 단일 선택으로 모든 알람을 선택한 경우
+                self.deleteAllAlarmsChecked = true
+                presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
+            }
+            if checkedForDeletionAlarmCount != alarmCellCount, deleteAllAlarmsChecked {
+                // 단일 해제로 모든 알람 선택이 해제된 경우
+                self.deleteAllAlarmsChecked = false
+                presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
+            }
+            
         case .deleteAlarms:
             
             let alertConfig: DSTwoButtonAlert.Config = .init(
@@ -301,28 +318,35 @@ extension MainPageInteractor {
             self.alertListener[alertListenerKey] = alertListener
             router?.request(.presentAlertType2(alertConfig, alertListener))
             
-        case .selectAllAlarmsForDeletion:
-            let newROs = alarmCellROs.map { ro in
-                var newRO = ro
-                newRO.isChecked = true
-                self.checkedState[ro.id] = true
-                return newRO
+        case .checkAllAlarmForDeletionButtonTapped:
+            let prevState = deleteAllAlarmsChecked
+            if prevState == true {
+                // 전체선택 해제
+                let newROs = alarmCellROs.map { ro in
+                    var newRO = ro
+                    newRO.isChecked = false
+                    return newRO
+                }
+                self.checkedState = [:]
+                self.alarmCellROs = newROs
+                presenter.request(.setAlarmList(newROs))
+                presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
+            } else {
+                // 전체선택
+                let newROs = alarmCellROs.map { ro in
+                    var newRO = ro
+                    newRO.isChecked = true
+                    self.checkedState[ro.id] = true
+                    return newRO
+                }
+                self.alarmCellROs = newROs
+                presenter.request(.setAlarmList(newROs))
+                presenter.request(.setCountForAlarmsCheckedForDeletion(
+                    countOfAlarms: self.checkedState.keys.count
+                ))
             }
-            self.alarmCellROs = newROs
-            presenter.request(.setAlarmList(newROs))
-            presenter.request(.setCountForAlarmsCheckedForDeletion(
-                countOfAlarms: self.checkedState.keys.count
-            ))
-        case .releaseAllAlarmsForDeletion:
-            let newROs = alarmCellROs.map { ro in
-                var newRO = ro
-                newRO.isChecked = false
-                return newRO
-            }
-            self.checkedState = [:]
-            self.alarmCellROs = newROs
-            presenter.request(.setAlarmList(newROs))
-            presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
+            self.deleteAllAlarmsChecked = !prevState
+            presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
         }
     }
     
