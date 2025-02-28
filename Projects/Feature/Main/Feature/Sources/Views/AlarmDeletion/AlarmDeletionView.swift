@@ -11,26 +11,14 @@ import FeatureResources
 import FeatureThirdPartyDependencies
 import FeatureCommonDependencies
 
-protocol AlarmDeletionViewListener: AnyObject {
-    func action(_ action: AlarmDeletionView.Action)
-}
-
 final class AlarmDeletionView: UIView, UIGestureRecognizerDelegate, AlarmDeletionItemViewListener {
     
     // Action
     enum Action {
-        case deleteButtonClicked(cellId: String)
-        case deletionItemToggleIsTapped(cellId: String)
+        case deleteButtonClicked
+        case deletionItemToggleIsTapped
         case backgroundTapped
     }
-    
-    
-    // State
-    private var alarmRO: AlarmCellRO?
-    
-    
-    // Listener
-    weak var listener: AlarmDeletionViewListener?
     
     
     // Sub view
@@ -43,6 +31,10 @@ final class AlarmDeletionView: UIView, UIGestureRecognizerDelegate, AlarmDeletio
     private let tapGesture: UITapGestureRecognizer = .init()
     
     
+    // Action
+    var action: ((AlarmDeletionView.Action) -> Void)?
+    
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -52,31 +44,36 @@ final class AlarmDeletionView: UIView, UIGestureRecognizerDelegate, AlarmDeletio
     required init?(coder: NSCoder) { nil }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        if touch.view?.isDescendant(of: deletionItemView) == true {
-            return false
-        }
-        return true
+        let touchedView = touch.view
+        return touchedView === blurEffectView
     }
 }
 
 
 // MARK: Public interface
 extension AlarmDeletionView {
-    func present() {
-        blurEffectView.alpha = 0
-        UIView.animate(withDuration: 0.2) {
-            self.blurEffectView.alpha = 1
-        }
+    enum Update {
+        case present
+        case dismiss(completion: (() -> Void)?)
+        case renderObject(AlarmCellRO)
     }
     
-    func dismiss(completion: (() -> Void)?) {
-        UIView.animate(withDuration: 0.2) {
-            self.alpha = 0
-        } completion: { _ in completion?() }
-    }
-    func update(renderObject ro: AlarmCellRO) {
-        self.alarmRO = ro
-        deletionItemView.update(renderObject: ro)
+    @discardableResult
+    func update(_ update: Update) -> Self {
+        switch update {
+        case .present:
+            blurEffectView.alpha = 0
+            UIView.animate(withDuration: 0.2) {
+                self.blurEffectView.alpha = 1
+            }
+        case .dismiss(let completion):
+            UIView.animate(withDuration: 0.2) {
+                self.alpha = 0
+            } completion: { _ in completion?() }
+        case .renderObject(let alarmCellRO):
+            deletionItemView.update(renderObject: alarmCellRO)
+        }
+        return self
     }
 }
 
@@ -100,8 +97,7 @@ private extension AlarmDeletionView {
         // alarmDeleteButton
         alarmDeleteButton.buttonAction = { [weak self] in
             guard let self else { return }
-            guard let cellId = self.alarmRO?.id else { return }
-            listener?.action(.deleteButtonClicked(cellId: cellId))
+            action?(.deleteButtonClicked)
         }
         addSubview(alarmDeleteButton)
     }
@@ -134,7 +130,7 @@ private extension AlarmDeletionView {
     }
     @objc
     func onTapBackground(gesture: UITapGestureRecognizer) {
-        listener?.action(.backgroundTapped)
+        action?(.backgroundTapped)
     }
 }
 
@@ -144,12 +140,7 @@ extension AlarmDeletionView {
     func action(_ action: AlarmDeletionItemView.Action) {
         switch action {
         case .toggleIsTapped:
-            guard let cellId = alarmRO?.id, let alarmRO else { break }
-            listener?.action(.deletionItemToggleIsTapped(cellId: cellId))
-            var newRO = alarmRO
-            newRO.isToggleOn = !alarmRO.isToggleOn
-            self.alarmRO = newRO
-            deletionItemView.update(renderObject: newRO)
+            self.action?(.deletionItemToggleIsTapped)
         }
     }
 }

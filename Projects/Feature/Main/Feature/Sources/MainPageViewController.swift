@@ -27,6 +27,8 @@ enum MainPageViewPresenterRequest {
     case changeAlarmCheckState(alarmId: String)
     case deleteAlarm(alarmId: String)
     case changeAlarmListMode(mode: AlarmListMode)
+    case presentSingleAlarmDeletionView(alarmId: String)
+    case dismissSingleAlarmDeletionView
     case deleteAlarms
     case checkAllAlarmForDeletionButtonTapped
 }
@@ -104,6 +106,18 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             snackBar.play()
         case .setCheckForDeleteAllAlarms(let isOn):
             mainView.update(.setDeleteAllAlarmCheckBox(isOn: isOn))
+        case .presentSingleAlarmDeletionView(let ro):
+            mainView.update(.singleAlarmDeletionViewPresentation(
+                isPresent: true,
+                presenting: ro
+            ))
+        case .dismissSingleAlarmDeletionView:
+            mainView.update(.singleAlarmDeletionViewPresentation(
+                isPresent: false,
+                presenting: nil
+            ))
+        case .setSingleAlarmDeltionItem(let ro):
+            mainView.update(.updateSingleAlarmDeletionItem(ro))
         }
     }
     
@@ -138,6 +152,10 @@ extension MainPageViewController {
             listener?.request(.changeAlarmListMode(mode: .idle))
         case .deleteAllAlarmCheckBoxTapped:
             listener?.request(.checkAllAlarmForDeletionButtonTapped)
+        case .alarmCellIsLongPressed(let alarmId):
+            listener?.request(.presentSingleAlarmDeletionView(alarmId: alarmId))
+        case .singleAlarmDeletionViewBackgroundTapped:
+            listener?.request(.dismissSingleAlarmDeletionView)
         }
     }
 }

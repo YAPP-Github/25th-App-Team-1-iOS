@@ -12,6 +12,9 @@ import FeatureDesignSystem
 import FeatureThirdPartyDependencies
 import FeatureCommonDependencies
 
+import RxSwift
+import RxRelay
+
 final class AlarmCell: UITableViewCell {
     
     // Id
@@ -178,7 +181,6 @@ private extension AlarmCell {
         longPressGesture.minimumPressDuration = 0.5
         longPressGesture.cancelsTouchesInView = false
         
-        
         // tapGesture
         contentView.addGestureRecognizer(tapGesture)
         tapGesture.delegate = self
@@ -191,7 +193,9 @@ private extension AlarmCell {
     }
     @objc
     func onLongPress(_ sender: UILongPressGestureRecognizer) {
-        action?(.cellIsLongPressed)
+        if sender.state == .began {
+            action?(.cellIsLongPressed)
+        }
     }
 }
 

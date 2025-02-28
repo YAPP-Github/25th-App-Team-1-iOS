@@ -57,7 +57,6 @@ final class AlarmDeletionItemView: UIView {
     
     // State
     private var currentRO: AlarmCellRO?
-    private var state: AlarmState = .active
     
     
     init() {

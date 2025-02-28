@@ -48,6 +48,9 @@ enum MainPagePresentableRequest {
     case setFortuneDeliverMark(isMarked: Bool)
     case setFortuneScore(score: Int?, userName: String?)
     case setCheckForDeleteAllAlarms(isOn: Bool)
+    case presentSingleAlarmDeletionView(AlarmCellRO)
+    case dismissSingleAlarmDeletionView
+    case setSingleAlarmDeltionItem(AlarmCellRO)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -68,6 +71,7 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var checkedState: [String: Bool] = [:]
     private var alarmListMode: AlarmListMode = .idle
     private var deleteAllAlarmsChecked: Bool = false
+    private var isSingleAlarmDeletionViewPresenting = false
     
     // Fortune
     private var fortune: FortuneSaveInfo?
@@ -185,6 +189,12 @@ extension MainPageInteractor {
                 }
                 self.alarmCellROs = updatedROs
                 presenter.request(.setAlarmList(updatedROs))
+                
+                if self.isSingleAlarmDeletionViewPresenting {
+                    // 단일 알람 삭제화면이 표시된 경우 해당 아이템도 업데이트
+                    guard let ro = alarmCellROs.first(where: { $0.id == alarmId }) else { return }
+                    presenter.request(.setSingleAlarmDeltionItem(ro))
+                }
             }
             
             let currentActiveAlarmCount = alarmCellROs.filter({ $0.isToggleOn }).count
@@ -212,14 +222,37 @@ extension MainPageInteractor {
             }
         case let .deleteAlarm(alarmId):
             guard let alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return }
-            // 비즈니스 로직 업데이트
-            service.deleteAlarm(alarm)
+            let alertConfig: DSTwoButtonAlert.Config = .init(
+                titleText: "알람 삭제",
+                subTitleText: "삭제하시겠어요?",
+                leftButtonText: "취소",
+                rightButtonText: "삭제",
+                leftButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    router?.request(.dismissAlert())
+                },
+                rightButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    // 비즈니스 로직 업데이트
+                    service.deleteAlarm(alarm)
+                    
+                    // UI업데이트
+                    if let index = alarmCellROs.firstIndex(where: { $0.id == alarmId }) {
+                        alarmCellROs.remove(at: index)
+                        presenter.request(.setAlarmList(alarmCellROs))
+                    }
+                    
+                    // Single alarm deletion뷰로 삭제중일 경우
+                    if isSingleAlarmDeletionViewPresenting {
+                        self.isSingleAlarmDeletionViewPresenting = false
+                        presenter.request(.dismissSingleAlarmDeletionView)
+                    }
+                    
+                    router?.request(.dismissAlert())
+                }
+            )
+            router?.request(.presentAlertType2(alertConfig))
             
-            // UI업데이트
-            if let index = alarmCellROs.firstIndex(where: { $0.id == alarmId }) {
-                alarmCellROs.remove(at: index)
-                presenter.request(.setAlarmList(alarmCellROs))
-            }
         case .changeAlarmListMode(let mode):
             self.alarmListMode = mode
             self.checkedState = [:]
@@ -275,7 +308,6 @@ extension MainPageInteractor {
             }
             
         case .deleteAlarms:
-            
             let alertConfig: DSTwoButtonAlert.Config = .init(
                 titleText: "알람 삭제",
                 subTitleText: "삭제하시겠어요?",
@@ -366,6 +398,14 @@ extension MainPageInteractor {
             }
             self.deleteAllAlarmsChecked = !prevState
             presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
+            
+        case .presentSingleAlarmDeletionView(let alarmId):
+            guard let alarmRO = self.alarmCellROs.first(where: { $0.id == alarmId }) else { break }
+            self.isSingleAlarmDeletionViewPresenting = true
+            presenter.request(.presentSingleAlarmDeletionView(alarmRO))
+        case .dismissSingleAlarmDeletionView:
+            self.isSingleAlarmDeletionViewPresenting = false
+            presenter.request(.dismissSingleAlarmDeletionView)
         }
     }
     

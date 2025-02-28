@@ -16,7 +16,7 @@ protocol MainPageViewListener: AnyObject {
 }
 
 
-final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener, DeleteAlarmGroupBarViewListener {
+final class MainPageView: UIView, UITableViewDelegate, DeleteAlarmGroupBarViewListener {
     
     // Action
     enum Action {
@@ -28,6 +28,8 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
         case alarmActivityStateWillChange(alarmId: String)
         case alarmIsChecked(alarmId: String)
         case alarmWillDelete(alarmId: String)
+        case alarmCellIsLongPressed(alarmId: String)
+        case singleAlarmDeletionViewBackgroundTapped
         
         case alarmsWillDelete
         case changeModeToDeletionButtonClicked
@@ -113,7 +115,6 @@ final class MainPageView: UIView, UITableViewDelegate, AlarmDeletionViewListener
     
     // - AlarmDeletionView
     private var alarmDeletionView: AlarmDeletionView?
-    private var isDeletionViewPresenting: Bool = false
     
     // - alarmOptionBottomListView
     private var alarmOptionBottomListView: UIView?
@@ -445,6 +446,8 @@ extension MainPageView {
         case dismissAlarmGroupDeletionView
         case alarmGroupDeletionButton(isActive: Bool, text: String)
         case setDeleteAllAlarmCheckBox(isOn: Bool)
+        case singleAlarmDeletionViewPresentation(isPresent: Bool, presenting: AlarmCellRO?)
+        case updateSingleAlarmDeletionItem(AlarmCellRO)
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -474,6 +477,15 @@ extension MainPageView {
             deleteGroupAlarmConfirmButton.update(title: text)
         case .setDeleteAllAlarmCheckBox(let isOn):
             deleteAlarmGroupBarView.update(isDeleteAllCheckBoxChecked: isOn)
+        case .singleAlarmDeletionViewPresentation(let isPresent, let alarmCellRO):
+            if isPresent {
+                guard let alarmCellRO else { break }
+                presentAlarmDeletionView(alarm: alarmCellRO)
+            } else {
+                dismissAlarmDeletionView()
+            }
+        case .updateSingleAlarmDeletionItem(let ro):
+            alarmDeletionView?.update(.renderObject(ro))
         }
         return self
     }
@@ -658,9 +670,7 @@ extension MainPageView {
                     case .activityToggleTapped:
                         listener?.action(.alarmActivityStateWillChange(alarmId: cellId))
                     case .cellIsLongPressed:
-                        guard isDeletionViewPresenting == false else { return }
-                        isDeletionViewPresenting = true
-                        presentAlarmDeletionView(alarm: ro)
+                        listener?.action(.alarmCellIsLongPressed(alarmId: cellId))
                     case .cellIsTapped:
                         switch ro.mode {
                         case .idle:
@@ -719,25 +729,37 @@ extension MainPageView {
 private extension MainPageView {
     func presentAlarmDeletionView(alarm ro: AlarmCellRO) {
         let deletionView = AlarmDeletionView()
-        deletionView.listener = self
-        deletionView.update(renderObject: ro)
+            .update(.renderObject(ro))
+            .update(.present)
+        deletionView.action = { [weak self] action in
+            let cellId = ro.id
+            guard let self else { return }
+            switch action {
+            case .backgroundTapped:
+                listener?.action(.singleAlarmDeletionViewBackgroundTapped)
+            case .deleteButtonClicked:
+                listener?.action(.alarmWillDelete(alarmId: cellId))
+            case .deletionItemToggleIsTapped:
+                listener?.action(.alarmActivityStateWillChange(alarmId: cellId))
+            }
+        }
+        self.alarmDeletionView = deletionView
         addSubview(deletionView)
+        
+        // Layout
         deletionView.layer.zPosition = 200
         deletionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        self.alarmDeletionView = deletionView
-        deletionView.present()
     }
     
     func dismissAlarmDeletionView() {
         guard let deletionView = self.alarmDeletionView else { return }
-        deletionView.dismiss { [weak self] in
+        deletionView.update(.dismiss(completion: { [weak self] in
             guard let self else { return }
             alarmDeletionView?.removeFromSuperview()
             alarmDeletionView = nil
-            isDeletionViewPresenting = false
-        }
+        }))
     }
 }
 
@@ -787,22 +809,6 @@ private extension MainPageView {
         guard let alarmOptionBottomListView else { return }
         alarmOptionBottomListView.removeFromSuperview()
         self.alarmOptionBottomListView = nil
-    }
-}
-
-
-// MARK: AlarmDeletionViewListener
-extension MainPageView {
-    func action(_ action: AlarmDeletionView.Action) {
-        switch action {
-        case .deleteButtonClicked(let cellId):
-            dismissAlarmDeletionView()
-            listener?.action(.alarmWillDelete(alarmId: cellId))
-        case .backgroundTapped:
-            dismissAlarmDeletionView()
-        case .deletionItemToggleIsTapped(let cellId):
-            listener?.action(.alarmActivityStateWillChange(alarmId: cellId))
-        }
     }
 }
 
