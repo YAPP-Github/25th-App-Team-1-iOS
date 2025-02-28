@@ -224,8 +224,23 @@ extension AlarmCell {
                 .sorted(by: { $0.rawValue < $1.rawValue })
                 .map { $0.toShortKoreanFormat }.joined(separator: ", ")
         } else {
-            let month = Calendar.current.component(.month, from: .now)
-            let day = Calendar.current.component(.day, from: .now)
+            var alarmHour = ro.hour.value
+            if ro.meridiem == .pm, (1...11).contains(alarmHour) {
+                alarmHour += 12
+            }
+            let alarmMinute = ro.minute.value
+            let currentHour = Calendar.current.component(.hour, from: .now)
+            let currentMinute = Calendar.current.component(.minute, from: .now)
+            
+            // 알람이 현재 시간 이후에 울리는지 확인
+            let isTodayAlarm = (alarmHour > currentHour) || (alarmHour == currentHour && alarmMinute > currentMinute)
+            var alarmDate: Date = .now
+            if !isTodayAlarm {
+                // 내일 울릴 알람인 경우
+                alarmDate = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+            }
+            let month = Calendar.current.component(.month, from: alarmDate)
+            let day = Calendar.current.component(.day, from: alarmDate)
             dayDisplayText = "\(month)월 \(day)일"
         }
         dayLabel.displayText = dayDisplayText.displayText(
