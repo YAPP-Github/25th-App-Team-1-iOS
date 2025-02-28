@@ -147,38 +147,66 @@ private extension AlarmDeletionItemView {
 extension AlarmDeletionItemView {
     @discardableResult
     func update(renderObject ro: AlarmCellRO, animated: Bool = true) -> Self {
-        // State
-        let isActive = ro.isToggleOn
-        self.state = isActive ? .active : .inactive
-        self.currentRO = ro
+        let isAlarmActive = ro.isToggleOn
         
         // Toggle
-        toggle.update(state: .init(isEnabled: true, switchState: ro.isToggleOn ? .on : .off))
+        toggle.update(state: .init(
+            isEnabled: true,
+            switchState: isAlarmActive ? .on : .off
+        ))
+        
         
         // day
+        let dayColor = isAlarmActive ? R.Color.gray300 : R.Color.gray500
         let alarmDays = ro.alarmDays
         everyWeekLabel.isHidden = alarmDays.days.isEmpty
         holidayImage.isHidden = !alarmDays.shoundTurnOffHolidayAlarm
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
-            color: state.dayLabelColor
+            color: dayColor
         )
-        let dayDisplayText = "매주" + alarmDays.days.map { $0.toShortKoreanFormat }.joined(separator: " ")
+        var dayDisplayText = ""
+        if !alarmDays.days.isEmpty {
+            dayDisplayText = alarmDays.days
+                .sorted(by: { $0.rawValue < $1.rawValue })
+                .map { $0.toShortKoreanFormat }.joined(separator: ", ")
+        } else {
+            var alarmHour = ro.hour.value
+            if ro.meridiem == .pm, (1...11).contains(alarmHour) {
+                alarmHour += 12
+            }
+            let alarmMinute = ro.minute.value
+            let currentHour = Calendar.current.component(.hour, from: .now)
+            let currentMinute = Calendar.current.component(.minute, from: .now)
+            
+            // 알람이 현재 시간 이후에 울리는지 확인
+            let isTodayAlarm = (alarmHour > currentHour) || (alarmHour == currentHour && alarmMinute > currentMinute)
+            var alarmDate: Date = .now
+            if !isTodayAlarm {
+                // 내일 울릴 알람인 경우
+                alarmDate = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+            }
+            let month = Calendar.current.component(.month, from: alarmDate)
+            let day = Calendar.current.component(.day, from: alarmDate)
+            dayDisplayText = "\(month)월 \(day)일"
+        }
         dayLabel.displayText = dayDisplayText.displayText(
             font: .label1SemiBold,
-            color: state.dayLabelColor
+            color: dayColor
         )
-        holidayImage.tintColor = state.dayLabelColor
+        holidayImage.tintColor = dayColor
         
         // clock
+        let clockColor = isAlarmActive ? R.Color.white100 : R.Color.gray500
         meridiemLabel.displayText = ro.meridiem.toKoreanFormat.displayText(
             font: .title2Medium,
-            color: state.clockLabelColor
+            color: clockColor
         )
         hourAndMinuteLabel.displayText = String(format: "%02d:%02d", ro.hour.value, ro.minute.value).displayText(
             font: .title2Medium,
-            color: state.clockLabelColor
+            color: clockColor
         )
+        
         return self
     }
     
