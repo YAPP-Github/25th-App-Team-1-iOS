@@ -14,7 +14,7 @@ protocol ShakeMissionWorkingRouting: ViewableRouting {
     func request(_ request: ShakeMissionWorkingRoutingRequest)
 }
 enum ShakeMissionWorkingRoutingRequest {
-    case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
+    case presentAlert(DSTwoButtonAlert.Config)
     case dismissAlert(completion: (()->Void)?=nil)
 }
 
@@ -58,7 +58,7 @@ public protocol ShakeMissionWorkingListener: AnyObject {
     func exitShakeMissionWorkingPage(isSucceeded: Bool)
 }
 
-final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWorkingPresentable>, ShakeMissionWorkingInteractable, ShakeMissionWorkingPresentableListener, DSTwoButtonAlertViewControllerListener {
+final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWorkingPresentable>, ShakeMissionWorkingInteractable, ShakeMissionWorkingPresentableListener {
 
     weak var router: ShakeMissionWorkingRouting?
     weak var listener: ShakeMissionWorkingListener?
@@ -103,7 +103,7 @@ extension ShakeMissionWorkingInteractor {
         case .missionSuccessEventFinished:
             listener?.exitShakeMissionWorkingPage(isSucceeded: true)
             
-        case .presentExitAlert(let config):
+        case .exitPage:
             
             // 미션이 성공 상태인 경우 Alert표출 금지
             if isMissionSuccess { return }
@@ -112,7 +112,26 @@ extension ShakeMissionWorkingInteractor {
             presenter.request(.shakeMotionDetactor(.pause))
             
             // Alert 표시
-            router?.request(.presentAlert(config, self))
+            let alertConfig: DSTwoButtonAlert.Config = .init(
+                titleText: "나가면 운세를 받을 수 없어요",
+                subTitleText: "미션을 수행하지 않고 나가시겠어요?",
+                leftButtonText: "취소",
+                rightButtonText: "나가기",
+                leftButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    // 모션감지기 재동작
+                    presenter.request(.shakeMotionDetactor(.resume))
+                    router?.request(.dismissAlert())
+                }, rightButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    let completion = { [weak self] in
+                        guard let self else { return }
+                        listener?.exitShakeMissionWorkingPage(isSucceeded: false)
+                    }
+                    router?.request(.dismissAlert(completion: completion))
+                }
+            )
+            router?.request(.presentAlert(alertConfig))
             
         case .shakeIsDetected:
             if currentShakeCount < successShakeCount {
@@ -136,28 +155,6 @@ extension ShakeMissionWorkingInteractor {
                 presenter.request(.shakeMotionDetactor(.stop))
                 presenter.request(.hapticGeneratorAction(.stop))
             }
-        }
-    }
-}
-
-
-// MARK: DSTwoButtonAlertViewControllerListener
-extension ShakeMissionWorkingInteractor {
-    func action(_ action: DSTwoButtonAlertViewController.Action) {
-        switch action {
-        case .leftButtonClicked:
-            // Dismiss alert
-            router?.request(.dismissAlert())
-            
-            // 모션감지기 재동작
-            presenter.request(.shakeMotionDetactor(.resume))
-            
-        case .rightButtonClicked:
-            let completion = { [weak self] in
-                guard let self else { return }
-                listener?.exitShakeMissionWorkingPage(isSucceeded: false)
-            }
-            router?.request(.dismissAlert(completion: completion))
         }
     }
 }

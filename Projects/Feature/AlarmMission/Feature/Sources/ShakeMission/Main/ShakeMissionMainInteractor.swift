@@ -15,9 +15,8 @@ import FeatureNetworking
 public enum ShakeMissionMainRoutingRequest {
     case presentWorkingPage
     case dissmissWorkingPage
-    case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
+    case presentAlert(DSTwoButtonAlert.Config)
     case dismissAlert(completion: (()->Void)?=nil)
-    case exitPage
 }
 
 public protocol ShakeMissionMainRouting: ViewableRouting {
@@ -33,14 +32,14 @@ protocol ShakeMissionMainPresentable: Presentable {
 
 public enum ShakeMissionMainListenerRequest {
     case missionCompleted(Fortune, FortuneSaveInfo)
-    case close(Fortune, FortuneSaveInfo)
+    case close(Fortune?, FortuneSaveInfo?)
 }
 
 public protocol ShakeMissionMainListener: AnyObject {
     func request(_ request: ShakeMissionMainListenerRequest)
 }
 
-final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPresentable>, ShakeMissionMainInteractable, ShakeMissionMainPresentableListener, DSTwoButtonAlertViewControllerListener {
+final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPresentable>, ShakeMissionMainInteractable, ShakeMissionMainPresentableListener {
 
     weak var router: ShakeMissionMainRouting?
     weak var listener: ShakeMissionMainListener?
@@ -103,24 +102,22 @@ extension ShakeMissionMainInteractor {
         switch request {
         case .startMission:
             router?.request(.presentWorkingPage)
-        case .presentAlert(let config):
-            router?.request(.presentAlert(config, self))
-        }
-    }
-}
-
-
-// MARK: DSTwoButtonAlertViewControllerListener
-extension ShakeMissionMainInteractor {
-    
-    func action(_ action: DSTwoButtonAlertViewController.Action) {
-        switch action {
-        case .leftButtonClicked:
-            router?.request(.dismissAlert())
-        case .rightButtonClicked:
-            router?.request(.exitPage)
-            guard let fortune, let fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
-            listener?.request(.close(fortune, fortuneInfo))
+        case .exitPage:
+            let alertConfig: DSTwoButtonAlert.Config = .init(
+                titleText: "나가면 운세를 받을 수 없어요",
+                subTitleText: "미션을 수행하지 않고 나가시겠어요?",
+                leftButtonText: "취소",
+                rightButtonText: "나가기",
+                leftButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    router?.request(.dismissAlert())
+                },
+                rightButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    listener?.request(.close(nil, nil))
+                }
+            )
+            router?.request(.presentAlert(alertConfig))
         }
     }
 }
@@ -131,7 +128,6 @@ extension ShakeMissionMainInteractor {
     
     func exitShakeMissionWorkingPage(isSucceeded: Bool) {
         router?.request(.dissmissWorkingPage)
-        router?.request(.exitPage)
         guard let fortune, var fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
         if isSucceeded {
             if fortuneInfo.shouldShowCharm == false {

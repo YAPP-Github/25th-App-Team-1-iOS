@@ -81,10 +81,10 @@ extension ShakeMissionMainRouter {
             presentShakeMissionWorkingPage()
         case .dissmissWorkingPage:
             dismissShakeMissionWorkingPage()
-        case .presentAlert(let config, let listener):
+        case .presentAlert(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
-                listener: listener,
+                listener: nil,
                 config: config
             )
         case .dismissAlert(let completion):
@@ -92,8 +92,6 @@ extension ShakeMissionMainRouter {
                 presentingController: viewController.uiviewController,
                 completion: completion
             )
-        case .exitPage:
-            break
         }
     }
 }

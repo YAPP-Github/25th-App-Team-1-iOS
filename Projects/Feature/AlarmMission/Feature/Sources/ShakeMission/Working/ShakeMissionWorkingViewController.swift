@@ -25,7 +25,7 @@ enum ShakeMissionWorkingPresenterRequest {
     case missionSuccessEventFinished
     
     case shakeIsDetected
-    case presentExitAlert(DSTwoButtonAlert.Config)
+    case exitPage
 }
 
 final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWorkingPresentable, ShakeMissionWorkingViewControllable, ShakeMissionWorkingViewListener {
@@ -123,13 +123,7 @@ extension ShakeMissionWorkingViewController {
     func action(_ action: ShakeMissionWorkingView.Action) {
         switch action {
         case .exitButtonClicked:
-            let alertConfig: DSTwoButtonAlert.Config = .init(
-                titleText: "나가면 운세를 받을 수 없어요",
-                subTitleText: "미션을 수행하지 않고 나가시겠어요?",
-                leftButtonText: "취소",
-                rightButtonText: "나가기"
-            )
-            listener?.request(.presentExitAlert(alertConfig))
+            listener?.request(.exitPage)
         case .missionGuideAnimationCompleted:
             listener?.request(.missionGuideFinished)
         case .missionSuccessAnimationCompleted:

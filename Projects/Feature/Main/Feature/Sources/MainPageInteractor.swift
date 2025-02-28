@@ -445,6 +445,8 @@ extension MainPageInteractor {
     }
 }
 
+
+// MARK: ShakeMissionMainListener
 extension MainPageInteractor {
     func request(_ request: FeatureAlarmMission.ShakeMissionMainListenerRequest) {
         switch request {
@@ -456,11 +458,13 @@ extension MainPageInteractor {
         case let .close(fortune, fortuneInfo):
             router?.request(.detachAlarmMission { [weak self] in
                 guard let self else { return }
+                guard let fortune, let fortuneInfo else { return }
                 goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
             })
         }
     }
 }
+
 
 // MARK: - FortuneListenerRequest
 extension MainPageInteractor {

@@ -32,11 +32,11 @@ final class ShakeMissionWorkingRouter: ViewableRouter<ShakeMissionWorkingInterac
 extension ShakeMissionWorkingRouter {
     func request(_ request: ShakeMissionWorkingRoutingRequest) {
         switch request {
-        case .presentAlert(let config, let listener):
+        case .presentAlert(let config):
             let presentingViewController = viewController.uiviewController
             presentAlert(
                 presentingController: presentingViewController,
-                listener: listener,
+                listener: nil,
                 config: config
             )
         case .dismissAlert(let completion):
