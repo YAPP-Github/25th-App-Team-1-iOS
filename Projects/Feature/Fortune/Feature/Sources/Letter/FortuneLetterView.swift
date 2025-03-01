@@ -41,7 +41,7 @@ final class FortuneLetterView: TouchDetectingView {
             bubbleView.update(titleText: "오늘 운세점수 \(fortune.avgFortuneScore)점")
             bubbleView.update(arrowHidden: false)
             letterTitleLabel.displayText = fortune.dailyFortuneTitle.displayText(font: .ownglyphPHD_H2, color: R.Color.gray600, alignment: .center)
-            letterContentLabel.displayText = fortune.dailyFortuneDescription.displayText(font: .ownglyphPHD_H4, color: R.Color.gray600, alignment: .center)
+            letterContentLabel.displayText = fortune.dailyFortuneDescription.displayText(font: .ownglyphPHD_H4, color: R.Color.gray500, alignment: .center)
             switch fortune.avgFortuneScore {
             case 80...100:
                 characterImageView.image = FeatureResourcesAsset.fortuneCharacterHigh.image
@@ -124,7 +124,7 @@ private extension FortuneLetterView {
         }
         
         fromLabel.do {
-            $0.displayText = "From. 오르비".displayText(font: .ownglyphPHD_H4, color: R.Color.gray600, alignment: .center)
+            $0.displayText = "From. 오르비".displayText(font: .ownglyphPHD_H5, color: R.Color.gray600, alignment: .center)
         }
         
         [letterTitleLabel, letterContentLabel, fromLabel].forEach {
@@ -172,6 +172,7 @@ private extension FortuneLetterView {
         characterImageView.snp.makeConstraints {
             $0.top.equalTo(bubbleView.snp.bottom)
             $0.centerX.equalToSuperview()
+            $0.size.equalTo(160)
         }
         hillImageView.snp.makeConstraints {
             $0.top.equalTo(characterImageView.snp.bottom).offset(-50)
@@ -193,10 +194,13 @@ private extension FortuneLetterView {
             $0.leading.equalTo(paperContainer).offset(21)
         }
         
+        letterStackView.snp.makeConstraints {
+            $0.width.equalTo(267)
+        }
+        
         contentScrollView.snp.remakeConstraints {
-            $0.centerY.equalToSuperview()
+            $0.center.equalToSuperview()
             $0.height.lessThanOrEqualToSuperview().offset(-40)
-            $0.horizontalEdges.equalToSuperview().inset(28)
         }
     }
 }
