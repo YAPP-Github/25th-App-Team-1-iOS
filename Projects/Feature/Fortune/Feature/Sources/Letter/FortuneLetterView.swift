@@ -27,6 +27,7 @@ final class FortuneLetterView: TouchDetectingView {
         super.init(frame: .zero)
         setupUI()
         layout()
+        playAnimation()
     }
     
     required init?(coder: NSCoder) {
@@ -34,6 +35,29 @@ final class FortuneLetterView: TouchDetectingView {
     }
     
     weak var listener: FortuneLetterViewListener?
+    
+    private func playAnimation() {
+        let animator1 = UIViewPropertyAnimator(duration: 1.0, curve: .easeIn) {
+            self.bubbleView.alpha = 1
+        }
+
+        let animator2 = UIViewPropertyAnimator(duration: 0.6, curve: .easeIn) {
+            self.paperContainer.alpha = 1
+        }
+
+        let animator3 = UIViewPropertyAnimator(duration: 0.6, curve: .easeIn) {
+            self.contentScrollView.alpha = 1
+        }
+        
+        animator1.addCompletion { _ in
+            animator2.startAnimation()
+            animator2.addCompletion { _ in
+                animator3.startAnimation()
+            }
+        }
+
+        animator1.startAnimation()
+    }
     
     func update(_ state: State) {
         switch state {
@@ -92,7 +116,7 @@ private extension FortuneLetterView {
             $0.image = FeatureResourcesAsset.fortuneCharacterHigh.image
             $0.contentMode = .scaleAspectFit
         }
-
+        
         hillImageView.do {
             $0.image = FeatureResourcesAsset.imgFortuneHillLarge.image
             $0.contentMode = .scaleAspectFill
@@ -152,6 +176,11 @@ private extension FortuneLetterView {
         
         [characterImageView].forEach {
             $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+        
+        // 애니메이션을 위함
+        [bubbleView, paperContainer, contentScrollView].forEach {
+            $0.alpha = 0
         }
     }
     func layout() {
