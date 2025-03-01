@@ -26,7 +26,7 @@ final class TodayFortuneContentView: UIView {
     }
     
     func update(subject: String) {
-        subjectLabel.displayText = subject.displayText(font: .heading2SemiBold, color: subjectColor)
+        subjectLabel.displayText = subject.displayText(font: .label1SemiBold, color: subjectColor)
     }
     
     func update(title: String) {
@@ -47,14 +47,18 @@ final class TodayFortuneContentView: UIView {
 private extension TodayFortuneContentView {
     func setupUI() {
         subjectStackView.do {
-            $0.axis = .horizontal
+            $0.axis = .vertical
             $0.alignment = .center
-            $0.distribution = .equalCentering
-            $0.spacing = 4
+            $0.distribution = .fill
+            $0.spacing = 3
         }
         iconImageView.do {
             $0.image = icon
             $0.contentMode = .scaleAspectFit
+        }
+        
+        titleLabel.do {
+            $0.numberOfLines = 0
         }
         contentLabel.do {
             $0.numberOfLines = 0
