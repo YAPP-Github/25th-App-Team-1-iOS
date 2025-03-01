@@ -48,6 +48,12 @@ final class AlarmOptionButton: UIButton {
             innerCircleView.backgroundColor = isSelected ? R.Color.gray600 : R.Color.gray700
         }
     }
+    
+    // 터치영역 확장
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let extendedBounds = self.bounds.insetBy(dx: -20, dy: -20) // 60x60 크기로 확장
+        return extendedBounds.contains(point) ? self : nil
+    }
 }
 
 private extension AlarmOptionButton {
