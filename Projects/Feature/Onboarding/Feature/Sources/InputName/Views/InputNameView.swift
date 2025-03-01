@@ -73,6 +73,10 @@ final class InputNameView: UIView {
     private let termLabel = UILabel()
     private let nextButton: DSDefaultCTAButton = .init(initialState: .inactive)
     
+    private var bottomInset: CGFloat {
+        UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+    }
+    
     @objc
     private func nameChanged(_ textField: UITextField) {
         nameField.update(messageState: .none)
@@ -142,7 +146,7 @@ private extension InputNameView {
         }
         
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
+            $0.bottom.equalToSuperview().offset(-(bottomInset + 22))
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
     }
@@ -161,7 +165,7 @@ private extension InputNameView {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
         else { return }
         nextButton.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10 + -keyboardFrame.size.height)
+            $0.bottom.equalToSuperview().offset(-(22 + keyboardFrame.size.height))
         }
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
@@ -175,7 +179,7 @@ private extension InputNameView {
         else { return }
         
         nextButton.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
+            $0.bottom.equalToSuperview().offset(-(bottomInset + 22))
         }
         
         UIView.animate(withDuration: animationDuration) {

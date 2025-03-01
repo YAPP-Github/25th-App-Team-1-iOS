@@ -68,6 +68,10 @@ final class InputBornTImeView: UIView {
         }
     }
     
+    private var bottomInset: CGFloat {
+        UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+    }
+    
     private let navigationBar: OnBoardingNavBarView = .init()
     private let titleLabel = UILabel()
     private let timeField = DSTextFieldWithTitleWithMessage(
@@ -202,7 +206,7 @@ private extension InputBornTImeView {
         }
         
         nextButton.snp.makeConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-12)
+            $0.bottom.equalToSuperview().offset(-(bottomInset + 22))
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(54)
         }
@@ -227,7 +231,7 @@ private extension InputBornTImeView {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double
         else { return }
         nextButton.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-22 + -keyboardFrame.size.height)
+            $0.bottom.equalToSuperview().offset(-(22 + keyboardFrame.size.height))
         }
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
@@ -241,7 +245,7 @@ private extension InputBornTImeView {
         else { return }
         
         nextButton.snp.updateConstraints {
-            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-22)
+            $0.bottom.equalToSuperview().offset(-(bottomInset + 22))
         }
         
         UIView.animate(withDuration: animationDuration) {
