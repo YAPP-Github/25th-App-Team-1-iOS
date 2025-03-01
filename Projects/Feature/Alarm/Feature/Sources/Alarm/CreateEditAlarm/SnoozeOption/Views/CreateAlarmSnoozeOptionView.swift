@@ -102,6 +102,8 @@ private extension CreateEditAlarmSnoozeOptionView {
         containerView.do {
             $0.backgroundColor = R.Color.gray800
             $0.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+            $0.layer.borderColor = R.Color.gray700.cgColor
+            $0.layer.borderWidth = 1
             $0.layer.cornerRadius = 28
             $0.layer.masksToBounds = true
         }

@@ -76,42 +76,38 @@ final class SnoozeOptionSelectionView: UIView {
     private let option5Button = AlarmOptionButton()
     private let option5Label = UILabel()
     
+    private var optionButtons: [AlarmOptionButton] {
+        [option1Button, option2Button, option3Button, option4Button, option5Button]
+    }
+    
+    private var optionLabels: [UILabel] {
+        [option1Label, option2Label, option3Label, option4Label, option5Label]
+    }
+    
     private let lineContainer = UIView()
     private let lineView = UIView()
     private let buttonStackView = UIStackView()
     private let titleStackView = UIStackView()
     
-    private func setupOptions() {
+    private func setupOptions(isEnabled: Bool = true) {
         guard options.count == 5 else { return }
-        option1Label.displayText = options[0].title.displayText(font: .body1Medium, color: R.Color.white100)
-        option2Label.displayText = options[1].title.displayText(font: .body1Medium, color: R.Color.white100)
-        option3Label.displayText = options[2].title.displayText(font: .body1Medium, color: R.Color.white100)
-        option4Label.displayText = options[3].title.displayText(font: .body1Medium, color: R.Color.white100)
-        option5Label.displayText = options[4].title.displayText(font: .body1Medium, color: R.Color.white100)
+        let color = isEnabled ? R.Color.gray50 : R.Color.white50
+        
+        (0...4).forEach {
+            optionLabels[$0].displayText = options[$0].title.displayText(font: .body1Medium, color: color)
+        }
     }
     
     private func deselectAllButtons() {
-        [option1Button, option2Button, option3Button, option4Button, option5Button].forEach {
+        optionButtons.forEach {
             $0.isSelected = false
         }
     }
     
     @objc
     private func buttonSelected(button: AlarmOptionButton) {
-        switch button {
-        case option1Button:
-            optionSelected?(options[0])
-        case option2Button:
-            optionSelected?(options[1])
-        case option3Button:
-            optionSelected?(options[2])
-        case option4Button:
-            optionSelected?(options[3])
-        case option5Button:
-            optionSelected?(options[4])
-        default:
-            break
-        }
+        guard let buttonIndex = optionButtons.firstIndex(where: { $0 == button }) else { return }
+        optionSelected?(options[buttonIndex])
     }
 }
 
@@ -134,11 +130,11 @@ private extension SnoozeOptionSelectionView {
             $0.distribution = .equalSpacing
         }
         [lineView, buttonStackView].forEach { lineContainer.addSubview($0) }
-        [option1Button, option2Button, option3Button, option4Button, option5Button].forEach {
+        optionButtons.forEach {
             buttonStackView.addArrangedSubview($0)
             $0.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
         }
-        [option1Label, option2Label, option3Label, option4Label, option5Label].forEach {
+        optionLabels.forEach {
             titleStackView.addArrangedSubview($0)
         }
         [titleLabel, lineContainer, titleStackView].forEach {
