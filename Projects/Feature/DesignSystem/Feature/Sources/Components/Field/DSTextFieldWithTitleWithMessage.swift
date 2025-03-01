@@ -85,7 +85,7 @@ public final class DSTextFieldWithTitleWithMessage: UIView {
             textField.hasError = false
         case let .error(message, alignment):
             messageLabel.isHidden = false
-            messageLabel.displayText = message.displayText(font: .body1Regular, color: R.Color.statusAlert)
+            messageLabel.displayText = message.displayText(font: .label2regular, color: R.Color.statusAlert)
             messageLabel.textAlignment = alignment
             
             textField.hasError = true

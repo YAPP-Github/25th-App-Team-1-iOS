@@ -160,7 +160,7 @@ private extension DSTextField {
         backgroundColor = R.Color.gray800
         layer.borderWidth = 1
         layer.borderColor = state.borderColor
-        layer.cornerRadius = 12
+        layer.cornerRadius = 16
         layer.cornerCurve = .continuous
         
         textField.do {
