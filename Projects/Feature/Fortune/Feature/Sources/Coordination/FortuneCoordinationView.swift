@@ -83,7 +83,7 @@ final class FortuneCoordinationView: TouchDetectingView {
     )
     private let accessoryClothContentView = FortuneCoordinationContentView(
         icon: FeatureResourcesAsset.svgIcoFortuneAccessory.image,
-        title: "하의"
+        title: "액세서리"
     )
 }
 
@@ -118,7 +118,7 @@ private extension FortuneCoordinationView {
         
         topBottomClothStackView.do {
             $0.axis = .horizontal
-            $0.alignment = .fill
+            $0.alignment = .top
             $0.distribution = .fill
             $0.spacing = 24
         }
