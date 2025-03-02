@@ -16,7 +16,7 @@ public class R {
         case Duck = "Duck.caf"
         case Harp = "Harp.caf"
         case Marimba = "Marimba.caf"
-        case Motocycle = "Motocycle.caf"
+        case Motorcycle = "Motorcycle.caf"
         case Old_Car_Horn = "Old_Car_Horn.caf"
         case Old_Phone = "Old_Phone.caf"
         case Piano_Riff = "Piano_Riff.caf"
@@ -49,7 +49,7 @@ public class R {
                 return "하프"
             case .Marimba:
                 return "마림바"
-            case .Motocycle:
+            case .Motorcycle:
                 return "오토바이"
             case .Old_Car_Horn:
                 return "구식 자동차 경적"

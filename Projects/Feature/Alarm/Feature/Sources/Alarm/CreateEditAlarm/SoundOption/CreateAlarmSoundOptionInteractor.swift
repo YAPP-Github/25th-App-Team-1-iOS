@@ -59,6 +59,7 @@ final class CreateEditAlarmSoundOptionInteractor: PresentableInteractor<CreateEd
         case .viewDidLoad:
             presenter.request(.updateOption(soundOption))
         case .cancel:
+            service.stopSound()
             listener?.request(.cancel)
         case let .isVibrateOnChanged(isVibrateOn):
             soundOption.isVibrationOn = isVibrateOn
