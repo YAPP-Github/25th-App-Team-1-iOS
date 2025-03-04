@@ -45,16 +45,7 @@ final class ShakeMissionWorkingView: UIView {
     private let shakeCountLabel: UILabel = .init()
     
     // - Background
-    private var backgroundLayer: CAGradientLayer = .init()
-    private let backgroundStar1: UIImageView = .init().then {
-        $0.image = FeatureResourcesAsset.shakeMissionStar1.image
-    }
-    private let backgroundStar2: UIImageView = .init().then {
-        $0.image = FeatureResourcesAsset.shakeMissionStar2.image
-    }
-    private let backgroundStar3: UIImageView = .init().then {
-        $0.image = FeatureResourcesAsset.shakeMissionStar1.image
-    }
+    private let backgroundView = MissionWorkingBackgroundView()
     
     // Mission start & complete view
     private var startShakeMissionView: StartShakeMissionView?
@@ -72,9 +63,6 @@ final class ShakeMissionWorkingView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        // backgroundLayer
-        backgroundLayer.frame = self.layer.bounds
         
         // invisibleLayer
         invisibleLayer.frame = amuletCardBackImage.layer.frame
@@ -96,25 +84,13 @@ extension ShakeMissionWorkingView: StartShakeMissionViewListener {
 private extension ShakeMissionWorkingView {
     
     func setupUI() {
-        
         // invisibleLayer
         layer.addSublayer(invisibleLayer)
         invisibleLayer.zPosition = 100
         
         
-        // backgroundLayer
-        backgroundLayer.colors = [
-            UIColor(hex: "#1E3B68").cgColor,
-            UIColor(hex: "#3F5F8D").cgColor,
-        ]
-        backgroundLayer.startPoint = .init(x: 0.5, y: 0.0)
-        backgroundLayer.endPoint = .init(x: 0.5, y: 1.0)
-        self.layer.addSublayer(backgroundLayer)
-        
-        
-        // backgroundStars
-        [backgroundStar1,backgroundStar2,backgroundStar3]
-            .forEach({ self.addSubview($0) })
+        // backgroundView
+        addSubview(backgroundView)
         
         
         // exitButton
@@ -141,21 +117,11 @@ private extension ShakeMissionWorkingView {
     }
     
     func setupLayout() {
-        
         // backgroundStars
-        backgroundStar1.snp.makeConstraints { make in
-            make.left.equalToSuperview().inset(39)
-            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(103)
+        backgroundView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-        backgroundStar2.snp.makeConstraints { make in
-            make.right.equalToSuperview()
-            make.bottom.equalTo(self.safeAreaLayoutGuide).inset(19.5)
-        }
-        backgroundStar3.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(2.4)
-            make.bottom.equalToSuperview().inset(6.8)
-        }
-        
+
         
         // exitButton
         exitButton.snp.makeConstraints { make in
