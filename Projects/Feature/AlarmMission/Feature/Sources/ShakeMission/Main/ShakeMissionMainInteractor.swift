@@ -5,12 +5,14 @@
 //  Created by choijunios on 1/20/25.
 //
 
-import FeatureUIDependencies
 import Foundation
-import RIBs
-import RxSwift
+
+import FeatureUIDependencies
 import FeatureCommonDependencies
 import FeatureNetworking
+
+import RIBs
+import RxSwift
 
 public enum ShakeMissionMainRoutingRequest {
     case presentWorkingPage
@@ -20,14 +22,12 @@ public enum ShakeMissionMainRoutingRequest {
 }
 
 public protocol ShakeMissionMainRouting: ViewableRouting {
-    
     func request(_ request: ShakeMissionMainRoutingRequest)
 }
 
 
 protocol ShakeMissionMainPresentable: Presentable {
     var listener: ShakeMissionMainPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
 public enum ShakeMissionMainListenerRequest {
@@ -125,19 +125,21 @@ extension ShakeMissionMainInteractor {
 
 // MARK: ShakeMissionWorkingListener
 extension ShakeMissionMainInteractor {
-    
-    func exitShakeMissionWorkingPage(isSucceeded: Bool) {
-        router?.request(.dissmissWorkingPage)
-        guard let fortune, var fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
-        if isSucceeded {
-            if fortuneInfo.shouldShowCharm == false {
-                fortuneInfo.shouldShowCharm = isFirstAlarm
-            }
-            UserDefaults.standard.setDailyFortune(info: fortuneInfo)
-            listener?.request(.missionCompleted(fortune, fortuneInfo))
-        } else {
-            listener?.request(.close(fortune, fortuneInfo))
-        }
+    func request(request: ShakeMissionWorkingListenerRequest) {
         
+        guard let fortune, var fortuneInfo = UserDefaults.standard.dailyFortune() else { return }
+        
+        switch request {
+        case .exitPage(let isMissionCompleted):
+            if isMissionCompleted {
+                if fortuneInfo.shouldShowCharm == false {
+                    fortuneInfo.shouldShowCharm = isFirstAlarm
+                }
+                UserDefaults.standard.setDailyFortune(info: fortuneInfo)
+                listener?.request(.missionCompleted(fortune, fortuneInfo))
+            } else {
+                listener?.request(.close(fortune, fortuneInfo))
+            }
+        }
     }
 }

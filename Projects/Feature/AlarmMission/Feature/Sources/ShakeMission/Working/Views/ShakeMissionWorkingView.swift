@@ -25,7 +25,7 @@ final class ShakeMissionWorkingView: UIView {
     
     // Listener
     weak var listener: ShakeMissionWorkingViewListener?
-    private var group: CAAnimationGroup?
+    
     
     // Sub views
     private let exitButton: ExitButton = .init()
@@ -48,7 +48,7 @@ final class ShakeMissionWorkingView: UIView {
     private let backgroundView = MissionWorkingBackgroundView()
     
     // Mission start & complete view
-    private var startShakeMissionView: StartShakeMissionView?
+    private var startMissionView: StartMissionView?
     private var shakeMissionCompleteView: ShakeMissionCompleteView?
     private let invisibleLayer = CALayer()
     
@@ -66,16 +66,6 @@ final class ShakeMissionWorkingView: UIView {
         
         // invisibleLayer
         invisibleLayer.frame = amuletCardBackImage.layer.frame
-    }
-}
-
-extension ShakeMissionWorkingView: StartShakeMissionViewListener {
-    func action(_ action: StartShakeMissionView.Action) {
-        switch action {
-        case .shakeDetected:
-            finishGuide()
-            listener?.action(.missionGuideAnimationCompleted)
-        }
     }
 }
 
@@ -117,7 +107,7 @@ private extension ShakeMissionWorkingView {
     }
     
     func setupLayout() {
-        // backgroundStars
+        // backgroundView
         backgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -171,17 +161,18 @@ extension ShakeMissionWorkingView {
     func update(missionState state: MissionState) -> Self {
         switch state {
         case .guide:
-            let startMissionView = StartShakeMissionView()
-            startMissionView.listener = self
+            let startMissionView = StartMissionView()
+                .update(titleText: "흔들기 시작!")
             addSubview(startMissionView)
             startMissionView.snp.makeConstraints({ $0.edges.equalToSuperview() })
-            self.startShakeMissionView = startMissionView
+            self.startMissionView = startMissionView
             
             startMissionView.startShowUpAnimation()
             DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
                 guard let self else { return }
                 finishGuide()
             }
+            
         case .working:
             missionProgressView.alpha = 1
             labelStackView.alpha = 1
@@ -239,8 +230,8 @@ extension ShakeMissionWorkingView {
 private extension ShakeMissionWorkingView {
     
     func finishGuide() {
-        startShakeMissionView?.removeFromSuperview()
-        startShakeMissionView = nil
+        startMissionView?.removeFromSuperview()
+        startMissionView = nil
         listener?.action(.missionGuideAnimationCompleted)
     }
     
