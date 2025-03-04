@@ -1,8 +1,8 @@
 //
-//  ShakeMissionMainRouter.swift
+//  TapMissionMainRouter.swift
 //  FeatureAlarmMission
 //
-//  Created by choijunios on 1/20/25.
+//  Created by choijunios on 3/4/25.
 //
 
 import UIKit
@@ -11,32 +11,31 @@ import FeatureUIDependencies
 
 import RIBs
 
-protocol ShakeMissionMainInteractable: Interactable, ShakeMissionWorkingListener {
-    var router: ShakeMissionMainRouting? { get set }
-    var listener: ShakeMissionMainListener? { get set }
+protocol TapMissionMainInteractable: Interactable, TapMissionWorkingListener {
+    var router: TapMissionMainRouting? { get set }
+    var listener: TapMissionMainListener? { get set }
 }
 
-protocol ShakeMissionMainViewControllable: ViewControllable {
+protocol TapMissionMainViewControllable: ViewControllable {
     // TODO: Declare methods the router invokes to manipulate the view hierarchy.
 }
 
-final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable, ShakeMissionMainViewControllable>, ShakeMissionMainRouting, DSTwoButtonAlertPresentable {
-    
+final class TapMissionMainRouter: ViewableRouter<TapMissionMainInteractable, TapMissionMainViewControllable>, TapMissionMainRouting, DSTwoButtonAlertPresentable {
+
     // Navigation
     private var navigationController: UINavigationController?
     
+    
     // Builder & Router
-    private let shakeMissionWorkingBuilder: ShakeMissionWorkingBuilder
-    private var shakeMissionWorkingRouter: ShakeMissionWorkingRouting?
+    private let tapMissionWorkingBuilder: TapMissionWorkingBuilder
+    private var tapMissionWorkingRouter: TapMissionWorkingRouting?
     
-    
-    // TODO: Constructor inject child builder protocols to allow building children.
     init(
-        interactor: ShakeMissionMainInteractable,
-        viewController: ShakeMissionMainViewControllable,
-        shakeMissionWorkingBuilder: ShakeMissionWorkingBuilder
+        interactor: TapMissionMainInteractable,
+        viewController: TapMissionMainViewControllable,
+        tapMissionWorkingBuilder: TapMissionWorkingBuilder
     ) {
-        self.shakeMissionWorkingBuilder = shakeMissionWorkingBuilder
+        self.tapMissionWorkingBuilder = tapMissionWorkingBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -72,14 +71,14 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
 }
 
 
-// MARK: ShakeMissionMainRouting
-extension ShakeMissionMainRouter {
+// MARK: TapMissionMainRouting
+extension TapMissionMainRouter {
     func request(_ request: ShakeMissionMainRoutingRequest) {
         switch request {
         case .presentWorkingPage:
-            presentShakeMissionWorkingPage()
+            presentTapMissionWorkingPage()
         case .dissmissWorkingPage:
-            dismissShakeMissionWorkingPage()
+            dismissTapMissionWorkingPage()
         case .presentAlert(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -97,18 +96,17 @@ extension ShakeMissionMainRouter {
 
 
 // MARK: Routing RIB
-private extension ShakeMissionMainRouter {
-    
-    func presentShakeMissionWorkingPage() {
-        let router = shakeMissionWorkingBuilder.build(withListener: interactor)
-        self.shakeMissionWorkingRouter = router
+private extension TapMissionMainRouter {
+    func presentTapMissionWorkingPage() {
+        let router = tapMissionWorkingBuilder.build(withListener: interactor)
+        self.tapMissionWorkingRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
     }
     
-    func dismissShakeMissionWorkingPage() {
-        guard let shakeMissionWorkingRouter else { return }
-        detachChild(shakeMissionWorkingRouter)
+    func dismissTapMissionWorkingPage() {
+        guard let tapMissionWorkingRouter else { return }
+        detachChild(tapMissionWorkingRouter)
         dismissOrPopViewController()
     }
 }

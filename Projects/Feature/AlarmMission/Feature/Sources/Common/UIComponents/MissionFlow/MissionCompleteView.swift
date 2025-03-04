@@ -1,5 +1,5 @@
 //
-//  ShakeMissionCompleteView.swift
+//  MissionCompleteView.swift
 //  AlarmMission
 //
 //  Created by choijunios on 1/22/25.
@@ -13,14 +13,10 @@ import FeatureThirdPartyDependencies
 import Lottie
 import RxSwift
 
-final class ShakeMissionCompleteView: UIView {
+final class MissionCompleteView: UIView {
     
     // Sub view
-    private let titleLabel: UILabel = .init().then {
-        $0.displayText = "미션 성공!".displayText(
-            font: .displayBold, color: R.Color.white100
-        )
-    }
+    private let titleLabel: UILabel = .init()
     private var confettiAnimView: LottieAnimationView?
     
     
@@ -49,7 +45,14 @@ final class ShakeMissionCompleteView: UIView {
 
 
 // MARK: Public interface
-extension ShakeMissionCompleteView {
+extension MissionCompleteView {
+    @discardableResult
+    func update(titleText: String) -> Self {
+        titleLabel.displayText = titleText.displayText(
+            font: .displayBold, color: R.Color.white100
+        )
+        return self
+    }
     
     enum AnimationConfig {
         // Duration
@@ -58,19 +61,19 @@ extension ShakeMissionCompleteView {
     
     
     // MARK: Animation
-    func startShowUpAnimation(cardView: UIView, completion: (()->Void)? = nil) {
+    func startShowUpAnimation(centeringView: UIView, completion: (()->Void)? = nil) {
         
         if titleLabel.layer.animation(forKey: "showup_title") != nil {
             titleLabel.layer.removeAnimation(forKey: "showup_title")
         }
         
         // Set label layout
-        var cardFrameInSelf = self.convert(cardView.bounds, from: cardView)
+        var centeringViewFrameInSelf = self.convert(centeringView.bounds, from: centeringView)
         let labelSize = titleLabel.intrinsicContentSize
-        cardFrameInSelf.origin.x += (cardView.bounds.width/2-labelSize.width/2)
-        cardFrameInSelf.origin.y += (cardView.bounds.height/2-labelSize.height/2)
+        centeringViewFrameInSelf.origin.x += (centeringView.bounds.width/2-labelSize.width/2)
+        centeringViewFrameInSelf.origin.y += (centeringView.bounds.height/2-labelSize.height/2)
         titleLabel.frame = .init(
-            origin: cardFrameInSelf.origin,
+            origin: centeringViewFrameInSelf.origin,
             size: labelSize
         )
         
