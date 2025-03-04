@@ -17,7 +17,7 @@ import FeatureSetting
 
 protocol MainPageInteractable: Interactable,
                                FeatureAlarm.RootListener,
-                               FeatureAlarmMission.ShakeMissionMainListener,
+                               FeatureAlarmMission.AlarmMissionRootListener,
                                FeatureFortune.FortuneListener,
                                FeatureAlarmRelease.AlarmReleaseIntroListener,
                                SettingMainListener {
@@ -36,13 +36,13 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         interactor: MainPageInteractable,
         viewController: MainPageViewControllable,
         alarmBuilder: FeatureAlarm.RootBuildable,
-        alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable,
+        alarmMissionRootBuilder: FeatureAlarmMission.AlarmMissionRootBuilder,
         fortuneBuilder: FeatureFortune.FortuneBuildable,
         alarmReleaseBuilder: FeatureAlarmRelease.AlarmReleaseIntroBuildable,
         settingBuilder: SettingMainBuildable
     ) {
         self.alarmBuilder = alarmBuilder
-        self.alarmMissionBuilder = alarmMissionBuilder
+        self.alarmMissionRootBuilder = alarmMissionRootBuilder
         self.fortuneBuilder = fortuneBuilder
         self.alarmReleaseBuilder = alarmReleaseBuilder
         self.settingBuilder = settingBuilder
@@ -95,8 +95,8 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     private let alarmBuilder: FeatureAlarm.RootBuildable
     private var alarmRouter: FeatureAlarm.RootRouting?
     
-    private let alarmMissionBuilder: FeatureAlarmMission.ShakeMissionMainBuildable
-    private var alarmMissionRouter: FeatureAlarmMission.ShakeMissionMainRouting?
+    private let alarmMissionRootBuilder: FeatureAlarmMission.AlarmMissionRootBuildable
+    private var alarmMissionRootRouter: FeatureAlarmMission.AlarmMissionRootRouting?
     
     private let fortuneBuilder: FeatureFortune.FortuneBuildable
     private var fortuneRouter: FeatureFortune.FortuneRouting?
@@ -124,21 +124,22 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     }
     
     private func routeToAlarmMission(isFirstAlarm: Bool) {
-        guard alarmMissionRouter == nil else { return }
-        let router = alarmMissionBuilder.build(withListener: interactor, isFirstAlarm: isFirstAlarm)
-        self.alarmMissionRouter = router
+        guard alarmMissionRootRouter == nil else { return }
+        let router = alarmMissionRootBuilder.build(
+            withListener: interactor,
+            rootController: viewController.uiviewController,
+            mission: .tap,
+            isFirstAlarm: isFirstAlarm
+        )
+        self.alarmMissionRootRouter = router
         attachChild(router)
-        router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
-        viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
     }
     
     private func detachAlarmMission(_ completion: (() -> Void)?) {
-        guard let router = alarmMissionRouter else { return }
-        alarmMissionRouter = nil
-        viewController.uiviewController.dismiss(animated: true) { [weak self] in
-            self?.detachChild(router)
-            completion?()
-        }
+        guard let router = alarmMissionRootRouter else { return }
+        alarmMissionRootRouter = nil
+        detachChild(router)
+        completion?()
     }
     
     private func routeToFortune(fortune: Fortune, userInfo: UserInfo, fortuneInfo: FortuneSaveInfo) {

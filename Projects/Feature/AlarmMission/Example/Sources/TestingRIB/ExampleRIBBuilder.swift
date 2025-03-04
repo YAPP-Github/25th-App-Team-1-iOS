@@ -15,9 +15,7 @@ protocol ExampleRIBDependency: Dependency {
     
 }
 
-final class ExampleRIBComponent: Component<ExampleRIBDependency>, MissionRootDependency {
-    var rootViewController: UIViewController = .init()
-}
+final class ExampleRIBComponent: Component<ExampleRIBDependency>, AlarmMissionRootDependency { }
 
 // MARK: - Builder
 
@@ -34,10 +32,9 @@ final class ExampleRIBBuilder: Builder<ExampleRIBDependency>, ExampleRIBBuildabl
     func build(withListener listener: ExampleRIBListener) -> ExampleRIBRouting {
         let component = ExampleRIBComponent(dependency: dependency)
         let viewController = ExampleRIBViewController()
-        component.rootViewController = viewController
         let interactor = ExampleRIBInteractor(presenter: viewController)
         interactor.listener = listener
-        let missionBuilder = MissionRootBuilder(dependency: component)
+        let missionBuilder = AlarmMissionRootBuilder(dependency: component)
         return ExampleRIBRouter(
             interactor: interactor,
             viewController: viewController,

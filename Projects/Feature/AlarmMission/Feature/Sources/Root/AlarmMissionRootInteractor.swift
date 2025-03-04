@@ -15,12 +15,12 @@ import RIBs
 import RxSwift
 import RxRelay
 
-public protocol MissionRootRouting: Routing {
+public protocol AlarmMissionRootRouting: Routing {
     func cleanupViews()
-    func request(_ request: MissionRootRoutingRequest)
+    func request(_ request: AlarmMissionRootRoutingRequest)
 }
 
-public enum MissionRootRoutingRequest {
+public enum AlarmMissionRootRoutingRequest {
     case presentShakeMission(isFirstAlarm: Bool)
     case presentTapMission
     case dismissMission(Mission, competion: (() -> Void)? = nil)
@@ -28,19 +28,19 @@ public enum MissionRootRoutingRequest {
     case presentAlert(DSButtonAlert.Config)
 }
 
-public enum MissionRootListenerRequest {
+public enum AlarmMissionRootListenerRequest {
     case missionCompleted(Fortune, FortuneSaveInfo)
     case close(Fortune?, FortuneSaveInfo?)
 }
 
-public protocol MissionRootListener: AnyObject {
-    func request(_ request: MissionRootListenerRequest)
+public protocol AlarmMissionRootListener: AnyObject {
+    func request(_ request: AlarmMissionRootListenerRequest)
 }
 
-final class MissionRootInteractor: Interactor, MissionRootInteractable {
+final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable {
 
-    weak var router: MissionRootRouting?
-    weak var listener: MissionRootListener?
+    weak var router: AlarmMissionRootRouting?
+    weak var listener: AlarmMissionRootListener?
     
     
     // Fortune
@@ -64,14 +64,18 @@ final class MissionRootInteractor: Interactor, MissionRootInteractable {
 
     override func didBecomeActive() {
         super.didBecomeActive()
+        
+        // 미션이벤트 옵저빙
+        handleMissionAction()
+        
+        
+        // 운세 API요청
         if let fortuneInfo = UserDefaults.standard.dailyFortune() {
             getFortune(fortuneId: fortuneInfo.id)
         } else {
             createFortune()
         }
         
-        // 미션이벤트 옵저빙
-        handleMissionAction()
         
         // 미션시작
         switch mission {
@@ -90,7 +94,7 @@ final class MissionRootInteractor: Interactor, MissionRootInteractable {
 
 
 // MARK: Fortune
-extension MissionRootInteractor {
+extension AlarmMissionRootInteractor {
     private func getFortune(fortuneId: Int) {
         let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
@@ -103,7 +107,10 @@ extension MissionRootInteractor {
     }
     
     private func createFortune() {
-        guard let userId = Preference.userId else { return }
+        guard let userId = Preference.userId else {
+            fortunePublisher.onNext(.failure(FortuneError.userIdNotFound))
+            return
+        }
         let request = APIRequest.Fortune.createFortune(userId: userId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
             guard let self else { return }
@@ -123,7 +130,7 @@ extension MissionRootInteractor {
 
 
 // MARK: Mission action
-private extension MissionRootInteractor {
+private extension AlarmMissionRootInteractor {
     func handleMissionAction() {
         let finishWithMissionComplete = missionAction.filter {$0 == .missionIsCompleted}
         missionAction.filter {$0 == .exitMission}
@@ -165,7 +172,10 @@ private extension MissionRootInteractor {
             .disposed(by: disposeBag)
         
         
-        fortunePublisher.compactMap({ $0.error })
+        let fortuneFetchedFailure = fortunePublisher.compactMap({ $0.error })
+        
+        finishWithMissionComplete
+            .withLatestFrom(fortuneFetchedFailure)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] error in
                 guard let self else { return }
@@ -178,7 +188,10 @@ private extension MissionRootInteractor {
                         guard let self else { return }
                         router?.request(.dismissAlert(competion: { [weak self] in
                             guard let self else { return }
-                            listener?.request(.close(nil, nil))
+                            router?.request(.dismissMission(mission, competion: { [weak self] in
+                                guard let self else { return }
+                                listener?.request(.close(nil, nil))
+                            }))
                         }))
                     }
                 )

@@ -11,7 +11,7 @@ import RIBs
 
 import FeatureAlarmMission
 
-protocol ExampleRIBInteractable: Interactable, MissionRootListener {
+protocol ExampleRIBInteractable: Interactable, AlarmMissionRootListener {
     var router: ExampleRIBRouting? { get set }
     var listener: ExampleRIBListener? { get set }
 }
@@ -24,13 +24,13 @@ final class ExampleRIBRouter: ViewableRouter<ExampleRIBInteractable, ExampleRIBV
 
     var navigationController: UINavigationController?
     
-    let missionBuilder: MissionRootBuilder
-    var missionRouter: MissionRootRouting?
+    let missionBuilder: AlarmMissionRootBuilder
+    var missionRouter: AlarmMissionRootRouting?
     
     init(
         interactor: ExampleRIBInteractable,
         viewController: ExampleRIBViewControllable,
-        missionBuilder: MissionRootBuilder
+        missionBuilder: AlarmMissionRootBuilder
     ) {
         self.missionBuilder = missionBuilder
         super.init(interactor: interactor, viewController: viewController)
@@ -40,6 +40,7 @@ final class ExampleRIBRouter: ViewableRouter<ExampleRIBInteractable, ExampleRIBV
     func presentMission(_ mission: Mission) {
         let router = missionBuilder.build(
             withListener: interactor,
+            rootController: viewController.uiviewController,
             mission: mission,
             isFirstAlarm: true
         )

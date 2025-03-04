@@ -7,6 +7,6 @@
 
 import RxRelay
 
-extension MissionRootComponent: ShakeMissionMainDependency {
+extension AlarmMissionRootComponent: ShakeMissionMainDependency {
     var action: PublishRelay<MissionState> { self.missionAction }
 }

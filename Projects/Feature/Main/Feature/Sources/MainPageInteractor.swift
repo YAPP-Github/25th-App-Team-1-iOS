@@ -488,7 +488,7 @@ extension MainPageInteractor {
 
 // MARK: ShakeMissionMainListener
 extension MainPageInteractor {
-    func request(_ request: FeatureAlarmMission.ShakeMissionMainListenerRequest) {
+    func request(_ request: FeatureAlarmMission.AlarmMissionRootListenerRequest) {
         switch request {
         case let .missionCompleted(fortune, fortuneInfo):
             router?.request(.detachAlarmMission { [weak self] in

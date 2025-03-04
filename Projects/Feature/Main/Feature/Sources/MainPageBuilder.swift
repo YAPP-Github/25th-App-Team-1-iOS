@@ -44,7 +44,7 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
         interactor.listener = listener
         
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
-        let alarmMissionBuilder = FeatureAlarmMission.ShakeMissionMainBuilder(dependency: component)
+        let alarmMissionRootBuilder = FeatureAlarmMission.AlarmMissionRootBuilder(dependency: component)
         let fortuneBuilder = FeatureFortune.FortuneBuilder(dependency: component)
         let alarmReleaseBuilder = FeatureAlarmRelease.AlarmReleaseIntroBuilder(dependency: component)
         let settingBuilder = SettingMainBuilder(dependency: component)
@@ -52,7 +52,7 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
             interactor: interactor,
             viewController: viewController,
             alarmBuilder: alarmBuilder,
-            alarmMissionBuilder: alarmMissionBuilder,
+            alarmMissionRootBuilder: alarmMissionRootBuilder,
             fortuneBuilder: fortuneBuilder,
             alarmReleaseBuilder: alarmReleaseBuilder,
             settingBuilder: settingBuilder

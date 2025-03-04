@@ -63,7 +63,7 @@ final class ExampleRIBInteractor: PresentableInteractor<ExampleRIBPresentable>, 
         }
     }
     
-    func request(_ request: MissionRootListenerRequest) {
+    func request(_ request: AlarmMissionRootListenerRequest) {
         switch request {
         case .missionCompleted(let fortune, let fortuneSaveInfo):
             router?.dismissMission()

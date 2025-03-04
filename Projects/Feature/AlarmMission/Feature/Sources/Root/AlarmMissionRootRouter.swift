@@ -11,12 +11,12 @@ import FeatureUIDependencies
 
 import RIBs
 
-protocol MissionRootInteractable: Interactable, ShakeMissionMainListener, TapMissionMainListener {
-    var router: MissionRootRouting? { get set }
-    var listener: MissionRootListener? { get set }
+protocol AlarmMissionRootInteractable: Interactable, ShakeMissionMainListener, TapMissionMainListener {
+    var router: AlarmMissionRootRouting? { get set }
+    var listener: AlarmMissionRootListener? { get set }
 }
 
-final class MissionRootRouter: Router<MissionRootInteractable>, MissionRootRouting, DSButtonAlertPresentable {
+final class AlarmMissionRootRouter: Router<AlarmMissionRootInteractable>, AlarmMissionRootRouting, DSButtonAlertPresentable {
     
     private var navigationController: UINavigationController?
     
@@ -31,7 +31,7 @@ final class MissionRootRouter: Router<MissionRootInteractable>, MissionRootRouti
     
     // TODO: Constructor inject child builder protocols to allow building children.
     init(
-        interactor: MissionRootInteractable,
+        interactor: AlarmMissionRootInteractable,
         viewController: UIViewController,
         shakeMissionBuilder: ShakeMissionMainBuilder,
         tapMissionBuilder: TapMissionMainBuilder
@@ -84,8 +84,8 @@ final class MissionRootRouter: Router<MissionRootInteractable>, MissionRootRouti
 
 
 // MARK: MissionRootRouting
-extension MissionRootRouter {
-    func request(_ request: MissionRootRoutingRequest) {
+extension AlarmMissionRootRouter {
+    func request(_ request: AlarmMissionRootRoutingRequest) {
         switch request {
         case .dismissMission(let mission, let completion):
             switch mission {
@@ -99,20 +99,22 @@ extension MissionRootRouter {
         case .presentTapMission:
             presentTapMission()
         case .presentAlert(let config):
+            guard let navigationController else { return }
             presentAlert(
-                presentingController: viewController,
+                presentingController: navigationController,
                 listener: nil,
                 config: config
             )
         case .dismissAlert(let completion):
-            dismissAlert(presentingController: viewController, completion: completion)
+            guard let navigationController else { return }
+            dismissAlert(presentingController: navigationController, completion: completion)
         }
     }
 }
 
 
 // MARK: Routing RIB
-private extension MissionRootRouter {
+private extension AlarmMissionRootRouter {
     // Shake mission
     func presentShakeMission(isFirstAlarm: Bool) {
         let router = shakeMissionBuilder.build(withListener: interactor, isFirstAlarm: isFirstAlarm)
