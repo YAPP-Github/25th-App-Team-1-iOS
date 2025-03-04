@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ShakeMissionMainListener 
         
         let navigationController = UINavigationController()
         let builder = ShakeMissionMainBuilder(dependency: RootComponent())
-        let router = builder.build(withListener: self)
+        let router = builder.build(withListener: self, isFirstAlarm: false)
         self.router = router
         navigationController.isNavigationBarHidden = true
         navigationController.viewControllers = [
@@ -35,6 +35,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ShakeMissionMainListener 
         case .close:
             window?.rootViewController?.dismiss(animated: true
             )
+        case .missionCompleted(_, _):
+            break
         }
     }
 }

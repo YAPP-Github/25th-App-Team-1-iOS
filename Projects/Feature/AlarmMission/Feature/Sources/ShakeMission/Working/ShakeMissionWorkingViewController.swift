@@ -19,7 +19,7 @@ protocol ShakeMissionWorkingPresentableListener: AnyObject {
 }
 
 enum ShakeMissionWorkingPresenterRequest {
-    
+    case initializeMission
     case missionPageIsReady
     case missionGuideFinished
     case missionSuccessEventFinished
@@ -48,6 +48,7 @@ final class ShakeMissionWorkingViewController: UIViewController, ShakeMissionWor
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        listener?.request(.initializeMission)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -63,14 +64,14 @@ extension ShakeMissionWorkingViewController {
     func request(_ request: ShakeMissionWorkingInteractorRequest) {
         switch request {
         case .missionFlow(let state):
-            
             switch state {
-            case .guide(let successShakeCount):
+            case .initial(let successShakeCount):
                 mainView
                     .update(progress: 0.0)
                     .update(countText: "0")
                     .update(titleText: "\(successShakeCount)회를 흔들어야 운세를 받아요")
-                    .update(missionState: .guide)
+            case .guide:
+                mainView.update(missionState: .guide)
             case .start:
                 mainView.update(missionState: .working)
             case .success:

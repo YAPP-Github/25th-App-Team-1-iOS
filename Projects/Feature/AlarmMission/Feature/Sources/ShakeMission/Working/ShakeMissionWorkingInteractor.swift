@@ -24,31 +24,31 @@ protocol ShakeMissionWorkingPresentable: Presentable {
     
     func request(_ request: ShakeMissionWorkingInteractorRequest)
 }
+
+// Mission flow
+enum MissionFlowState: Equatable {
+    case initial(successShakeCount: Int)
+    case guide
+    case start
+    case success
+}
+
+// Shake motion
+enum ShakeMotionDetactorState {
+    case start, stop, pause, resume
+}
+
+// Haptik feedback
+enum HapticGeneratorAction {
+    case prepare
+    case occur
+    case stop
+}
+
 enum ShakeMissionWorkingInteractorRequest {
-    
-    // Mission flow
-    enum MissionFlowState {
-        case guide(successShakeCount: Int)
-        case start
-        case success
-    }
     case missionFlow(MissionFlowState)
-    
-    // Shake motion
-    enum ShakeMotionDetactorState {
-        case start, stop, pause, resume
-    }
     case shakeMotionDetactor(ShakeMotionDetactorState)
-    
-    // Haptik feedback
-    enum HapticGeneratorAction {
-        case prepare
-        case occur
-        case stop
-    }
     case hapticGeneratorAction(HapticGeneratorAction)
-    
-    // UI update
     case updateSuccessCount(Int)
     case updateMissionProgressPercent(Double)
 }
@@ -68,6 +68,10 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
     private let successShakeCount = 10
     private var currentShakeCount = 0
     private var isMissionSuccess = false
+    
+    
+    // State
+    private var currentMissionFlow: MissionFlowState?
     
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
@@ -94,12 +98,20 @@ extension ShakeMissionWorkingInteractor {
     
     func request(_ request: ShakeMissionWorkingPresenterRequest) {
         switch request {
+        case .initializeMission:
+            let nextFlow: MissionFlowState = .initial(successShakeCount: successShakeCount)
+            self.currentMissionFlow = nextFlow
+            presenter.request(.missionFlow(nextFlow))
         case .missionPageIsReady:
+            let nextFlow: MissionFlowState = .guide
+            self.currentMissionFlow = nextFlow
+            presenter.request(.missionFlow(nextFlow))
             presenter.request(.hapticGeneratorAction(.prepare))
-            presenter.request(.missionFlow(.guide(successShakeCount: 10)))
-        case .missionGuideFinished:
-            presenter.request(.missionFlow(.start))
             presenter.request(.shakeMotionDetactor(.start))
+        case .missionGuideFinished:
+            let nextFlow: MissionFlowState = .start
+            self.currentMissionFlow = nextFlow
+            presenter.request(.missionFlow(nextFlow))
         case .missionSuccessEventFinished:
             listener?.exitShakeMissionWorkingPage(isSucceeded: true)
             
@@ -134,6 +146,13 @@ extension ShakeMissionWorkingInteractor {
             router?.request(.presentAlert(alertConfig))
             
         case .shakeIsDetected:
+            if currentMissionFlow == .guide {
+                // 가이드 상태에서 미션을 진행한 경우
+                let nextFlow: MissionFlowState = .start
+                self.currentMissionFlow = nextFlow
+                presenter.request(.missionFlow(nextFlow))
+            }
+            
             if currentShakeCount < successShakeCount {
                 // 성공 횟수를 증가
                 self.currentShakeCount += 1

@@ -25,8 +25,7 @@ final class ShakeMissionWorkingView: UIView {
     
     // Listener
     weak var listener: ShakeMissionWorkingViewListener?
-    var workItem: DispatchWorkItem?
-    var group: CAAnimationGroup?
+    private var group: CAAnimationGroup?
     
     // Sub views
     private let exitButton: ExitButton = .init()
@@ -67,13 +66,6 @@ final class ShakeMissionWorkingView: UIView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
-        
-        workItem = DispatchWorkItem { [weak self] in
-            guard let self else { return }
-            startShakeMissionView?.removeFromSuperview()
-            startShakeMissionView = nil
-            listener?.action(.missionGuideAnimationCompleted)
-        }
     }
     required init?(coder: NSCoder) { nil }
     
@@ -93,10 +85,7 @@ extension ShakeMissionWorkingView: StartShakeMissionViewListener {
     func action(_ action: StartShakeMissionView.Action) {
         switch action {
         case .shakeDetected:
-            workItem?.cancel()
-            workItem = nil
-            startShakeMissionView?.removeFromSuperview()
-            startShakeMissionView = nil
+            finishGuide()
             listener?.action(.missionGuideAnimationCompleted)
         }
     }
@@ -148,7 +137,6 @@ private extension ShakeMissionWorkingView {
         
         
         // amuletCardImage
-        amuletCardBackImage.alpha = 0
         addSubview(amuletCardBackImage)
     }
     
@@ -224,15 +212,13 @@ extension ShakeMissionWorkingView {
             self.startShakeMissionView = startMissionView
             
             startMissionView.startShowUpAnimation()
-            guard let workItem else { return self }
             DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
-                self?.workItem?.perform()
+                guard let self else { return }
+                finishGuide()
             }
         case .working:
             missionProgressView.alpha = 1
             labelStackView.alpha = 1
-            amuletCardBackImage.alpha = 1
-            
             startShakeGuideAnim()
             
         case .success:
@@ -280,10 +266,21 @@ extension ShakeMissionWorkingView {
         self.missionProgressView.update(progress: progress)
         return self
     }
+}
+
+
+// MARK: Mission function
+private extension ShakeMissionWorkingView {
+    
+    func finishGuide() {
+        startShakeMissionView?.removeFromSuperview()
+        startShakeMissionView = nil
+        listener?.action(.missionGuideAnimationCompleted)
+    }
     
     
     // MARK: Animation
-    private enum AnimationConfig {
+    enum AnimationConfig {
         // Duration
         static let shakeGuideAnimDuration: Double = 1.75
         static let successZoomInAnimDuration: Double = 0.3
@@ -351,7 +348,7 @@ extension ShakeMissionWorkingView {
         }
     }
     
-    private func createAmuletBackLayer() -> CALayer {
+    func createAmuletBackLayer() -> CALayer {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         let imageLayer = CALayer()
