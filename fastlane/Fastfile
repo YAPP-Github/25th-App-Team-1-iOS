@@ -75,8 +75,8 @@ platform :ios do
 
   end
 
-  desc "Shake mission demo app"
-  lane :betaShakeMission do
+  desc "Alarm mission demo app"
+  lane :betaAlarmMission do
 
     match(
       api_key_path: "fastlane/apple_connect_auth.json",
