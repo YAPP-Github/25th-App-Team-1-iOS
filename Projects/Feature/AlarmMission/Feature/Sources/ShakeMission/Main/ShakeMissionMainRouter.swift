@@ -41,6 +41,10 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
         interactor.router = self
     }
     
+    deinit {
+        print("흔들기 미션 라우터 deinit")
+    }
+    
     private func presentOrPushViewController(with router: ViewableRouting, animated: Bool = true) {
         if let navigationController {
             navigationController.pushViewController(router.viewControllable.uiviewController, animated: animated)
@@ -66,7 +70,6 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
         } else {
             // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
             viewController.uiviewController.dismiss(animated: animated)
-    
         }
     }
 }
@@ -108,7 +111,8 @@ private extension ShakeMissionMainRouter {
     
     func dismissShakeMissionWorkingPage() {
         guard let shakeMissionWorkingRouter else { return }
-        detachChild(shakeMissionWorkingRouter)
         dismissOrPopViewController()
+        detachChild(shakeMissionWorkingRouter)
+        self.shakeMissionWorkingRouter = nil
     }
 }

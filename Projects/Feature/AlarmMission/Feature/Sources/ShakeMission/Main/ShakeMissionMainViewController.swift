@@ -35,6 +35,10 @@ final class ShakeMissionMainViewController: UIViewController, ShakeMissionMainPr
         self.view = mainView
         mainView.listener = self
     }
+    
+    deinit {
+        print("흔들기 미션 컨트롤러 deinit")
+    }
 }
 
 

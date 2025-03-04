@@ -6,10 +6,10 @@
 //
 
 import RIBs
+import RxRelay
 
 protocol TapMissionMainDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var action: PublishRelay<MissionState> { get }
 }
 
 final class TapMissionMainComponent: Component<TapMissionMainDependency>, TapMissionWorkingDependency {
@@ -32,7 +32,10 @@ final class TapMissionMainBuilder: Builder<TapMissionMainDependency>, TapMission
     func build(withListener listener: TapMissionMainListener) -> TapMissionMainRouting {
         let component = TapMissionMainComponent(dependency: dependency)
         let viewController = TapMissionMainViewController()
-        let interactor = TapMissionMainInteractor(presenter: viewController)
+        let interactor = TapMissionMainInteractor(
+            presenter: viewController,
+            missionAction: dependency.action
+        )
         interactor.listener = listener
         let tapMissionWorkingBuilder = TapMissionWorkingBuilder(dependency: component)
         return TapMissionMainRouter(

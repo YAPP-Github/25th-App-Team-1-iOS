@@ -8,8 +8,11 @@
 import UIKit
 
 import RIBs
+import RxRelay
 
-public protocol ShakeMissionMainDependency: Dependency {}
+protocol ShakeMissionMainDependency: Dependency {
+    var action: PublishRelay<MissionState> { get }
+}
 
 final class ShakeMissionMainComponent: Component<ShakeMissionMainDependency> {
     fileprivate let isFirstAlarm: Bool
@@ -21,20 +24,26 @@ final class ShakeMissionMainComponent: Component<ShakeMissionMainDependency> {
 
 // MARK: - Builder
 
-public protocol ShakeMissionMainBuildable: Buildable {
+protocol ShakeMissionMainBuildable: Buildable {
     func build(withListener listener: ShakeMissionMainListener, isFirstAlarm: Bool) -> ShakeMissionMainRouting
 }
 
-public final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeMissionMainBuildable {
+final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeMissionMainBuildable {
 
-    public override init(dependency: ShakeMissionMainDependency) {
+    override init(dependency: ShakeMissionMainDependency) {
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ShakeMissionMainListener, isFirstAlarm: Bool) -> ShakeMissionMainRouting {
+    func build(
+        withListener listener: ShakeMissionMainListener,
+        isFirstAlarm: Bool
+    ) -> ShakeMissionMainRouting {
         let component = ShakeMissionMainComponent(dependency: dependency, isFirstAlarm: isFirstAlarm)
         let viewController = ShakeMissionMainViewController()
-        let interactor = ShakeMissionMainInteractor(presenter: viewController, isFirstAlarm: isFirstAlarm)
+        let interactor = ShakeMissionMainInteractor(
+            presenter: viewController,
+            missionAction: dependency.action
+        )
         interactor.listener = listener
         let shakeMissionWorkingBuilder = ShakeMissionWorkingBuilder(dependency: component)
         return ShakeMissionMainRouter(

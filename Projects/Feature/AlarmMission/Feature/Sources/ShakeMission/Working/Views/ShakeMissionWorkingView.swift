@@ -167,8 +167,7 @@ extension ShakeMissionWorkingView {
             startMissionView.snp.makeConstraints({ $0.edges.equalToSuperview() })
             self.startMissionView = startMissionView
             
-            startMissionView.startShowUpAnimation()
-            DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
+            startMissionView.startShowUpAnimation() { [weak self] in
                 guard let self else { return }
                 finishGuide()
             }

@@ -118,10 +118,9 @@ extension TapMissionWorkingView {
             startMissionView.snp.makeConstraints({ $0.edges.equalToSuperview() })
             self.startMissionView = startMissionView
             
-            startMissionView.startShowUpAnimation()
-            DispatchQueue.main.asyncAfter(deadline: .now()+2) { [weak self] in
+            startMissionView.startShowUpAnimation() { [weak self] in
                 guard let self else { return }
-                
+                finishGuide()
             }
         case .working:
             missionProgressView.alpha = 1
@@ -146,6 +145,13 @@ extension TapMissionWorkingView {
 
 // MARK: Animation
 private extension TapMissionWorkingView {
+    func finishGuide() {
+        startMissionView?.removeFromSuperview()
+        startMissionView = nil
+        listener?.action(.missionGuideAnimationCompleted)
+    }
+    
+    
     func startTappingLetterAnim() {
         letterView.loopMode = .playOnce
         letterView.play()

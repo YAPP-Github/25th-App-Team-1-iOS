@@ -37,6 +37,16 @@ final class TapMissionWorkingViewController: UIViewController, TapMissionWorking
         self.view = mainView
         mainView.listener = self
     }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        listener?.request(.initializeMission)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        listener?.request(.viewIsReadyForMission)
+    }
 }
 
 
@@ -49,7 +59,9 @@ extension TapMissionWorkingViewController {
         case .hapticGeneratorAction(let action):
             handleHaptic(action)
         case .updateSuccessCount(let newCount):
-            mainView.update(.countText("\(newCount)"))
+            mainView
+                .update(.playTapAnim)
+                .update(.countText("\(newCount)"))
         case .updateMissionProgressPercent(let newPercent):
             mainView.update(.missionProgress(newPercent))
         }

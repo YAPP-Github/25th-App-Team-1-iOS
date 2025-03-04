@@ -107,6 +107,7 @@ private extension TapMissionMainRouter {
     func dismissTapMissionWorkingPage() {
         guard let tapMissionWorkingRouter else { return }
         detachChild(tapMissionWorkingRouter)
+        self.tapMissionWorkingRouter = nil
         dismissOrPopViewController()
     }
 }

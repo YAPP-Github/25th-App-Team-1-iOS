@@ -9,6 +9,7 @@ import FeatureUIDependencies
 
 import RIBs
 import RxSwift
+import RxRelay
 
 enum TapMissionMainRoutingRequest {
     case presentWorkingPage
@@ -28,23 +29,23 @@ protocol TapMissionMainPresentable: Presentable {
     var listener: TapMissionMainPresentableListener? { get set }
 }
 
-protocol TapMissionMainListener: AnyObject {
-    func request(_ request: TapMissionMainListenerRequest)
-}
-
-enum TapMissionMainListenerRequest {
-    
-}
+protocol TapMissionMainListener: AnyObject { }
 
 
 final class TapMissionMainInteractor: PresentableInteractor<TapMissionMainPresentable>, TapMissionMainInteractable, TapMissionMainPresentableListener {
 
     weak var router: TapMissionMainRouting?
     weak var listener: TapMissionMainListener?
+    
+    
+    // Stream
+    private let missionAction: PublishRelay<MissionState>
+    
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: TapMissionMainPresentable) {
+    init(presenter: TapMissionMainPresentable, missionAction: PublishRelay<MissionState>) {
+        self.missionAction = missionAction
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -69,10 +70,26 @@ extension TapMissionMainInteractor {
                 },
                 rightButtonTapped: { [weak self] in
                     guard let self else { return }
-                    
+                    missionAction.accept(.exitMission)
                 }
             )
             router?.request(.presentAlert(alertConfig))
+        }
+    }
+}
+
+
+// MARK: TapMissionWorkingListener
+extension TapMissionMainInteractor {
+    func request(request: TapMissionWorkingListenerRequest) {
+        router?.request(.dissmissWorkingPage)
+        switch request {
+        case .exitPage(let isMissionCompleted):
+            if isMissionCompleted {
+                missionAction.accept(.missionIsCompleted)
+            } else {
+                missionAction.accept(.exitMission)
+            }
         }
     }
 }
