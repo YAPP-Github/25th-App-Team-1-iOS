@@ -23,7 +23,8 @@ public protocol MissionRootRouting: Routing {
 public enum MissionRootRoutingRequest {
     case presentShakeMission(isFirstAlarm: Bool)
     case presentTapMission
-    case dismissMission(Mission)
+    case dismissMission(Mission, competion: (() -> Void)? = nil)
+    case dismissAlert(competion: (() -> Void)? = nil)
     case presentAlert(DSButtonAlert.Config)
 }
 
@@ -129,8 +130,10 @@ private extension MissionRootInteractor {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] _ in
                 guard let self else { return }
-                router?.request(.dismissMission(mission))
-                listener?.request(.close(nil, nil))
+                router?.request(.dismissMission(mission, competion: { [weak self] in
+                    guard let self else { return }
+                    listener?.request(.close(nil, nil))
+                }))
             })
             .disposed(by: disposeBag)
         
@@ -151,10 +154,13 @@ private extension MissionRootInteractor {
                 }
                 UserDefaults.standard.setDailyFortune(info: newFortuneInfo)
                 
-                router?.request(.dismissMission(mission))
-                listener?.request(.missionCompleted(
-                    fortune, newFortuneInfo
-                ))
+                router?.request(.dismissMission(mission, competion: { [weak self] in
+                    guard let self else { return }
+                    listener?.request(.missionCompleted(
+                        fortune, newFortuneInfo
+                    ))
+                }))
+                
             })
             .disposed(by: disposeBag)
         
@@ -170,7 +176,10 @@ private extension MissionRootInteractor {
                     buttonText: "닫기",
                     buttonAction: { [weak self] in
                         guard let self else { return }
-                        listener?.request(.close(nil, nil))
+                        router?.request(.dismissAlert(competion: { [weak self] in
+                            guard let self else { return }
+                            listener?.request(.close(nil, nil))
+                        }))
                     }
                 )
                 router?.request(.presentAlert(config))

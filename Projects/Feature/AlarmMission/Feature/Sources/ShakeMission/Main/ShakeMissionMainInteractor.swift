@@ -17,7 +17,7 @@ import RxRelay
 
 enum ShakeMissionMainRoutingRequest {
     case presentWorkingPage
-    case dissmissWorkingPage
+    case dissmissWorkingPage(completion: (()->Void)?=nil)
     case presentAlert(DSTwoButtonAlert.Config)
     case dismissAlert(completion: (()->Void)?=nil)
 }
@@ -78,7 +78,10 @@ extension ShakeMissionMainInteractor {
                 },
                 rightButtonTapped: { [weak self] in
                     guard let self else { return }
-                    missionAction.accept(.exitMission)
+                    router?.request(.dismissAlert(completion: { [weak self] in
+                        guard let self else { return }
+                        missionAction.accept(.exitMission)
+                    }))
                 }
             )
             router?.request(.presentAlert(alertConfig))
@@ -92,8 +95,10 @@ extension ShakeMissionMainInteractor {
     func request(request: ShakeMissionWorkingListenerRequest) {
         switch request {
         case .exitPage(let isMissionCompleted):
-            router?.request(.dissmissWorkingPage)
-            missionAction.accept(isMissionCompleted ? .missionIsCompleted : .exitMission)
+            router?.request(.dissmissWorkingPage(completion: { [weak self] in
+                guard let self else { return }
+                missionAction.accept(isMissionCompleted ? .missionIsCompleted : .exitMission)
+            }))
         }
     }
 }

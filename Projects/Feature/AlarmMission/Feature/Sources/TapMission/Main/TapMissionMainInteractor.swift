@@ -13,20 +13,24 @@ import RxRelay
 
 enum TapMissionMainRoutingRequest {
     case presentWorkingPage
-    case dissmissWorkingPage
+    case dissmissWorkingPage(completion: (()->Void)?=nil)
     case presentAlert(DSTwoButtonAlert.Config)
     case dismissAlert(completion: (()->Void)?=nil)
 }
 
 
-
-
 protocol TapMissionMainRouting: ViewableRouting {
-    func request(_ request: ShakeMissionMainRoutingRequest)
+    func request(_ request: TapMissionMainRoutingRequest)
 }
 
 protocol TapMissionMainPresentable: Presentable {
     var listener: TapMissionMainPresentableListener? { get set }
+    func request(_ request: TapMissionMainInteractorRequest)
+}
+
+enum TapMissionMainInteractorRequest {
+    case presentLoading
+    case dismissLoading
 }
 
 protocol TapMissionMainListener: AnyObject { }
@@ -70,7 +74,10 @@ extension TapMissionMainInteractor {
                 },
                 rightButtonTapped: { [weak self] in
                     guard let self else { return }
-                    missionAction.accept(.exitMission)
+                    router?.request(.dismissAlert(completion: { [weak self] in
+                        guard let self else { return }
+                        missionAction.accept(.exitMission)
+                    }))
                 }
             )
             router?.request(.presentAlert(alertConfig))
@@ -82,14 +89,17 @@ extension TapMissionMainInteractor {
 // MARK: TapMissionWorkingListener
 extension TapMissionMainInteractor {
     func request(request: TapMissionWorkingListenerRequest) {
-        router?.request(.dissmissWorkingPage)
-        switch request {
-        case .exitPage(let isMissionCompleted):
-            if isMissionCompleted {
-                missionAction.accept(.missionIsCompleted)
-            } else {
-                missionAction.accept(.exitMission)
+        router?.request(.dissmissWorkingPage(completion: { [weak self] in
+            guard let self else { return }
+            switch request {
+            case .exitPage(let isMissionCompleted):
+                if isMissionCompleted {
+                    presenter.request(.presentLoading)
+                    missionAction.accept(.missionIsCompleted)
+                } else {
+                    missionAction.accept(.exitMission)
+                }
             }
-        }
+        }))
     }
 }

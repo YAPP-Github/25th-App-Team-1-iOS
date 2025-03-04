@@ -52,20 +52,19 @@ final class TapMissionMainRouter: ViewableRouter<TapMissionMainInteractable, Tap
         }
     }
     
-    private func dismissOrPopViewController(animated: Bool = true) {
+    private func dismissOrPopViewController(animated: Bool = true, completion: (() -> Void)? = nil) {
         if let navigationController {
             if navigationController.viewControllers.count > 1 {
                 navigationController.popViewController(animated: animated)
             }
             else {
                 navigationController.setViewControllers([], animated: true)
-                navigationController.dismiss(animated: true)
+                navigationController.dismiss(animated: true, completion: completion)
                 self.navigationController = nil
             }
         } else {
             // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
-            viewController.uiviewController.dismiss(animated: animated)
-    
+            viewController.uiviewController.dismiss(animated: animated, completion: completion)
         }
     }
 }
@@ -73,12 +72,12 @@ final class TapMissionMainRouter: ViewableRouter<TapMissionMainInteractable, Tap
 
 // MARK: TapMissionMainRouting
 extension TapMissionMainRouter {
-    func request(_ request: ShakeMissionMainRoutingRequest) {
+    func request(_ request: TapMissionMainRoutingRequest) {
         switch request {
         case .presentWorkingPage:
             presentTapMissionWorkingPage()
-        case .dissmissWorkingPage:
-            dismissTapMissionWorkingPage()
+        case .dissmissWorkingPage(let completion):
+            dismissTapMissionWorkingPage(completion: completion)
         case .presentAlert(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -104,10 +103,10 @@ private extension TapMissionMainRouter {
         presentOrPushViewController(with: router)
     }
     
-    func dismissTapMissionWorkingPage() {
+    func dismissTapMissionWorkingPage(completion: (() -> Void)?) {
         guard let tapMissionWorkingRouter else { return }
         detachChild(tapMissionWorkingRouter)
         self.tapMissionWorkingRouter = nil
-        dismissOrPopViewController()
+        dismissOrPopViewController(completion: completion)
     }
 }

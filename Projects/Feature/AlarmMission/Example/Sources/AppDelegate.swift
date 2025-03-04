@@ -5,39 +5,31 @@
 import UIKit
 import FeatureAlarmMission
 
+import RIBs
+
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, ShakeMissionMainListener {
+class AppDelegate: UIResponder, UIApplicationDelegate, ExampleRIBListener {
 
     var window: UIWindow?
     
-    var router: ShakeMissionMainRouting!
+    var router: ExampleRIBRouting!
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         let navigationController = UINavigationController()
-        let builder = ShakeMissionMainBuilder(dependency: RootComponent())
-        let router = builder.build(withListener: self, isFirstAlarm: false)
+        let builder = ExampleRIBBuilder(dependency: RootComponent())
+        let router = builder.build(withListener: self)
         self.router = router
         navigationController.isNavigationBarHidden = true
-        navigationController.viewControllers = [
-            router.viewControllable.uiviewController
-        ]
+        navigationController.viewControllers = [router.viewControllable.uiviewController]
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
         return true
     }
     
-    class RootComponent: ShakeMissionMainDependency {}
-    
-    func request(_ request: ShakeMissionMainListenerRequest) {
-        switch request {
-        case .close:
-            window?.rootViewController?.dismiss(animated: true
-            )
-        case .missionCompleted(_, _):
-            break
-        }
+    class RootComponent: ExampleRIBDependency {
+        
     }
 }
 

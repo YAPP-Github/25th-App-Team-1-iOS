@@ -65,19 +65,19 @@ final class MissionRootRouter: Router<MissionRootInteractable>, MissionRootRouti
         }
     }
     
-    private func dismissOrPopViewController(animated: Bool = true) {
+    private func dismissOrPopViewController(animated: Bool = true, completion: (() -> Void)? = nil) {
         if let navigationController {
             if navigationController.viewControllers.count > 1 {
                 navigationController.popViewController(animated: animated)
             }
             else {
-                navigationController.setViewControllers([], animated: animated)
-                navigationController.dismiss(animated: animated)
+                navigationController.setViewControllers([], animated: true)
+                navigationController.dismiss(animated: true, completion: completion)
                 self.navigationController = nil
             }
         } else {
             // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
-            viewController.dismiss(animated: animated)
+            viewController.dismiss(animated: animated, completion: completion)
         }
     }
 }
@@ -87,12 +87,12 @@ final class MissionRootRouter: Router<MissionRootInteractable>, MissionRootRouti
 extension MissionRootRouter {
     func request(_ request: MissionRootRoutingRequest) {
         switch request {
-        case .dismissMission(let mission):
+        case .dismissMission(let mission, let completion):
             switch mission {
             case .shake:
-                dismissShakeMission()
+                dismissShakeMission(completion: completion)
             case .tap:
-                dismissTapMission()
+                dismissTapMission(completion: completion)
             }
         case .presentShakeMission(let isFirstAlarm):
             presentShakeMission(isFirstAlarm: isFirstAlarm)
@@ -104,6 +104,8 @@ extension MissionRootRouter {
                 listener: nil,
                 config: config
             )
+        case .dismissAlert(let completion):
+            dismissAlert(presentingController: viewController, completion: completion)
         }
     }
 }
@@ -118,9 +120,9 @@ private extension MissionRootRouter {
         attachChild(router)
         presentOrPushViewController(with: router)
     }
-    func dismissShakeMission() {
+    func dismissShakeMission(completion: (() -> Void)? = nil) {
         guard let shakeMissionRouter else { return }
-        dismissOrPopViewController()
+        dismissOrPopViewController(completion: completion)
         detachChild(shakeMissionRouter)
         self.shakeMissionRouter = nil
         print("흔들기 미션 RIB dettach")
@@ -134,12 +136,10 @@ private extension MissionRootRouter {
         attachChild(router)
         presentOrPushViewController(with: router)
     }
-    func dismissTapMission() {
+    func dismissTapMission(completion: (() -> Void)? = nil) {
         guard let tapMissionRouter else { return }
-        dismissOrPopViewController()
-        DispatchQueue.main.asyncAfter(deadline: .now()+3) {[weak self] in
-            self?.detachChild(tapMissionRouter)
-        }
+        dismissOrPopViewController(completion: completion)
+        detachChild(tapMissionRouter)
         self.tapMissionRouter = nil
     }
 }

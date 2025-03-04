@@ -132,11 +132,10 @@ extension TapMissionWorkingInteractor {
                     router?.request(.dismissAlert())
                 }, rightButtonTapped: { [weak self] in
                     guard let self else { return }
-                    let completion = { [weak self] in
+                    router?.request(.dismissAlert(completion: { [weak self] in
                         guard let self else { return }
                         listener?.request(request: .exitPage(isMissionCompleted: false))
-                    }
-                    router?.request(.dismissAlert(completion: completion))
+                    }))
                 }
             )
             router?.request(.presentAlert(alertConfig))

@@ -57,19 +57,19 @@ final class ShakeMissionMainRouter: ViewableRouter<ShakeMissionMainInteractable,
         }
     }
     
-    private func dismissOrPopViewController(animated: Bool = true) {
+    private func dismissOrPopViewController(animated: Bool = true, completion: (() -> Void)? = nil) {
         if let navigationController {
             if navigationController.viewControllers.count > 1 {
                 navigationController.popViewController(animated: animated)
             }
             else {
                 navigationController.setViewControllers([], animated: true)
-                navigationController.dismiss(animated: true)
+                navigationController.dismiss(animated: true, completion: completion)
                 self.navigationController = nil
             }
         } else {
             // 네비게이션 컨트롤러가 없는 경우 or 현재 화면이 네비게이션의 RootVC인 경우
-            viewController.uiviewController.dismiss(animated: animated)
+            viewController.uiviewController.dismiss(animated: animated, completion: completion)
         }
     }
 }
@@ -81,8 +81,8 @@ extension ShakeMissionMainRouter {
         switch request {
         case .presentWorkingPage:
             presentShakeMissionWorkingPage()
-        case .dissmissWorkingPage:
-            dismissShakeMissionWorkingPage()
+        case .dissmissWorkingPage(let completion):
+            dismissShakeMissionWorkingPage(completion: completion)
         case .presentAlert(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -109,9 +109,9 @@ private extension ShakeMissionMainRouter {
         presentOrPushViewController(with: router)
     }
     
-    func dismissShakeMissionWorkingPage() {
+    func dismissShakeMissionWorkingPage(completion: (() -> Void)? = nil) {
         guard let shakeMissionWorkingRouter else { return }
-        dismissOrPopViewController()
+        dismissOrPopViewController(completion: completion)
         detachChild(shakeMissionWorkingRouter)
         self.shakeMissionWorkingRouter = nil
     }
