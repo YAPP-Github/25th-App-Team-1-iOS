@@ -693,6 +693,7 @@ extension MainPageView {
         alarmTableView.separatorStyle = .singleLine
         alarmTableView.separatorColor = R.Color.gray800
         alarmTableView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
+        alarmTableView.contentInset = .init(top: 0, left: 0, bottom: 114, right: 0)
         alarmTableView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
         resizableContentView.addSubview(alarmTableView)
         
