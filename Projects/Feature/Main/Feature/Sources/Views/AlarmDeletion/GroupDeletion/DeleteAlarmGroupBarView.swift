@@ -33,7 +33,7 @@ final class DeleteAlarmGroupBarView: UIView {
     // Sub view
     private let checkBox: DSCheckBox = .init(initialState: .idle, buttonStyle: .init(size: .medium))
     private let titleLabel: UILabel = .init()
-    private let firstStack: UIStackView = .init().then {
+    private let selectAllStackView: UIStackView = .init().then {
         $0.axis = .horizontal
         $0.spacing = 22
         $0.alignment = .center
@@ -50,10 +50,16 @@ final class DeleteAlarmGroupBarView: UIView {
         $0.alignment = .center
     }
     
+    
+    // Gesture
+    private let selectAllButtonTapGesture = UITapGestureRecognizer()
+    
+    
     init() {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setupGesture()
     }
     required init?(coder: NSCoder) { nil }
 }
@@ -72,18 +78,14 @@ private extension DeleteAlarmGroupBarView {
         // self
         self.backgroundColor = .clear
         
+        
         // titleLabel
         titleLabel.displayText = "전체 선택".displayText(font: .heading2SemiBold, color: R.Color.white100)
         
-        // checkBox
-        checkBox.buttonAction = { [weak self] in
-            guard let self else { return }
-            listener?.action(.selectAllButtonTapped)
-        }
             
         // firstStack
         [checkBox, titleLabel].forEach {
-            firstStack.addArrangedSubview($0)
+            selectAllStackView.addArrangedSubview($0)
         }
         
         // cancelButton
@@ -93,7 +95,7 @@ private extension DeleteAlarmGroupBarView {
         }
         
         // contentContainer
-        [firstStack, UIView(), cancelButton].forEach {
+        [selectAllStackView, UIView(), cancelButton].forEach {
             contentContainer.addArrangedSubview($0)
         }
         addSubview(contentContainer)
@@ -106,6 +108,15 @@ private extension DeleteAlarmGroupBarView {
             make.left.equalToSuperview().inset(24)
             make.right.equalToSuperview().inset(16)
         }
+    }
+    
+    func setupGesture() {
+        selectAllStackView.addGestureRecognizer(selectAllButtonTapGesture)
+        selectAllButtonTapGesture.addTarget(self, action: #selector(tapSelectAllButton(_:)))
+    }
+    @objc
+    func tapSelectAllButton(_ sender: UITapGestureRecognizer) {
+        listener?.action(.selectAllButtonTapped)
     }
 }
 
