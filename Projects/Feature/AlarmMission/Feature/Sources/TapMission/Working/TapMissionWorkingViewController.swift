@@ -70,7 +70,7 @@ extension TapMissionWorkingViewController {
     private func handleMissionFlow(_ flow: TapMissionFlow) {
         switch flow {
         case .initial(let successTapCount):
-            let titleText = "\(successTapCount)회를 흔들어야 운세를 받아요"
+            let titleText = "\(successTapCount)회를 눌러야 운세를 받아요"
             mainView
                 .update(.missionProgress(0.0))
                 .update(.countText("0"))
