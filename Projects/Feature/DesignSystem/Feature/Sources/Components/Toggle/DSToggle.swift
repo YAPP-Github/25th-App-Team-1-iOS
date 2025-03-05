@@ -23,8 +23,10 @@ public final class DSToggle: TouchDetectingView {
     
     // Sub view
     private let switchBall: UIView = .init()
-    private var switchBallLeftConstraint: NSLayoutConstraint?
-    private var switchBallRightConstraint: NSLayoutConstraint?
+    
+    
+    // Layout
+    private var swtichBallFrame: CGRect = .zero
     
     
     // ContentSize
@@ -62,11 +64,21 @@ public final class DSToggle: TouchDetectingView {
         
         switch state.switchState {
         case .on:
-            self.switchBallLeftConstraint?.isActive = false
-            self.switchBallRightConstraint?.isActive = true
+            let verticalInset: CGFloat = 3
+            let ballHeight = self.intrinsicContentSize.height - verticalInset*2
+            let size = CGSize(width: ballHeight, height: ballHeight)
+            self.switchBall.frame = CGRect(origin: .init(x: 3, y: 3), size: size)
         case .off:
-            self.switchBallLeftConstraint?.isActive = true
-            self.switchBallRightConstraint?.isActive = false
+            let verticalInset: CGFloat = 3
+            let horizontalInset: CGFloat = 3
+            let ballHeight = self.intrinsicContentSize.height - verticalInset*2
+            let size = CGSize(width: ballHeight, height: ballHeight)
+            let width = self.intrinsicContentSize.width
+            let position = CGPoint(
+                x: width-horizontalInset-ballHeight,
+                y: verticalInset
+            )
+            self.switchBall.frame = CGRect(origin: position, size: size)
         }
     }
 }
@@ -84,23 +96,7 @@ private extension DSToggle {
         addSubview(switchBall)
     }
     
-    func setupLayout() {
-        // switchBall
-        switchBall.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            switchBall.topAnchor.constraint(equalTo: self.topAnchor, constant: 3),
-            switchBall.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -3),
-            switchBall.widthAnchor.constraint(equalTo: switchBall.heightAnchor),
-        ])
-        self.switchBallLeftConstraint = switchBall.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 3)
-        self.switchBallRightConstraint = switchBall.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -3)
-        switch initialState.switchState {
-        case .on:
-            switchBallRightConstraint?.isActive = true
-        case .off:
-            switchBallLeftConstraint?.isActive = true
-        }
-    }
+    func setupLayout() { }
 }
 
 
