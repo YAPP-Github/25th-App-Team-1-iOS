@@ -259,7 +259,7 @@ extension AlarmCell {
             font: .title2Medium,
             color: clockColor
         )
-        hourAndMinuteLabel.displayText = String(format: "%02d:%02d", ro.hour.value, ro.minute.value).displayText(
+        hourAndMinuteLabel.displayText = String(format: "%d:%02d", ro.hour.value, ro.minute.value).displayText(
             font: .title2Medium,
             color: clockColor
         )
