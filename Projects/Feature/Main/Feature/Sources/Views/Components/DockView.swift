@@ -7,6 +7,8 @@
 
 import UIKit
 
+import FeatureResources
+
 import SnapKit
 
 final class DockView: UIView {
@@ -47,7 +49,7 @@ final class DockView: UIView {
         
         
         // dockLayer
-        dockLayer.backgroundColor = UIColor.gray.cgColor
+        dockLayer.backgroundColor = R.Color.white10.cgColor
         self.layer.addSublayer(dockLayer)
     }
 }
