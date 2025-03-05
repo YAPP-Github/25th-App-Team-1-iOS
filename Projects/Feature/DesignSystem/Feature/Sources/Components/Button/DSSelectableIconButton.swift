@@ -18,11 +18,11 @@ final public class DSSelectableIconButton: TouchDetectingView {
     
     
     // Button action
-    public var buttonAction: ((ButtonState) -> Void)?
+    public var buttonAction: (() -> Void)?
     
     
     // State & style
-    private var state: ButtonState
+    private let initialState: ButtonState
     private let style: ButtonStyle
     
     
@@ -31,11 +31,8 @@ final public class DSSelectableIconButton: TouchDetectingView {
         style.size.buttonSize
     }
     
-    public init(
-        initialState state: ButtonState,
-        style: ButtonStyle
-    ) {
-        self.state = state
+    public init(initialState: ButtonState = .idle, style: ButtonStyle) {
+        self.initialState = initialState
         self.style = style
         super.init(frame: .zero)
         setupUI()
@@ -49,23 +46,9 @@ final public class DSSelectableIconButton: TouchDetectingView {
         self.layer.cornerRadius = self.layer.bounds.height/2
     }
     
-    public override func onTouchIn() {
-        apply(state: .pressed)
-    }
-    
-    
-    public override func onTouchOut(isInbound: Bool?) {
-        if isInbound == true {
-            let state: ButtonState = state == .idle ? .selected : .idle
-            self.state = state
-            apply(state: state)
-            buttonAction?(state)
-        }
-    }
-    
-    private func apply(state: ButtonState) {
-        self.backgroundColor = state.backgroundColor
-        self.imageView.tintColor = state.imageTintColor
+    public override func onTap() {
+        super.onTap()
+        buttonAction?()
     }
 }
 
@@ -80,9 +63,13 @@ public extension DSSelectableIconButton {
     
     @discardableResult
     func update(state: ButtonState) -> Self {
-        self.state = state
         apply(state: state)
         return self
+    }
+    
+    private func apply(state: ButtonState) {
+        self.backgroundColor = state.backgroundColor
+        self.imageView.tintColor = state.imageTintColor
     }
 }
 
@@ -91,11 +78,11 @@ public extension DSSelectableIconButton {
 private extension DSSelectableIconButton {
     func setupUI() {
         // self
-        self.backgroundColor = state.backgroundColor
+        self.backgroundColor = initialState.backgroundColor
         
         // imageView
         imageView.image = style.image
-        imageView.tintColor = state.imageTintColor
+        imageView.tintColor = initialState.imageTintColor
         imageView.contentMode = .scaleAspectFit
         self.addSubview(imageView)
     }

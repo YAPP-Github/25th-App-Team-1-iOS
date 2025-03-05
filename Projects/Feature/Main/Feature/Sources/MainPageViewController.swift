@@ -31,6 +31,8 @@ enum MainPageViewPresenterRequest {
     case dismissSingleAlarmDeletionView
     case deleteAlarms
     case checkAllAlarmForDeletionButtonTapped
+    case screenWithoutAlarmOptionViewTapped
+    case alarmOptionButtonTapped
 }
 
 final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable, MainPageViewListener {
@@ -118,6 +120,12 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             ))
         case .setSingleAlarmDeltionItem(let ro):
             mainView.update(.updateSingleAlarmDeletionItem(ro))
+        case .presentAlarmListOption(let isPresenting):
+            if isPresenting {
+                mainView.update(.presentAlarmOptionListView)
+            } else {
+                mainView.update(.dismissAlarmOptionListView)
+            }
         }
     }
     
@@ -156,6 +164,10 @@ extension MainPageViewController {
             listener?.request(.presentSingleAlarmDeletionView(alarmId: alarmId))
         case .singleAlarmDeletionViewBackgroundTapped:
             listener?.request(.dismissSingleAlarmDeletionView)
+        case .screenWithoutAlarmConfigureViewTapped:
+            listener?.request(.screenWithoutAlarmOptionViewTapped)
+        case .configureAlarmListButtonClicked:
+            listener?.request(.alarmOptionButtonTapped)
         }
     }
 }

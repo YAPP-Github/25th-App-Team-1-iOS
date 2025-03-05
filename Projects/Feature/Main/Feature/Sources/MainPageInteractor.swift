@@ -51,6 +51,7 @@ enum MainPagePresentableRequest {
     case presentSingleAlarmDeletionView(AlarmCellRO)
     case dismissSingleAlarmDeletionView
     case setSingleAlarmDeltionItem(AlarmCellRO)
+    case presentAlarmListOption(isPresenting: Bool)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -72,6 +73,8 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var alarmListMode: AlarmListMode = .idle
     private var deleteAllAlarmsChecked: Bool = false
     private var isSingleAlarmDeletionViewPresenting = false
+    // - 알람리스트 설정
+    private var isAlarmListOptionViewPresented: Bool = false
     
     // Fortune
     private var fortune: FortuneSaveInfo?
@@ -268,6 +271,10 @@ extension MainPageInteractor {
             presenter.request(.setAlarmList(alarmCellROs))
             presenter.request(.setAlarmListMode(mode))
             presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
+            if isAlarmListOptionViewPresented {
+                self.isAlarmListOptionViewPresented = false
+                presenter.request(.presentAlarmListOption(isPresenting: false))
+            }
         case .changeAlarmCheckState(let alarmId):
             // 체크 상태기록
             var nextState: Bool!
@@ -406,6 +413,17 @@ extension MainPageInteractor {
         case .dismissSingleAlarmDeletionView:
             self.isSingleAlarmDeletionViewPresenting = false
             presenter.request(.dismissSingleAlarmDeletionView)
+        case .alarmOptionButtonTapped:
+            let isPresented = self.isAlarmListOptionViewPresented
+            let nextState = !isPresented
+            self.isAlarmListOptionViewPresented = nextState
+            presenter.request(.presentAlarmListOption(isPresenting: nextState))
+        case .screenWithoutAlarmOptionViewTapped:
+            let isPresented = self.isAlarmListOptionViewPresented
+            if isPresented {
+                self.isAlarmListOptionViewPresented = false
+                presenter.request(.presentAlarmListOption(isPresenting: false))
+            }
         }
     }
     

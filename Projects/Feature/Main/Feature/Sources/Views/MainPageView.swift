@@ -20,9 +20,12 @@ final class MainPageView: UIView, UITableViewDelegate, DeleteAlarmGroupBarViewLi
     
     // Action
     enum Action {
+        case screenWithoutAlarmConfigureViewTapped
+        
         case fortuneNotiButtonClicked
         case applicationSettingButtonClicked
         case addAlarmButtonClicked
+        case configureAlarmListButtonClicked
         
         case alarmSelected(alarmId: String)
         case alarmActivityStateWillChange(alarmId: String)
@@ -92,7 +95,7 @@ final class MainPageView: UIView, UITableViewDelegate, DeleteAlarmGroupBarViewLi
         image: FeatureResourcesAsset.plus.image,
         size: .small
     ))
-    private let configAlarmButton: DSSelectableIconButton = .init(
+    private let configureAlarmButton: DSSelectableIconButton = .init(
         initialState: .idle,
         style: .init(
             image: FeatureResourcesAsset.more.image,
@@ -128,12 +131,17 @@ final class MainPageView: UIView, UITableViewDelegate, DeleteAlarmGroupBarViewLi
             size: .large,
             cornerRadius: .large
     ))
+    
+    
+    // Gesture
+    private let screenTapGesture = UITapGestureRecognizer()
         
     
     init() {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
+        setupGesture()
     }
     required init?(coder: NSCoder) { nil }
     
@@ -225,23 +233,14 @@ private extension MainPageView {
         // alarmToolBarButtonStack
         addAlarmButton.buttonAction = { [weak self] in
             guard let self else { return }
-            self.listener?.action(.addAlarmButtonClicked)
+            listener?.action(.addAlarmButtonClicked)
         }
-        configAlarmButton.buttonAction = { [weak self] state in
+        configureAlarmButton.buttonAction = { [weak self] in
             guard let self else { return }
-            switch state {
-            case .idle:
-                dismissAlarmOptionBottomListView()
-                break
-            case .selected:
-                presentAlarmOptionBottomListView()
-                break
-            case .pressed:
-                return
-            }
+            listener?.action(.configureAlarmListButtonClicked)
         }
         
-        [addAlarmButton, configAlarmButton].forEach {
+        [addAlarmButton, configureAlarmButton].forEach {
             alarmToolBarButtonStack.addArrangedSubview($0)
         }
         
@@ -370,6 +369,26 @@ private extension MainPageView {
             make.centerX.equalToSuperview()
         }
     }
+    
+    func setupGesture() {
+        self.addGestureRecognizer(screenTapGesture)
+        screenTapGesture.cancelsTouchesInView = false
+        screenTapGesture.addTarget(self, action: #selector(screenIsTapped(_:)))
+    }
+    @objc
+    func screenIsTapped(_ sender: UITapGestureRecognizer) {
+        let touchLocation = sender.location(in: self)
+        if let alarmOptionBottomListView {
+            // 알람 설정 바텀리스트가 열려있는 경우
+            let alarmOptionBottomListViewGloablFrame = alarmOptionBottomListView.convert(alarmOptionBottomListView.bounds, to: self)
+            let configureAlarmButtonGlobalFrame = configureAlarmButton.convert(configureAlarmButton.bounds, to: self)
+            let isInbound = alarmOptionBottomListViewGloablFrame.contains(touchLocation) || configureAlarmButtonGlobalFrame.contains(touchLocation)
+            if !isInbound {
+                // 해당화면 밖이 눌린경우
+                listener?.action(.screenWithoutAlarmConfigureViewTapped)
+            }
+        }
+    }
 }
 
 
@@ -448,6 +467,8 @@ extension MainPageView {
         case setDeleteAllAlarmCheckBox(isOn: Bool)
         case singleAlarmDeletionViewPresentation(isPresent: Bool, presenting: AlarmCellRO?)
         case updateSingleAlarmDeletionItem(AlarmCellRO)
+        case presentAlarmOptionListView
+        case dismissAlarmOptionListView
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -486,6 +507,12 @@ extension MainPageView {
             }
         case .updateSingleAlarmDeletionItem(let ro):
             alarmDeletionView?.update(.renderObject(ro))
+        case .presentAlarmOptionListView:
+            configureAlarmButton.update(state: .selected)
+            presentAlarmOptionBottomListView()
+        case .dismissAlarmOptionListView:
+            configureAlarmButton.update(state: .idle)
+            dismissAlarmOptionBottomListView()
         }
         return self
     }
@@ -788,8 +815,7 @@ private extension MainPageView {
             .update(image: FeatureResourcesAsset.edit.image)
         editButton.buttonAction = { [weak self] in
             guard let self else { return }
-            configAlarmButton.update(state: .idle)
-            dismissAlarmOptionBottomListView()
+            configureAlarmButton.update(state: .idle)
             listener?.action(.changeModeToDeletionButtonClicked)
         }
         
