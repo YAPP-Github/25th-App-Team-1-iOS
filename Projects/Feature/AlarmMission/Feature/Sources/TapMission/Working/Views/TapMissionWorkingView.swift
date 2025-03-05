@@ -25,6 +25,7 @@ final class TapMissionWorkingView: UIView {
     private let missionProgressView: MissionProgressView = .init(percent: 0.0)
 
     // Letter
+    private let letterViewContainer = UIView()
     private let letterView = LottieAnimationView()
     
     // - Label
@@ -177,7 +178,12 @@ private extension TapMissionWorkingView {
         // letterView
         let animFilePath = Bundle.resources.path(forResource: "letter_tap_motion", ofType: "json")!
         letterView.animation = .filepath(animFilePath)
-        addSubview(letterView)
+        letterView.contentMode = .scaleAspectFit
+        letterViewContainer.addSubview(letterView)
+        
+        
+        // letterViewContainer
+        addSubview(letterViewContainer)
         
         
         // exitButton
@@ -228,9 +234,17 @@ private extension TapMissionWorkingView {
         }
         
         
-        // amuletCardImage
+        // letterViewContainer
+        letterViewContainer.snp.makeConstraints { make in
+            make.top.equalTo(labelStackView.snp.bottom)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+        
+        
+        // letterView
         letterView.snp.makeConstraints { make in
-            make.top.equalTo(labelStackView.snp.bottom).offset(35)
+            make.centerY.equalToSuperview()
             make.horizontalEdges.equalToSuperview()
         }
     }
