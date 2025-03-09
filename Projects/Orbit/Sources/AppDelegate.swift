@@ -49,8 +49,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         alarmController.rescheduleActiveAlarmsBackground { result in
             debugPrint(result)
         }
-        let onAlarmRecieved = { [weak self, weak alarmController] (alarm: Alarm) in
-            guard let self, let alarmController else { return }
+        let onAlarmRecieved = { [weak alarmIdHandler, weak alarmController] (alarm: Alarm) in
+            guard let alarmIdHandler, let alarmController else { return }
             alarmController.unscheduleAlarmNotification(alarm: alarm)
             alarmIdHandler.handle(alarm.id)
         }
