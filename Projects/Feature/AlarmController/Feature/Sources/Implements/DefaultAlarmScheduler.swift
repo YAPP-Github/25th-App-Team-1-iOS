@@ -7,7 +7,13 @@
 
 import UIKit
 
+import FeatureResources
 import FeatureCommonEntity
+
+enum AlarmNotificationConfig {
+    static let defaultTitle: String = "오르비 알람"
+    static let defaultMessage: String = "알람을 해제할 시간이에요!"
+}
 
 public final class DefaultAlarmScheduler: AlarmScheduler {
     // Dependency
@@ -18,6 +24,10 @@ public final class DefaultAlarmScheduler: AlarmScheduler {
     
     // State
     private let notificationLimit = 20
+    
+    
+    // Helper
+    private let jsonEncoder = JSONEncoder()
     
     
     public init(
@@ -36,13 +46,17 @@ public final class DefaultAlarmScheduler: AlarmScheduler {
         DispatchQueue.global().asyncAfter(wallDeadline: dispatchWallTime) { job() }
     }
     
-    private func registerNotification(id: String, date: Date, alarm: Alarm?) {
+    private func registerNotification(
+        id: String,
+        date: Date,
+        title: String,
+        message: String,
+        userInfo: [String: Any]
+    ) {
         let notificationContent = UNMutableNotificationContent()
-        notificationContent.title = "일어나세요"
-        notificationContent.body = "일어나시라고요~!"
-        if let alarm, let encoded = try? JSONEncoder().encode(alarm) {
-            notificationContent.userInfo["alarm"] = encoded
-        }
+        notificationContent.title = title
+        notificationContent.body = message
+        notificationContent.userInfo = userInfo
         
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
@@ -73,16 +87,12 @@ public extension DefaultAlarmScheduler {
             type: .once,
             task: { [weak self] _ in
                 guard let self else { return }
-                
-                // MARK: Test sound
-                let audioPath = Bundle(for: Self.self).path(forResource: "test", ofType: "caf")!
-                
                 // 알람 사운드 재생
                 let soundOption = alarm.soundOption
-                if soundOption.isSoundOn {
+                if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
                     alarmAudioController.play(
                         id: KeyGenerator.audioTask(alarmId: alarm.id),
-                        audioURL: .init(string: audioPath)!,
+                        audioURL: audioURL,
                         volume: soundOption.volume
                     )
                 }
@@ -107,11 +117,17 @@ public extension DefaultAlarmScheduler {
         
         
         // 로컬 노티피케이션
+        var notificationUserinfo: [String: Any] = [:]
+        if let encoded = try? jsonEncoder.encode(alarm) {
+            notificationUserinfo["alarm"] = encoded
+        }
         let notificationId = KeyGenerator.notification(alarmId: alarm.id)
         registerNotification(
             id: notificationId,
             date: alarmDate,
-            alarm: alarm
+            title: AlarmNotificationConfig.defaultTitle,
+            message: AlarmNotificationConfig.defaultMessage,
+            userInfo: notificationUserinfo
         )
         backgoundTaskScheduler.register(
             id: KeyGenerator.backgroundTask(type: .notification, alarmId: alarm.id),
@@ -123,7 +139,9 @@ public extension DefaultAlarmScheduler {
                 registerNotification(
                     id: notificationId+String(index),
                     date: notificationDate,
-                    alarm: alarm
+                    title: AlarmNotificationConfig.defaultTitle,
+                    message: AlarmNotificationConfig.defaultMessage,
+                    userInfo: notificationUserinfo
                 )
             }
     }
