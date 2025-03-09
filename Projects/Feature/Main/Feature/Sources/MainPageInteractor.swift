@@ -115,8 +115,8 @@ extension MainPageInteractor {
                         clearAlarmROs()
                         insertAlarmROs(ros: alarmROs)
                         presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
-                    case .failure(let failure):
-                        debugPrint("Error")
+                    case .failure(let error):
+                        debugPrint("Error, \(error.localizedDescription)")
                     }
                 }
             }
