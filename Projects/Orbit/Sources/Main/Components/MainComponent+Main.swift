@@ -6,5 +6,8 @@
 //
 
 import FeatureMain
+import FeatureAlarmController
 
-extension MainComponent: FeatureMain.MainPageDependency {}
+extension MainComponent: MainPageDependency {
+    var alarmController: AlarmController { dependency.alarmController }
+}

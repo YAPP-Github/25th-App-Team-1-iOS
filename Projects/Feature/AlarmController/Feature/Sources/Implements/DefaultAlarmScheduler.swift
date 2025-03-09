@@ -9,6 +9,7 @@ import UIKit
 
 import FeatureResources
 import FeatureCommonEntity
+import MediaPlayer
 
 enum AlarmNotificationConfig {
     static let defaultTitle: String = "오르비 알람"

@@ -97,9 +97,10 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     
     private func playAlarm() {
         guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
-        AudioPlayerManager.shared.activateSession()
-        VolumeManager.setVolume(alarm.soundOption.volume)
-        AudioPlayerManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
+        
+//        VolumeManager.setVolume(alarm.soundOption.volume)
+//        AudioPlayerManager.shared.activateSession()
+//        AudioPlayerManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
     }
     
     private func stopAlarm() {

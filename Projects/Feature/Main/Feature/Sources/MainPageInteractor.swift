@@ -15,6 +15,7 @@ import FeatureCommonDependencies
 import FeatureFortune
 import FeatureAlarmRelease
 import FeatureNetworking
+import FeatureAlarmController
 
 public protocol MainPageActionableItem: AnyObject {
     func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())>
@@ -62,6 +63,9 @@ protocol MainPagePresentable: Presentable {
 public protocol MainPageListener: AnyObject {}
 
 final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, MainPageInteractable, MainPagePresentableListener {
+    // Dependency
+    private let alarmController: AlarmController
+    
     
     weak var router: MainPageRouting?
     weak var listener: MainPageListener?
@@ -86,14 +90,12 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     
     init(
         presenter: MainPagePresentable,
-        service: MainPageServiceable
+        alarmController: AlarmController
     ) {
-        self.service = service
+        self.alarmController = alarmController
         super.init(presenter: presenter)
         presenter.listener = self
     }
-    
-    private let service: MainPageServiceable
 }
 
 // MARK: - MainPageViewPresenterRequest
@@ -101,14 +103,23 @@ extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
         case .viewDidLoad:
-            let fetchedAlarms = service.getAllAlarm()
-            clearAlarms()
-            insertAlarms(alarms: fetchedAlarms)
-            
-            let alarmROs = transform(alarmList: fetchedAlarms)
-            clearAlarmROs()
-            insertAlarmROs(ros: alarmROs)
-            presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
+            alarmController.readAlarms { result in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    switch result {
+                    case .success(let fetchedAlarms):
+                        clearAlarms()
+                        insertAlarms(alarms: fetchedAlarms)
+                        
+                        let alarmROs = transform(alarmList: fetchedAlarms)
+                        clearAlarmROs()
+                        insertAlarmROs(ros: alarmROs)
+                        presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
+                    case .failure(let failure):
+                        debugPrint("Error")
+                    }
+                }
+            }
         case .viewWillAppear:
             // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
             let userInfo = Preference.userInfo
@@ -178,6 +189,7 @@ extension MainPageInteractor {
             router?.request(.routeToCreateEditAlarm(mode: .create))
         case let .editAlarm(alarmId):
             guard let alarm = alarms[alarmId] else { return }
+            alarmController.unscheduleAlarm(alarm: alarm)
             router?.request(.routeToCreateEditAlarm(mode: .edit(alarm)))
         case let .changeAlarmActivityState(alarmId):
             guard var alarm = alarms[alarmId] else { return }
@@ -187,8 +199,18 @@ extension MainPageInteractor {
                 guard let self else { return }
                 // 로직 업데이트
                 alarm.isActive = nextState
-                service.updateAlarm(alarm)
+                
+                
+                // 알람 스케쥴링 변경
+                if nextState == true {
+                    alarmController.scheduleAlarm(alarm: alarm)
+                } else {
+                    alarmController.unscheduleAlarm(alarm: alarm)
+                }
+                
+                
                 self.alarms[alarm.id] = alarm
+                alarmController.updateAlarm(alarm: alarm, completion: nil)
                 
                 // UI업데이트
                 self.alarmRenderObjects[alarm.id] = transform(alarm: alarm)
@@ -238,7 +260,8 @@ extension MainPageInteractor {
                 rightButtonTapped: { [weak self] in
                     guard let self else { return }
                     // 로컬저장소 업데이트
-                    service.deleteAlarm(alarm)
+                    alarmController.removeAlarm(alarm: alarm, completion: nil)
+                    alarmController.unscheduleAlarm(alarm: alarm)
                     
                     // 상태업데이트
                     alarms.removeValue(forKey: alarmId)
@@ -326,8 +349,9 @@ extension MainPageInteractor {
                     let willDeleteAlarms = alarms.values.filter { alarm in
                         self.checkedState[alarm.id] == true
                     }
+                    alarmController.removeAlarm(alarms: willDeleteAlarms, completion: nil)
                     willDeleteAlarms.forEach { alarm in
-                        self.service.deleteAlarm(alarm)
+                        self.alarmController.unscheduleAlarm(alarm: alarm)
                         self.alarms.removeValue(forKey: alarm.id)
                         self.alarmRenderObjects.removeValue(forKey: alarm.id)
                     }
@@ -353,10 +377,14 @@ extension MainPageInteractor {
                             guard let self else { return }
                             willDeleteAlarms.forEach { alarm in
                                 // 복구
-                                self.service.addAlarm(alarm)
+                                self.alarmController.createAlarm(alarm: alarm, completion: nil)
+                                if alarm.isActive {
+                                    self.alarmController.scheduleAlarm(alarm: alarm)
+                                }
                                 self.insertAlarm(alarm: alarm)
                                 self.insertAlarmRO(ro: self.transform(alarm: alarm))
                             }
+                            
                             // UI업데이트
                             presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
                         }
@@ -448,8 +476,7 @@ extension MainPageInteractor {
     }
     
     private func checkIsFirstAlarm(with alarm: Alarm) -> Bool {
-        let alarmList = service.getAllAlarm()
-        let activeAlarmList = alarmList.filter { $0.isActive }
+        let activeAlarmList = alarms.values.filter(\.isActive)
         let meridiem = alarm.meridiem
         if let firstAlarm = activeAlarmList
             .sorted(by: { $0.hour.to24Hour(with: meridiem) < $1.hour.to24Hour(with: meridiem) })
@@ -469,7 +496,8 @@ extension MainPageInteractor {
         case .close:
             return
         case let .done(alarm):
-            service.addAlarm(alarm)
+            alarmController.createAlarm(alarm: alarm, completion: nil)
+            alarmController.scheduleAlarm(alarm: alarm)
             insertAlarm(alarm: alarm)
             insertAlarmRO(ro: transform(alarm: alarm))
             let config: DSSnackBar.SnackBarConfig = .init(
@@ -479,11 +507,12 @@ extension MainPageInteractor {
             presenter.request(.presentSnackBar(config: config))
             
         case let .updated(alarm):
-            service.updateAlarm(alarm)
+            alarmController.updateAlarm(alarm: alarm, completion: nil)
+            alarmController.scheduleAlarm(alarm: alarm)
             insertAlarm(alarm: alarm)
             insertAlarmRO(ro: transform(alarm: alarm))
         case let .deleted(alarm):
-            service.deleteAlarm(alarm)
+            alarmController.removeAlarm(alarm: alarm, completion: nil)
             alarms.removeValue(forKey: alarm.id)
             alarmRenderObjects.removeValue(forKey: alarm.id)
         }
@@ -541,7 +570,7 @@ extension MainPageInteractor {
 
 extension MainPageInteractor: MainPageActionableItem {
     func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())> {
-        guard let alarm = service.getAllAlarm().first(where: { $0.id == alarmId }) else { return .just((self, ())) }
+        guard let alarm = alarms[alarmId] else { return .just((self, ())) }
         let isFirstAlarm = self.checkIsFirstAlarm(with: alarm)
         router?.request(.routeToAlarmRelease(alarm, isFirstAlarm))
         return .just((self, ()))
