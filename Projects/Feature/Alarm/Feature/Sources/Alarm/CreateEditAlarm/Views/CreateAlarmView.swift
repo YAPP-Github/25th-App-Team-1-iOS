@@ -62,12 +62,13 @@ final class CreateEditAlarmView: UIView {
     private let doneButton = DSDefaultCTAButton()
     
     private func updateView(with alarm: Alarm) {
+        layoutIfNeeded()
+        selectWeekDayView.update(alarm: alarm)
         alarmPicker.update(
             meridiem: alarm.meridiem,
             hour: alarm.hour,
             minute: alarm.minute
         )
-        selectWeekDayView.update(alarm: alarm)
     }
     
     @objc
@@ -115,15 +116,16 @@ private extension CreateEditAlarmView {
             $0.bottom.equalTo(doneButton.snp.top).offset(-24)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
+        
         alarmPickerContainer.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalTo(selectWeekDayView.snp.top)
         }
+        
         alarmPicker.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.horizontalEdges.equalToSuperview()
-                .inset(20)
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
     }
