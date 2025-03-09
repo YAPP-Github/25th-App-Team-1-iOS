@@ -7,7 +7,16 @@
 
 import FeatureCommonEntity
 
+public enum AlarmScheduleContent: CaseIterable {
+    case localNotification
+    case backgroundTask
+}
+
+public extension Array where Element == AlarmScheduleContent {
+    static var all: [AlarmScheduleContent] { AlarmScheduleContent.allCases }
+}
+
 public protocol AlarmScheduler {   
-    func schedule(alarm: Alarm)
+    func schedule(content: [AlarmScheduleContent], alarm: Alarm)
     func unschedule(alarm: Alarm)
 }

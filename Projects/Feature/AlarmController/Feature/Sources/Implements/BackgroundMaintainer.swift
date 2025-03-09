@@ -15,7 +15,9 @@ public class BackgroundMaintainer {
     // Singleton
     public static let shared = BackgroundMaintainer()
     
-    private init() {
+    private init() { }
+    
+    public func activate() {
         setupSilentAudio()
         setupNotification()
     }

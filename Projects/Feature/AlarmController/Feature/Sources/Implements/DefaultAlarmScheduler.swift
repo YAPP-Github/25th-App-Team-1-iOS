@@ -76,74 +76,79 @@ public final class DefaultAlarmScheduler: AlarmScheduler {
 
 // MARK: AlarmScheduler
 public extension DefaultAlarmScheduler {
-    func schedule(alarm: Alarm) {
+    func schedule(content: [AlarmScheduleContent], alarm: Alarm) {
         guard let components = alarm.earliestDateComponent(),
               let alarmDate = Calendar.current.date(from: components) else { return }
         
-        // 사운드 재생, 후속 알람등록 백그라운드 테스크
-        backgoundTaskScheduler.register(
-            id: KeyGenerator.backgroundTask(type: .soundAndRepeatDays, alarmId: alarm.id),
-            startDate: alarmDate,
-            type: .once,
-            task: { [weak self] _ in
-                guard let self else { return }
-                // 알람 사운드 재생
-                let soundOption = alarm.soundOption
-                if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
-                    alarmAudioController.play(
-                        id: KeyGenerator.audioTask(alarmId: alarm.id),
-                        audioURL: audioURL,
-                        volume: soundOption.volume
-                    )
-                }
-                
-                // 반복요일이 지정되어 있는 경우 후속 알람 등록
-                if !alarm.repeatDays.days.isEmpty {
-                    schedule(alarm: alarm)
-                }
-            })
-        
-        // 진동
-        if alarm.soundOption.isVibrationOn {
+        if content.contains(.backgroundTask) {
+            // BackgroundTask1: 사운드 재생, 후속 알람등록 백그라운드 테스크
             backgoundTaskScheduler.register(
-                id: KeyGenerator.backgroundTask(type: .vibration, alarmId: alarm.id),
+                id: KeyGenerator.backgroundTask(type: .soundAndRepeatDays, alarmId: alarm.id),
                 startDate: alarmDate,
-                type: .repeats(intervalSeconds: 1, count: .limit(count: 30)),
+                type: .once,
                 task: { [weak self] _ in
                     guard let self else { return }
-                    vibrationManager.vibarate()
+                    // 알람 사운드 재생
+                    let soundOption = alarm.soundOption
+                    if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
+                        alarmAudioController.play(
+                            id: KeyGenerator.audioTask(alarmId: alarm.id),
+                            audioURL: audioURL,
+                            volume: soundOption.volume
+                        )
+                    }
+                    
+                    // 반복요일이 지정되어 있는 경우 후속 알람 등록
+                    if !alarm.repeatDays.days.isEmpty {
+                        schedule(content: content, alarm: alarm)
+                    }
                 })
+            
+            
+            // BackgroundTask2: 진동
+            if alarm.soundOption.isVibrationOn {
+                backgoundTaskScheduler.register(
+                    id: KeyGenerator.backgroundTask(type: .vibration, alarmId: alarm.id),
+                    startDate: alarmDate,
+                    type: .repeats(intervalSeconds: 1, count: .limit(count: 30)),
+                    task: { [weak self] _ in
+                        guard let self else { return }
+                        vibrationManager.vibarate()
+                    })
+            }
         }
         
         
         // 로컬 노티피케이션
-        var notificationUserinfo: [String: Any] = [:]
-        if let encoded = try? jsonEncoder.encode(alarm) {
-            notificationUserinfo["alarm"] = encoded
-        }
-        let notificationId = KeyGenerator.notification(alarmId: alarm.id)
-        registerNotification(
-            id: notificationId,
-            date: alarmDate,
-            title: AlarmNotificationConfig.defaultTitle,
-            message: AlarmNotificationConfig.defaultMessage,
-            userInfo: notificationUserinfo
-        )
-        backgoundTaskScheduler.register(
-            id: KeyGenerator.backgroundTask(type: .notification, alarmId: alarm.id),
-            startDate: alarmDate,
-            type: .repeats(intervalSeconds: 4, count: .limit(count: notificationLimit))) { [weak self] index in
-                guard let self else { return }
-                let calendar = Calendar.current
-                let notificationDate = calendar.date(byAdding: .second, value: 4, to: .now)!
-                registerNotification(
-                    id: notificationId+String(index),
-                    date: notificationDate,
-                    title: AlarmNotificationConfig.defaultTitle,
-                    message: AlarmNotificationConfig.defaultMessage,
-                    userInfo: notificationUserinfo
-                )
+        if content.contains(.localNotification) {
+            var notificationUserinfo: [String: Any] = [:]
+            if let encoded = try? jsonEncoder.encode(alarm) {
+                notificationUserinfo["alarm"] = encoded
             }
+            let notificationId = KeyGenerator.notification(alarmId: alarm.id)
+            registerNotification(
+                id: notificationId,
+                date: alarmDate,
+                title: AlarmNotificationConfig.defaultTitle,
+                message: AlarmNotificationConfig.defaultMessage,
+                userInfo: notificationUserinfo
+            )
+            backgoundTaskScheduler.register(
+                id: KeyGenerator.backgroundTask(type: .notification, alarmId: alarm.id),
+                startDate: alarmDate,
+                type: .repeats(intervalSeconds: 4, count: .limit(count: notificationLimit))) { [weak self] index in
+                    guard let self else { return }
+                    let calendar = Calendar.current
+                    let notificationDate = calendar.date(byAdding: .second, value: 4, to: .now)!
+                    registerNotification(
+                        id: notificationId+String(index),
+                        date: notificationDate,
+                        title: AlarmNotificationConfig.defaultTitle,
+                        message: AlarmNotificationConfig.defaultMessage,
+                        userInfo: notificationUserinfo
+                    )
+                }
+        }
     }
     
     func unschedule(alarm: Alarm) {

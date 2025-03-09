@@ -16,6 +16,7 @@ public protocol AlarmController {
     func removeAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     
     func scheduleAlarm(alarm: Alarm)
-    func scheduleActiveAlarms(completion: ((Result<Void, AlarmControllerError>) -> Void)?)
+    func scheduleBackground(alarm: Alarm)
+    func rescheduleActiveAlarmsBackground(completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     func unscheduleAlarm(alarm: Alarm)
 }

@@ -273,21 +273,25 @@ public extension DefaultAlarmController {
 // MARK: Alarm Scheduling
 public extension DefaultAlarmController {
     func scheduleAlarm(alarm: Alarm) {
-        alarmScheduler.schedule(alarm: alarm)
+        alarmScheduler.schedule(content: .all, alarm: alarm)
+    }
+    
+    func scheduleBackground(alarm: Alarm) {
+        alarmScheduler.schedule(content: [.backgroundTask], alarm: alarm)
     }
     
     func unscheduleAlarm(alarm: Alarm) {
         alarmScheduler.unschedule(alarm: alarm)
     }
-
-    func scheduleActiveAlarms(completion: ((Result<Void, AlarmControllerError>) -> Void)?) {
+    
+    func rescheduleActiveAlarmsBackground(completion: ((Result<Void, AlarmControllerError>) -> Void)?) {
         readAlarms(completion: { [weak self] reuslt in
             guard let self else { return }
             switch reuslt {
             case .success(let alarms):
                 alarms
-                    .filter({ $0.isActive })
-                    .forEach({ self.scheduleAlarm(alarm: $0) })
+                    .filter(\.isActive)
+                    .forEach({ self.scheduleBackground(alarm: $0) })
                 completion?(.success(()))
             case .failure(let error):
                 completion?(.failure(error))
