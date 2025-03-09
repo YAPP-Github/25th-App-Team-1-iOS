@@ -18,5 +18,5 @@ public extension Array where Element == AlarmScheduleContent {
 
 public protocol AlarmScheduler {   
     func schedule(content: [AlarmScheduleContent], alarm: Alarm)
-    func unschedule(alarm: Alarm)
+    func unschedule(content: [AlarmScheduleContent], alarm: Alarm)
 }

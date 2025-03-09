@@ -152,26 +152,31 @@ public extension DefaultAlarmScheduler {
         }
     }
     
-    func unschedule(alarm: Alarm) {
+    func unschedule(content: [AlarmScheduleContent],  alarm: Alarm) {
         // #1. 로컬 노티피케이션 취소
-        let notiCenter = UNUserNotificationCenter.current()
-        let notificationId = KeyGenerator.notification(alarmId: alarm.id)
-        notiCenter.getPendingNotificationRequests { requests in
-            let identifiers = requests
-                .filter({ $0.identifier.contains(notificationId) })
-                .map({ $0.identifier })
-            notiCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+        if content.contains(.localNotification) {
+            let notiCenter = UNUserNotificationCenter.current()
+            let notificationId = KeyGenerator.notification(alarmId: alarm.id)
+            notiCenter.getPendingNotificationRequests { requests in
+                let identifiers = requests
+                    .filter({ $0.identifier.contains(notificationId) })
+                    .map({ $0.identifier })
+                notiCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+            }
         }
         
-        // #2. 백그라운드 작업
-        let backgroundTaskIdentifiers = AlarmBackgoundTaskType.allCases.map { type in
-            KeyGenerator.backgroundTask(type: type, alarmId: alarm.id)
-        }
-        backgoundTaskScheduler.cancelTasks(identifiers: backgroundTaskIdentifiers)
         
-        // #3. 사운드 작업
-        alarmAudioController.stopAndRemove(
-            id: KeyGenerator.audioTask(alarmId: alarm.id)
-        )
+        if content.contains(.backgroundTask) {
+            // #2. 백그라운드 작업
+            let backgroundTaskIdentifiers = AlarmBackgoundTaskType.allCases.map { type in
+                KeyGenerator.backgroundTask(type: type, alarmId: alarm.id)
+            }
+            backgoundTaskScheduler.cancelTasks(identifiers: backgroundTaskIdentifiers)
+            
+            // #3. 사운드 작업
+            alarmAudioController.stopAndRemove(
+                id: KeyGenerator.audioTask(alarmId: alarm.id)
+            )
+        }
     }
 }

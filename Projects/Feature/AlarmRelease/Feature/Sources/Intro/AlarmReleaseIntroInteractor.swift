@@ -10,6 +10,7 @@ import RxSwift
 import FeatureCommonDependencies
 import FeatureResources
 import FeatureAlarmCommon
+import FeatureAlarmController
 
 public enum AlarmReleaseIntroRouterRequest {
     case routeToSnooze(SnoozeOption)
@@ -41,6 +42,9 @@ public protocol AlarmReleaseIntroListener: AnyObject {
 }
 
 final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntroPresentable>, AlarmReleaseIntroInteractable, AlarmReleaseIntroPresentableListener {
+    
+    // Dependency
+    private let alarmController: AlarmController
 
     weak var router: AlarmReleaseIntroRouting?
     weak var listener: AlarmReleaseIntroListener?
@@ -50,10 +54,12 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     init(
         presenter: AlarmReleaseIntroPresentable,
         alarm: Alarm,
-        isFirstAlarm: Bool
+        isFirstAlarm: Bool,
+        alarmController: AlarmController
     ) {
         self.alarm = alarm
         self.isFirstAlarm = isFirstAlarm
+        self.alarmController = alarmController
         remainSnoozeCount = alarm.snoozeOption.count.rawValue
         super.init(presenter: presenter)
         presenter.listener = self
@@ -96,15 +102,16 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     }
     
     private func playAlarm() {
-        guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
-        
+//        guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
+//        
 //        VolumeManager.setVolume(alarm.soundOption.volume)
 //        AudioPlayerManager.shared.activateSession()
 //        AudioPlayerManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
     }
     
     private func stopAlarm() {
-        AudioPlayerManager.shared.stopPlayingSound()
+//        AudioPlayerManager.shared.stopPlayingSound()
+        alarmController.unscheduleAlarmBackgroundTask(alarm: alarm)
     }
 }
 

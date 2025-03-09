@@ -281,7 +281,15 @@ public extension DefaultAlarmController {
     }
     
     func unscheduleAlarm(alarm: Alarm) {
-        alarmScheduler.unschedule(alarm: alarm)
+        alarmScheduler.unschedule(content: .all, alarm: alarm)
+    }
+    
+    func unscheduleAlarmNotification(alarm: Alarm) {
+        alarmScheduler.unschedule(content: [.localNotification], alarm: alarm)
+    }
+    
+    func unscheduleAlarmBackgroundTask(alarm: Alarm) {
+        alarmScheduler.unschedule(content: [.backgroundTask], alarm: alarm)
     }
     
     func rescheduleActiveAlarmsBackground(completion: ((Result<Void, AlarmControllerError>) -> Void)?) {
