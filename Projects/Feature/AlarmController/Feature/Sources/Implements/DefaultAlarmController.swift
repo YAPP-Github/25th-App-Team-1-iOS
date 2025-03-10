@@ -6,6 +6,7 @@
 //
 
 import UserNotifications
+import CoreData
 
 import FeatureCommonEntity
 
@@ -38,46 +39,13 @@ public final class DefaultAlarmController: NSObject, AlarmController, UNUserNoti
 // MARK: Alarm CRUD
 public extension DefaultAlarmController {
     func createAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?) {
-        coreDataService.performAsyncTask(type: .background) { context, completion in
-            // #1. Repeat days
-            let repeatDays = alarm.repeatDays
-            let alarmDaysEntity = AlarmDaysEntity(context: context)
-            if repeatDays.days.isEmpty {
-                alarmDaysEntity.days = nil
-            } else {
-                alarmDaysEntity.days = repeatDays.days.map({String($0.rawValue) }).joined(separator: ",")
+        coreDataService.performAsyncTask(type: .background) { [weak self] context, completion in
+            guard let self else {
+                completion(.failure(AlarmControllerError.dataSavingError))
+                return
             }
-            alarmDaysEntity.shoundTurnOffHolidayAlarm = repeatDays.shoundTurnOffHolidayAlarm
-            
-            //#2. Snooze option
-            let snoozeOption = alarm.snoozeOption
-            let snoozeOptionEntity = SnoozeOptionEntity(context: context)
-            snoozeOptionEntity.count = Int16(snoozeOption.count.rawValue)
-            snoozeOptionEntity.frequencyMinute = Int16(snoozeOption.frequency.rawValue)
-            snoozeOptionEntity.isOn = snoozeOption.isSnoozeOn
-            
-            // #3. Sound option
-            let soundOption = alarm.soundOption
-            let soundOptionEntity = SoundOptionEntity(context: context)
-            soundOptionEntity.isSoundOn = soundOption.isSoundOn
-            soundOptionEntity.isVibrationOn = soundOption.isVibrationOn
-            soundOptionEntity.selectedSound = soundOption.selectedSound
-            soundOptionEntity.volume = soundOption.volume
-            
-            // #4. Alarm
-            let alarmEntity = AlarmEntity(context: context)
-            alarmEntity.id = alarm.id
-            alarmEntity.meridiem = alarm.meridiem.rawValue
-            alarmEntity.hour = Int16(alarm.hour.value)
-            alarmEntity.minute = Int16(alarm.minute.value)
-            alarmEntity.isActive = alarm.isActive
-            
-            // - Releation
-            alarmEntity.repeatDays = alarmDaysEntity
-            alarmEntity.snoozeOption = snoozeOptionEntity
-            alarmEntity.soundOption = soundOptionEntity
-            
             do {
+                create(alarm: alarm, context: context)
                 try context.save()
                 completion(.success(()))
             } catch {
@@ -94,6 +62,24 @@ public extension DefaultAlarmController {
             }
         })
         .disposed(by: disposeBag)
+    }
+    
+    func createAlarms(alarms: [Alarm]) -> Result<Void, AlarmControllerError> {
+        coreDataService.performSyncTask { [weak self] context in
+            guard let self else {
+                return .failure(AlarmControllerError.dataSavingError)
+            }
+            for alarm in alarms {
+                create(alarm: alarm, context: context)
+            }
+            do {
+                try context.save()
+                return .success(())
+            } catch {
+                debugPrint("\(#function), 알람저장실패: \(error.localizedDescription)")
+                return .failure(.dataSavingError)
+            }
+        }
     }
     
     func readAlarms() -> Result<[Alarm], AlarmControllerError> {
@@ -310,6 +296,51 @@ public extension DefaultAlarmController {
 
 // MARK: Convert entity to Alarm
 private extension DefaultAlarmController {
+    /// 호출쓰레드와 context큐 or 쓰레드가 반드시 일치해야한다.
+    @discardableResult
+    func create(alarm: Alarm, context: NSManagedObjectContext) -> AlarmEntity {
+        
+        // #1. Repeat days
+        let repeatDays = alarm.repeatDays
+        let alarmDaysEntity = AlarmDaysEntity(context: context)
+        if repeatDays.days.isEmpty {
+            alarmDaysEntity.days = nil
+        } else {
+            alarmDaysEntity.days = repeatDays.days.map({String($0.rawValue) }).joined(separator: ",")
+        }
+        alarmDaysEntity.shoundTurnOffHolidayAlarm = repeatDays.shoundTurnOffHolidayAlarm
+        
+        //#2. Snooze option
+        let snoozeOption = alarm.snoozeOption
+        let snoozeOptionEntity = SnoozeOptionEntity(context: context)
+        snoozeOptionEntity.count = Int16(snoozeOption.count.rawValue)
+        snoozeOptionEntity.frequencyMinute = Int16(snoozeOption.frequency.rawValue)
+        snoozeOptionEntity.isOn = snoozeOption.isSnoozeOn
+        
+        // #3. Sound option
+        let soundOption = alarm.soundOption
+        let soundOptionEntity = SoundOptionEntity(context: context)
+        soundOptionEntity.isSoundOn = soundOption.isSoundOn
+        soundOptionEntity.isVibrationOn = soundOption.isVibrationOn
+        soundOptionEntity.selectedSound = soundOption.selectedSound
+        soundOptionEntity.volume = soundOption.volume
+        
+        // #4. Alarm
+        let alarmEntity = AlarmEntity(context: context)
+        alarmEntity.id = alarm.id
+        alarmEntity.meridiem = alarm.meridiem.rawValue
+        alarmEntity.hour = Int16(alarm.hour.value)
+        alarmEntity.minute = Int16(alarm.minute.value)
+        alarmEntity.isActive = alarm.isActive
+        
+        // - Releation
+        alarmEntity.repeatDays = alarmDaysEntity
+        alarmEntity.snoozeOption = snoozeOptionEntity
+        alarmEntity.soundOption = soundOptionEntity
+        
+        return alarmEntity
+    }
+    
     func convert(alarmEntity: AlarmEntity) -> Alarm {
         // #1. repeatDays
         let repeatDaysEntity = alarmEntity.repeatDays!

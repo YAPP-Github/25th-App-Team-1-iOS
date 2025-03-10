@@ -10,6 +10,7 @@ import FeatureCommonEntity
 public protocol AlarmController {
     // - Alarm CRUD
     func createAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
+    func createAlarms(alarms: [Alarm]) -> Result<Void, AlarmControllerError>
     func readAlarms() -> Result<[Alarm], AlarmControllerError>
     func readAlarms(completion: @escaping (Result<[Alarm], AlarmControllerError>) -> ())
     func updateAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)

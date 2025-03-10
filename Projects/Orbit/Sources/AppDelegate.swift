@@ -44,6 +44,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 //        AlarmScheduler.shared.registerBackgroundTask()
         
         
+        // MARK: Migrantion UserDefaults --> CoreData
+        migrateAlarms()
+        
+        
         // 앱을 종료시키지 않음
         BackgroundMaintainer.shared.activate()
         
@@ -63,6 +67,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     private var alarmController: AlarmController?
     private let jsonDecoder = JSONDecoder()
+}
+
+
+// MARK: Alarm migration
+extension AppDelegate {
+    func migrateAlarms() {
+        guard let alarmController else { fatalError() }
+        let alarmMigrationKey = "alarmMigrationFinished"
+        let isAlarmMigrationed = UserDefaults.standard.bool(forKey: alarmMigrationKey)
+        if isAlarmMigrationed == false {
+            let alarms = AlarmStore.shared.getAll()
+            let result = alarmController.createAlarms(alarms: alarms)
+            switch result {
+            case .success:
+                alarms.forEach(AlarmStore.shared.delete)
+                UserDefaults.standard.set(true, forKey: alarmMigrationKey)
+            case .failure(let error):
+                debugPrint("알람데이터 미그레이션 실패")
+            }
+        }
+    }
 }
 
 
