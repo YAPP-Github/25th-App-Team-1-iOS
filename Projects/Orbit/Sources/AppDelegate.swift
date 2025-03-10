@@ -85,7 +85,7 @@ extension AppDelegate {
                 UserDefaults.standard.set(true, forKey: alarmMigrationKey)
                 debugPrint("알람데이터 미그레이션 성공")
             case .failure(let error):
-                debugPrint("알람데이터 미그레이션 실패")
+                debugPrint("알람데이터 미그레이션 실패 \(error.localizedDescription)")
             }
         }
     }
