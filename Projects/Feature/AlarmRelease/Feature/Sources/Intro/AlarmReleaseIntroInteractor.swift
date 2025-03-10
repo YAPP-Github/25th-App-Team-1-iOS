@@ -69,7 +69,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         super.didBecomeActive()
         
         // 백그라운드 알람 종료
-        alarmController.inactivateAlarmBackgroundTask(alarm: alarm)
+        alarmController.inactivateAlarmWithoutConsecutiveAlarmTask(alarm: alarm)
         
         // 알람 릴리즈화면 전용 사운드 재생
         playAlarm()

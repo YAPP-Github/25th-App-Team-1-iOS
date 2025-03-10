@@ -22,6 +22,5 @@ public protocol AlarmController {
     func scheduleBackgroundTask(alarm: Alarm)
     func rescheduleActiveAlarmsBackgroundTasks() -> Result<Void, AlarmControllerError>
     func unscheduleAlarm(alarm: Alarm)
-    func inactivateAlarmLocalNotifications(alarm: Alarm)
-    func inactivateAlarmBackgroundTask(alarm: Alarm)
+    func inactivateAlarmWithoutConsecutiveAlarmTask(alarm: Alarm)
 }

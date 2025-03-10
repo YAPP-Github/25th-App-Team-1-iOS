@@ -263,19 +263,9 @@ public extension DefaultAlarmController {
         alarmScheduler.inactivateSchedule(contents: .all, alarm: alarm)
     }
     
-    func inactivateAlarmLocalNotifications(alarm: Alarm) {
+    func inactivateAlarmWithoutConsecutiveAlarmTask(alarm: Alarm) {
         alarmScheduler.inactivateSchedule(
-            contents: [
-                .initialLocalNotification,
-                .registerLocalNotificationRepeatedly
-            ],
-            alarm: alarm
-        )
-    }
-    
-    func inactivateAlarmBackgroundTask(alarm: Alarm) {
-        alarmScheduler.inactivateSchedule(
-            contents: .backgroundTasks,
+            contents: .all.filter({ $0 != .registerConsecutiveAlarm }),
             alarm: alarm
         )
     }

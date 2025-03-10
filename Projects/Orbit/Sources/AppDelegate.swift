@@ -128,7 +128,6 @@ extension AppDelegate {
     func handleAlarmNotification(notification: UNNotification) {
         guard let codable = notification.request.content.userInfo["alarm"] as? Data,
               let alarm = try? jsonDecoder.decode(Alarm.self, from: codable) else { return }
-        alarmController?.inactivateAlarmLocalNotifications(alarm: alarm)
         alarmIdHandler?.handle(alarm.id)
     }
 }

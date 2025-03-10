@@ -103,22 +103,18 @@ extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
         case .viewDidLoad:
-            alarmController.readAlarms { result in
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    switch result {
-                    case .success(let fetchedAlarms):
-                        clearAlarms()
-                        insertAlarms(alarms: fetchedAlarms)
-                        
-                        let alarmROs = transform(alarmList: fetchedAlarms)
-                        clearAlarmROs()
-                        insertAlarmROs(ros: alarmROs)
-                        presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
-                    case .failure(let error):
-                        debugPrint("Error, \(error.localizedDescription)")
-                    }
-                }
+            let alarmFetchResult = alarmController.readAlarms()
+            switch alarmFetchResult {
+            case .success(let fetchedAlarms):
+                clearAlarms()
+                insertAlarms(alarms: fetchedAlarms)
+                
+                let alarmROs = transform(alarmList: fetchedAlarms)
+                clearAlarmROs()
+                insertAlarmROs(ros: alarmROs)
+                presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
+            case .failure(let error):
+                debugPrint("Error, \(error.localizedDescription)")
             }
         case .viewWillAppear:
             // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
@@ -189,7 +185,7 @@ extension MainPageInteractor {
             router?.request(.routeToCreateEditAlarm(mode: .create))
         case let .editAlarm(alarmId):
             guard let alarm = alarms[alarmId] else { return }
-            alarmController.unscheduleAlarm(alarm: alarm)
+            if alarm.isActive { alarmController.unscheduleAlarm(alarm: alarm) }
             router?.request(.routeToCreateEditAlarm(mode: .edit(alarm)))
         case let .changeAlarmActivityState(alarmId):
             guard var alarm = alarms[alarmId] else { return }
@@ -378,9 +374,7 @@ extension MainPageInteractor {
                             willDeleteAlarms.forEach { alarm in
                                 // 복구
                                 self.alarmController.createAlarm(alarm: alarm, completion: nil)
-                                if alarm.isActive {
-                                    self.alarmController.scheduleAlarm(alarm: alarm)
-                                }
+                                if alarm.isActive { self.alarmController.scheduleAlarm(alarm: alarm) }
                                 self.insertAlarm(alarm: alarm)
                                 self.insertAlarmRO(ro: self.transform(alarm: alarm))
                             }
@@ -508,7 +502,7 @@ extension MainPageInteractor {
             
         case let .updated(alarm):
             alarmController.updateAlarm(alarm: alarm, completion: nil)
-            alarmController.scheduleAlarm(alarm: alarm)
+            if alarm.isActive { alarmController.scheduleAlarm(alarm: alarm) }
             insertAlarm(alarm: alarm)
             insertAlarmRO(ro: transform(alarm: alarm))
         case let .deleted(alarm):
