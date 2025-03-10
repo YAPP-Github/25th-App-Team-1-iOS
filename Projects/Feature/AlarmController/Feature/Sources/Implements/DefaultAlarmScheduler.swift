@@ -133,15 +133,7 @@ public extension DefaultAlarmScheduler {
                         type: .once,
                         task: { [weak self] _ in
                             guard let self else { return }
-                            // 알람 사운드 재생
-                            let soundOption = alarm.soundOption
-                            if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
-                                alarmAudioController.play(
-                                    id: KeyGenerator.audioTask(alarmId: alarm.id),
-                                    audioURL: audioURL,
-                                    volume: soundOption.volume
-                                )
-                            }
+                            schedule(contents: contents, alarm: alarm)
                         })
                 }
             case .audio:
