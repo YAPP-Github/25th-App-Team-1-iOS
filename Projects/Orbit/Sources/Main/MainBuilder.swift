@@ -6,12 +6,13 @@
 //
 
 import RIBs
+
 import FeatureOnboarding
 import FeatureMain
+import FeatureAlarmController
 
 protocol MainDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var alarmController: AlarmController { get }
 }
 
 final class MainComponent: Component<MainDependency> {
@@ -41,7 +42,10 @@ final class MainBuilder: Builder<MainDependency>, MainBuildable {
         let viewController = MainViewController()
         let component = MainComponent(dependency: dependency, viewController: viewController)
         
-        let interactor = MainInteractor(presenter: viewController)
+        let interactor = MainInteractor(
+            presenter: viewController,
+            alarmController: dependency.alarmController
+        )
         let onboardingBuilder = FeatureOnboarding.RootBuilder(dependency: component)
         let mainBuilder = FeatureMain.MainPageBuilder(dependency: component)
         let router = MainRouter(

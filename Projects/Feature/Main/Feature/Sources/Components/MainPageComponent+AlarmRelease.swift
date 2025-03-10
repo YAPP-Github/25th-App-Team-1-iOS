@@ -6,5 +6,8 @@
 //
 
 import FeatureAlarmRelease
+import FeatureAlarmController
 
-extension MainPageComponent: FeatureAlarmRelease.AlarmReleaseIntroDependency {}
+extension MainPageComponent: AlarmReleaseIntroDependency {
+    var alarmController: AlarmController { dependency.alarmController }
+}

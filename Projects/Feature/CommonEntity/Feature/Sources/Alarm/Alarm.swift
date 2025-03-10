@@ -19,6 +19,7 @@ public struct Alarm: Identifiable, Equatable, Codable, Hashable {
     
     // 초기화 메서드
     public init(
+        id: String = UUID().uuidString,
         meridiem: Meridiem,
         hour: Hour,
         minute: Minute,
@@ -27,7 +28,7 @@ public struct Alarm: Identifiable, Equatable, Codable, Hashable {
         soundOption: SoundOption,
         isActive: Bool = true
     ) {
-        self.id = UUID().uuidString
+        self.id = id
         self.meridiem = meridiem
         self.hour = hour
         self.minute = minute

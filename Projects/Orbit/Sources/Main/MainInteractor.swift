@@ -15,6 +15,7 @@ import FeatureResources
 import FeatureMain
 import UserNotifications
 import FeatureAlarmCommon
+import FeatureAlarmController
 
 protocol RootActionableItem: AnyObject {
     func waitFoOnboarding() -> Observable<(MainPageActionableItem, ())>
@@ -45,13 +46,17 @@ protocol MainListener: AnyObject {
 }
 
 final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteractable, MainPresentableListener {
+    
+    // Dependency
+    private let alarmController: AlarmController
 
     weak var router: MainRouting?
     weak var listener: MainListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: MainPresentable) {
+    init(presenter: MainPresentable, alarmController: AlarmController) {
+        self.alarmController = alarmController
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -76,10 +81,23 @@ extension MainInteractor {
         switch request {
         case let .start(alarm):
             router?.request(.detachOnboarding)
-            AlarmScheduler.shared.addAlarm(alarm)
+            
+            alarmController.createAlarm(alarm: alarm) { [weak self] result in
+                guard let self else { return }
+                switch result {
+                case .success:
+                    debugPrint("온보딩 알람생성 성공")
+                    alarmController.scheduleAlarm(alarm: alarm)
+                case .failure(let error):
+                    debugPrint("온보딩 알람생성 실패 \(error.localizedDescription)")
+                }
+            }
+            
             router?.request(.routeToMain { [weak self] actionableItem in
                 self?.mainPageActionableItemSubject.onNext(actionableItem)
             })
+            
+//            AlarmScheduler.shared.addAlarm(alarm)
         }
     }
 }

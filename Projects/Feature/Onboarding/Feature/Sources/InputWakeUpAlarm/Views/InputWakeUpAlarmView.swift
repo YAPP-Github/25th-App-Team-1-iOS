@@ -156,8 +156,3 @@ extension InputWakeUpAlarmView {
         listener?.action(.alarmPicker(meridiem, hour, minute))
     }
 }
-
-#Preview {
-    
-    InputWakeUpAlarmView()
-}

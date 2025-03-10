@@ -11,8 +11,11 @@ import FeatureAlarmMission
 import FeatureFortune
 import FeatureAlarmRelease
 import FeatureSetting
+import FeatureAlarmController
 
-public protocol MainPageDependency: Dependency {}
+public protocol MainPageDependency: Dependency {
+    var alarmController: AlarmController { get }
+}
 
 final class MainPageComponent: Component<MainPageDependency> {
     let viewController: MainPageViewControllable
@@ -40,7 +43,10 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
     public func build(withListener listener: MainPageListener) -> (router: MainPageRouting, actionableItem: MainPageActionableItem) {
         let viewController = MainPageViewController()
         let component = MainPageComponent(dependency: dependency, viewController: viewController)
-        let interactor = MainPageInteractor(presenter: viewController, service: component.service)
+        let interactor = MainPageInteractor(
+            presenter: viewController,
+            alarmController: dependency.alarmController
+        )
         interactor.listener = listener
         
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
