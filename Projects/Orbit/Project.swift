@@ -19,10 +19,10 @@ let project = Project(
                 "CFBundleShortVersionString": "1.0.1",
                 "NSPhotoLibraryUsageDescription": "부적 이미지를 저장하기 위해서는 앨범 접근 권한이 필요해요!",
                 "UIBackgroundModes": [
-                    "processing"
+                    "processing", "audio"
                 ],
                 "BGTaskSchedulerPermittedIdentifiers": [
-                    "com.yaf.orbit.checkAndScheduleAlarm"
+                    "com.yaf.orbit.checkAndScheduleAlarm",
                 ]
             ]),
             sources: ["Sources/**"],
