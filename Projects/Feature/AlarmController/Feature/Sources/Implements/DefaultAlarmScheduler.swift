@@ -109,13 +109,13 @@ public extension DefaultAlarmScheduler {
                 backgoundTaskScheduler.register(
                     id: KeyGenerator.backgroundTask(content: content.contentKey, alarmId: alarm.id),
                     startDate: alarmDate,
-                    type: .repeats(intervalSeconds: 4, count: .limit(count: notificationLimit))) { [weak self] index in
+                    type: .repeats(intervalSeconds: 4, count: .limit(count: notificationLimit))) { [weak self] _ in
                         guard let self else { return }
                         let calendar = Calendar.current
                         let notificationDate = calendar.date(byAdding: .second, value: 4, to: .now)!
                         let notificationId = KeyGenerator.notification(alarmId: alarm.id)
                         registerNotification(
-                            id: notificationId+String(index),
+                            id: notificationId,
                             date: notificationDate,
                             title: AlarmNotificationConfig.defaultTitle,
                             message: AlarmNotificationConfig.defaultMessage,
@@ -133,7 +133,9 @@ public extension DefaultAlarmScheduler {
                         type: .once,
                         task: { [weak self] _ in
                             guard let self else { return }
-                            schedule(contents: contents, alarm: alarm)
+                            var newAlarm = alarm
+                            newAlarm.id = "\(alarm.id)_\(UUID().uuidString)"
+                            schedule(contents: contents, alarm: newAlarm)
                         })
                 }
             case .audio:
@@ -174,37 +176,45 @@ public extension DefaultAlarmScheduler {
             }
         }
     }
-    
-    func inactivateSchedule(contents: [AlarmScheduleContent],  alarm: Alarm) {
-        let alarmId = alarm.id
+
+    func inactivateSchedule(matchingType: IdMatchingType, contents: [AlarmScheduleContent], alarm: Alarm) {
         var backgroundTaskIdentifiers: [String] = []
         contents.forEach { content in
             switch content {
             case .initialLocalNotification:
                 let notiCenter = UNUserNotificationCenter.current()
                 let notificationId = KeyGenerator.notification(alarmId: alarm.id)
-                notiCenter.getPendingNotificationRequests { requests in
-                    let identifiers = requests
-                        .filter({ $0.identifier.contains(notificationId) })
-                        .map({ $0.identifier })
-                    notiCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+                switch matchingType {
+                case .exact:
+                    notiCenter.removePendingNotificationRequests(withIdentifiers: [notificationId])
+                case .contains:
+                    notiCenter.getPendingNotificationRequests { requests in
+                        let identifiers = requests
+                            .map(\.identifier)
+                            .filter({ $0.contains(notificationId) })
+                        notiCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+                    }
                 }
             case .audio:
                 // 재생중이던 오디오 정지 및 삭제
                 alarmAudioController.stopAndRemove(
+                    matchingType: matchingType,
                     id: KeyGenerator.audioTask(alarmId: alarm.id)
                 )
                 backgroundTaskIdentifiers.append(KeyGenerator.backgroundTask(
                     content: content.contentKey,
-                    alarmId: alarmId
+                    alarmId: alarm.id
                 ))
             case .registerLocalNotificationRepeatedly, .registerConsecutiveAlarm, .vibration:
                 backgroundTaskIdentifiers.append(KeyGenerator.backgroundTask(
                     content: content.contentKey,
-                    alarmId: alarmId
+                    alarmId: alarm.id
                 ))
             }
         }
-        backgoundTaskScheduler.cancelTasks(identifiers: backgroundTaskIdentifiers)
+        backgoundTaskScheduler.cancelTasks(
+            matchType: matchingType,
+            identifiers: backgroundTaskIdentifiers
+        )
     }
 }

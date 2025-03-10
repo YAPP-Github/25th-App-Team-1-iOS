@@ -8,6 +8,7 @@
 public enum AlarmControllerError: Error {
     case dataSavingError
     case dataFetchError
+    case dataDeletionError
     case alarmRegisterError
     
     public var message: String {
@@ -18,6 +19,8 @@ public enum AlarmControllerError: Error {
             "알람을 불러오는 과정에서 문제가 발생했습니다."
         case .alarmRegisterError:
             "알람을 등록하는 과정에서 문제가 발생했습니다."
+        case .dataDeletionError:
+            "알람을 삭제하는 과정에서 문제가 발생했습니다."
         }
     }
 }

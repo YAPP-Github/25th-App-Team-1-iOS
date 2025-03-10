@@ -96,21 +96,36 @@ public extension DefaultBackgoundTaskScheduler {
         register(id: id, workItem: dispatchWorkItem)
     }
     
-    func cancelTask(id: String) {
+    func cancelTask(matchType: IdMatchingType, id: String) {
         workDictLock.lock()
         defer { workDictLock.unlock() }
-        workDict[id]?.cancel()
-        workDict[id] = nil
-        workDict.removeValue(forKey: id)
+        nolock_cancelTask(matchType: matchType, id: id)
     }
     
-    func cancelTasks(identifiers: [String]) {
+    func cancelTasks(matchType: IdMatchingType, identifiers: [String]) {
         workDictLock.lock()
         defer { workDictLock.unlock() }
         identifiers.forEach { id in
+            nolock_cancelTask(matchType: matchType, id: id)
+        }
+    }
+    
+    private func nolock_cancelTask(matchType: IdMatchingType, id: String) {
+        switch matchType {
+        case .exact:
             workDict[id]?.cancel()
             workDict[id] = nil
+            workDict.removeValue(forKey: id)
             debugPrint("\(Self.self), unregister & cancel \(id)")
+        case .contains:
+            workDict.keys
+                .filter { $0.contains(id) }
+                .forEach { id in
+                    workDict[id]?.cancel()
+                    workDict[id] = nil
+                    workDict.removeValue(forKey: id)
+                    debugPrint("\(Self.self), unregister & cancel \(id)")
+                }
         }
     }
 }

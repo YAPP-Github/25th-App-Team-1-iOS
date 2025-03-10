@@ -181,6 +181,22 @@ public extension DefaultAlarmController {
         .disposed(by: disposeBag)
     }
     
+    func removeAlarm(alarm: Alarm) -> Result<Void, AlarmControllerError> {
+        coreDataService.performSyncTask { context in
+            let fetchRequest = AlarmEntity.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", alarm.id)
+            do {
+                let entities = try context.fetch(fetchRequest)
+                guard let alarmEntity = entities.first else { return .success(()) }
+                context.delete(alarmEntity)
+                try context.save()
+                return .success(())
+            } catch {
+                return .failure(.dataDeletionError)
+            }
+        }
+    }
+    
     func removeAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?) {
         coreDataService.performAsyncTask(type: .background) { context, completion in
             let fetchRequest = AlarmEntity.fetchRequest()
@@ -190,6 +206,7 @@ public extension DefaultAlarmController {
                 guard let alarmEntity = entities.first else { throw AlarmControllerError.dataFetchError }
                 context.delete(alarmEntity)
                 try context.save()
+                completion(.success(()))
             } catch {
                 completion(.failure(error))
             }
@@ -200,11 +217,7 @@ public extension DefaultAlarmController {
                 completion?(.success(()))
             case .failure(let error):
                 debugPrint("\(#function), 알람삭제실패: \(error.localizedDescription)")
-                if let alarmManagerErr = error as? AlarmControllerError {
-                    completion?(.failure(alarmManagerErr))
-                } else {
-                    completion?(.failure(.dataSavingError))
-                }
+                completion?(.failure(.dataDeletionError))
             }
         })
         .disposed(by: disposeBag)
@@ -220,6 +233,7 @@ public extension DefaultAlarmController {
                 guard entities.isEmpty == false else { throw AlarmControllerError.dataFetchError }
                 entities.forEach(context.delete(_:))
                 try context.save()
+                completion(.success(()))
             } catch {
                 completion(.failure(error))
             }
@@ -230,11 +244,7 @@ public extension DefaultAlarmController {
                 completion?(.success(()))
             case .failure(let error):
                 debugPrint("\(#function), 알람삭제실패: \(error.localizedDescription)")
-                if let alarmManagerErr = error as? AlarmControllerError {
-                    completion?(.failure(alarmManagerErr))
-                } else {
-                    completion?(.failure(.dataSavingError))
-                }
+                completion?(.failure(.dataDeletionError))
             }
         })
         .disposed(by: disposeBag)
@@ -253,18 +263,28 @@ public extension DefaultAlarmController {
     }
     
     func scheduleBackgroundTask(alarm: Alarm) {
-        alarmScheduler.schedule(
-            contents: .backgroundTasks,
+        alarmScheduler.schedule(contents: .backgroundTasks, alarm: alarm)
+    }
+    
+    func unscheduleAlarm(alarm: Alarm) {
+        alarmScheduler.inactivateSchedule(
+            matchingType: .contains,
+            contents: .all,
             alarm: alarm
         )
     }
     
-    func unscheduleAlarm(alarm: Alarm) {
-        alarmScheduler.inactivateSchedule(contents: .all, alarm: alarm)
+    func unscheduleExactAlarm(alarm: Alarm) {
+        alarmScheduler.inactivateSchedule(
+            matchingType: .exact,
+            contents: .all,
+            alarm: alarm
+        )
     }
     
     func inactivateAlarmWithoutConsecutiveAlarmTask(alarm: Alarm) {
         alarmScheduler.inactivateSchedule(
+            matchingType: .exact,
             contents: .all.filter({ $0 != .registerConsecutiveAlarm }),
             alarm: alarm
         )

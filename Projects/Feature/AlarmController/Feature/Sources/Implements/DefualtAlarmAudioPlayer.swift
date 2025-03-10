@@ -48,11 +48,22 @@ public extension DefualtAlarmAudioController {
         }
     }
     
-    func stopAndRemove(id: String) {
+    func stopAndRemove(matchingType: IdMatchingType, id: String) {
         audioDictLock.lock()
         defer { audioDictLock.unlock() }
-        guard let player = audioDict[id] else { return }
-        player.stop()
-        audioDict.removeValue(forKey: id)
+        switch matchingType {
+        case .exact:
+            guard let player = audioDict[id] else { return }
+            player.stop()
+            audioDict.removeValue(forKey: id)
+        case .contains:
+            audioDict.keys
+                .filter({ $0.contains(id) })
+                .forEach { matchedId in
+                    let player = audioDict[id]!
+                    player.stop()
+                    audioDict.removeValue(forKey: id)
+                }
+        }
     }
 }

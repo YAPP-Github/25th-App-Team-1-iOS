@@ -9,5 +9,5 @@ import Foundation
 
 public protocol AlarmAudioController {
     func play(id: String, audioURL: URL, volume: Float)
-    func stopAndRemove(id: String)
+    func stopAndRemove(matchingType: IdMatchingType, id: String)
 }

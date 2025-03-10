@@ -19,6 +19,6 @@ public enum TaskExecutionCount {
 
 public protocol BackgoundTaskScheduler {
     func register(id: String, startDate: Date, type: TaskExecutionType, task: @escaping (Int) -> Void)
-    func cancelTask(id: String)
-    func cancelTasks(identifiers: [String])
+    func cancelTask(matchType: IdMatchingType, id: String)
+    func cancelTasks(matchType: IdMatchingType, identifiers: [String])
 }

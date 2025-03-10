@@ -39,6 +39,11 @@ public enum AlarmScheduleContent: CaseIterable {
     }
 }
 
+public enum IdMatchingType {
+    case exact
+    case contains
+}
+
 public extension Array where Element == AlarmScheduleContent {
     static var all: [AlarmScheduleContent] { AlarmScheduleContent.allCases }
     
@@ -47,5 +52,5 @@ public extension Array where Element == AlarmScheduleContent {
 
 public protocol AlarmScheduler {   
     func schedule(contents: [AlarmScheduleContent], alarm: Alarm)
-    func inactivateSchedule(contents: [AlarmScheduleContent], alarm: Alarm)
+    func inactivateSchedule(matchingType: IdMatchingType, contents: [AlarmScheduleContent], alarm: Alarm)
 }
