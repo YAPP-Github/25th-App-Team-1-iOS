@@ -67,6 +67,11 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     
     override func didBecomeActive() {
         super.didBecomeActive()
+        
+        // 백그라운드 알람 종료
+        alarmController.inactivateAlarmBackgroundTask(alarm: alarm)
+        
+        // 알람 릴리즈화면 전용 사운드 재생
         playAlarm()
     }
     
@@ -102,17 +107,14 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     }
     
     private func playAlarm() {
-//        guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
-//        
-//        VolumeManager.setVolume(alarm.soundOption.volume)
-//        AudioPlayerManager.shared.activateSession()
-//        AudioPlayerManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
+        guard let soundUrl = R.AlarmSound.allCases.first(where: { $0.title == alarm.soundOption.selectedSound })?.alarm else { return }
+        VolumeManager.setVolume(alarm.soundOption.volume)
+        AudioPlayerManager.shared.activateSession()
+        AudioPlayerManager.shared.playAlarmSound(with: soundUrl, volume: alarm.soundOption.volume, loopCount: -1)
     }
     
     private func stopAlarm() {
-//        AudioPlayerManager.shared.stopPlayingSound()
-        // 알람의 백그라운드 작업을 모두 종료(오디오, 진동)
-        alarmController.inactivateAlarmBackgroundTask(alarm: alarm)
+        AudioPlayerManager.shared.stopPlayingSound()
     }
 }
 
