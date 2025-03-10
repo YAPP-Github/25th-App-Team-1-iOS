@@ -124,7 +124,7 @@ private extension CreateEditAlarmView {
         }
         
         alarmPicker.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.centerY.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
