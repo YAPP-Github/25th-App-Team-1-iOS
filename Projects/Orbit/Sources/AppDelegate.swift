@@ -15,13 +15,14 @@ import RIBs
 import RxSwift
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
-
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    
     var window: UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         let alarmController = DefaultAlarmController()
+        self.alarmController = alarmController
         
         let window = UIWindow(frame: UIScreen.main.bounds)
         let appComponent = AppComponent(alarmController: alarmController)
@@ -31,8 +32,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         launchRouter.launch(from: window)
         self.window = window
         
-//        UNUserNotificationCenter.current().delegate = self
-//        
+        UNUserNotificationCenter.current().delegate = self
+        
+//
 //        BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.yaf.orbit.checkAndScheduleAlarm", using: nil) { task in
 //            // 백그라운드 작업이 실행될 때 handleBackgroundTask 호출
 //            AlarmScheduler.shared.handleBackgroundTask(task)
@@ -46,46 +48,86 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         BackgroundMaintainer.shared.activate()
         
         // 백그라운드 테스크 재등록
-        alarmController.rescheduleActiveAlarmsBackground { result in
-            debugPrint(result)
+        let result = alarmController.rescheduleActiveAlarmsBackgroundTasks()
+        switch result {
+        case .success:
+            debugPrint("앱실행시 알람 재스캐쥴링 성공")
+        case .failure(let error):
+            debugPrint("앱실행시 알람 재스캐쥴링 실패 \(error.localizedDescription)")
         }
-        let onAlarmRecieved = { [weak alarmIdHandler, weak alarmController] (alarm: Alarm) in
-            guard let alarmIdHandler, let alarmController else { return }
-            alarmController.unscheduleAlarmNotification(alarm: alarm)
-            alarmIdHandler.handle(alarm.id)
-        }
-        alarmController.onNotiDeliveredOnForeground = { alarm, completion in
-            defer { completion([]) }
-            guard let alarm else { return }
-            onAlarmRecieved(alarm)
-        }
-        alarmController.onNotiRecieved = { alarm, completion in
-            defer { completion() }
-            guard let alarm else { return }
-            onAlarmRecieved(alarm)
-        }
-        
-        
-        // 앱 종료시 다시 킬 것을 요구하는 노티피케이션 전송
-        
         return true
     }
     
     private var launchRouter: LaunchRouting?
     private var alarmIdHandler: AlarmIdHandler?
+    
+    private var alarmController: AlarmController?
+    private let jsonDecoder = JSONDecoder()
 }
 
 
+// MARK: Application lifecycle event
 extension AppDelegate {
-    
-    func onAppTerminate() {
-        
-        
+    func applicationWillTerminate(_ application: UIApplication) {
+        // MARK: 엑티브 상태의 알람이 있는 경우 앱재실행 노티피케이션 표출
+        if case .success(let alarms) = alarmController?.readAlarms() {
+            for alarm in alarms {
+                if alarm.isActive {
+                    let notificationContent = UNMutableNotificationContent()
+                    notificationContent.title = "앱을 종료하면 알람을 들을 수 없어요"
+                    notificationContent.body = "알람을 눌러 앱을 다시 켜주세요!"
+                    
+                    let calendar = Calendar.current
+                    let notificationDate = calendar.date(byAdding: .second, value: 2, to: .now)!
+                    let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: notificationDate)
+                    let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+                    
+                    let request = UNNotificationRequest(
+                        identifier: "recommend_reopen_app",
+                        content: notificationContent,
+                        trigger: trigger
+                    )
+                    let notificationCenter = UNUserNotificationCenter.current()
+                    notificationCenter.add(request)
+                    break
+                }
+            }
+        }
     }
 }
 
 
-//extension AppDelegate: UNUserNotificationCenterDelegate {
+// MARK: Handle local notification events
+extension AppDelegate {
+    func handleAlarmNotification(notification: UNNotification) {
+        guard let codable = notification.request.content.userInfo["alarm"] as? Data,
+              let alarm = try? jsonDecoder.decode(Alarm.self, from: codable) else { return }
+        alarmController?.inactivateAlarmLocalNotifications(alarm: alarm)
+        alarmIdHandler?.handle(alarm.id)
+    }
+}
+
+
+// MARK: UNUserNotificationCenterDelegate
+extension AppDelegate {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let notification = response.notification
+        let requestId = response.notification.request.identifier
+        if alarmController?.checkIsNotificationAlarm(id: requestId) == true {
+            handleAlarmNotification(notification: notification)
+        }
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        let requestId = notification.request.identifier
+        if alarmController?.checkIsNotificationAlarm(id: requestId) == true {
+            handleAlarmNotification(notification: notification)
+        }
+    }
+}
+
+
 //    func userNotificationCenter(_ center: UNUserNotificationCenter,
 //                                didReceive response: UNNotificationResponse,
 //                                withCompletionHandler completionHandler: @escaping () -> Void) {

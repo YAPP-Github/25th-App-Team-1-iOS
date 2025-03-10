@@ -8,15 +8,44 @@
 import FeatureCommonEntity
 
 public enum AlarmScheduleContent: CaseIterable {
-    case localNotification
-    case backgroundTask
+    case initialLocalNotification
+    case registerLocalNotificationRepeatedly
+    case audio
+    case registerConsecutiveAlarm
+    case vibration
+    
+    var contentKey: String {
+        switch self {
+        case .initialLocalNotification:
+            "initialLocalNotification"
+        case .registerLocalNotificationRepeatedly:
+            "repeatLocalNotification"
+        case .audio:
+            "audio"
+        case .registerConsecutiveAlarm:
+            "registerConsecutiveAlarm"
+        case .vibration:
+            "vibration"
+        }
+    }
+    
+    static var backgroundTasks: [Self] {
+        [
+            .registerLocalNotificationRepeatedly,
+            .audio,
+            .registerConsecutiveAlarm,
+            .vibration,
+        ]
+    }
 }
 
 public extension Array where Element == AlarmScheduleContent {
     static var all: [AlarmScheduleContent] { AlarmScheduleContent.allCases }
+    
+    static var backgroundTasks: [AlarmScheduleContent] { AlarmScheduleContent.backgroundTasks }
 }
 
 public protocol AlarmScheduler {   
-    func schedule(content: [AlarmScheduleContent], alarm: Alarm)
-    func unschedule(content: [AlarmScheduleContent], alarm: Alarm)
+    func schedule(contents: [AlarmScheduleContent], alarm: Alarm)
+    func inactivateSchedule(contents: [AlarmScheduleContent], alarm: Alarm)
 }

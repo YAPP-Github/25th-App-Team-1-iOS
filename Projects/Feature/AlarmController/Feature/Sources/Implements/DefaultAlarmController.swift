@@ -17,11 +17,6 @@ public final class DefaultAlarmController: NSObject, AlarmController, UNUserNoti
     private let alarmScheduler: AlarmScheduler
     
     
-    // Closure
-    public var onNotiDeliveredOnForeground: ((Alarm?, (UNNotificationPresentationOptions) -> Void) -> Void)?
-    public var onNotiRecieved: ((Alarm?, () -> Void) -> Void)?
-    
-    
     // Util
     private let jsonDecoder = JSONDecoder()
     private let disposeBag = DisposeBag()
@@ -36,29 +31,6 @@ public final class DefaultAlarmController: NSObject, AlarmController, UNUserNoti
         self.coreDataService = coreDataService
         self.alarmScheduler = alarmScheduler
         super.init()
-        UNUserNotificationCenter.current().delegate = self
-    }
-}
-
-
-// MARK: UNUserNotificationCenterDelegate
-public extension DefaultAlarmController {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        if let codable = notification.request.content.userInfo["alarm"] as? Data,
-        let alarm = try? jsonDecoder.decode(Alarm.self, from: codable) {
-            onNotiDeliveredOnForeground?(alarm, completionHandler)
-        } else {
-            onNotiDeliveredOnForeground?(nil, completionHandler)
-        }
-    }
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if let codable = response.notification.request.content.userInfo["alarm"] as? Data,
-        let alarm = try? jsonDecoder.decode(Alarm.self, from: codable) {
-            onNotiRecieved?(alarm, completionHandler)
-        } else {
-            onNotiRecieved?(nil, completionHandler)
-        }
     }
 }
 
@@ -122,6 +94,20 @@ public extension DefaultAlarmController {
             }
         })
         .disposed(by: disposeBag)
+    }
+    
+    func readAlarms() -> Result<[Alarm], AlarmControllerError> {
+        return coreDataService.performSyncTask { [weak self] context in
+            guard let self else { return .failure(AlarmControllerError.dataFetchError) }
+            let fetchRequest = AlarmEntity.fetchRequest()
+            do {
+                let entities = try context.fetch(fetchRequest)
+                return .success(entities.map(convert(alarmEntity:)))
+            } catch {
+                debugPrint("\(#function), 알람획득실패: \(error.localizedDescription)")
+                return .failure(AlarmControllerError.dataFetchError)
+            }
+        }
     }
     
     func readAlarms(completion: @escaping (Result<[Alarm], AlarmControllerError>) -> ()) {
@@ -272,39 +258,52 @@ public extension DefaultAlarmController {
 
 // MARK: Alarm Scheduling
 public extension DefaultAlarmController {
-    func scheduleAlarm(alarm: Alarm) {
-        alarmScheduler.schedule(content: .all, alarm: alarm)
+    func checkIsNotificationAlarm(id: String) -> Bool {
+        id.contains(KeyGenerator.notification(alarmId: ""))
     }
     
-    func scheduleBackground(alarm: Alarm) {
-        alarmScheduler.schedule(content: [.backgroundTask], alarm: alarm)
+    func scheduleAlarm(alarm: Alarm) {
+        alarmScheduler.schedule(contents: .all, alarm: alarm)
+    }
+    
+    func scheduleBackgroundTask(alarm: Alarm) {
+        alarmScheduler.schedule(
+            contents: .backgroundTasks,
+            alarm: alarm
+        )
     }
     
     func unscheduleAlarm(alarm: Alarm) {
-        alarmScheduler.unschedule(content: .all, alarm: alarm)
+        alarmScheduler.inactivateSchedule(contents: .all, alarm: alarm)
     }
     
-    func unscheduleAlarmNotification(alarm: Alarm) {
-        alarmScheduler.unschedule(content: [.localNotification], alarm: alarm)
+    func inactivateAlarmLocalNotifications(alarm: Alarm) {
+        alarmScheduler.inactivateSchedule(
+            contents: [
+                .initialLocalNotification,
+                .registerLocalNotificationRepeatedly
+            ],
+            alarm: alarm
+        )
     }
     
-    func unscheduleAlarmBackgroundTask(alarm: Alarm) {
-        alarmScheduler.unschedule(content: [.backgroundTask], alarm: alarm)
+    func inactivateAlarmBackgroundTask(alarm: Alarm) {
+        alarmScheduler.inactivateSchedule(
+            contents: .backgroundTasks,
+            alarm: alarm
+        )
     }
     
-    func rescheduleActiveAlarmsBackground(completion: ((Result<Void, AlarmControllerError>) -> Void)?) {
-        readAlarms(completion: { [weak self] reuslt in
-            guard let self else { return }
-            switch reuslt {
-            case .success(let alarms):
-                alarms
-                    .filter(\.isActive)
-                    .forEach({ self.scheduleBackground(alarm: $0) })
-                completion?(.success(()))
-            case .failure(let error):
-                completion?(.failure(error))
-            }
-        })
+    func rescheduleActiveAlarmsBackgroundTasks() -> Result<Void, AlarmControllerError> {
+        switch readAlarms() {
+        case .success(let alarms):
+            alarms
+                .filter(\.isActive)
+                .forEach(scheduleBackgroundTask(alarm:))
+            return .success(())
+        case .failure(let error):
+            return .failure(error)
+        }
     }
 }
 

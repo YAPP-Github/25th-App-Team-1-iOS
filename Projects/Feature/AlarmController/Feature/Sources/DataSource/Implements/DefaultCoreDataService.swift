@@ -40,17 +40,19 @@ public final class DefaultCoreDataService: CoreDataService {
 
 // MARK: CoreDataService
 public extension DefaultCoreDataService {
-    func performSyncTask<T>(closure: @escaping (NSManagedObjectContext) -> Result<T, any Error>) -> Result<T, any Error> {
+    func performSyncTask<T, F>(closure: @escaping (NSManagedObjectContext) -> Result<T, F>) -> Result<T, F> where F: Error {
         let context = backgroundContext
-        var result: Result<T, any Error>!
-        context.performAndWait { result = closure(context) }
-        return result
+        var result: Result<T, F>!
+        context.performAndWait {
+            result = closure(context)
+        }
+        return result!
     }
     
-    func performAsyncTask<T>(type: ContextType, closure: @escaping (NSManagedObjectContext, (Result<T, Error>) -> Void) -> Void) -> Single<Result<T, Error>> {
+    func performAsyncTask<T, F>(type: ContextType, closure: @escaping (NSManagedObjectContext, (Result<T, F>) -> Void) -> Void) -> Single<Result<T, F>> where F: Error {
         let context = getContext(type)
-        return Single.create { [weak self] promise in
-            guard let self else { return Disposables.create() }
+        return Single.create { [weak context] promise in
+            guard let context else { return Disposables.create() }
             context.perform {
                 closure(context) { result in
                     switch result {

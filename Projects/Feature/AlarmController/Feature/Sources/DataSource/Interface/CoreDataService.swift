@@ -15,6 +15,6 @@ public enum ContextType {
 }
 
 public protocol CoreDataService: AnyObject {
-    func performSyncTask<T>(closure: @escaping (NSManagedObjectContext) -> Result<T, any Error>) -> Result<T, any Error>
-    func performAsyncTask<T>(type: ContextType, closure: @escaping (NSManagedObjectContext, (Result<T, Error>) -> Void) -> Void) -> Single<Result<T, Error>>
+    func performSyncTask<T, F>(closure: @escaping (NSManagedObjectContext) -> Result<T, F>) -> Result<T, F> where F: Error
+    func performAsyncTask<T, F>(type: ContextType, closure: @escaping (NSManagedObjectContext, (Result<T, F>) -> Void) -> Void) -> Single<Result<T, F>> where F: Error
 }

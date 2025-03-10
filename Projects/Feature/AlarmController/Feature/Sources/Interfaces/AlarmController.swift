@@ -10,15 +10,17 @@ import FeatureCommonEntity
 public protocol AlarmController {
     // - Alarm CRUD
     func createAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
+    func readAlarms() -> Result<[Alarm], AlarmControllerError>
     func readAlarms(completion: @escaping (Result<[Alarm], AlarmControllerError>) -> ())
     func updateAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     func removeAlarm(alarms: [Alarm], completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     func removeAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     
+    func checkIsNotificationAlarm(id: String) -> Bool
     func scheduleAlarm(alarm: Alarm)
-    func scheduleBackground(alarm: Alarm)
-    func rescheduleActiveAlarmsBackground(completion: ((Result<Void, AlarmControllerError>) -> Void)?)
+    func scheduleBackgroundTask(alarm: Alarm)
+    func rescheduleActiveAlarmsBackgroundTasks() -> Result<Void, AlarmControllerError>
     func unscheduleAlarm(alarm: Alarm)
-    func unscheduleAlarmNotification(alarm: Alarm)
-    func unscheduleAlarmBackgroundTask(alarm: Alarm)
+    func inactivateAlarmLocalNotifications(alarm: Alarm)
+    func inactivateAlarmBackgroundTask(alarm: Alarm)
 }

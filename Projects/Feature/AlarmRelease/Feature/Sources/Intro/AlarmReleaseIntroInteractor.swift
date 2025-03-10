@@ -111,7 +111,8 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     
     private func stopAlarm() {
 //        AudioPlayerManager.shared.stopPlayingSound()
-        alarmController.unscheduleAlarmBackgroundTask(alarm: alarm)
+        // 알람의 백그라운드 작업을 모두 종료(오디오, 진동)
+        alarmController.inactivateAlarmBackgroundTask(alarm: alarm)
     }
 }
 

@@ -77,106 +77,142 @@ public final class DefaultAlarmScheduler: AlarmScheduler {
 
 // MARK: AlarmScheduler
 public extension DefaultAlarmScheduler {
-    func schedule(content: [AlarmScheduleContent], alarm: Alarm) {
+    func schedule(contents: [AlarmScheduleContent], alarm: Alarm) {
         guard let components = alarm.earliestDateComponent(),
               let alarmDate = Calendar.current.date(from: components) else { return }
-        
-        if content.contains(.backgroundTask) {
-            // BackgroundTask1: 사운드 재생, 후속 알람등록 백그라운드 테스크
-            backgoundTaskScheduler.register(
-                id: KeyGenerator.backgroundTask(type: .soundAndRepeatDays, alarmId: alarm.id),
-                startDate: alarmDate,
-                type: .once,
-                task: { [weak self] _ in
-                    guard let self else { return }
-                    // 알람 사운드 재생
-                    let soundOption = alarm.soundOption
-                    if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
-                        alarmAudioController.play(
-                            id: KeyGenerator.audioTask(alarmId: alarm.id),
-                            audioURL: audioURL,
-                            volume: soundOption.volume
+        contents.forEach { content in
+            switch content {
+            case .initialLocalNotification:
+                
+                // MARK: 최초 로컬노티피케이션 등록
+                
+                var notificationUserinfo: [String: Any] = [:]
+                if let encoded = try? jsonEncoder.encode(alarm) {
+                    notificationUserinfo["alarm"] = encoded
+                }
+                let notificationId = KeyGenerator.notification(alarmId: alarm.id)
+                registerNotification(
+                    id: notificationId,
+                    date: alarmDate,
+                    title: AlarmNotificationConfig.defaultTitle,
+                    message: AlarmNotificationConfig.defaultMessage,
+                    userInfo: notificationUserinfo
+                )
+            case .registerLocalNotificationRepeatedly:
+                
+                // MARK: 로컬 노티피케이션 반복등록 작업 등록
+                
+                var notificationUserinfo: [String: Any] = [:]
+                if let encoded = try? jsonEncoder.encode(alarm) {
+                    notificationUserinfo["alarm"] = encoded
+                }
+                backgoundTaskScheduler.register(
+                    id: KeyGenerator.backgroundTask(content: content.contentKey, alarmId: alarm.id),
+                    startDate: alarmDate,
+                    type: .repeats(intervalSeconds: 4, count: .limit(count: notificationLimit))) { [weak self] index in
+                        guard let self else { return }
+                        let calendar = Calendar.current
+                        let notificationDate = calendar.date(byAdding: .second, value: 4, to: .now)!
+                        let notificationId = KeyGenerator.notification(alarmId: alarm.id)
+                        registerNotification(
+                            id: notificationId+String(index),
+                            date: notificationDate,
+                            title: AlarmNotificationConfig.defaultTitle,
+                            message: AlarmNotificationConfig.defaultMessage,
+                            userInfo: notificationUserinfo
                         )
                     }
-                    
-                    // 반복요일이 지정되어 있는 경우 후속 알람 등록
-                    if !alarm.repeatDays.days.isEmpty {
-                        schedule(content: content, alarm: alarm)
-                    }
-                })
-            
-            
-            // BackgroundTask2: 진동
-            if alarm.soundOption.isVibrationOn {
+            case .registerConsecutiveAlarm:
+                
+                // MARK: 반복되는 알람등록 작업 등록
+                
+                if !alarm.repeatDays.days.isEmpty {
+                    backgoundTaskScheduler.register(
+                        id: KeyGenerator.backgroundTask(content: content.contentKey, alarmId: alarm.id),
+                        startDate: alarmDate,
+                        type: .once,
+                        task: { [weak self] _ in
+                            guard let self else { return }
+                            // 알람 사운드 재생
+                            let soundOption = alarm.soundOption
+                            if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
+                                alarmAudioController.play(
+                                    id: KeyGenerator.audioTask(alarmId: alarm.id),
+                                    audioURL: audioURL,
+                                    volume: soundOption.volume
+                                )
+                            }
+                        })
+                }
+            case .audio:
+                
+                // MARK: 알람 소리재생 작업 등록
+                
                 backgoundTaskScheduler.register(
-                    id: KeyGenerator.backgroundTask(type: .vibration, alarmId: alarm.id),
+                    id: KeyGenerator.backgroundTask(content: content.contentKey, alarmId: alarm.id),
                     startDate: alarmDate,
-                    type: .repeats(intervalSeconds: 1, count: .limit(count: 30)),
+                    type: .once,
                     task: { [weak self] _ in
                         guard let self else { return }
-                        vibrationManager.vibarate()
+                        // 알람 사운드 재생
+                        let soundOption = alarm.soundOption
+                        if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
+                            alarmAudioController.play(
+                                id: KeyGenerator.audioTask(alarmId: alarm.id),
+                                audioURL: audioURL,
+                                volume: soundOption.volume
+                            )
+                        }
                     })
-            }
-        }
-        
-        
-        // 로컬 노티피케이션
-        if content.contains(.localNotification) {
-            var notificationUserinfo: [String: Any] = [:]
-            if let encoded = try? jsonEncoder.encode(alarm) {
-                notificationUserinfo["alarm"] = encoded
-            }
-            let notificationId = KeyGenerator.notification(alarmId: alarm.id)
-            registerNotification(
-                id: notificationId,
-                date: alarmDate,
-                title: AlarmNotificationConfig.defaultTitle,
-                message: AlarmNotificationConfig.defaultMessage,
-                userInfo: notificationUserinfo
-            )
-            backgoundTaskScheduler.register(
-                id: KeyGenerator.backgroundTask(type: .notification, alarmId: alarm.id),
-                startDate: alarmDate,
-                type: .repeats(intervalSeconds: 4, count: .limit(count: notificationLimit))) { [weak self] index in
-                    guard let self else { return }
-                    let calendar = Calendar.current
-                    let notificationDate = calendar.date(byAdding: .second, value: 4, to: .now)!
-                    registerNotification(
-                        id: notificationId+String(index),
-                        date: notificationDate,
-                        title: AlarmNotificationConfig.defaultTitle,
-                        message: AlarmNotificationConfig.defaultMessage,
-                        userInfo: notificationUserinfo
-                    )
+
+            case .vibration:
+                
+                // MARK: 진동발생 작업 등록
+                
+                if alarm.soundOption.isVibrationOn {
+                    backgoundTaskScheduler.register(
+                        id: KeyGenerator.backgroundTask(content: content.contentKey, alarmId: alarm.id),
+                        startDate: alarmDate,
+                        type: .repeats(intervalSeconds: 1, count: .limit(count: 30)),
+                        task: { [weak self] _ in
+                            guard let self else { return }
+                            vibrationManager.vibarate()
+                        })
                 }
+            }
         }
     }
     
-    func unschedule(content: [AlarmScheduleContent],  alarm: Alarm) {
-        // #1. 로컬 노티피케이션 취소
-        if content.contains(.localNotification) {
-            let notiCenter = UNUserNotificationCenter.current()
-            let notificationId = KeyGenerator.notification(alarmId: alarm.id)
-            notiCenter.getPendingNotificationRequests { requests in
-                let identifiers = requests
-                    .filter({ $0.identifier.contains(notificationId) })
-                    .map({ $0.identifier })
-                notiCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+    func inactivateSchedule(contents: [AlarmScheduleContent],  alarm: Alarm) {
+        let alarmId = alarm.id
+        var backgroundTaskIdentifiers: [String] = []
+        contents.forEach { content in
+            switch content {
+            case .initialLocalNotification:
+                let notiCenter = UNUserNotificationCenter.current()
+                let notificationId = KeyGenerator.notification(alarmId: alarm.id)
+                notiCenter.getPendingNotificationRequests { requests in
+                    let identifiers = requests
+                        .filter({ $0.identifier.contains(notificationId) })
+                        .map({ $0.identifier })
+                    notiCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+                }
+            case .audio:
+                // 재생중이던 오디오 정지 및 삭제
+                alarmAudioController.stopAndRemove(
+                    id: KeyGenerator.audioTask(alarmId: alarm.id)
+                )
+                backgroundTaskIdentifiers.append(KeyGenerator.backgroundTask(
+                    content: content.contentKey,
+                    alarmId: alarmId
+                ))
+            case .registerLocalNotificationRepeatedly, .registerConsecutiveAlarm, .vibration:
+                backgroundTaskIdentifiers.append(KeyGenerator.backgroundTask(
+                    content: content.contentKey,
+                    alarmId: alarmId
+                ))
             }
         }
-        
-        
-        if content.contains(.backgroundTask) {
-            // #2. 백그라운드 작업
-            let backgroundTaskIdentifiers = AlarmBackgoundTaskType.allCases.map { type in
-                KeyGenerator.backgroundTask(type: type, alarmId: alarm.id)
-            }
-            backgoundTaskScheduler.cancelTasks(identifiers: backgroundTaskIdentifiers)
-            
-            // #3. 사운드 작업
-            alarmAudioController.stopAndRemove(
-                id: KeyGenerator.audioTask(alarmId: alarm.id)
-            )
-        }
+        backgoundTaskScheduler.cancelTasks(identifiers: backgroundTaskIdentifiers)
     }
 }
