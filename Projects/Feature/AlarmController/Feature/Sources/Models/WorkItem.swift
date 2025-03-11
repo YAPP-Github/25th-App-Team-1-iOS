@@ -7,7 +7,7 @@
 
 import Foundation
 
-class WorkItem {
+class WorkItem: WorkCancellable {
     let id: String
     let date: Date
     let task: () -> Void

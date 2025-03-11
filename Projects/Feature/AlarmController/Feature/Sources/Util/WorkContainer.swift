@@ -1,5 +1,5 @@
 //
-//  LockedResource.swift
+//  WorkContainer.swift
 //  AlarmController
 //
 //  Created by choijunios on 3/10/25.
@@ -7,7 +7,12 @@
 
 import Foundation
 
-class LockedResource<T> {
+protocol WorkCancellable {
+    func cancel()
+}
+extension DispatchWorkItem: WorkCancellable { }
+
+class WorkContainer<T: WorkCancellable> {
     private var items: [String: T] = [:]
     private let itemLock = NSLock()
     
@@ -34,16 +39,24 @@ class LockedResource<T> {
         }
     }
     
-    func remove(key: String) {
+    func cancelAndRemove(key: String) {
         itemLock.lock()
         defer { itemLock.unlock() }
+        guard let item = items[key] else { return }
+        debugPrint("\(Self.self), Task cancelled & removed \(key)")
+        item.cancel()
         items.removeValue(forKey: key)
     }
     
-    func remove(keys: [String]) {
+    func cancelAndRemove(keys: [String]) {
         itemLock.lock()
         defer { itemLock.unlock() }
-        keys.forEach({ items.removeValue(forKey: $0) })
+        keys.forEach { key in
+            guard let item = items[key] else { return }
+            debugPrint("\(Self.self), Task cancelled & removed \(key)")
+            item.cancel()
+            items.removeValue(forKey: key)
+        }
     }
     
     func add(key: String, item: T) {

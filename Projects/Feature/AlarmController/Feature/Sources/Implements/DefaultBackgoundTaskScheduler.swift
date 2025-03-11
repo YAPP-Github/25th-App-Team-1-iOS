@@ -9,11 +9,8 @@ import Foundation
 
 public final class DefaultBackgoundTaskScheduler: BackgoundTaskScheduler {
     // State
-    private var workDict: [String: DispatchWorkItem] = [:]
-    private let workDictLock = NSLock()
-    
-    private let repeatWorkContainer = LockedResource<DispatchWorkItem>()
-    private let initialTaskContainer = LockedResource<WorkItem>()
+    private let repeatWorkContainer = WorkContainer<DispatchWorkItem>()
+    private let initialTaskContainer = WorkContainer<WorkItem>()
     
     public init() {
         startPrivateRunLoop()
@@ -24,9 +21,9 @@ public final class DefaultBackgoundTaskScheduler: BackgoundTaskScheduler {
             while(true) {
                 let currentDate = Date.now
                 for workItem in initialTaskContainer.getValues() {
-                    if workItem.date < currentDate {
+                    if workItem.date < currentDate, !workItem.isCancelled {
                         workItem.task()
-                        initialTaskContainer.remove(key: workItem.id)
+                        initialTaskContainer.cancelAndRemove(key: workItem.id)
                     }
                 }
                 try await Task.sleep(nanoseconds: 1000_000_000 * 5)
@@ -34,20 +31,11 @@ public final class DefaultBackgoundTaskScheduler: BackgoundTaskScheduler {
         }
     }
     
-    private func register(id: String, workItem: DispatchWorkItem) {
-        workDictLock.lock()
-        defer { workDictLock.unlock() }
-        debugPrint("\(Self.self), register \(id)")
-        workDict[id] = workItem
-    }
-    
     private func checkTaskIsCancelled(id: String) -> Bool {
-        workDictLock.lock()
-        defer { workDictLock.unlock() }
-        if let workItem = workDict[id] {
+        if let workItem = initialTaskContainer[id] {
             return workItem.isCancelled
         }
-        if let workItem = initialTaskContainer[id] {
+        if let workItem = repeatWorkContainer[id] {
             return workItem.isCancelled
         }
         return true
@@ -77,7 +65,8 @@ public final class DefaultBackgoundTaskScheduler: BackgoundTaskScheduler {
                 wallDeadline: dispatchWallTime,
                 execute: dispatchWorkItem
             )
-            register(id: id, workItem: dispatchWorkItem)
+            repeatWorkContainer.add(key: id, item: dispatchWorkItem)
+            debugPrint("Task is registered ID: \(id)")
         }
     }
 }
@@ -112,63 +101,48 @@ public extension DefaultBackgoundTaskScheduler {
             }
         }
         initialTaskContainer.add(key: id, item: workItem)
+        debugPrint("Task is registered ID: \(id)")
     }
     
     func cancelTask(matchType: IdMatchingType, id: String) {
         switch matchType {
         case .exact:
-            if initialTaskContainer.containsKey(id: id).isEmpty == false {
-                initialTaskContainer.remove(key: id)
-                debugPrint("\(Self.self), unregister & cancel \(id)")
-            }
+            // WorkItem
+            initialTaskContainer.cancelAndRemove(key: id)
             
-            if repeatWorkContainer.containsKey(id: id).isEmpty == false {
-                repeatWorkContainer[id]?.cancel()
-                repeatWorkContainer.remove(key: id)
-                debugPrint("\(Self.self), unregister & cancel \(id)")
-            }
+            // DispatchItem
+            repeatWorkContainer.cancelAndRemove(key: id)
         case .contains:
+            // WorkItem
             let initialTaskKeys = initialTaskContainer.containsKey(id: id)
-            if initialTaskKeys.isEmpty == false {
-                initialTaskContainer.remove(keys: initialTaskKeys)
+            if !initialTaskKeys.isEmpty {
+                initialTaskContainer.cancelAndRemove(keys: initialTaskKeys)
             }
             
-            repeatWorkContainer.getKeys()
-                .filter { $0.contains(id) }
-                .forEach { id in
-                    repeatWorkContainer[id]?.cancel()
-                    repeatWorkContainer.remove(key: id)
-                    debugPrint("\(Self.self), unregister & cancel \(id)")
-                }
+            // DispatchItem
+            let repeatTaskIds = repeatWorkContainer.containsKey(id: id)
+            if !repeatTaskIds.isEmpty {
+                repeatWorkContainer.cancelAndRemove(keys: repeatTaskIds)
+            }
         }
     }
     
     func cancelTasks(matchType: IdMatchingType, identifiers: [String]) {
         switch matchType {
         case .exact:
-            initialTaskContainer.remove(keys: identifiers)
+            // WorkItem
+            initialTaskContainer.cancelAndRemove(keys: identifiers)
+            
+            // DispatchItem
+            repeatWorkContainer.cancelAndRemove(keys: identifiers)
         case .contains:
-            initialTaskContainer.remove(keys: initialTaskContainer.containsKey(ids: identifiers))
-        }
-        workDictLock.lock()
-        defer { workDictLock.unlock() }
-        identifiers.forEach { nolock_cancelTask(matchType: matchType, id: $0) }
-    }
-    
-    private func nolock_cancelTask(matchType: IdMatchingType, id: String) {
-        switch matchType {
-        case .exact:
-            workDict[id]?.cancel()
-            workDict.removeValue(forKey: id)
-            debugPrint("\(Self.self), unregister & cancel \(id)")
-        case .contains:
-            workDict.keys
-                .filter { $0.contains(id) }
-                .forEach { id in
-                    workDict[id]?.cancel()
-                    workDict.removeValue(forKey: id)
-                    debugPrint("\(Self.self), unregister & cancel \(id)")
-                }
+            // WorkItem
+            let initialTaskKeys = initialTaskContainer.containsKey(ids: identifiers)
+            initialTaskContainer.cancelAndRemove(keys: initialTaskKeys)
+            
+            // DispatchItem
+            let repeatTaskKeys = repeatWorkContainer.containsKey(ids: identifiers)
+            repeatWorkContainer.cancelAndRemove(keys: repeatTaskKeys)
         }
     }
 }
