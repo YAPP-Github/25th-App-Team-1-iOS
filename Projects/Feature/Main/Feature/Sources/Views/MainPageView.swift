@@ -51,7 +51,8 @@ final class MainPageView: UIView, UITableViewDelegate, DeleteAlarmGroupBarViewLi
     private let hillView = UIView()
     
     private let orbitSpeechBubbleSpeech = SpeechBubbleView()
-    private let orbitView = LottieAnimationView()
+    private let orbitLottieView = LottieAnimationView()
+    private let orbitImageView = UIImageView()
     
     // - Labels
     private let fortuneDeliveryTimeLabel: UILabel = .init()
@@ -176,9 +177,16 @@ private extension MainPageView {
         addSubview(orbitSpeechBubbleSpeech)
         
         
-        // orbitView
-        orbitView.loopMode = .loop
-        addSubview(orbitView)
+        // orbitLottieView
+        orbitLottieView.loopMode = .loop
+        addSubview(orbitLottieView)
+        orbitLottieView.alpha = 0
+        
+        
+        // orbitImageView
+        orbitImageView.contentMode = .scaleAspectFit
+        addSubview(orbitImageView)
+        orbitImageView.alpha = 0
         
         
         // labels
@@ -283,7 +291,7 @@ private extension MainPageView {
         
         // hillView
         hillView.snp.makeConstraints { make in
-            make.top.equalTo(orbitView).inset(84)
+            make.top.equalTo(orbitLottieView).inset(84)
             make.bottom.equalToSuperview()
             make.horizontalEdges.equalToSuperview()
         }
@@ -291,13 +299,13 @@ private extension MainPageView {
         
         // orbitSpeechBubbleView
         orbitSpeechBubbleSpeech.snp.makeConstraints { make in
-            make.bottom.equalTo(orbitView.snp.top)
-            make.centerX.equalTo(orbitView)
+            make.bottom.equalTo(orbitLottieView.snp.top)
+            make.centerX.equalTo(orbitLottieView)
         }
         
         
-        // orbitView
-        orbitView.snp.makeConstraints { make in
+        // orbitLottieView
+        orbitLottieView.snp.makeConstraints { make in
             make.top.equalTo(self.safeAreaLayoutGuide).offset(82)
             make.centerX.equalToSuperview()
             make.width.equalTo(140)
@@ -305,10 +313,16 @@ private extension MainPageView {
         }
         
         
+        // orbitImageView
+        orbitImageView.snp.makeConstraints { make in
+            make.edges.equalTo(orbitLottieView)
+        }
+        
+        
         // fortuneLabelStack
         fortuneLabelStack.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
-            make.top.equalTo(orbitView.snp.bottom)
+            make.top.equalTo(orbitLottieView.snp.bottom)
         }
         
         
@@ -522,13 +536,29 @@ extension MainPageView {
 private extension MainPageView {
     func updateOrbitState(_ state: OrbitRenderState) {
         // Orbit animation
-        let animFilePath = state.orbitMotionLottieFilePath
-        orbitView.animation = .filepath(animFilePath)
-        orbitView.play()
+        if let animFilePath = state.orbitMotionLottieFilePath {
+            orbitLottieView.animation = .filepath(animFilePath)
+            orbitLottieView.play()
+            orbitLottieView.alpha = 1
+            orbitImageView.alpha = 0
+        }
+        
+        
+        // Orbit image
+        if let image = state.image {
+            orbitImageView.image = image
+            orbitLottieView.alpha = 0
+            orbitImageView.alpha = 1
+        }
         
         
         // Bubble text
-        orbitSpeechBubbleSpeech.update(titleText: state.bubbleSpeechKorText)
+        if state.bubbleSpeechKorText.isEmpty {
+            orbitSpeechBubbleSpeech.alpha = 0
+        } else {
+            orbitSpeechBubbleSpeech.update(titleText: state.bubbleSpeechKorText)
+            orbitSpeechBubbleSpeech.alpha = 1
+        }
         
         
         // Fortune base text

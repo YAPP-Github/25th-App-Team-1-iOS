@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "orbit_no_alarms.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

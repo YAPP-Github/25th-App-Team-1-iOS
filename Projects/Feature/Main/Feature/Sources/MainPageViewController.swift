@@ -57,22 +57,8 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
     
     func request(_ request: MainPagePresentableRequest) {
         switch request {
-        case .setFortuneScore(let score, let userName):
-            var orbitState: OrbitRenderState = .beforeFortune
-            let defaultUserName = "너"
-            if let score {
-                switch score {
-                case 0..<50:
-                    orbitState = .luckScoreOverZero(userName: userName ?? defaultUserName)
-                case 50..<80:
-                    orbitState = .luckScoreOver50(userName: userName ?? defaultUserName)
-                case 80...:
-                    orbitState = .luckScoreOver80(userName: userName ?? defaultUserName)
-                default:
-                    orbitState = .beforeFortune
-                }
-            }
-            mainView.update(.orbitState(orbitState))
+        case .setOrbitState(let state):
+            mainView.update(.orbitState(state))
         case .setFortuneDeliverMark(let isMarked):
             mainView.update(.turnOnFortuneNoti(isMarked))
         case let .setAlarmList(alarmCellROs):

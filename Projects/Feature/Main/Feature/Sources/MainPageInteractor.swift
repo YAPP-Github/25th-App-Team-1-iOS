@@ -48,7 +48,7 @@ enum MainPagePresentableRequest {
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
     case setFortuneDeliverMark(isMarked: Bool)
     case nextFortuneDeliveryTime(text: String)
-    case setFortuneScore(score: Int?, userName: String?)
+    case setOrbitState(OrbitRenderState)
     case setCheckForDeleteAllAlarms(isOn: Bool)
     case presentSingleAlarmDeletionView(AlarmCellRO)
     case dismissSingleAlarmDeletionView
@@ -76,6 +76,9 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var alarmRenderObjects: [String: AlarmCellRO] = [:]
     private var alarmSortType: AlarmSortType = .hourAndMinute
     
+    // - OrbitState
+    private var currentOrbitState: OrbitRenderState?
+    
     // - 알림이 삭제를 위해 체크된 상태관리
     private var checkedState: [String: Bool] = [:]
     private var alarmListMode: AlarmListMode = .idle
@@ -86,7 +89,8 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var isAlarmListOptionViewPresented: Bool = false
     
     // - 운세
-    private var fortune: FortuneSaveInfo?
+    private var fortune: Fortune?
+    private var fortuneSaveInfo: FortuneSaveInfo?
     
     
     init(
@@ -119,27 +123,29 @@ extension MainPageInteractor {
             }
         case .viewWillAppear:
             // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
-            let userInfo = Preference.userInfo
-            
-            if let todayFortune = UserDefaults.standard.dailyFortune() {
-                if fortune == todayFortune {
-                    // 운세가 이미 UI로 표현된 경우
+            if let todayFortuneInfo = UserDefaults.standard.dailyFortune() {
+                self.fortuneSaveInfo = todayFortuneInfo
+                
+                // 오늘의 운세가 있는 경우
+                if fortuneSaveInfo == todayFortuneInfo, let fortune {
+                    // 메모리에 운세가 있는 경우
+                    updateOrbitState(fortune: fortune)
                     return
                 }
-                // 오늘의 운세가 있는 경우
+                
+                // API요청을 통해 운세획득
                 let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
                 if isDailyForuneIsChecked {
                     // 오늘 운세가 확인된 경우
                     presenter.request(.setFortuneDeliverMark(isMarked: false))
                     
                     // 오늘 운세가 확인된 경우, API를 통해 점수를 확인
-                    let fortuneId = todayFortune.id
+                    let fortuneId = todayFortuneInfo.id
                     let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
-                    APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+                    APIClient.request(Fortune.self, request: request) { [weak self] fetchedFortune in
                         guard let self else { return }
-                        let score = fortune.avgFortuneScore
-                        presenter.request(.setFortuneScore(score: score, userName: userInfo?.name))
-                        self.fortune = todayFortune
+                        updateOrbitState(fortune: fetchedFortune)
+                        self.fortune = fetchedFortune
                     } failure: { error in
                         print(error)
                     }
@@ -149,7 +155,7 @@ extension MainPageInteractor {
                 }
             } else {
                 // 운세가 없는 경우
-                presenter.request(.setFortuneScore(score: nil, userName: nil))
+                updateOrbitState(fortune: nil)
                 presenter.request(.setFortuneDeliverMark(isMarked: false))
             }
             
@@ -215,7 +221,7 @@ extension MainPageInteractor {
                 self.alarms[alarm.id] = alarm
                 alarmController.updateAlarm(alarm: alarm, completion: nil)
                 
-                // UI업데이트
+                // 알람 리스트 업데이트(토들)
                 self.alarmRenderObjects[alarm.id] = transform(alarm: alarm)
                 presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
                 
@@ -224,6 +230,11 @@ extension MainPageInteractor {
                     guard let alarm = alarms[alarmId] else { return }
                     presenter.request(.setSingleAlarmDeltionItem(transform(alarm: alarm)))
                 }
+                
+                
+                // 오르비 상태 업데이트
+                updateOrbitState(fortune: fortune)
+                
                 
                 // 다음 운세도착정보 표시 업데이트
                 updateNextFortuneDeliveryTimeText()
@@ -647,7 +658,7 @@ private extension MainPageInteractor {
     }
     
     func getAlarmingText(alarm: Alarm?) -> String {
-        let defaultText = "다음 운세를 위해 알람을 생성해주세요!"
+        let defaultText = "받을 수 있는 운세가 없어요"
         guard let alarm else { return defaultText }
         
         let calendar = Calendar.current
@@ -662,8 +673,8 @@ private extension MainPageInteractor {
         
         // 울리는 알람이 오늘인가?
         let isToday = components.year == todayComponents.year &&
-            components.month == todayComponents.month &&
-            components.day == todayComponents.day
+        components.month == todayComponents.month &&
+        components.day == todayComponents.day
         
         if isToday {
             return "\(meridiemText) \(hourAndMinute) 도착"
@@ -674,13 +685,13 @@ private extension MainPageInteractor {
         let nextDay = calendar.date(byAdding: .day, value: 1, to: .now)!
         let nextDayComponents = calendar.dateComponents([.year, .month, .day], from: nextDay)
         let isTommorrow = components.year == nextDayComponents.year &&
-            components.month == nextDayComponents.month &&
-            components.day == nextDayComponents.day
-            
+        components.month == nextDayComponents.month &&
+        components.day == nextDayComponents.day
+        
         if isTommorrow {
             return "내일 \(meridiemText) \(hourAndMinute) 도착"
         }
-
+        
         
         // 다른날 도착하는 알람
         
@@ -736,6 +747,36 @@ private extension MainPageInteractor {
                 }
                 .sorted { lhs, rhs in lhs.1 < rhs.1 }
                 .first?.0
+        }
+    }
+}
+
+
+// MARK: Orbit state
+private extension MainPageInteractor {
+    func getOrbitState(fortune checkingFortune: Fortune?) -> OrbitRenderState {
+        guard alarms.values.filter(\.isActive).isEmpty == false else { return .emptyAlarm }
+        guard let checkingFortune, let userInfo = Preference.userInfo else { return .beforeFortune }
+        let userName = userInfo.name
+        var orbitState: OrbitRenderState!
+        switch checkingFortune.avgFortuneScore {
+        case 0..<50:
+            orbitState = .luckScoreOverZero(userName: userName)
+        case 50..<80:
+            orbitState = .luckScoreOver50(userName: userName)
+        case 80...:
+            orbitState = .luckScoreOver80(userName: userName)
+        default:
+            orbitState = .beforeFortune
+        }
+        return orbitState
+    }
+    
+    func updateOrbitState(fortune: Fortune? = nil) {
+        let newState = getOrbitState(fortune: fortune)
+        if newState != currentOrbitState {
+            self.currentOrbitState = newState
+            presenter.request(.setOrbitState(newState))
         }
     }
 }

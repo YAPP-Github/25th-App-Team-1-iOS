@@ -97,9 +97,12 @@ public struct UserInfo: Codable, Equatable {
         var hourValue = Calendar.current.component(.hour, from: time)
         let minuteValue = Calendar.current.component(.minute, from: time)
         
-        let meridiem: Meridiem = hourValue < 13 ? .am : .pm
-        if meridiem == .pm {
+        let meridiem: Meridiem = hourValue < 12 ? .am : .pm
+        if hourValue >= 13 {
             hourValue -= 12
+        }
+        if hourValue == 0 {
+            hourValue += 12
         }
         guard let hour = Hour(hourValue),
               let minute = Minute(minuteValue)

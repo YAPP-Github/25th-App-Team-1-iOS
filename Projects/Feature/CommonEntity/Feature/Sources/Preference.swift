@@ -27,8 +27,13 @@ public struct CodableUserDefault<T: Codable> {
     public var wrappedValue: T? {
         get {
             guard let data = userDefaults.data(forKey: key) else { return nil }
-            let decoded = try? JSONDecoder().decode(T.self, from: data)
-            return decoded
+            do {
+                let decoded = try JSONDecoder().decode(T.self, from: data)
+                return decoded
+            } catch {
+                debugPrint("Preference 디코딩 실패 err: \(error) des: \(error.localizedDescription)")
+                return nil
+            }
         }
         set {
             guard let newValue, let encoded = try? JSONEncoder().encode(newValue) else { return }

@@ -5,11 +5,11 @@
 //  Created by choijunios on 1/28/25.
 //
 
-import Foundation
+import UIKit
 
 import FeatureResources
 
-enum OrbitRenderState {
+enum OrbitRenderState: Equatable {
     case emptyAlarm
     case beforeFortune
     case luckScoreOver80(userName: String)
@@ -20,7 +20,7 @@ enum OrbitRenderState {
     var bubbleSpeechKorText: String {
         switch self {
         case .emptyAlarm:
-            "알람을 설정해줘.."
+            ""
         case .beforeFortune:
             "안녕, 난 오르비야!"
         case .luckScoreOver80:
@@ -34,11 +34,11 @@ enum OrbitRenderState {
     
     
     /// 오르비의 로티 모션 경로(filePath)입니다.
-    var orbitMotionLottieFilePath: String {
+    var orbitMotionLottieFilePath: String? {
         let lottileBundle = Bundle.resources
         switch self {
         case .emptyAlarm:
-            return lottileBundle.path(forResource: "", ofType: "")!
+            return nil
         case .beforeFortune:
             return lottileBundle.path(forResource: "mainPage_BeforeFortune", ofType: "json")!
         case .luckScoreOver80:
@@ -51,11 +51,21 @@ enum OrbitRenderState {
     }
     
     
+    var image: UIImage? {
+        switch self {
+        case .emptyAlarm:
+            return FeatureResourcesAsset.orbitNoAlarms.image
+        default:
+            return nil
+        }
+    }
+    
+    
     /// 오르비가 전해주는 운세기반 텍스트입니다.
     var orbitFortuneBaseKorText: String {
         switch self {
         case .emptyAlarm:
-            "미래에서 운세 편지를\n작성 중이야!"
+            "운세 편지를 받고 싶다면\n기상 알람을 켜줘"
         case .beforeFortune:
             "미래에서 운세 편지를\n작성 중이야!"
         case .luckScoreOver80(let userName):
