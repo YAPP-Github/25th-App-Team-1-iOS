@@ -212,7 +212,12 @@ extension MainPageInteractor {
                 
                 
                 self.alarms[alarm.id] = alarm
-                alarmController.updateAlarm(alarm: alarm, completion: nil)
+                alarmController.updateAlarm(alarm: alarm, completion: { [weak self] result in
+                    guard let self else { return }
+                    if case .failure(let error) = result {
+                        handle(error: error)
+                    }
+                })
                 
                 // 알람 리스트 업데이트(토들)
                 self.alarmRenderObjects[alarm.id] = transform(alarm: alarm)
@@ -270,7 +275,12 @@ extension MainPageInteractor {
                 rightButtonTapped: { [weak self] in
                     guard let self else { return }
                     // 로컬저장소 업데이트
-                    alarmController.removeAlarm(alarm: alarm, completion: nil)
+                    alarmController.removeAlarm(alarm: alarm, completion: { [weak self] result in
+                        guard let self else { return }
+                        if case .failure(let error) = result {
+                            handle(error: error)
+                        }
+                    })
                     alarmController.unscheduleAlarm(alarm: alarm)
                     
                     // 상태업데이트
@@ -362,7 +372,12 @@ extension MainPageInteractor {
                     let willDeleteAlarms = alarms.values.filter { alarm in
                         self.checkedState[alarm.id] == true
                     }
-                    alarmController.removeAlarm(alarms: willDeleteAlarms, completion: nil)
+                    alarmController.removeAlarm(alarms: willDeleteAlarms, completion: { [weak self] result in
+                        guard let self else { return }
+                        if case .failure(let error) = result {
+                            handle(error: error)
+                        }
+                    })
                     willDeleteAlarms.forEach { alarm in
                         self.alarmController.unscheduleAlarm(alarm: alarm)
                         self.alarms.removeValue(forKey: alarm.id)
@@ -513,7 +528,12 @@ extension MainPageInteractor {
         case .close:
             return
         case let .done(alarm):
-            alarmController.createAlarm(alarm: alarm, completion: nil)
+            alarmController.createAlarm(alarm: alarm, completion: { [weak self] result in
+                guard let self else { return }
+                if case .failure(let error) = result {
+                    handle(error: error)
+                }
+            })
             alarmController.scheduleAlarm(alarm: alarm)
             insertAlarm(alarm: alarm)
             insertAlarmRO(ro: transform(alarm: alarm))
@@ -524,12 +544,22 @@ extension MainPageInteractor {
             presenter.request(.presentSnackBar(config: config))
             
         case let .updated(alarm):
-            alarmController.updateAlarm(alarm: alarm, completion: nil)
+            alarmController.updateAlarm(alarm: alarm, completion: { [weak self] result in
+                guard let self else { return }
+                if case .failure(let error) = result {
+                    handle(error: error)
+                }
+            })
             if alarm.isActive { alarmController.scheduleAlarm(alarm: alarm) }
             insertAlarm(alarm: alarm)
             insertAlarmRO(ro: transform(alarm: alarm))
         case let .deleted(alarm):
-            alarmController.removeAlarm(alarm: alarm, completion: nil)
+            alarmController.removeAlarm(alarm: alarm, completion: { [weak self] result in
+                guard let self else { return }
+                if case .failure(let error) = result {
+                    handle(error: error)
+                }
+            })
             alarms.removeValue(forKey: alarm.id)
             alarmRenderObjects.removeValue(forKey: alarm.id)
         }
@@ -790,6 +820,24 @@ private extension MainPageInteractor {
             presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
         case .failure(let error):
             debugPrint("Error, \(error.localizedDescription)")
+            handle(error: error)
         }
+    }
+}
+
+
+// MARK: Handle alarmController error
+private extension MainPageInteractor {
+    func handle(error: AlarmControllerError) {
+        let config = DSButtonAlert.Config(
+            titleText: "알람 설정 오류",
+            subTitleText: error.message,
+            buttonText: "닫기",
+            buttonAction: { [weak self] in
+                guard let self else { return }
+                router?.request(.dismissAlert(completion: nil))
+            }
+        )
+        router?.request(.presentAlertType1(config))
     }
 }
