@@ -8,10 +8,10 @@
 import RIBs
 import UIKit
 import FeatureCommonDependencies
+import FeatureAlarmController
 
 public protocol AlarmReleaseIntroDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var alarmController: AlarmController { get }
 }
 
 final class AlarmReleaseIntroComponent: Component<AlarmReleaseIntroDependency> {
@@ -40,7 +40,12 @@ public final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency
     public func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm, isFirstAlarm: Bool) -> AlarmReleaseIntroRouting {
         let component = AlarmReleaseIntroComponent(dependency: dependency, alarm: alarm, isFirstAlarm: isFirstAlarm)
         let viewController = AlarmReleaseIntroViewController()
-        let interactor = AlarmReleaseIntroInteractor(presenter: viewController, alarm: component.alarm, isFirstAlarm: isFirstAlarm)
+        let interactor = AlarmReleaseIntroInteractor(
+            presenter: viewController,
+            alarm: component.alarm,
+            isFirstAlarm: isFirstAlarm,
+            alarmController: dependency.alarmController
+        )
         interactor.listener = listener
         
         let snoozeBuilder = AlarmReleaseSnoozeBuilder(dependency: component)

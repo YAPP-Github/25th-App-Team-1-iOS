@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="AlarmDaysEntity" representedClassName="AlarmDaysEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="days" optional="YES" attributeType="String"/>
+        <attribute name="shoundTurnOffHolidayAlarm" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="AlarmEntity" representedClassName="AlarmEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="hour" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isActive" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="meridiem" attributeType="String"/>
+        <attribute name="minute" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="repeatDays" maxCount="1" deletionRule="Cascade" destinationEntity="AlarmDaysEntity"/>
+        <relationship name="snoozeOption" maxCount="1" deletionRule="Cascade" destinationEntity="SnoozeOptionEntity"/>
+        <relationship name="soundOption" maxCount="1" deletionRule="Cascade" destinationEntity="SoundOptionEntity"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="SnoozeOptionEntity" representedClassName="SnoozeOptionEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="count" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="frequencyMinute" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="isOn" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="SoundOptionEntity" representedClassName="SoundOptionEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="isSoundOn" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isVibrationOn" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="selectedSound" attributeType="String"/>
+        <attribute name="volume" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="TestEntity" representedClassName="TestEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" attributeType="String"/>
+    </entity>
+</model>

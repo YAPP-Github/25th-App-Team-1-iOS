@@ -64,13 +64,18 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
             let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: .now)
             
             if let currentHour = dateComponents.hour {
+
                 if currentHour >= 12 {
                     meridiem = .pm
                 }
                 if currentHour >= 13, let formatted = Hour(currentHour-12) {
                     hour = formatted
-                } else if let formatted = Hour(currentHour) {
-                    hour = formatted
+                } else {
+                    var hourValue = currentHour
+                    if currentHour == 0 {
+                        hourValue = 12
+                    }
+                    hour = Hour(hourValue)!
                 }
             }
             if let currentMinute = dateComponents.minute, let formatted = Minute(currentMinute) {
