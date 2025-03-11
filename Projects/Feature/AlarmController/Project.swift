@@ -35,7 +35,8 @@ let project = Project(
             sources: ["Feature/Sources/**"],
             resources: ["Feature/Resources/**"],
             dependencies: [
-                .feature(implements: .CommonDependencies)
+                .feature(implements: .CommonDependencies),
+                .feature(implements: .ThirdPartyDependencies),
             ]
         ),
     ]

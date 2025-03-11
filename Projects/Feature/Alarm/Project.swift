@@ -45,10 +45,9 @@ let project = Project(
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],
             dependencies: [
-                
-                // Third party
                 .feature(implements: .UIDependencies),
-                .feature(implements: .ThirdPartyDependencies)
+                .feature(implements: .AlarmCommon),
+                .feature(implements: .ThirdPartyDependencies),
             ]
         ),
 
