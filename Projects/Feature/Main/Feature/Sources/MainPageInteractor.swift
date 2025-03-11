@@ -47,6 +47,7 @@ enum MainPagePresentableRequest {
     case setCountForAlarmsCheckedForDeletion(countOfAlarms: Int)
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
     case setFortuneDeliverMark(isMarked: Bool)
+    case nextFortuneDeliveryTime(text: String)
     case setFortuneScore(score: Int?, userName: String?)
     case setCheckForDeleteAllAlarms(isOn: Bool)
     case presentSingleAlarmDeletionView(AlarmCellRO)
@@ -128,6 +129,9 @@ extension MainPageInteractor {
                 // 오늘의 운세가 있는 경우
                 let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
                 if isDailyForuneIsChecked {
+                    // 오늘 운세가 확인된 경우
+                    presenter.request(.setFortuneDeliverMark(isMarked: false))
+                    
                     // 오늘 운세가 확인된 경우, API를 통해 점수를 확인
                     let fortuneId = todayFortune.id
                     let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
@@ -148,6 +152,9 @@ extension MainPageInteractor {
                 presenter.request(.setFortuneScore(score: nil, userName: nil))
                 presenter.request(.setFortuneDeliverMark(isMarked: false))
             }
+            
+            // 운세도착정보 표시
+            updateNextFortuneDeliveryTimeText()
 
         case .showFortuneNoti:
             guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
@@ -217,6 +224,9 @@ extension MainPageInteractor {
                     guard let alarm = alarms[alarmId] else { return }
                     presenter.request(.setSingleAlarmDeltionItem(transform(alarm: alarm)))
                 }
+                
+                // 다음 운세도착정보 표시 업데이트
+                updateNextFortuneDeliveryTimeText()
             }
             
             let currentActiveAlarmCount = alarms.values.filter({ $0.isActive }).count
@@ -272,6 +282,9 @@ extension MainPageInteractor {
                         self.isSingleAlarmDeletionViewPresenting = false
                         presenter.request(.dismissSingleAlarmDeletionView)
                     }
+                    
+                    // 다음 운세도착정보 표시 업데이트
+                    updateNextFortuneDeliveryTimeText()
                     
                     router?.request(.dismissAlert())
                 }
@@ -365,19 +378,25 @@ extension MainPageInteractor {
                     presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
                     presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
                     
+                    // 다음 운세도착정보 표시 업데이트
+                    updateNextFortuneDeliveryTimeText()
+                    
                     let config: DSSnackBar.SnackBarConfig = .init(
                         status: .success,
                         titleText: "삭제되었어요.",
                         buttonText: "취소",
                         buttonCompletion: { [weak self] in
                             guard let self else { return }
+                            _ = self.alarmController.createAlarms(alarms: willDeleteAlarms)
                             willDeleteAlarms.forEach { alarm in
                                 // 복구
-                                self.alarmController.createAlarm(alarm: alarm, completion: nil)
                                 if alarm.isActive { self.alarmController.scheduleAlarm(alarm: alarm) }
                                 self.insertAlarm(alarm: alarm)
                                 self.insertAlarmRO(ro: self.transform(alarm: alarm))
                             }
+                            
+                            // 다음 운세도착정보 표시 업데이트
+                            updateNextFortuneDeliveryTimeText()
                             
                             // UI업데이트
                             presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
@@ -511,6 +530,9 @@ extension MainPageInteractor {
             alarmRenderObjects.removeValue(forKey: alarm.id)
         }
         
+        // 다음 운세도착정보 표시 업데이트
+        updateNextFortuneDeliveryTimeText()
+        
         // UI업데이트
         presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
     }
@@ -611,5 +633,109 @@ private extension MainPageInteractor {
 extension MainPageInteractor {
     func dismiss() {
         router?.request(.dismissSettingPage)
+    }
+}
+
+
+// MARK: Find next fortune alarm date
+private extension MainPageInteractor {
+    func updateNextFortuneDeliveryTimeText() {
+        // 운세도착정보 표시
+        let nextFortuneAlarm = findNextFortuneAlarmDate()
+        let nextFortuneDeliveryTimeText = getAlarmingText(alarm: nextFortuneAlarm)
+        presenter.request(.nextFortuneDeliveryTime(text: nextFortuneDeliveryTimeText))
+    }
+    
+    func getAlarmingText(alarm: Alarm?) -> String {
+        let defaultText = "다음 운세를 위해 알람을 생성해주세요!"
+        guard let alarm else { return defaultText }
+        
+        let calendar = Calendar.current
+        let todayComponents = calendar.dateComponents([.year, .month, .day], from: .now)
+        
+        guard let components = alarm.earliestDateComponent() else { return defaultText }
+        let hourAndMinute = String(format: "%d:%02d", alarm.hour.value, alarm.minute.value)
+        let yearStr = String(components.year!).suffix(2)
+        let month = components.month!
+        let day = components.day!
+        let meridiemText = alarm.meridiem.toKoreanFormat
+        
+        // 울리는 알람이 오늘인가?
+        let isToday = components.year == todayComponents.year &&
+            components.month == todayComponents.month &&
+            components.day == todayComponents.day
+        
+        if isToday {
+            return "\(meridiemText) \(hourAndMinute) 도착"
+        }
+        
+        
+        // 울리는 알람이 내일인가?
+        let nextDay = calendar.date(byAdding: .day, value: 1, to: .now)!
+        let nextDayComponents = calendar.dateComponents([.year, .month, .day], from: nextDay)
+        let isTommorrow = components.year == nextDayComponents.year &&
+            components.month == nextDayComponents.month &&
+            components.day == nextDayComponents.day
+            
+        if isTommorrow {
+            return "내일 \(meridiemText) \(hourAndMinute) 도착"
+        }
+
+        
+        // 다른날 도착하는 알람
+        
+        // 해가 넘어갔는가?
+        if components.year! > todayComponents.year! {
+            let dateText = "\(yearStr)년 \(month)월 \(day)일"
+            return "\(dateText) \(meridiemText) \(hourAndMinute) 도착"
+        } else {
+            // 해가 넘어가지 않은 경우
+            let dateText = "\(month)월 \(day)일"
+            return "\(dateText) \(meridiemText) \(hourAndMinute) 도착"
+        }
+    }
+    
+    
+    func findNextFortuneAlarmDate() -> Alarm? {
+        if alarms.values.filter(\.isActive).isEmpty {
+            // 활성화 알람이 없는 경우
+            return nil
+        }
+        let calendar = Calendar.current
+        let alarmsAndDates = self.alarms.values
+            .filter(\.isActive)
+            .compactMap { alarm -> (Alarm, Date)? in
+                guard let components = alarm.earliestDateComponent(),
+                      let alarmDate = calendar.date(from: components) else { return nil }
+                return (alarm, alarmDate)
+            }
+            .sorted { lhs, rhs in lhs.1 < rhs.1 }
+        
+        
+        let firstAlarm = alarmsAndDates.first!
+        
+        if UserDefaults.standard.dailyFortune() == nil {
+            // 오늘 첫번째 알람이 도착하지 않은 경우, 가장 처음 울리는 알람을 반환
+            return firstAlarm.0
+        } else {
+            // 오늘 운세가 확인된 경우 -> 내일 이후 도착할 알람중 첫번째를 찾는다.
+            let nextDay = calendar.date(byAdding: .day, value: 1, to: .now)!
+            let nextDayComponents = calendar.dateComponents([.year, .month, .day], from: nextDay)
+            return self.alarms.values
+                .filter(\.isActive)
+                .compactMap { alarm -> (Alarm, Date)? in
+                    guard let components = alarm.earliestDateComponent(),
+                          let alarmDate = calendar.date(from: components) else { return nil }
+                    if components.year! >= nextDayComponents.year!,
+                       components.month! >= nextDayComponents.month!,
+                       components.day! >= nextDayComponents.day! {
+                        // 내일 이후 알람만 반환
+                        return (alarm, alarmDate)
+                    }
+                    return nil
+                }
+                .sorted { lhs, rhs in lhs.1 < rhs.1 }
+                .first?.0
+        }
     }
 }

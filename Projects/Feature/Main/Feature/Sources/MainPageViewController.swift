@@ -126,6 +126,8 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             } else {
                 mainView.update(.dismissAlarmOptionListView)
             }
+        case .nextFortuneDeliveryTime(let text):
+            mainView.update(.fortuneDeliveryTimeText(text))
         }
     }
     

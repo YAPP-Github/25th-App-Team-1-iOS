@@ -454,7 +454,6 @@ private extension MainPageView {
 
 // MARK: Public interface
 extension MainPageView {
-    
     enum UpdateRequest {
         case orbitState(OrbitRenderState)
         case fortuneDeliveryTimeText(String)
