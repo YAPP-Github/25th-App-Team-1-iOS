@@ -224,7 +224,7 @@ private extension MainPageView {
         
         
         // alarmToolBar
-        alarmToolBarTitleLabel.displayText = "알림".displayText(
+        alarmToolBarTitleLabel.displayText = "알람".displayText(
             font: .heading2SemiBold,
             color: R.Color.white100
         )
