@@ -71,6 +71,19 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         // 백그라운드 알람 종료
         alarmController.inactivateAlarmWithoutConsecutiveAlarmTask(alarm: alarm)
         
+        // 반복 알람이 아닐 경우 상태 비활성화
+        if alarm.repeatDays.days.isEmpty {
+            var newAlarm = alarm
+            newAlarm.isActive = false
+            let result = alarmController.updateAlarm(alarm: newAlarm)
+            switch result {
+            case .success:
+                debugPrint("\(Self.self) 단발성 알람 비할성화 성공")
+            case .failure(let error):
+                debugPrint("\(Self.self) 단발성 알람 비할성화 실패 \(error.localizedDescription)")
+            }
+        }
+        
         // 알람 릴리즈화면 전용 사운드 재생
         playAlarm()
     }

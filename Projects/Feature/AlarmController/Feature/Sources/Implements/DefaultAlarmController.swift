@@ -161,6 +161,7 @@ public extension DefaultAlarmController {
                 alarmEntity.isActive = alarm.isActive
                 
                 try context.save()
+                completion(.success(()))
             } catch {
                 completion(.failure(error))
             }
@@ -179,6 +180,55 @@ public extension DefaultAlarmController {
             }
         })
         .disposed(by: disposeBag)
+    }
+    
+    func updateAlarm(alarm: Alarm) -> Result<Void, AlarmControllerError> {
+        coreDataService.performSyncTask { context in
+            let fetchRequest = AlarmEntity.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", alarm.id)
+            do {
+                let entities = try context.fetch(fetchRequest)
+                guard let alarmEntity = entities.first else { throw AlarmControllerError.dataFetchError }
+                
+                // #1. Repeat days
+                let repeatDays = alarm.repeatDays
+                let alarmDaysEntity = alarmEntity.repeatDays!
+                if repeatDays.days.isEmpty {
+                    alarmDaysEntity.days = nil
+                } else {
+                    alarmDaysEntity.days = repeatDays.days.map({String($0.rawValue) }).joined(separator: ",")
+                }
+                alarmDaysEntity.shoundTurnOffHolidayAlarm = repeatDays.shoundTurnOffHolidayAlarm
+                
+                //#2. Snooze option
+                let snoozeOption = alarm.snoozeOption
+                let snoozeOptionEntity = alarmEntity.snoozeOption!
+                snoozeOptionEntity.count = Int16(snoozeOption.count.rawValue)
+                snoozeOptionEntity.frequencyMinute = Int16(snoozeOption.frequency.rawValue)
+                snoozeOptionEntity.isOn = snoozeOption.isSnoozeOn
+                
+                // #3. Sound option
+                let soundOption = alarm.soundOption
+                let soundOptionEntity = alarmEntity.soundOption!
+                soundOptionEntity.isSoundOn = soundOption.isSoundOn
+                soundOptionEntity.isVibrationOn = soundOption.isVibrationOn
+                soundOptionEntity.selectedSound = soundOption.selectedSound
+                soundOptionEntity.volume = soundOption.volume
+                
+                // #4. Alarm
+                alarmEntity.id = alarm.id
+                alarmEntity.meridiem = alarm.meridiem.rawValue
+                alarmEntity.hour = Int16(alarm.hour.value)
+                alarmEntity.minute = Int16(alarm.minute.value)
+                alarmEntity.isActive = alarm.isActive
+                
+                try context.save()
+                return .success(())
+            } catch {
+                debugPrint("\(#function), 알람수정실패: \(error.localizedDescription)")
+                return .failure(.dataSavingError)
+            }
+        }
     }
     
     func removeAlarm(alarm: Alarm) -> Result<Void, AlarmControllerError> {

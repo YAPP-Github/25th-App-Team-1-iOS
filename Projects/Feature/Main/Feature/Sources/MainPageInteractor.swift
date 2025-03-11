@@ -108,20 +108,13 @@ extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
         case .viewDidLoad:
-            let alarmFetchResult = alarmController.readAlarms()
-            switch alarmFetchResult {
-            case .success(let fetchedAlarms):
-                clearAlarms()
-                insertAlarms(alarms: fetchedAlarms)
-                
-                let alarmROs = transform(alarmList: fetchedAlarms)
-                clearAlarmROs()
-                insertAlarmROs(ros: alarmROs)
-                presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
-            case .failure(let error):
-                debugPrint("Error, \(error.localizedDescription)")
-            }
+            // 알람 정보 업데이트
+            refetchAndPresentAlarms()
+            
         case .viewWillAppear:
+            // 알람 정보 업데이트
+            refetchAndPresentAlarms()
+            
             // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
             if let todayFortuneInfo = UserDefaults.standard.dailyFortune() {
                 self.fortuneSaveInfo = todayFortuneInfo
@@ -777,6 +770,26 @@ private extension MainPageInteractor {
         if newState != currentOrbitState {
             self.currentOrbitState = newState
             presenter.request(.setOrbitState(newState))
+        }
+    }
+}
+
+
+// MARK: Refetch alarms
+private extension MainPageInteractor {
+    func refetchAndPresentAlarms() {
+        let alarmFetchResult = alarmController.readAlarms()
+        switch alarmFetchResult {
+        case .success(let fetchedAlarms):
+            clearAlarms()
+            insertAlarms(alarms: fetchedAlarms)
+            
+            let alarmROs = transform(alarmList: fetchedAlarms)
+            clearAlarmROs()
+            insertAlarmROs(ros: alarmROs)
+            presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
+        case .failure(let error):
+            debugPrint("Error, \(error.localizedDescription)")
         }
     }
 }

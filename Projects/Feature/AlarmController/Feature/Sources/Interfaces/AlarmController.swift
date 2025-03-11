@@ -14,6 +14,7 @@ public protocol AlarmController {
     func readAlarms() -> Result<[Alarm], AlarmControllerError>
     func readAlarms(completion: @escaping (Result<[Alarm], AlarmControllerError>) -> ())
     func updateAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
+    func updateAlarm(alarm: Alarm) -> Result<Void, AlarmControllerError>
     func removeAlarm(alarms: [Alarm], completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     func removeAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     
