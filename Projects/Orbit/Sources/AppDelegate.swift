@@ -139,14 +139,14 @@ extension AppDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let notification = response.notification
         let requestId = response.notification.request.identifier
-        if alarmController?.checkIsNotificationAlarm(id: requestId) == true {
+        if alarmController?.checkIsAlarmNotification(notiRequestId: requestId) == true {
             handleAlarmNotification(notification: notification)
         }
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         let requestId = notification.request.identifier
-        if alarmController?.checkIsNotificationAlarm(id: requestId) == true {
+        if alarmController?.checkIsAlarmNotification(notiRequestId: requestId) == true {
             handleAlarmNotification(notification: notification)
         }
     }

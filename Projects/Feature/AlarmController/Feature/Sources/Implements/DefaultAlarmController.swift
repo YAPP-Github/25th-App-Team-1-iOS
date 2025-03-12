@@ -304,8 +304,8 @@ public extension DefaultAlarmController {
 
 // MARK: Alarm Scheduling
 public extension DefaultAlarmController {
-    func checkIsNotificationAlarm(id: String) -> Bool {
-        id.contains(KeyGenerator.notification(alarmId: ""))
+    func checkIsAlarmNotification(notiRequestId: String) -> Bool {
+        notiRequestId.contains(KeyGenerator.notification(alarmId: ""))
     }
     
     func scheduleAlarm(alarm: Alarm) {

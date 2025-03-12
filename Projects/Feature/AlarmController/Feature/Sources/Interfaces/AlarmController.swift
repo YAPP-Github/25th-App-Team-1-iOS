@@ -18,7 +18,7 @@ public protocol AlarmController {
     func removeAlarm(alarms: [Alarm], completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     func removeAlarm(alarm: Alarm, completion: ((Result<Void, AlarmControllerError>) -> Void)?)
     
-    func checkIsNotificationAlarm(id: String) -> Bool
+    func checkIsAlarmNotification(notiRequestId: String) -> Bool
     func scheduleAlarm(alarm: Alarm)
     func scheduleBackgroundTask(alarm: Alarm)
     func rescheduleActiveAlarmsBackgroundTasks() -> Result<Void, AlarmControllerError>
