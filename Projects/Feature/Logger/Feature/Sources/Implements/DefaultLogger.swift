@@ -27,10 +27,26 @@ public final class DefaultLogger: Logger {
             switch option {
             case .flushOnEnterBackground:
                 subscribeToEnterBackground()
+            case .flushOnTermination:
+                subscribeToAppTermination()
             }
         }
     }
     
+    private func subscribeToAppTermination() {
+        let terminationEvent = UIApplication.willTerminateNotification
+        NotificationCenter.default.removeObserver(
+            self,
+            name: terminationEvent,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onNotification(_:)),
+            name: terminationEvent,
+            object: nil
+        )
+    }
     private func subscribeToEnterBackground() {
         let enterBackgroundEvent = UIApplication.didEnterBackgroundNotification
         NotificationCenter.default.removeObserver(
@@ -40,13 +56,18 @@ public final class DefaultLogger: Logger {
         )
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(onBackground(_:)),
+            selector: #selector(onNotification(_:)),
             name: enterBackgroundEvent,
             object: nil
         )
     }
-    @objc func onBackground(_ notification: Notification) {
-        manualFlush()
+    @objc func onNotification(_ notification: Notification) {
+        switch notification.name {
+        case UIApplication.didEnterBackgroundNotification, UIApplication.willTerminateNotification:
+            manualFlush()
+        default:
+            break
+        }
     }
 }
 

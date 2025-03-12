@@ -7,4 +7,5 @@
 
 public enum LoggerOptions {
     case flushOnEnterBackground
+    case flushOnTermination
 }
