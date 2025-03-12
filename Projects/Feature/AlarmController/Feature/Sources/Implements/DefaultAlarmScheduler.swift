@@ -134,7 +134,15 @@ public extension DefaultAlarmScheduler {
                         task: { [weak self] _ in
                             guard let self else { return }
                             var newAlarm = alarm
-                            newAlarm.id = "\(alarm.id)_\(UUID().uuidString)"
+                            let originAlarmId = alarm.id
+                            if AlarmKeyGenerator.isRoot(id: originAlarmId) {
+                                // 이전 알람이 루트 알람인 경우
+                                newAlarm.id = AlarmKeyGenerator.createChildKey(base: originAlarmId)
+                            } else {
+                                // 이전 알람이 루트가 아닌 경우
+                                let root = AlarmKeyGenerator.getRoot(id: originAlarmId)
+                                newAlarm.id = AlarmKeyGenerator.createChildKey(base: root)
+                            }
                             schedule(contents: contents, alarm: newAlarm)
                         })
                 }
