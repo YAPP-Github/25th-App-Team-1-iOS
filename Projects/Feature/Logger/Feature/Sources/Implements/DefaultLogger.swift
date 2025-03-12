@@ -114,7 +114,7 @@ public extension DefaultLogger {
     
     func manualFlush() {
         Task {
-            Mixpanel.mainInstance().flush()
+            Mixpanel.mainInstance().flush(performFullFlush: true)
             await trackedEventCounter.clear()
         }
     }
