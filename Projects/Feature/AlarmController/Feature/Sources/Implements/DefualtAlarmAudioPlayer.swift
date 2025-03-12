@@ -7,10 +7,13 @@
 
 import AVFoundation
 
+extension AVAudioPlayer: WorkCancellable {
+    func cancel() { self.stop() }
+}
+
 public class DefualtAlarmAudioController: AlarmAudioController {
     // State
-    private var audioDict: [String: AVAudioPlayer] = [:]
-    private let audioDictLock = NSLock()
+    private let audioContainer = WorkContainer<AVAudioPlayer>()
     
     public init() { }
     
@@ -25,9 +28,7 @@ public class DefualtAlarmAudioController: AlarmAudioController {
     }
     
     private func register(id: String, player: AVAudioPlayer) {
-        audioDictLock.lock()
-        defer { audioDictLock.unlock() }
-        audioDict[id] = player
+        audioContainer.add(key: id, item: player)
     }
 }
 
@@ -49,21 +50,12 @@ public extension DefualtAlarmAudioController {
     }
     
     func stopAndRemove(matchingType: IdMatchingType, id: String) {
-        audioDictLock.lock()
-        defer { audioDictLock.unlock() }
         switch matchingType {
         case .exact:
-            guard let player = audioDict[id] else { return }
-            player.stop()
-            audioDict.removeValue(forKey: id)
+            audioContainer.cancelAndRemove(key: id)
         case .contains:
-            audioDict.keys
-                .filter({ $0.contains(id) })
-                .forEach { matchedId in
-                    let player = audioDict[id]!
-                    player.stop()
-                    audioDict.removeValue(forKey: id)
-                }
+            let willCancelIds = audioContainer.containsKey(id: id)
+            audioContainer.cancelAndRemove(keys: willCancelIds)
         }
     }
 }
