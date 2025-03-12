@@ -73,6 +73,7 @@ public extension ModulePath {
         case SnapKit
         case Lottie
         case Alamofire
+        case Mixpanel
         
         public static let categoryName: String = "ThirdParty"
     }
