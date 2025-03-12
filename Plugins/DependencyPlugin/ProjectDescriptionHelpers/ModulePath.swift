@@ -54,6 +54,8 @@ public extension ModulePath {
         
         case Networking
         
+        case Logger
+        
         public static let categoryName: String = "Feature"
 
     }
