@@ -1,11 +1,11 @@
 //
-//  TrackContainer.swift
+//  IsolatedCounter.swift
 //  Logger
 //
 //  Created by choijunios on 3/12/25.
 //
 
-actor EventCounter {
+actor IsolatedCounter {
     private var count: Int = 0
     
     func countUp() {

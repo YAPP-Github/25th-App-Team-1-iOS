@@ -11,7 +11,7 @@ import Mixpanel
 
 public final class DefaultLogger: Logger {
     // State
-    private let counter = EventCounter()
+    private let trackedEventCounter = IsolatedCounter()
     private var autoFlushCount: Int?
     private var options: [LoggerOptions] = []
     private var isReady: Bool {
@@ -69,7 +69,7 @@ public extension DefaultLogger {
     func send(_ log: LogObject) {
         Task {
             guard isReady == true else { return }
-            await counter.countUp()
+            await trackedEventCounter.countUp()
             Mixpanel.mainInstance().track(
                 event: log.eventType,
                 properties: {
@@ -84,9 +84,9 @@ public extension DefaultLogger {
             )
             
             // Check flushable
-            if await counter.getCount() >= autoFlushCount! {
+            if await trackedEventCounter.getCount() >= autoFlushCount! {
                 Mixpanel.mainInstance().flush()
-                await counter.clear()
+                await trackedEventCounter.clear()
             }
         }
     }
@@ -94,7 +94,7 @@ public extension DefaultLogger {
     func manualFlush() {
         Task {
             Mixpanel.mainInstance().flush()
-            await counter.clear()
+            await trackedEventCounter.clear()
         }
     }
 }
