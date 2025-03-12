@@ -30,6 +30,7 @@ private extension BackgroundMaintainer {
         do {
             let audioSession = AVAudioSession.sharedInstance()
             try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try audioSession.setActive(true)
         } catch {
             debugPrint("\(Self.self), 오디오 세션 설정 실패: \(error.localizedDescription)")
         }
@@ -49,8 +50,8 @@ private extension BackgroundMaintainer {
     }
     
     func playSilentAudio() {
-        guard let silentAudioPlayer, silentAudioPlayer.isPlaying == false else { return }
         setupAudioSession()
+        guard let silentAudioPlayer, silentAudioPlayer.isPlaying == false else { return }
         silentAudioPlayer.prepareToPlay()
         silentAudioPlayer.play()
     }
