@@ -99,7 +99,14 @@ final class CharmView: UIView {
             print("이미지 저장 실패: \(error.localizedDescription)")
         } else {
             // 저장 성공
-            listener?.action(.done)
+            let snackBar = DSSnackBar(config: .init(status: .success, titleText: "앨범에 저장되었습니다."))
+            snackBar.layer.zPosition = 1000
+            addSubview(snackBar)
+            snackBar.snp.makeConstraints {
+                $0.horizontalEdges.equalToSuperview().inset(20)
+                $0.bottom.equalTo(safeAreaLayoutGuide).inset(78)
+            }
+            snackBar.play()
         }
     }
 }
