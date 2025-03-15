@@ -11,7 +11,7 @@ import RxSwift
 import FeatureAlarmMission
 
 protocol ExampleRIBRouting: ViewableRouting {
-    func presentMission(_ mission: Mission)
+    func presentMission(_ mission: AlarmMissionType)
     func dismissMission()
 }
 
@@ -21,7 +21,7 @@ protocol ExampleRIBPresentable: Presentable {
 }
 
 enum ExampleRIBPresenterRequest {
-    case setItems([Mission])
+    case setItems([AlarmMissionType])
 }
 
 
@@ -34,7 +34,7 @@ final class ExampleRIBInteractor: PresentableInteractor<ExampleRIBPresentable>, 
     weak var router: ExampleRIBRouting?
     weak var listener: ExampleRIBListener?
     
-    private let missions: [Mission] = [.shake, .tap]
+    private let missions: [AlarmMissionType] = [.shake, .tap]
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.

@@ -6,8 +6,7 @@
 //
 
 import Foundation
-import RIBs
-import RxSwift
+
 import FeatureDesignSystem
 import FeatureAlarm
 import FeatureAlarmMission
@@ -17,6 +16,10 @@ import FeatureAlarmRelease
 import FeatureNetworking
 import FeatureAlarmController
 
+import RIBs
+import RxSwift
+import FirebaseRemoteConfig
+
 public protocol MainPageActionableItem: AnyObject {
     func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())>
 }
@@ -24,7 +27,7 @@ public protocol MainPageActionableItem: AnyObject {
 public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
     case detachCreateEditAlarm
-    case routeToAlarmMission(Bool)
+    case routeToAlarmMission(isFirstAlarm: Bool, missionType: AlarmMissionType)
     case detachAlarmMission((() -> Void)?)
     case routeToFortune(Fortune, UserInfo, FortuneSaveInfo)
     case detachFortune
@@ -66,6 +69,9 @@ public protocol MainPageListener: AnyObject {}
 final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, MainPageInteractable, MainPagePresentableListener {
     // Dependency
     private let alarmController: AlarmController
+    
+    
+    // Remote config
     
     
     weak var router: MainPageRouting?
@@ -611,8 +617,16 @@ extension MainPageInteractor {
     func request(_ request: FeatureAlarmRelease.AlarmReleaseIntroListenerRequest) {
         switch request {
         case let .releaseAlarm(isFirstAlarm):
-            router?.request(.detachAlarmRelease({ [weak router] in
-                router?.request(.routeToAlarmMission(isFirstAlarm))
+            router?.request(.detachAlarmRelease({ [weak self] in
+                guard let self else { return }
+                let config = RemoteConfig.remoteConfig()
+                let configValue = config["alarm_mission_type"].stringValue
+                debugPrint("Remote config에서 획득한 미션타입: \(configValue)")
+                let mission = AlarmMissionType(key: configValue)
+                router?.request(.routeToAlarmMission(
+                    isFirstAlarm: isFirstAlarm,
+                    missionType: mission
+                ))
             }))
         }
     }

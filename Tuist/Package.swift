@@ -13,7 +13,7 @@ import PackageDescription
             "Then": .framework,
             "SnapKit": .framework,
             "Lottie": .staticLibrary,
-            "Alamofire": .framework
+            "Alamofire": .framework,
         ]
     )
 #endif
@@ -27,5 +27,6 @@ let package = Package(
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.5.0"),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.0")),
         .package(url: "https://github.com/mixpanel/mixpanel-swift.git", from: "4.3.1"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", exact: "11.2.0"),
     ]
 )

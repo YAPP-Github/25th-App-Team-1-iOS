@@ -60,6 +60,7 @@ let project = Project(
                 .feature(implements: .Networking),
                 .feature(implements: .Setting),
                 .feature(implements: .AlarmController),
+                .feature(implements: .RemoteConfig),
             ]
         ),
     ]

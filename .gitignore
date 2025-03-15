@@ -76,3 +76,4 @@ fastlane/apple_connect_auth.json
 fastlane/.env
 *.ipa
 *.dSYM.zip
+Projects/Orbit/Resources/GoogleService-Info.plist

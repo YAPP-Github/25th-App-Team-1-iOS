@@ -23,7 +23,7 @@ public protocol AlarmMissionRootRouting: Routing {
 public enum AlarmMissionRootRoutingRequest {
     case presentShakeMission(isFirstAlarm: Bool)
     case presentTapMission
-    case dismissMission(Mission, competion: (() -> Void)? = nil)
+    case dismissMission(AlarmMissionType, competion: (() -> Void)? = nil)
     case dismissAlert(competion: (() -> Void)? = nil)
     case presentAlert(DSButtonAlert.Config)
 }
@@ -42,8 +42,10 @@ final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable
     weak var router: AlarmMissionRootRouting?
     weak var listener: AlarmMissionRootListener?
     
+    // State
+    private let missionType: AlarmMissionType
     
-    // Fortune
+    // - Fortune
     private let isFirstAlarm: Bool
     private let fortunePublisher: PublishSubject<Result<Fortune, Error>> = .init()
     
@@ -53,11 +55,8 @@ final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable
     private let disposeBag = DisposeBag()
     
     
-    //
-    private let mission: Mission
-    
-    init(mission: Mission, isFirstAlarm: Bool, missionAction: PublishRelay<MissionState>) {
-        self.mission = mission
+    init(missionType: AlarmMissionType, isFirstAlarm: Bool, missionAction: PublishRelay<MissionState>) {
+        self.missionType = missionType
         self.isFirstAlarm = isFirstAlarm
         self.missionAction = missionAction
     }
@@ -78,7 +77,7 @@ final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable
         
         
         // 미션시작
-        switch mission {
+        switch missionType {
         case .shake:
             router?.request(.presentShakeMission(isFirstAlarm: isFirstAlarm))
         case .tap:
@@ -137,7 +136,7 @@ private extension AlarmMissionRootInteractor {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] _ in
                 guard let self else { return }
-                router?.request(.dismissMission(mission, competion: { [weak self] in
+                router?.request(.dismissMission(missionType, competion: { [weak self] in
                     guard let self else { return }
                     listener?.request(.close(nil, nil))
                 }))
@@ -161,7 +160,7 @@ private extension AlarmMissionRootInteractor {
                 }
                 UserDefaults.standard.setDailyFortune(info: newFortuneInfo)
                 
-                router?.request(.dismissMission(mission, competion: { [weak self] in
+                router?.request(.dismissMission(missionType, competion: { [weak self] in
                     guard let self else { return }
                     listener?.request(.missionCompleted(
                         fortune, newFortuneInfo
@@ -188,7 +187,7 @@ private extension AlarmMissionRootInteractor {
                         guard let self else { return }
                         router?.request(.dismissAlert(competion: { [weak self] in
                             guard let self else { return }
-                            router?.request(.dismissMission(mission, competion: { [weak self] in
+                            router?.request(.dismissMission(missionType, competion: { [weak self] in
                                 guard let self else { return }
                                 listener?.request(.close(nil, nil))
                             }))

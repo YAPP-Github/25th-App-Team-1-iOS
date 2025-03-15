@@ -55,6 +55,7 @@ public extension ModulePath {
         case Networking
         
         case Logger
+        case RemoteConfig
         
         public static let categoryName: String = "Feature"
 
@@ -74,6 +75,7 @@ public extension ModulePath {
         case Lottie
         case Alamofire
         case Mixpanel
+        case FirebaseRemoteConfig
         
         public static let categoryName: String = "ThirdParty"
     }

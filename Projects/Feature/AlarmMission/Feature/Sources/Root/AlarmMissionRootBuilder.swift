@@ -20,7 +20,7 @@ final class AlarmMissionRootComponent: Component<AlarmMissionRootDependency> {
 // MARK: - Builder
 
 public protocol AlarmMissionRootBuildable: Buildable {
-    func build(withListener listener: AlarmMissionRootListener, rootController: UIViewController, mission: Mission, isFirstAlarm: Bool) -> AlarmMissionRootRouting
+    func build(withListener listener: AlarmMissionRootListener, rootController: UIViewController, missionType: AlarmMissionType, isFirstAlarm: Bool) -> AlarmMissionRootRouting
 }
 
 public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>, AlarmMissionRootBuildable {
@@ -31,11 +31,11 @@ public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>,
     public func build(
         withListener listener: AlarmMissionRootListener,
         rootController: UIViewController,
-        mission: Mission,
+        missionType: AlarmMissionType,
         isFirstAlarm: Bool) -> AlarmMissionRootRouting {
         let component = AlarmMissionRootComponent(dependency: dependency)
         let interactor = AlarmMissionRootInteractor(
-            mission: mission,
+            missionType: missionType,
             isFirstAlarm: isFirstAlarm,
             missionAction: component.missionAction
         )

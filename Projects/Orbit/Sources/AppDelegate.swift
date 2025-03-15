@@ -10,6 +10,7 @@ import FeatureMain
 import FeatureAlarmCommon
 import FeatureAlarmController
 import BackgroundTasks
+import FeatureRemoteConfig
 
 import RIBs
 import RxSwift
@@ -20,6 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var window: UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        // Firebase
+        configureFirebase()
         
         let alarmController = DefaultAlarmController()
         self.alarmController = alarmController
@@ -94,6 +98,11 @@ extension AppDelegate {
 
 // MARK: Application lifecycle event
 extension AppDelegate {
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        // 리모트 컨피그 갱신
+        fetchAndActivateRemoteConfig()
+    }
+    
     func applicationWillTerminate(_ application: UIApplication) {
         // MARK: 엑티브 상태의 알람이 있는 경우 앱재실행 노티피케이션 표출
         if case .success(let alarms) = alarmController?.readAlarms() {
@@ -148,6 +157,38 @@ extension AppDelegate {
         let requestId = notification.request.identifier
         if alarmController?.checkIsAlarmNotification(notiRequestId: requestId) == true {
             handleAlarmNotification(notification: notification)
+        }
+    }
+}
+
+
+// MARK: Firebase
+private extension AppDelegate {
+    func configureFirebase() {
+        FirebaseApp.configure()
+        debugPrint("Firebase app 설정 완료")
+        
+        // Setup remote config
+        do {
+            let config = RemoteConfig.remoteConfig()
+            let settings = RemoteConfigSettings()
+            settings.minimumFetchInterval = 0
+            config.configSettings = settings
+            try config.setDefaults(from: [
+                "alarm_mission_type": "shake_mission"
+            ])
+            config.fetchAndActivate()
+        } catch {
+            debugPrint("Remote config 기본값 설정 오류 \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchAndActivateRemoteConfig() {
+        let remoteConfig = RemoteConfig.remoteConfig()
+        remoteConfig.fetchAndActivate { _, error in
+            if let error {
+                debugPrint("Remote cofig fetch error \(error.localizedDescription)")
+            }
         }
     }
 }
