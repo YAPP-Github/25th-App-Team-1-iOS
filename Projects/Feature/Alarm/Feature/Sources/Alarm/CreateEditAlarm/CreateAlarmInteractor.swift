@@ -6,10 +6,13 @@
 //
 
 import Foundation
-import RIBs
-import RxSwift
+
 import FeatureUIDependencies
 import FeatureCommonDependencies
+import FeatureLogger
+
+import RIBs
+import RxSwift
 
 enum CreateEditAlarmRouterRequest {
     case presentAlert(DSTwoButtonAlert.Config, DSTwoButtonAlertViewControllerListener)
@@ -46,6 +49,8 @@ protocol CreateEditAlarmListener: AnyObject {
 }
 
 final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPresentable>, CreateEditAlarmInteractable, CreateEditAlarmPresentableListener {
+    // Dependency
+    private let logger: Logger
 
     weak var router: CreateEditAlarmRouting?
     weak var listener: CreateEditAlarmListener?
@@ -53,7 +58,8 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
     init(
         presenter: CreateEditAlarmPresentable,
         mode: AlarmCreateEditMode,
-        createAlarmStream: CreateEditAlarmStream
+        createAlarmStream: CreateEditAlarmStream,
+        logger: Logger
     ) {
         self.mode = mode
         switch mode {
@@ -93,6 +99,7 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
             self.alarm = alarm
         }
         self.createAlarmStream = createAlarmStream
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -208,6 +215,11 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
     private func createAlarm() {
         switch mode {
         case .create:
+            let log = AlarmCreationLogBuilder(
+                alarmId: alarm.id,
+                repeatDays: alarm.repeatDays,
+                snoozeOption: alarm.snoozeOption).build()
+            logger.send(log)
             listener?.request(.done(alarm))
         case .edit:
             listener?.request(.updated(alarm))

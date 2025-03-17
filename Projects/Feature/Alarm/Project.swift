@@ -48,6 +48,7 @@ let project = Project(
                 .feature(implements: .UIDependencies),
                 .feature(implements: .AlarmCommon),
                 .feature(implements: .ThirdPartyDependencies),
+                .feature(implements: .Logger),
             ]
         ),
 

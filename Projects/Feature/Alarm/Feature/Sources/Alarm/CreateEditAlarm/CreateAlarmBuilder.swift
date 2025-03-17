@@ -5,8 +5,10 @@
 //  Created by ever on 12/30/24.
 //
 
-import RIBs
 import FeatureCommonDependencies
+import FeatureLogger
+
+import RIBs
 
 public enum AlarmCreateEditMode {
     case create
@@ -15,6 +17,7 @@ public enum AlarmCreateEditMode {
 
 protocol CreateEditAlarmDependency: Dependency {
     var createAlarmStream: CreateEditAlarmStream { get }
+    var logger: Logger { get }
 }
 
 final class CreateEditAlarmComponent: Component<CreateEditAlarmDependency> {
@@ -50,7 +53,8 @@ final class CreateEditAlarmBuilder: Builder<CreateEditAlarmDependency>, CreateEd
         let interactor = CreateEditAlarmInteractor(
             presenter: viewController,
             mode: component.mode,
-            createAlarmStream: component.createAlarmStream
+            createAlarmStream: component.createAlarmStream,
+            logger: dependency.logger
         )
         interactor.listener = listener
         return CreateEditAlarmRouter(interactor: interactor, viewController: viewController)
