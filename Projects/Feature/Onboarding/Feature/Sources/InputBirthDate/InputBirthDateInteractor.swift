@@ -6,6 +6,7 @@
 //
 
 import FeatureCommonDependencies
+import FeatureLogger
 
 import RIBs
 import RxSwift
@@ -33,6 +34,8 @@ protocol InputBirthDateListener: AnyObject {
 }
 
 final class InputBirthDateInteractor: PresentableInteractor<InputBirthDatePresentable>, InputBirthDateInteractable, InputBirthDatePresentableListener {
+    // Dependency
+    private let logger: Logger
 
     weak var router: InputBirthDateRouting?
     weak var listener: InputBirthDateListener?
@@ -45,8 +48,10 @@ final class InputBirthDateInteractor: PresentableInteractor<InputBirthDatePresen
     // in constructor.
     init(
         presenter: InputBirthDatePresentable,
+        logger: Logger,
         model: OnboardingModel
     ) {
+        self.logger = logger
         self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
@@ -62,10 +67,16 @@ extension InputBirthDateInteractor {
     func request(_ request: InputBirthDatePresenterRequest) {
         switch request {
         case .viewDidLoad:
+            let log = PageViewLogBuilder(event: .birthDate).build()
+            logger.send(log)
             presenter.request(.setBirthDate(model.birthDate))
         case .exitPage:
             listener?.request(.back)
         case .confirmUserInputAndExit:
+            let log = PageActionBuilder(event: .birthTimeNext)
+                .setProperty(key: "step", value: "생년월일")
+                .build()
+            logger.send(log)
             listener?.request(.confirmBirthDate(model))
         case let .updateCurrentBirthDate(birthDateData):
             model.birthDate = birthDateData
