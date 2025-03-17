@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import MediaPlayer
 
 import FeatureResources
 import FeatureCommonEntity
-import MediaPlayer
+import FeatureLogger
 
 enum AlarmNotificationConfig {
     static let defaultTitle: String = "오르비 알람"
@@ -21,6 +22,7 @@ public final class DefaultAlarmScheduler: AlarmScheduler {
     private let backgoundTaskScheduler: BackgoundTaskScheduler
     private let alarmAudioController: AlarmAudioController
     private let vibrationManager: VibrationManager
+    private let logger: Logger
     
     
     // State
@@ -34,11 +36,13 @@ public final class DefaultAlarmScheduler: AlarmScheduler {
     public init(
         backgoundTaskScheduler: BackgoundTaskScheduler,
         alarmAudioController: AlarmAudioController,
-        vibrationManager: VibrationManager
+        vibrationManager: VibrationManager,
+        logger: Logger
     ) {
         self.backgoundTaskScheduler = backgoundTaskScheduler
         self.alarmAudioController = alarmAudioController
         self.vibrationManager = vibrationManager
+        self.logger = logger
     }
     
     private func schedule(date: Date, job: @escaping () -> Void) {
@@ -165,6 +169,10 @@ public extension DefaultAlarmScheduler {
                                 volume: soundOption.volume
                             )
                         }
+                        
+                        // 알람이 시작(Ring) 로깅
+                        let log = AlarmRingLogBuilder(alarmId: alarm.id, alarmDate: alarmDate).build()
+                        logger.send(log)
                     })
 
             case .vibration:

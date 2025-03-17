@@ -37,6 +37,7 @@ let project = Project(
             dependencies: [
                 .feature(implements: .CommonDependencies),
                 .feature(implements: .ThirdPartyDependencies),
+                .feature(implements: .Logger),
             ]
         ),
     ]

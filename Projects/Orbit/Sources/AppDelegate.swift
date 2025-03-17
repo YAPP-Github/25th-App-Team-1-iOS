@@ -26,13 +26,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Firebase
         configureFirebase()
         
-        let alarmController = DefaultAlarmController()
+        // Logger
+        let logger = AmplitudeEventLogger()!
+        self.logger = logger
+        
+        let alarmController = DefaultAlarmController(logger: logger)
         self.alarmController = alarmController
         
         let window = UIWindow(frame: UIScreen.main.bounds)
         let appComponent = AppComponent(
             alarmController: alarmController,
-            logger: AmplitudeEventLogger()!
+            logger: logger
         )
         let (launchRouter, alarmIdHandler) = MainBuilder(dependency: appComponent).build()
         self.launchRouter = launchRouter
@@ -75,6 +79,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     private var alarmController: AlarmController?
     private let jsonDecoder = JSONDecoder()
+    
+    private var logger: Logger?
 }
 
 
