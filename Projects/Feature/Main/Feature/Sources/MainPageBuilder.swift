@@ -5,21 +5,25 @@
 //  Created by choijunios on 1/27/25.
 //
 
-import RIBs
 import FeatureAlarm
 import FeatureAlarmMission
 import FeatureFortune
 import FeatureAlarmRelease
 import FeatureSetting
 import FeatureAlarmController
+import FeatureLogger
+
+import RIBs
 
 public protocol MainPageDependency: Dependency {
     var alarmController: AlarmController { get }
+    var logger: Logger { get }
 }
 
 final class MainPageComponent: Component<MainPageDependency> {
     let viewController: MainPageViewControllable
     fileprivate let service: MainPageServiceable
+    var logger: Logger { dependency.logger }
     
     init(dependency: MainPageDependency, viewController: MainPageViewControllable, service: MainPageServiceable = MainPageService()) {
         self.viewController = viewController

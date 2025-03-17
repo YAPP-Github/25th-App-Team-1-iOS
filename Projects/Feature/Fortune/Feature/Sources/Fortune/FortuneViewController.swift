@@ -12,8 +12,10 @@ import FeatureUIDependencies
 
 enum FortunePresentableListenerRequest {
     case viewDidLoad
+    case currentPageNumber(Int)
     case charmSelected(Int)
-    case close
+    case exitPage
+    case endPage
 }
 
 protocol FortunePresentableListener: AnyObject {
@@ -47,6 +49,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
         charmView.listener = self
         
         listener?.request(.viewDidLoad)
+        listener?.request(.currentPageNumber(1))
     }
     
     private let step1View = FortuneLetterView()
@@ -61,7 +64,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     
     @objc
     private func closeButtonTapped() {
-        listener?.request(.close)
+        listener?.request(.exitPage)
     }
     
     func request(_ request: FortunePresentableRequest) {
@@ -89,6 +92,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
 extension FortuneViewController: FortuneLetterViewListener {
     func action(_ action: FortuneLetterView.Action) {
         view = step2View
+        listener?.request(.currentPageNumber(2))
     }
 }
 
@@ -97,8 +101,10 @@ extension FortuneViewController: FortuneStudyMoneyViewListener {
         switch action {
         case .prev:
             view = step1View
+            listener?.request(.currentPageNumber(1))
         case .next:
             view = step3View
+            listener?.request(.currentPageNumber(3))
         }
     }
 }
@@ -108,8 +114,10 @@ extension FortuneViewController: FortuneHealthLoveViewListener {
         switch action {
         case .prev:
             view = step2View
+            listener?.request(.currentPageNumber(2))
         case .next:
             view = step4View
+            listener?.request(.currentPageNumber(4))
         }
     }
 }
@@ -119,8 +127,10 @@ extension FortuneViewController: FortuneCoordinationViewListener {
         switch action {
         case .prev:
             view = step3View
+            listener?.request(.currentPageNumber(3))
         case .next:
             view = step5View
+            listener?.request(.currentPageNumber(5))
         }
     }
 }
@@ -130,8 +140,10 @@ extension FortuneViewController: FortuneReferenceViewListener {
         switch action {
         case .prev:
             view = step4View
+            listener?.request(.currentPageNumber(4))
         case .next:
             view = step6View
+            listener?.request(.currentPageNumber(6))
         }
     }
 }
@@ -141,8 +153,9 @@ extension FortuneViewController: CompleteWithoutFortuneViewListener {
         switch action {
         case .prev:
             view = step5View
+            listener?.request(.currentPageNumber(5))
         case .done:
-            listener?.request(.close)
+            listener?.request(.endPage)
         }
     }
 }
@@ -152,8 +165,10 @@ extension FortuneViewController: CompleteWithFortuneViewListener {
         switch action {
         case .prev:
             view = step5View
+            listener?.request(.currentPageNumber(5))
         case .next:
             view = charmView
+            listener?.request(.currentPageNumber(7))
         }
     }
 }
@@ -162,7 +177,7 @@ extension FortuneViewController: CharmViewListener {
     func action(_ action: CharmView.Action) {
         switch action {
         case .done:
-            listener?.request(.close)
+            listener?.request(.endPage)
         case let .charmSelected(index):
             listener?.request(.charmSelected(index))
         }

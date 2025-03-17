@@ -27,8 +27,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         configureFirebase()
         
         // Logger
+        #if DEBUG
+        let logger = PrintOnlyLogger()
+        self.logger = logger
+        #else
         let logger = AmplitudeEventLogger()!
         self.logger = logger
+        #endif
         
         let alarmController = DefaultAlarmController(logger: logger)
         self.alarmController = alarmController

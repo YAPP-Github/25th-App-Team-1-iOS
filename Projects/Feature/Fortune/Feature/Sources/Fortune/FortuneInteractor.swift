@@ -6,9 +6,12 @@
 //
 
 import Foundation
+
+import FeatureCommonDependencies
+import FeatureLogger
+
 import RIBs
 import RxSwift
-import FeatureCommonDependencies
 
 public protocol FortuneRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -32,7 +35,14 @@ public protocol FortuneListener: AnyObject {
 }
 
 final class FortuneInteractor: PresentableInteractor<FortunePresentable>, FortuneInteractable, FortunePresentableListener {
-
+    // Dependency
+    private let logger: Logger
+    
+    
+    // State for log
+    private var currentPageNumber: Int?
+    
+    
     weak var router: FortuneRouting?
     weak var listener: FortuneListener?
 
@@ -40,11 +50,13 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
         presenter: FortunePresentable,
         fortune: Fortune,
         userInfo: UserInfo,
-        fortuneInfo: FortuneSaveInfo
+        fortuneInfo: FortuneSaveInfo,
+        logger: Logger
     ) {
         self.fortune = fortune
         self.userInfo = userInfo
         self.fortuneInfo = fortuneInfo
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -56,7 +68,21 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
         case let .charmSelected(index):
             fortuneInfo.charmIndex = index
             UserDefaults.standard.setDailyFortune(info: fortuneInfo)
-        case .close:
+        case .currentPageNumber(let number):
+            currentPageNumber = number
+            if let fortunePageViewEvent = FortunePageViewEvent(rawValue: number) {
+                let log = FortunePageViewEventBuilder(eventType: fortunePageViewEvent).build()
+                logger.send(log)
+            }
+        case .endPage:
+            let log = LogObjectBuilder(eventType: "fortune_complete").build()
+            logger.send(log)
+            listener?.request(.close)
+        case .exitPage:
+            if let currentPageNumber {
+                let log = ExitFortuneLogBuilder(pageNumber: currentPageNumber).build()
+                logger.send(log)
+            }
             listener?.request(.close)
         }
     }

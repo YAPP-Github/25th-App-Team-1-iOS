@@ -5,10 +5,13 @@
 //  Created by ever on 1/1/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 public protocol RootDependency: Dependency {
     var alarmRootViewController: RootViewControllable { get }
+    var logger: Logger { get }
 }
 
 final class RootComponent: Component<RootDependency> {
@@ -23,6 +26,8 @@ final class RootComponent: Component<RootDependency> {
     var createAlarmMutableStream: CreateEditAlarmMutableStream {
         return shared { CreateEditAlarmMutableStreamImpl() }
     }
+    
+    var logger: Logger { dependency.logger }
     
     init(dependency: any RootDependency,
          viewController: RootViewControllable,
