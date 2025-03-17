@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum OnboardingMissionGuidePresentableListenerRequest {
+    case viewDidLoad
     case back
     case next
 }
@@ -31,6 +32,7 @@ final class OnboardingMissionGuideViewController: UIViewController, OnboardingMi
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
         mainView.playAnimation()
+        listener?.request(.viewDidLoad)
     }
     
     private let mainView = OnboardingMissionGuideView()
