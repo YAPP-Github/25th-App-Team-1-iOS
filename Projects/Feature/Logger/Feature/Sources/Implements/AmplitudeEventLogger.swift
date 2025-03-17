@@ -13,14 +13,6 @@ public final class AmplitudeEventLogger: Logger {
     // Dependency
     private let amplitude: Amplitude
     
-    
-    // State
-    private var autoFlushCount: Int?
-    private var options: [LoggerOptions] = []
-    private var isReady: Bool {
-        autoFlushCount != nil
-    }
-    
     public init?() {
         guard let apiKey = ProcessInfo.processInfo.environment["AMPLITUDE_API_KEY"] else { return nil }
         let config = Configuration(

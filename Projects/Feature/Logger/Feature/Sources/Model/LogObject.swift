@@ -19,7 +19,6 @@ open class LogObject {
 public extension LogObject {
     var description: String {
         """
-        ==================================================
         [이벤트 타입] : \(eventType)
         [매개 변수]
         \(properties)
