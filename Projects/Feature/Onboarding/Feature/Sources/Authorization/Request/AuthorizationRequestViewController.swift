@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum AuthorizationRequestPresentableListenerRequest {
+    case viewDidLoad
     case back
     case requestAuthorization
 }
@@ -30,6 +31,7 @@ final class AuthorizationRequestViewController: UIViewController, AuthorizationR
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
+        listener?.request(.viewDidLoad)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak listener] in
             listener?.request(.requestAuthorization)
         }

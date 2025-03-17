@@ -5,11 +5,12 @@
 //  Created by ever on 1/11/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol AuthorizationRequestDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class AuthorizationRequestComponent: Component<AuthorizationRequestDependency> {
@@ -37,7 +38,11 @@ final class AuthorizationRequestBuilder: Builder<AuthorizationRequestDependency>
     func build(withListener listener: AuthorizationRequestListener) -> AuthorizationRequestRouting {
         let component = AuthorizationRequestComponent(dependency: dependency)
         let viewController = AuthorizationRequestViewController()
-        let interactor = AuthorizationRequestInteractor(presenter: viewController, service: component.service)
+        let interactor = AuthorizationRequestInteractor(
+            presenter: viewController,
+            logger: dependency.logger,
+            service: component.service
+        )
         interactor.listener = listener
         return AuthorizationRequestRouter(interactor: interactor, viewController: viewController)
     }

@@ -5,11 +5,12 @@
 //  Created by choijunios on 1/7/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol InputGenderDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class InputGenderComponent: Component<InputGenderDependency> {
@@ -36,7 +37,11 @@ final class InputGenderBuilder: Builder<InputGenderDependency>, InputGenderBuild
     func build(withListener listener: InputGenderListener, model: OnboardingModel) -> InputGenderRouting {
         let component = InputGenderComponent(dependency: dependency, model: model)
         let viewController = InputGenderViewController()
-        let interactor = InputGenderInteractor(presenter: viewController, model: component.model)
+        let interactor = InputGenderInteractor(
+            presenter: viewController,
+            logger: dependency.logger,
+            model: component.model
+        )
         interactor.listener = listener
         return InputGenderRouter(interactor: interactor, viewController: viewController)
     }
