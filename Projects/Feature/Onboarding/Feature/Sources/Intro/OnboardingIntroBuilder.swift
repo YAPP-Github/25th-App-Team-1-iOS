@@ -5,11 +5,12 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol OnboardingIntroDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class OnboardingIntroComponent: Component<OnboardingIntroDependency> {
@@ -32,7 +33,10 @@ final class OnboardingIntroBuilder: Builder<OnboardingIntroDependency>, Onboardi
     func build(withListener listener: OnboardingIntroListener) -> OnboardingIntroRouting {
         let component = OnboardingIntroComponent(dependency: dependency)
         let viewController = OnboardingIntroViewController()
-        let interactor = OnboardingIntroInteractor(presenter: viewController)
+        let interactor = OnboardingIntroInteractor(
+            logger: dependency.logger,
+            presenter: viewController
+        )
         interactor.listener = listener
         return OnboardingIntroRouter(interactor: interactor, viewController: viewController)
     }
