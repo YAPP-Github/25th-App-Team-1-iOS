@@ -81,7 +81,7 @@ final class AuthorizationRequestInteractor: PresentableInteractor<AuthorizationR
                 guard let self else { return }
                 if granted {
                     let log = PageActionBuilder(event: .permissionAccept)
-                        .setProperty(key: "permission", value: "허용")
+                        .setProperty(key: "is_permission_granted", value: true)
                         .build()
                     logger.send(log)
                     listener?.request(.agree)

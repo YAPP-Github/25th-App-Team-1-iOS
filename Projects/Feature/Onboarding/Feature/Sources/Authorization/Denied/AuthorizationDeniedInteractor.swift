@@ -57,13 +57,13 @@ final class AuthorizationDeniedInteractor: PresentableInteractor<AuthorizationDe
         switch request {
         case .later:
             let log = PageActionBuilder(event: .permissionAccept)
-                .setProperty(key: "permission", value: "거부")
+                .setProperty(key: "is_permission_granted", value: false)
                 .build()
             logger.send(log)
             listener?.request(.later)
         case .allowed:
             let log = PageActionBuilder(event: .permissionAccept)
-                .setProperty(key: "permission", value: "허용")
+                .setProperty(key: "is_permission_granted", value: true)
                 .build()
             logger.send(log)
             listener?.request(.allowed)
