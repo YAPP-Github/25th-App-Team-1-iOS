@@ -7,15 +7,18 @@
 
 import UIKit
 
+import FeatureAlarmMission
+import FeatureLogger
+
 import RIBs
 
-import FeatureAlarmMission
-
 protocol ExampleRIBDependency: Dependency {
-    
+    var logger: Logger { get }
 }
 
-final class ExampleRIBComponent: Component<ExampleRIBDependency>, AlarmMissionRootDependency { }
+final class ExampleRIBComponent: Component<ExampleRIBDependency>, AlarmMissionRootDependency {
+    var logger: Logger { dependency.logger }
+}
 
 // MARK: - Builder
 

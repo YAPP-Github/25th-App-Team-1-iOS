@@ -10,6 +10,7 @@ import Foundation
 import FeatureUIDependencies
 import FeatureCommonDependencies
 import FeatureNetworking
+import FeatureLogger
 
 import RIBs
 import RxSwift
@@ -34,6 +35,9 @@ protocol ShakeMissionMainPresentable: Presentable {
 protocol ShakeMissionMainListener: AnyObject { }
 
 final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPresentable>, ShakeMissionMainInteractable, ShakeMissionMainPresentableListener {
+    // Dependency
+    private let logger: Logger
+    
 
     weak var router: ShakeMissionMainRouting?
     weak var listener: ShakeMissionMainListener?
@@ -47,9 +51,11 @@ final class ShakeMissionMainInteractor: PresentableInteractor<ShakeMissionMainPr
     // in constructor.
     init(
         presenter: ShakeMissionMainPresentable,
-        missionAction: PublishRelay<MissionState>
+        missionAction: PublishRelay<MissionState>,
+        logger: Logger
     ) {
         self.missionAction = missionAction
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -65,6 +71,8 @@ extension ShakeMissionMainInteractor {
     func request(_ request: ShakeMissionMainPresenterRequest) {
         switch request {
         case .startMission:
+            let log = MissionActionLogBuilder(eventType: .missionStart, mission: .shake).build()
+            logger.send(log)
             router?.request(.presentWorkingPage)
         case .exitPage:
             let alertConfig: DSTwoButtonAlert.Config = .init(
@@ -78,6 +86,8 @@ extension ShakeMissionMainInteractor {
                 },
                 rightButtonTapped: { [weak self] in
                     guard let self else { return }
+                    let log = MissionActionLogBuilder(eventType: .skipMission, mission: .shake).build()
+                    logger.send(log)
                     router?.request(.dismissAlert(completion: { [weak self] in
                         guard let self else { return }
                         missionAction.accept(.exitMission)

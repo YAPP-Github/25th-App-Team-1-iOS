@@ -5,11 +5,12 @@
 //  Created by choijunios on 1/20/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol ShakeMissionWorkingDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class ShakeMissionWorkingComponent: Component<ShakeMissionWorkingDependency> {
@@ -32,7 +33,7 @@ final class ShakeMissionWorkingBuilder: Builder<ShakeMissionWorkingDependency>, 
     func build(withListener listener: ShakeMissionWorkingListener) -> ShakeMissionWorkingRouting {
         let component = ShakeMissionWorkingComponent(dependency: dependency)
         let viewController = ShakeMissionWorkingViewController()
-        let interactor = ShakeMissionWorkingInteractor(presenter: viewController)
+        let interactor = ShakeMissionWorkingInteractor(presenter: viewController, logger: dependency.logger)
         interactor.listener = listener
         return ShakeMissionWorkingRouter(interactor: interactor, viewController: viewController)
     }

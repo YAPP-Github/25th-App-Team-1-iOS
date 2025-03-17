@@ -3,7 +3,9 @@
 //
 
 import UIKit
+
 import FeatureAlarmMission
+import FeatureLogger
 
 import RIBs
 
@@ -29,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ExampleRIBListener {
     }
     
     class RootComponent: ExampleRIBDependency {
-        
+        let logger: Logger = PrintOnlyLogger()
     }
 }
 

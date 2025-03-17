@@ -5,11 +5,12 @@
 //  Created by choijunios on 3/4/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol TapMissionWorkingDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class TapMissionWorkingComponent: Component<TapMissionWorkingDependency> {
@@ -32,7 +33,7 @@ final class TapMissionWorkingBuilder: Builder<TapMissionWorkingDependency>, TapM
     func build(withListener listener: TapMissionWorkingListener) -> TapMissionWorkingRouting {
         let component = TapMissionWorkingComponent(dependency: dependency)
         let viewController = TapMissionWorkingViewController()
-        let interactor = TapMissionWorkingInteractor(presenter: viewController)
+        let interactor = TapMissionWorkingInteractor(presenter: viewController, logger: dependency.logger)
         interactor.listener = listener
         return TapMissionWorkingRouter(interactor: interactor, viewController: viewController)
     }

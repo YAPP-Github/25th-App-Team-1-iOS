@@ -7,12 +7,18 @@
 
 import UIKit
 
+import FeatureLogger
+
 import RIBs
 import RxRelay
 
-public protocol AlarmMissionRootDependency: Dependency { }
+public protocol AlarmMissionRootDependency: Dependency {
+    var logger: Logger { get }
+}
 
 final class AlarmMissionRootComponent: Component<AlarmMissionRootDependency> {
+    var action: PublishRelay<MissionState> { self.missionAction }
+    var logger: Logger { dependency.logger }
     
     internal let missionAction: PublishRelay<MissionState> = .init()
 }

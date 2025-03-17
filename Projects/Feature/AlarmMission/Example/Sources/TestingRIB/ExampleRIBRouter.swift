@@ -41,7 +41,7 @@ final class ExampleRIBRouter: ViewableRouter<ExampleRIBInteractable, ExampleRIBV
         let router = missionBuilder.build(
             withListener: interactor,
             rootController: viewController.uiviewController,
-            mission: mission,
+            missionType: mission,
             isFirstAlarm: true
         )
         self.missionRouter = router

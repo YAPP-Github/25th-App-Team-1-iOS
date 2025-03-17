@@ -6,6 +6,7 @@
 //
 
 import FeatureUIDependencies
+import FeatureLogger
 
 import RIBs
 import RxSwift
@@ -37,6 +38,9 @@ protocol TapMissionMainListener: AnyObject { }
 
 
 final class TapMissionMainInteractor: PresentableInteractor<TapMissionMainPresentable>, TapMissionMainInteractable, TapMissionMainPresentableListener {
+    // Dependency
+    private let logger: Logger
+    
 
     weak var router: TapMissionMainRouting?
     weak var listener: TapMissionMainListener?
@@ -48,8 +52,12 @@ final class TapMissionMainInteractor: PresentableInteractor<TapMissionMainPresen
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(presenter: TapMissionMainPresentable, missionAction: PublishRelay<MissionState>) {
+    init(
+        presenter: TapMissionMainPresentable,
+        missionAction: PublishRelay<MissionState>,
+        logger: Logger) {
         self.missionAction = missionAction
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -61,6 +69,8 @@ extension TapMissionMainInteractor {
     func request(_ request: TapMissionMainPresenterRequest) {
         switch request {
         case .startMission:
+            let log = MissionActionLogBuilder(eventType: .missionStart, mission: .tap).build()
+            logger.send(log)
             router?.request(.presentWorkingPage)
         case .exitPage:
             let alertConfig: DSTwoButtonAlert.Config = .init(
@@ -74,6 +84,8 @@ extension TapMissionMainInteractor {
                 },
                 rightButtonTapped: { [weak self] in
                     guard let self else { return }
+                    let log = MissionActionLogBuilder(eventType: .skipMission, mission: .tap).build()
+                    logger.send(log)
                     router?.request(.dismissAlert(completion: { [weak self] in
                         guard let self else { return }
                         missionAction.accept(.exitMission)

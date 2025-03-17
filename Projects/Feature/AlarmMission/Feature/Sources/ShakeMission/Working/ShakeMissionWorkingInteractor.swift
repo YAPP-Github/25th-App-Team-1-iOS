@@ -6,6 +6,7 @@
 //
 
 import FeatureUIDependencies
+import FeatureLogger
 
 import RIBs
 import RxSwift
@@ -58,6 +59,9 @@ enum ShakeMissionWorkingListenerRequest {
 
 
 final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWorkingPresentable>, ShakeMissionWorkingInteractable, ShakeMissionWorkingPresentableListener {
+    // Dependency
+    private let logger: Logger
+    
 
     weak var router: ShakeMissionWorkingRouting?
     weak var listener: ShakeMissionWorkingListener?
@@ -75,7 +79,8 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: ShakeMissionWorkingPresentable) {
+    init(presenter: ShakeMissionWorkingPresentable, logger: Logger) {
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -112,8 +117,9 @@ extension ShakeMissionWorkingInteractor {
             self.currentMissionFlow = nextFlow
             presenter.request(.missionFlow(nextFlow))
         case .missionSuccessEventFinished:
+            let log = MissionActionLogBuilder(eventType: .missionComplete, mission: .shake).build()
+            logger.send(log)
             listener?.request(request: .exitPage(isMissionCompleted: true))
-            
         case .exitPage:
             
             // 미션이 성공 상태인 경우 Alert표출 금지
@@ -135,6 +141,8 @@ extension ShakeMissionWorkingInteractor {
                     router?.request(.dismissAlert())
                 }, rightButtonTapped: { [weak self] in
                     guard let self else { return }
+                    let log = MissionActionLogBuilder(eventType: .missionFailure, mission: .shake).build()
+                    logger.send(log)
                     router?.request(.dismissAlert(completion: { [weak self] in
                         guard let self else { return }
                         listener?.request(request: .exitPage(isMissionCompleted: false))

@@ -5,16 +5,18 @@
 //  Created by choijunios on 3/4/25.
 //
 
+import FeatureLogger
+
 import RIBs
 import RxRelay
 
 protocol TapMissionMainDependency: Dependency {
     var action: PublishRelay<MissionState> { get }
+    var logger: Logger { get }
 }
 
 final class TapMissionMainComponent: Component<TapMissionMainDependency>, TapMissionWorkingDependency {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    var logger: Logger { dependency.logger }
 }
 
 // MARK: - Builder
@@ -34,7 +36,8 @@ final class TapMissionMainBuilder: Builder<TapMissionMainDependency>, TapMission
         let viewController = TapMissionMainViewController()
         let interactor = TapMissionMainInteractor(
             presenter: viewController,
-            missionAction: dependency.action
+            missionAction: dependency.action,
+            logger: dependency.logger
         )
         interactor.listener = listener
         let tapMissionWorkingBuilder = TapMissionWorkingBuilder(dependency: component)

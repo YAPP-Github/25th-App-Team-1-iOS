@@ -20,4 +20,13 @@ public enum AlarmMissionType: String {
         debugPrint("알람미션 기본값 사용됨")
         return .shake
     }
+    
+    var logPropertyValue: String {
+        switch self {
+        case .shake:
+            "shake"
+        case .tap:
+            "tap"
+        }
+    }
 }
