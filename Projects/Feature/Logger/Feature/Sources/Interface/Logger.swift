@@ -6,9 +6,7 @@
 //
 
 public protocol Logger {
-    /// Must call this method on App launch
-    func initialize(autoFlushCount: Int, options: [LoggerOptions])
     func setupUser(id: String)
-    func send(_ log: LogObject)
+    func send(_ object: LogObject)
     func manualFlush()
 }

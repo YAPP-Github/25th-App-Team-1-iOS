@@ -77,3 +77,4 @@ fastlane/.env
 *.ipa
 *.dSYM.zip
 Projects/Orbit/Resources/GoogleService-Info.plist
+Secrets

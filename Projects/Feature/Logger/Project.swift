@@ -35,7 +35,7 @@ let project = Project(
             sources: ["Feature/Sources/**"],
             dependencies: [
                 .feature(implements: .ThirdPartyDependencies),
-                .thirdParty(library: .Mixpanel),
+                .thirdParty(library: .AmplitudeSwift),
             ]
         ),
     ]

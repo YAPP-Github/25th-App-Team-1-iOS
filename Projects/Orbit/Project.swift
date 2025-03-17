@@ -39,7 +39,15 @@ let project = Project(
                 
                 // Third party
                 .feature(implements: .ThirdPartyDependencies),
-            ]
+            ],
+            settings: .settings(
+                base: [
+                    "AMPLITUDE_API_KEY": "$(AMPLITUDE_API_KEY)"
+                ],
+                configurations: [
+                    .debug(name: "Debug", xcconfig: .relativeToRoot("Secrets/xcconfigs/Debug.xcconfig")),
+                    .release(name: "Release", xcconfig: .relativeToRoot("Secrets/xcconfigs/Release.xcconfig")),
+            ])
         ),
     ],
     schemes: [

@@ -74,7 +74,7 @@ public extension ModulePath {
         case SnapKit
         case Lottie
         case Alamofire
-        case Mixpanel
+        case AmplitudeSwift
         case FirebaseRemoteConfig
         
         public static let categoryName: String = "ThirdParty"

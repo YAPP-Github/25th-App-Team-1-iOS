@@ -1,5 +1,5 @@
 {
-  "originHash" : "a55a9c21935871638150ccfe60dc96ae70ccc5b56d2468d0fce3080d77222309",
+  "originHash" : "8a215e31c7ac0b9615d14fd6f895e9c7d7bb71935ba6f1a01a3b72b87f325268",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,24 @@
       "state" : {
         "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
         "version" : "5.10.2"
+      }
+    },
+    {
+      "identity" : "amplitude-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/Amplitude-Swift.git",
+      "state" : {
+        "revision" : "f31bd466fc22927a1291a01c1b1b80d4c162c321",
+        "version" : "1.11.7"
+      }
+    },
+    {
+      "identity" : "analytics-connector-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/analytics-connector-ios.git",
+      "state" : {
+        "revision" : "4adbfe85486e6dcdcdca5fa9362097ffe5ec712b",
+        "version" : "1.3.1"
       }
     },
     {
@@ -107,15 +125,6 @@
       "state" : {
         "revision" : "8c6edf4f0fa84fe9c058600a4295eb0c01661c69",
         "version" : "4.5.1"
-      }
-    },
-    {
-      "identity" : "mixpanel-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mixpanel/mixpanel-swift.git",
-      "state" : {
-        "revision" : "6302088440efba7c12e19ed2280f34af288d6e04",
-        "version" : "4.3.1"
       }
     },
     {
