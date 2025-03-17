@@ -6,9 +6,11 @@
 //
 
 import FeatureOnboarding
+import FeatureLogger
 
 extension MainComponent: FeatureOnboarding.RootDependency {
     var onboardingRootViewController: any FeatureOnboarding.RootViewControllable {
         rootViewController
     }
+    var logger: Logger { dependency.logger }
 }

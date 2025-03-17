@@ -5,11 +5,12 @@
 //  Created by ever on 1/11/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol AuthorizationDeniedDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class AuthorizationDeniedComponent: Component<AuthorizationDeniedDependency> {
@@ -32,7 +33,10 @@ final class AuthorizationDeniedBuilder: Builder<AuthorizationDeniedDependency>, 
     func build(withListener listener: AuthorizationDeniedListener) -> AuthorizationDeniedRouting {
         let component = AuthorizationDeniedComponent(dependency: dependency)
         let viewController = AuthorizationDeniedViewController()
-        let interactor = AuthorizationDeniedInteractor(presenter: viewController)
+        let interactor = AuthorizationDeniedInteractor(
+            presenter: viewController,
+            logger: dependency.logger
+        )
         interactor.listener = listener
         return AuthorizationDeniedRouter(interactor: interactor, viewController: viewController)
     }

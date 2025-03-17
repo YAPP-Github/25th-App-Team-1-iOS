@@ -5,9 +5,11 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import FeatureLogger
+import FeatureOnboarding
+
 import RIBs
 import UIKit
-import FeatureOnboarding
 
 final class RootViewController: UIViewController {
     enum Scene: CaseIterable {
@@ -157,8 +159,10 @@ extension RootViewController: UITableViewDelegate {
 
 class ExampleComponent: Component<EmptyDependency> {
     let viewController: RootViewControllable
-    init(viewController: RootViewControllable) {
+    let logger: Logger
+    init(viewController: RootViewControllable, logger: Logger = PrintOnlyLogger()) {
         self.viewController = viewController
+        self.logger = logger
         super.init(dependency: EmptyComponent())
     }
 }

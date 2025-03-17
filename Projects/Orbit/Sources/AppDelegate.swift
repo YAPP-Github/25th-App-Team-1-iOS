@@ -11,6 +11,7 @@ import FeatureAlarmCommon
 import FeatureAlarmController
 import BackgroundTasks
 import FeatureRemoteConfig
+import FeatureLogger
 
 import RIBs
 import RxSwift
@@ -29,7 +30,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         self.alarmController = alarmController
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        let appComponent = AppComponent(alarmController: alarmController)
+        let appComponent = AppComponent(
+            alarmController: alarmController,
+            logger: AmplitudeEventLogger()!
+        )
         let (launchRouter, alarmIdHandler) = MainBuilder(dependency: appComponent).build()
         self.launchRouter = launchRouter
         self.alarmIdHandler = alarmIdHandler

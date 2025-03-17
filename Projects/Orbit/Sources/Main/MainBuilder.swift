@@ -10,9 +10,11 @@ import RIBs
 import FeatureOnboarding
 import FeatureMain
 import FeatureAlarmController
+import FeatureLogger
 
 protocol MainDependency: Dependency {
     var alarmController: AlarmController { get }
+    var logger: Logger { get }
 }
 
 final class MainComponent: Component<MainDependency> {
