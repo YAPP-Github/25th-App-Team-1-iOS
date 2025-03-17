@@ -5,12 +5,14 @@
 //  Created by ever on 2/10/25.
 //
 
-import RIBs
-import RxSwift
 import FeatureCommonDependencies
 import FeatureResources
 import FeatureAlarmCommon
 import FeatureAlarmController
+import FeatureLogger
+
+import RIBs
+import RxSwift
 
 public enum AlarmReleaseIntroRouterRequest {
     case routeToSnooze(SnoozeOption)
@@ -42,9 +44,9 @@ public protocol AlarmReleaseIntroListener: AnyObject {
 }
 
 final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntroPresentable>, AlarmReleaseIntroInteractable, AlarmReleaseIntroPresentableListener {
-    
     // Dependency
     private let alarmController: AlarmController
+    private let logger: Logger
 
     weak var router: AlarmReleaseIntroRouting?
     weak var listener: AlarmReleaseIntroListener?
@@ -55,11 +57,13 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         presenter: AlarmReleaseIntroPresentable,
         alarm: Alarm,
         isFirstAlarm: Bool,
-        alarmController: AlarmController
+        alarmController: AlarmController,
+        logger: Logger
     ) {
         self.alarm = alarm
         self.isFirstAlarm = isFirstAlarm
         self.alarmController = alarmController
+        self.logger = logger
         remainSnoozeCount = alarm.snoozeOption.count.rawValue
         super.init(presenter: presenter)
         presenter.listener = self
@@ -93,6 +97,11 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         case .viewDidLoad:
             presenter.request(.updateSnooze(alarm.snoozeOption))
         case .snoozeAlarm:
+            let log = ExecuteSnoozeLogBuilder(
+                alarmId: alarm.id,
+                snoozeTime: alarm.snoozeOption.count.rawValue
+            ).build()
+            logger.send(log)
             stopAlarm()
             router?.request(.routeToSnooze(alarm.snoozeOption))
         case .releaseAlarm:

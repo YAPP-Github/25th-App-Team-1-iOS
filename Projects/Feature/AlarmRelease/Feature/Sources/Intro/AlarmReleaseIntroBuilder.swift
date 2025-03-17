@@ -5,13 +5,17 @@
 //  Created by ever on 2/10/25.
 //
 
-import RIBs
 import UIKit
+
 import FeatureCommonDependencies
 import FeatureAlarmController
+import FeatureLogger
+
+import RIBs
 
 public protocol AlarmReleaseIntroDependency: Dependency {
     var alarmController: AlarmController { get }
+    var logger: Logger { get }
 }
 
 final class AlarmReleaseIntroComponent: Component<AlarmReleaseIntroDependency> {
@@ -44,7 +48,8 @@ public final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency
             presenter: viewController,
             alarm: component.alarm,
             isFirstAlarm: isFirstAlarm,
-            alarmController: dependency.alarmController
+            alarmController: dependency.alarmController,
+            logger: dependency.logger
         )
         interactor.listener = listener
         
