@@ -5,6 +5,8 @@
 //  Created by ever on 2/10/25.
 //
 
+import Foundation
+
 import FeatureCommonDependencies
 import FeatureResources
 import FeatureAlarmCommon
@@ -105,6 +107,18 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
             stopAlarm()
             router?.request(.routeToSnooze(alarm.snoozeOption))
         case .releaseAlarm:
+            var isFirstAlarmOfDay = true
+            if UserDefaults.standard.dailyFirstAlarmIsReleased() {
+                // 오늘 해제된 알람이 있는 경우
+                isFirstAlarmOfDay = false
+                UserDefaults.standard.removeYesterDay()
+            }
+            let log = DismissAlarmLogBuilder(
+                alarmId: alarm.id,
+                isFirstAlarm: isFirstAlarmOfDay
+            ).build()
+            logger.send(log)
+            
             stopAlarm()
             listener?.request(.releaseAlarm(isFirstAlarm))
         }
