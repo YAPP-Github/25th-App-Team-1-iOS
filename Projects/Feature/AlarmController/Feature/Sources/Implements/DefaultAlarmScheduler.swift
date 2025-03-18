@@ -163,6 +163,8 @@ public extension DefaultAlarmScheduler {
                         // 알람 사운드 재생
                         let soundOption = alarm.soundOption
                         if soundOption.isSoundOn, let audioURL = alarm.selectedSoundUrl {
+                            // 사운드 재생 전 시스템 볼륨 알람에서 설정한 볼륨으로 변경
+                            VolumeManager.setVolume(soundOption.volume)
                             alarmAudioController.play(
                                 id: KeyGenerator.audioTask(alarmId: alarm.id),
                                 audioURL: audioURL,
