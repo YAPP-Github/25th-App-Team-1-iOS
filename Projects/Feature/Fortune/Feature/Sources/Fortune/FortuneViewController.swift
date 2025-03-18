@@ -16,6 +16,7 @@ enum FortunePresentableListenerRequest {
     case charmSelected(Int)
     case exitPage
     case endPage
+    case saveCharmToAlbumAndExit(image: UIImage)
 }
 
 protocol FortunePresentableListener: AnyObject {
@@ -75,15 +76,21 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
             step3View.update(.fortune(fortune, userInfo))
             step4View.update(.fortune(fortune))
             step5View.update(.fortune(fortune))
-            if fortuneInfo.shouldShowCharm {
-                step6View = withFortuneView
-                withFortuneView.listener = self
-                charmView.update(.user(userInfo))
-                charmView.update(.charm(fortuneInfo))
-            } else {
-                step6View = withoutFortuneView
-                withoutFortuneView.listener = self
-            }
+            
+            step6View = withFortuneView
+            withFortuneView.listener = self
+            charmView.update(.user(userInfo))
+            charmView.update(.charm(fortuneInfo))
+            
+//            if fortuneInfo.shouldShowCharm {
+//                step6View = withFortuneView
+//                withFortuneView.listener = self
+//                charmView.update(.user(userInfo))
+//                charmView.update(.charm(fortuneInfo))
+//            } else {
+//                step6View = withoutFortuneView
+//                withoutFortuneView.listener = self
+//            }
             
         }
     }
@@ -176,6 +183,8 @@ extension FortuneViewController: CompleteWithFortuneViewListener {
 extension FortuneViewController: CharmViewListener {
     func action(_ action: CharmView.Action) {
         switch action {
+        case let .saveToAlbumTapped(image):
+            listener?.request(.saveCharmToAlbumAndExit(image: image))
         case .done:
             listener?.request(.endPage)
         case let .charmSelected(index):

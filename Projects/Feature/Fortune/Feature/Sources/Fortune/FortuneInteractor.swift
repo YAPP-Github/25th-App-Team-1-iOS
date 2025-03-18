@@ -5,16 +5,22 @@
 //  Created by ever on 2/8/25.
 //
 
-import Foundation
+import UIKit
 
 import FeatureCommonDependencies
+import FeatureDesignSystem
 import FeatureLogger
 
 import RIBs
 import RxSwift
 
+public enum FortuneRoutingRequest {
+    case presentAlert(DSButtonAlert.Config)
+    case dismissAlert(completion: (()->Void)?=nil)
+}
+
 public protocol FortuneRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func request(_ request: FortuneRoutingRequest)
 }
 
 enum FortunePresentableRequest {
@@ -58,6 +64,7 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
         self.userInfo = userInfo
         self.fortuneInfo = fortuneInfo
         self.logger = logger
+        self.imageSaveHelper = ImageSaveHelper()
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -101,6 +108,30 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
                 logger.send(log)
             }
             listener?.request(.close)
+        case .saveCharmToAlbumAndExit(let image):
+            let log = LogObjectBuilder(eventType: "fortune_talisman_save").build()
+            logger.send(log)
+            
+            imageSaveHelper.onSuccess = { [weak self] in
+                guard let self else { return }
+                listener?.request(.close)
+            }
+            imageSaveHelper.onError = { [weak self] error in
+                debugPrint("\(Self.self) \(error.localizedDescription)")
+                guard let self else {return}
+                // 저장 실패 에러처리
+                let config = DSButtonAlert.Config(
+                    titleText: "앨범 저장 실패",
+                    subTitleText: "저장 중 문제가 발생했어요.",
+                    buttonText: "닫기",
+                    buttonAction: { [weak self] in
+                        guard let self else { return }
+                        router?.request(.dismissAlert(completion: nil))
+                    }
+                )
+                router?.request(.presentAlert(config))
+            }
+            imageSaveHelper.saveImageToAlbumAndExit(image: image)
         }
     }
     
@@ -108,8 +139,13 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     private let userInfo: UserInfo
     private var fortuneInfo: FortuneSaveInfo
     
-    
-    private func logPageViewDuration(viewedPageNumber: Int, startTime: Date) {
+    private let imageSaveHelper: ImageSaveHelper
+}
+
+
+// MARK: Log
+private extension FortuneInteractor {
+    func logPageViewDuration(viewedPageNumber: Int, startTime: Date) {
         if let prevPageEvent = FortunePageViewEvent(rawValue: viewedPageNumber) {
             // 페이지 체류시간 로그
             let log = PageViewDurationLogBuilder(eventType: prevPageEvent, start: startTime, end: .now).build()

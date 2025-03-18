@@ -12,7 +12,7 @@ enum FortunePageViewEvent: Int {
     case coordination=4
     case reference=5
     case complete=6
-    case charm
+    case charm=7
     
     var eventName: String {
         switch self {

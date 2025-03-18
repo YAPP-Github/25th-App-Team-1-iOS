@@ -17,6 +17,7 @@ protocol CharmViewListener: AnyObject {
 final class CharmView: UIView {
     enum Action {
         case done
+        case saveToAlbumTapped(UIImage)
         case charmSelected(Int)
     }
     
@@ -83,25 +84,6 @@ final class CharmView: UIView {
         let image = charmImages[randomIndex]
         return (image, randomIndex)
     }
-    
-    private func saveImage() {
-        guard let selectedImage else { return }
-        saveImageToAlbum(image: selectedImage)
-    }
-    
-    private func saveImageToAlbum(image: UIImage) {
-        UIImageWriteToSavedPhotosAlbum(image, self, #selector(imageSavedToAlbum), nil)
-    }
-
-    @objc func imageSavedToAlbum(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        if let error = error {
-            // 저장 실패
-            print("이미지 저장 실패: \(error.localizedDescription)")
-        } else {
-            // 저장 성공
-            listener?.action(.done)
-        }
-    }
 }
 
 private extension CharmView {
@@ -127,7 +109,9 @@ private extension CharmView {
         saveButton.do {
             $0.update(title: "앨범에 저장")
             $0.buttonAction = { [weak self] in
-                self?.saveImage()
+                guard let self else { return }
+                guard let selectedImage else { return }
+                listener?.action(.saveToAlbumTapped(selectedImage))
             }
             
             $0.setContentCompressionResistancePriority(.required, for: .vertical)
