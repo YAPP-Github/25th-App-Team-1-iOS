@@ -28,7 +28,7 @@ public final class AmplitudeEventLogger: Logger {
 // MARK: Logger
 public extension AmplitudeEventLogger {
     func setupUser(id: String) {
-        amplitude.setUserId(userId: id)
+        amplitude.setUserId(userId: "ORBIT_\(id)")
     }
     
     func send(_ object: LogObject) {
