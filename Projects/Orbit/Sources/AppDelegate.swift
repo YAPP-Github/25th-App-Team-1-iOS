@@ -32,6 +32,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         #else
         let logger = AmplitudeEventLogger()
         self.logger = logger
+        if let userId = Preference.userId {
+            // 로깅 유저 ID설정
+            logger.setupUser(id: String(userId))
+        }
         #endif
         
         let alarmController = DefaultAlarmController(logger: logger)

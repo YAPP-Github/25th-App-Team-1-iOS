@@ -9,7 +9,7 @@ import UIKit
 import MediaPlayer
 
 import FeatureResources
-import FeatureCommonEntity
+import FeatureCommonDependencies
 import FeatureLogger
 
 enum AlarmNotificationConfig {
