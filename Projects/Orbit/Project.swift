@@ -26,7 +26,10 @@ let project = Project(
                 ]
             ]),
             sources: ["Sources/**"],
-            resources: ["Resources/**"],
+            resources: [
+                "Resources/**",
+                "../../Secrets/GoogleService-Info.plist"
+            ],
 //            entitlements: .file(path: .relativeToRoot("Entitlements/App.entitlements")),
             dependencies: [
                 // Feature
