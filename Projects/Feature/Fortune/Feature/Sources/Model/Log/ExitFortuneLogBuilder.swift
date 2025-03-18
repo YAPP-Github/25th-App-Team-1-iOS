@@ -10,6 +10,6 @@ import FeatureLogger
 final class ExitFortuneLogBuilder: LogObjectBuilder {
     init(pageNumber: Int) {
         super.init(eventType: "fortune_exit")
-        setProperty(key: "page_number", value: pageNumber)
+        setProperty(key: "fortune_page_number", value: pageNumber)
     }
 }

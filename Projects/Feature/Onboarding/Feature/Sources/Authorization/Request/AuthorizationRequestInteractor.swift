@@ -80,7 +80,7 @@ final class AuthorizationRequestInteractor: PresentableInteractor<AuthorizationR
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 if granted {
-                    let log = PageActionBuilder(event: .permissionAccept)
+                    let log = PageActionBuilder(event: .permissionSelect)
                         .setProperty(key: "is_permission_granted", value: true)
                         .build()
                     logger.send(log)

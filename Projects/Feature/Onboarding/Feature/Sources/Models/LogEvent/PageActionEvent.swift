@@ -15,8 +15,7 @@ enum PageActionEvent {
     case birthTimeUnknown
     case nameNext
     case genderSelect
-    case permissionAccept
-    case permissionDeny
+    case permissionSelect
     case complete
     
     var eventName: String {
@@ -35,10 +34,8 @@ enum PageActionEvent {
             "onboarding_name_next"
         case .genderSelect:
             "onboarding_gender_select"
-        case .permissionAccept:
-            "onboarding_permission_accept"
-        case .permissionDeny:
-            "onboarding_permission_deny"
+        case .permissionSelect:
+            "onboarding_permission_request"
         case .complete:
             "onboarding_complete"
         }

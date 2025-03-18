@@ -29,7 +29,7 @@ enum FortunePageViewEvent: Int {
         case .complete:
             "fortune_view_end"
         case .charm:
-            "talisman_view"
+            "fortune_talisman_view"
         }
     }
     
