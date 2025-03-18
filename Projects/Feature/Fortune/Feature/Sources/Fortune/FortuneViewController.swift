@@ -76,22 +76,15 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
             step3View.update(.fortune(fortune, userInfo))
             step4View.update(.fortune(fortune))
             step5View.update(.fortune(fortune))
-            
-            step6View = withFortuneView
-            withFortuneView.listener = self
-            charmView.update(.user(userInfo))
-            charmView.update(.charm(fortuneInfo))
-            
-//            if fortuneInfo.shouldShowCharm {
-//                step6View = withFortuneView
-//                withFortuneView.listener = self
-//                charmView.update(.user(userInfo))
-//                charmView.update(.charm(fortuneInfo))
-//            } else {
-//                step6View = withoutFortuneView
-//                withoutFortuneView.listener = self
-//            }
-            
+            if fortuneInfo.shouldShowCharm {
+                step6View = withFortuneView
+                withFortuneView.listener = self
+                charmView.update(.user(userInfo))
+                charmView.update(.charm(fortuneInfo))
+            } else {
+                step6View = withoutFortuneView
+                withoutFortuneView.listener = self
+            }
         }
     }
 }

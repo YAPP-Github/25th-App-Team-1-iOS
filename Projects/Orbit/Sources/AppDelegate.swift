@@ -7,7 +7,6 @@ import UserNotifications
 
 import FeatureCommonDependencies
 import FeatureMain
-import FeatureAlarmCommon
 import FeatureAlarmController
 import BackgroundTasks
 import FeatureRemoteConfig
@@ -96,11 +95,11 @@ extension AppDelegate {
         let alarmMigrationKey = "alarmMigrationFinished"
         let isAlarmMigrationed = UserDefaults.standard.bool(forKey: alarmMigrationKey)
         if isAlarmMigrationed == false {
-            let alarms = AlarmStore.shared.getAll()
+            let alarms = OldAlarmStore.shared.getAll()
             let result = alarmController.createAlarms(alarms: alarms)
             switch result {
             case .success:
-                alarms.forEach(AlarmStore.shared.delete)
+                alarms.forEach(OldAlarmStore.shared.delete)
                 UserDefaults.standard.set(true, forKey: alarmMigrationKey)
                 debugPrint("알람데이터 미그레이션 성공")
             case .failure(let error):

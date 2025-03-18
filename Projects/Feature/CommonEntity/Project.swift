@@ -14,7 +14,7 @@ let project = Project(
         .target(
             name: "FeatureCommonEntity",
             destinations: .iOS,
-            product: .staticFramework,
+            product: .framework,
             bundleId: Project.Environment.bundleId(suffix: "feature.CommonEntity"),
             deploymentTargets: Project.Environment.deploymentTarget,
             sources: ["Feature/Sources/**"],

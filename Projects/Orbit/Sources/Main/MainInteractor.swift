@@ -6,16 +6,17 @@
 //
 
 import Foundation
-import RIBs
-import RxSwift
-import RxRelay
+import UserNotifications
+
 import FeatureOnboarding
 import FeatureCommonDependencies
 import FeatureResources
 import FeatureMain
-import UserNotifications
-import FeatureAlarmCommon
 import FeatureAlarmController
+
+import RIBs
+import RxSwift
+import RxRelay
 
 protocol RootActionableItem: AnyObject {
     func waitFoOnboarding() -> Observable<(MainPageActionableItem, ())>

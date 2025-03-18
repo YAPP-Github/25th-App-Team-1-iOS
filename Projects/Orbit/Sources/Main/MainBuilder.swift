@@ -5,12 +5,12 @@
 //  Created by 손병근 on 1/4/25.
 //
 
-import RIBs
-
 import FeatureOnboarding
 import FeatureMain
 import FeatureAlarmController
 import FeatureLogger
+
+import RIBs
 
 protocol MainDependency: Dependency {
     var alarmController: AlarmController { get }

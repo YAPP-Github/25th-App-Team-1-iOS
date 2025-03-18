@@ -146,9 +146,9 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
 // MARK: Log
 private extension FortuneInteractor {
     func logPageViewDuration(viewedPageNumber: Int, startTime: Date) {
-        if let prevPageEvent = FortunePageViewEvent(rawValue: viewedPageNumber) {
+        if let _ = FortunePageViewEvent(rawValue: viewedPageNumber) {
             // 페이지 체류시간 로그
-            let log = PageViewDurationLogBuilder(eventType: prevPageEvent, start: startTime, end: .now).build()
+            let log = PageViewDurationLogBuilder(pageNumber: viewedPageNumber, start: startTime, end: .now).build()
             logger.send(log)
         }
     }

@@ -22,12 +22,10 @@ public protocol MainPageDependency: Dependency {
 
 final class MainPageComponent: Component<MainPageDependency> {
     let viewController: MainPageViewControllable
-    fileprivate let service: MainPageServiceable
     var logger: Logger { dependency.logger }
     
-    init(dependency: MainPageDependency, viewController: MainPageViewControllable, service: MainPageServiceable = MainPageService()) {
+    init(dependency: MainPageDependency, viewController: MainPageViewControllable) {
         self.viewController = viewController
-        self.service = service
         super.init(dependency: dependency)
     }
 }

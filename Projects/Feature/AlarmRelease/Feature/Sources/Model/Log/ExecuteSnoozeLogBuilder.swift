@@ -9,9 +9,8 @@ import FeatureLogger
 
 final class ExecuteSnoozeLogBuilder: LogObjectBuilder {
     
-    init(alarmId: String, snoozeTime: Int) {
+    init(alarmId: String) {
         super.init(eventType: "alarm_snooze")
         setProperty(key: "alarm_id", value: alarmId)
-        setProperty(key: "snooze_time", value: snoozeTime)
     }
 }

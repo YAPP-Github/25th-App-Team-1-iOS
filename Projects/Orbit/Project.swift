@@ -33,7 +33,6 @@ let project = Project(
                 .feature(implements: .Onboarding),
                 .feature(implements: .Main),
                 .feature(implements: .Alarm),
-                .feature(implements: .AlarmCommon),
                 .feature(implements: .AlarmController),
                 .feature(implements: .RemoteConfig),
                 
@@ -45,8 +44,14 @@ let project = Project(
                     "AMPLITUDE_API_KEY": "$(AMPLITUDE_API_KEY)"
                 ],
                 configurations: [
-                    .debug(name: "Debug", xcconfig: .relativeToRoot("Secrets/xcconfigs/Debug.xcconfig")),
-                    .release(name: "Release", xcconfig: .relativeToRoot("Secrets/xcconfigs/Release.xcconfig")),
+                    .debug(
+                        name: "Debug",
+                        xcconfig: .relativeToRoot("Secrets/xcconfigs/Debug.xcconfig")
+                    ),
+                    .release(
+                        name: "Release",
+                        xcconfig: .relativeToRoot("Secrets/xcconfigs/Release.xcconfig")
+                    ),
             ])
         ),
     ],
@@ -68,7 +73,12 @@ let project = Project(
             buildAction: .buildAction(
                 targets: [ .target("Orbit") ]
             ),
-            runAction: .runAction(configuration: "Release"),
+            runAction: .runAction(
+                configuration: "Release",
+                arguments: .arguments(environmentVariables: [
+                    "AMPLITUDE_API_KEY": "$(AMPLITUDE_API_KEY)"
+                ])
+            ),
             archiveAction: .archiveAction(configuration: "Release")
         ),
     ]

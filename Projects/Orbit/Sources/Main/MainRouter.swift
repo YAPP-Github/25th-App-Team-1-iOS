@@ -5,9 +5,10 @@
 //  Created by 손병근 on 1/4/25.
 //
 
-import RIBs
 import FeatureOnboarding
 import FeatureMain
+
+import RIBs
 
 protocol MainInteractable: Interactable,
                            FeatureOnboarding.RootListener,

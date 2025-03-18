@@ -99,10 +99,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         case .viewDidLoad:
             presenter.request(.updateSnooze(alarm.snoozeOption))
         case .snoozeAlarm:
-            let log = ExecuteSnoozeLogBuilder(
-                alarmId: alarm.id,
-                snoozeTime: alarm.snoozeOption.count.rawValue
-            ).build()
+            let log = ExecuteSnoozeLogBuilder(alarmId: alarm.id).build()
             logger.send(log)
             stopAlarm()
             router?.request(.routeToSnooze(alarm.snoozeOption))

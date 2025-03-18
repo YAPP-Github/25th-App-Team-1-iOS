@@ -46,7 +46,6 @@ let project = Project(
             sources: ["Feature/Sources/**"],
             dependencies: [
                 .feature(implements: .UIDependencies),
-                .feature(implements: .AlarmCommon),
                 .feature(implements: .ThirdPartyDependencies),
                 .feature(implements: .Logger),
             ]
