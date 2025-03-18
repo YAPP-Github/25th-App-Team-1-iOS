@@ -41,6 +41,7 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     
     // State for log
     private var currentPageNumber: Int?
+    private var pageStartTime: Date?
     
     
     weak var router: FortuneRouting?
@@ -64,17 +65,33 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     func request(_ request: FortunePresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
+            pageStartTime = .now
             presenter.request(.setFortune(fortune, userInfo, fortuneInfo))
         case let .charmSelected(index):
             fortuneInfo.charmIndex = index
             UserDefaults.standard.setDailyFortune(info: fortuneInfo)
         case .currentPageNumber(let number):
+            if let currentPageNumber,
+               let pageStartTime {
+                // 페이지 체류시간 로그
+                logPageViewDuration(viewedPageNumber: currentPageNumber, startTime: pageStartTime)
+            }
+                            
+            pageStartTime = .now
             currentPageNumber = number
+            
             if let fortunePageViewEvent = FortunePageViewEvent(rawValue: number) {
+                // 페이지 이동로그
                 let log = FortunePageViewEventBuilder(eventType: fortunePageViewEvent).build()
                 logger.send(log)
             }
         case .endPage:
+            if let currentPageNumber,
+               let pageStartTime {
+                // 페이지 체류시간 로그
+                logPageViewDuration(viewedPageNumber: currentPageNumber, startTime: pageStartTime)
+            }
+            
             let log = LogObjectBuilder(eventType: "fortune_complete").build()
             logger.send(log)
             listener?.request(.close)
@@ -90,4 +107,13 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
     private let fortune: Fortune
     private let userInfo: UserInfo
     private var fortuneInfo: FortuneSaveInfo
+    
+    
+    private func logPageViewDuration(viewedPageNumber: Int, startTime: Date) {
+        if let prevPageEvent = FortunePageViewEvent(rawValue: viewedPageNumber) {
+            // 페이지 체류시간 로그
+            let log = PageViewDurationLogBuilder(eventType: prevPageEvent, start: startTime, end: .now).build()
+            logger.send(log)
+        }
+    }
 }
