@@ -32,11 +32,17 @@ let project = Project(
             product: .framework,
             bundleId: Project.Environment.bundleId(suffix: "feature.Logger"),
             deploymentTargets: Project.Environment.deploymentTarget,
-            sources: ["Feature/Sources/**"],
+            sources: [
+                "Feature/Sources/**",
+                "../../../Secrets/APIKeys.swift"
+            ],
             dependencies: [
                 .feature(implements: .ThirdPartyDependencies),
                 .thirdParty(library: .AmplitudeSwift),
-            ]
+            ],
+            settings: .settings(base: [
+                "SWIFT_OPTIMIZATION_LEVEL": "-Onone"
+            ])
         ),
     ]
 )

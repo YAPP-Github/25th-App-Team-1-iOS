@@ -13,8 +13,8 @@ public final class AmplitudeEventLogger: Logger {
     // Dependency
     private let amplitude: Amplitude
     
-    public init?() {
-        guard let apiKey = ProcessInfo.processInfo.environment["AMPLITUDE_API_KEY"] else { return nil }
+    public init() {
+        let apiKey = APIKeys.aplitude
         let config = Configuration(
             apiKey: apiKey,
             flushIntervalMillis: 10 * 1000, // 10s

@@ -45,7 +45,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
 
     public func build(withListener listener: RootListener, entryPoint: EntryPoint) -> RootRouting {
         let component = RootComponent(dependency: dependency)
-        let interactor = RootInteractor(entryPoint: entryPoint)
+        let interactor = RootInteractor(entryPoint: entryPoint, logger: dependency.logger)
         interactor.listener = listener
         let introBuilder = OnboardingIntroBuilder(dependency: component)
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)

@@ -5,11 +5,14 @@
 //  Created by 손병근 on 1/4/25.
 //
 
-import RIBs
-import RxSwift
 import UIKit
+
 import FeatureCommonDependencies
 import FeatureNetworking
+import FeatureLogger
+
+import RIBs
+import RxSwift
 
 public enum RootRouterRequest {
     case cleanUpViews
@@ -48,14 +51,18 @@ public protocol RootListener: AnyObject {
 }
 
 final class RootInteractor: Interactor, RootInteractable {
+    // Dependecny
+    private let logger: Logger
+    
 
     weak var router: RootRouting?
     weak var listener: RootListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(entryPoint: EntryPoint) {
+    init(entryPoint: EntryPoint, logger: Logger) {
         self.entryPoint = entryPoint
+        self.logger = logger
     }
 
     override func didBecomeActive() {
@@ -230,9 +237,12 @@ extension RootInteractor {
                 
             APIClient.request(Int.self, request: request) { [weak self, weak listener] userId in
                 guard let self, let listener else { return }
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
                     // 유저 아이디 저장
                     Preference.userId = userId
+                    // - 로깅 정보 업데이트
+                    logger.setupUser(id: String(userId))
                     
                     // 유저정보 저장
                     Preference.userInfo = .init(
@@ -242,7 +252,7 @@ extension RootInteractor {
                         birthTime: onboardingModel.bornTime,
                         gender: onboardingModel.gender!
                     )
-                    listener.request(.start(self.onboardingModel.alarm))
+                    listener.request(.start(onboardingModel.alarm))
                 }
             } failure: { error in
                 print("Error: \(error)")

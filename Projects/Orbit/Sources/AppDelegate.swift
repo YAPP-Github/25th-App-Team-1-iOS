@@ -30,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let logger = PrintOnlyLogger()
         self.logger = logger
         #else
-        let logger = AmplitudeEventLogger()!
+        let logger = AmplitudeEventLogger()
         self.logger = logger
         #endif
         
