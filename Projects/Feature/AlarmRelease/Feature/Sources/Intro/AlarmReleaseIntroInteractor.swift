@@ -109,6 +109,9 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
                 // 오늘 해제된 알람이 있는 경우
                 isFirstAlarmOfDay = false
                 UserDefaults.standard.removeYesterDay()
+            } else {
+                // 해당 알람이 오늘 첫 알람인 경우
+                UserDefaults.standard.setDailyFirstAlarmReleased(isChecked: true)
             }
             let log = DismissAlarmLogBuilder(
                 alarmId: alarm.id,
