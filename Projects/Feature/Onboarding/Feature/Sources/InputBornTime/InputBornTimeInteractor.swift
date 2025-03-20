@@ -5,9 +5,11 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import FeatureLogger
+import FeatureCommonDependencies
+
 import RIBs
 import RxSwift
-import FeatureCommonDependencies
 
 protocol InputBornTimeRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -36,6 +38,8 @@ protocol InputBornTimeListener: AnyObject {
 }
 
 final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresentable>, InputBornTimeInteractable, InputBornTimePresentableListener {
+    // Dependency
+    private let logger: Logger
 
     weak var router: InputBornTimeRouting?
     weak var listener: InputBornTimeListener?
@@ -44,8 +48,10 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
     // in constructor.
     init(
         presenter: InputBornTimePresentable,
+        logger: Logger,
         model: OnboardingModel
     ) {
+        self.logger = logger
         self.model = model
         super.init(presenter: presenter)
         presenter.listener = self
@@ -54,6 +60,9 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
     func request(_ request: InputBornTimePresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
+            let log = PageViewLogBuilder(event: .birthTime).build()
+            logger.send(log)
+            
             if let bornTime = model.bornTime {
                 presenter.request(.setBornTIme(bornTime))
             }
@@ -80,9 +89,17 @@ final class InputBornTimeInteractor: PresentableInteractor<InputBornTimePresenta
             presenter.request(.updateButton(canGoNext))
         case .iDontKnowButtonTapped:
             resetTime()
+            let log = PageActionBuilder(event: .birthTimeUnknown)
+                .setProperty(key: "step", value: "태어난 시간")
+                .build()
+            logger.send(log)
             listener?.request(.next(model))
         case .next:
             guard canGoNext else { return }
+            let log = PageActionBuilder(event: .birthTimeNext)
+                .setProperty(key: "step", value: "태어난 시간")
+                .build()
+            logger.send(log)
             listener?.request(.next(model))
         }
     }

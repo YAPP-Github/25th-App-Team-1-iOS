@@ -7,15 +7,19 @@
 
 import UIKit
 
+import FeatureLogger
+
 import RIBs
 import RxRelay
 
 protocol ShakeMissionMainDependency: Dependency {
     var action: PublishRelay<MissionState> { get }
+    var logger: Logger { get }
 }
 
 final class ShakeMissionMainComponent: Component<ShakeMissionMainDependency> {
     fileprivate let isFirstAlarm: Bool
+    var logger: Logger { dependency.logger }
     init(dependency: ShakeMissionMainDependency, isFirstAlarm: Bool) {
         self.isFirstAlarm = isFirstAlarm
         super.init(dependency: dependency)
@@ -42,7 +46,8 @@ final class ShakeMissionMainBuilder: Builder<ShakeMissionMainDependency>, ShakeM
         let viewController = ShakeMissionMainViewController()
         let interactor = ShakeMissionMainInteractor(
             presenter: viewController,
-            missionAction: dependency.action
+            missionAction: dependency.action,
+            logger: dependency.logger
         )
         interactor.listener = listener
         let shakeMissionWorkingBuilder = ShakeMissionWorkingBuilder(dependency: component)

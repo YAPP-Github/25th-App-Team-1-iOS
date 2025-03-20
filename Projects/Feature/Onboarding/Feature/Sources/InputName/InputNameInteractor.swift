@@ -6,6 +6,9 @@
 //
 
 import Foundation
+
+import FeatureLogger
+
 import RIBs
 import RxSwift
 
@@ -36,6 +39,8 @@ protocol InputNameListener: AnyObject {
 }
 
 final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, InputNameInteractable, InputNamePresentableListener {
+    // Dependency
+    private let logger: Logger
 
     weak var router: InputNameRouting?
     weak var listener: InputNameListener?
@@ -44,9 +49,11 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
     // in constructor.
     init(
         presenter: InputNamePresentable,
+        logger: Logger,
         model: OnboardingModel
     ) {
         self.model = model
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -54,6 +61,8 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
     func reqeust(_ request: InputNamePresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
+            let log = PageViewLogBuilder(event: .name).build()
+            logger.send(log)
             if let name = model.name {
                 presenter.request(.setName(name))
             }
@@ -76,6 +85,10 @@ final class InputNameInteractor: PresentableInteractor<InputNamePresentable>, In
             model.name = name
             presenter.request(.updateButtonIsEnabled(true))
         case .goNext:
+            let log = PageActionBuilder(event: .nameNext)
+                .setProperty(key: "step", value: "이름")
+                .build()
+            logger.send(log)
             listener?.request(.next(model))
         }
     }

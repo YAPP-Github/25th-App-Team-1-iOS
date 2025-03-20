@@ -5,6 +5,8 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import FeatureLogger
+
 import RIBs
 import RxSwift
 
@@ -26,20 +28,31 @@ protocol OnboardingIntroListener: AnyObject {
 }
 
 final class OnboardingIntroInteractor: PresentableInteractor<OnboardingIntroPresentable>, OnboardingIntroInteractable, OnboardingIntroPresentableListener {
+    
+    // Dependency
+    private let logger: Logger
 
     weak var router: OnboardingIntroRouting?
     weak var listener: OnboardingIntroListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: OnboardingIntroPresentable) {
+    init(logger: Logger, presenter: OnboardingIntroPresentable) {
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
     
     func request(_ request: OnboardingIntroPresentableListenerRequest) {
         switch request {
+        case .viewDidLoad:
+            let log = PageViewLogBuilder(event: .intro).build()
+            logger.send(log)
         case .next:
+            let log = PageActionBuilder(event: .introNext)
+                .setProperty(key: "step", value: "서비스 소개")
+                .build()
+            logger.send(log)
             listener?.request(.next)
         }
     }

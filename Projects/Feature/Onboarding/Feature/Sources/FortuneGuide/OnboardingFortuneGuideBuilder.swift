@@ -5,11 +5,12 @@
 //  Created by ever on 1/15/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol OnboardingFortuneGuideDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class OnboardingFortuneGuideComponent: Component<OnboardingFortuneGuideDependency> {
@@ -32,7 +33,10 @@ final class OnboardingFortuneGuideBuilder: Builder<OnboardingFortuneGuideDepende
     func build(withListener listener: OnboardingFortuneGuideListener) -> OnboardingFortuneGuideRouting {
         let component = OnboardingFortuneGuideComponent(dependency: dependency)
         let viewController = OnboardingFortuneGuideViewController()
-        let interactor = OnboardingFortuneGuideInteractor(presenter: viewController)
+        let interactor = OnboardingFortuneGuideInteractor(
+            presenter: viewController,
+            logger: dependency.logger
+        )
         interactor.listener = listener
         return OnboardingFortuneGuideRouter(interactor: interactor, viewController: viewController)
     }

@@ -1,5 +1,5 @@
 //
-//  AlarmStore.swift
+//  OldAlarmStore.swift
 //  FeatureCommonEntity
 //
 //  Created by ever on 2/7/25.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-public final class AlarmStore {
-    public static let shared = AlarmStore()
+public final class OldAlarmStore {
+    public static let shared = OldAlarmStore()
     
     private let userDefaults = UserDefaults.standard
     private let storageKey = "alarms" // 저장 키

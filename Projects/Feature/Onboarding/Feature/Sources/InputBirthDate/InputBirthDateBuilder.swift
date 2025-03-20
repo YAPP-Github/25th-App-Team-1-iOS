@@ -5,11 +5,12 @@
 //  Created by choijunios on 1/8/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol InputBirthDateDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class InputBirthDateComponent: Component<InputBirthDateDependency> {
@@ -36,7 +37,11 @@ final class InputBirthDateBuilder: Builder<InputBirthDateDependency>, InputBirth
     func build(withListener listener: InputBirthDateListener, model: OnboardingModel) -> InputBirthDateRouting {
         let component = InputBirthDateComponent(dependency: dependency, model: model)
         let viewController = InputBirthDateViewController()
-        let interactor = InputBirthDateInteractor(presenter: viewController, model: component.model)
+        let interactor = InputBirthDateInteractor(
+            presenter: viewController,
+            logger: dependency.logger,
+            model: component.model
+        )
         interactor.listener = listener
         return InputBirthDateRouter(interactor: interactor, viewController: viewController)
     }

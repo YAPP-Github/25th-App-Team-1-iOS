@@ -5,6 +5,8 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 public enum EntryPoint {
@@ -18,20 +20,15 @@ public enum EntryPoint {
 }
 
 public protocol RootDependency: Dependency {
-    // TODO: Make sure to convert the variable into lower-camelcase.
     var onboardingRootViewController: RootViewControllable { get }
-    // TODO: Declare the set of dependencies required by this RIB, but won't be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class RootComponent: Component<RootDependency> {
-
-    // TODO: Make sure to convert the variable into lower-camelcase.
     fileprivate var rootViewController: RootViewControllable {
         return dependency.onboardingRootViewController
     }
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+    var logger: Logger { dependency.logger }
 }
 
 // MARK: - Builder
@@ -48,7 +45,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
 
     public func build(withListener listener: RootListener, entryPoint: EntryPoint) -> RootRouting {
         let component = RootComponent(dependency: dependency)
-        let interactor = RootInteractor(entryPoint: entryPoint)
+        let interactor = RootInteractor(entryPoint: entryPoint, logger: dependency.logger)
         interactor.listener = listener
         let introBuilder = OnboardingIntroBuilder(dependency: component)
         let inputWakeUpAlarmBuilder = InputWakeUpAlarmBuilder(dependency: component)

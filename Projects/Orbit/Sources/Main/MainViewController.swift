@@ -5,10 +5,12 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import UIKit
+
+import FeatureThirdPartyDependencies
+
 import RIBs
 import RxSwift
-import UIKit
-import FeatureThirdPartyDependencies
 
 protocol MainPresentableListener: AnyObject {
     // TODO: Declare properties and methods that the view controller can invoke to perform

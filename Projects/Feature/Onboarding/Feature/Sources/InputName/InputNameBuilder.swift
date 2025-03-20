@@ -5,11 +5,12 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol InputNameDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class InputNameComponent: Component<InputNameDependency> {
@@ -36,7 +37,11 @@ final class InputNameBuilder: Builder<InputNameDependency>, InputNameBuildable {
     func build(withListener listener: InputNameListener, model: OnboardingModel) -> InputNameRouting {
         let component = InputNameComponent(dependency: dependency, model: model)
         let viewController = InputNameViewController()
-        let interactor = InputNameInteractor(presenter: viewController, model: component.model)
+        let interactor = InputNameInteractor(
+            presenter: viewController,
+            logger: dependency.logger,
+            model: component.model
+        )
         interactor.listener = listener
         return InputNameRouter(interactor: interactor, viewController: viewController)
     }

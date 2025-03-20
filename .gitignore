@@ -76,3 +76,5 @@ fastlane/apple_connect_auth.json
 fastlane/.env
 *.ipa
 *.dSYM.zip
+
+Secrets

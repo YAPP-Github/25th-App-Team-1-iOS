@@ -30,7 +30,7 @@ final class ExampleRIBViewController: UIViewController, ExampleRIBPresentable, E
     weak var listener: ExampleRIBPresentableListener?
     
     // State
-    private var items: [Mission] = []
+    private var items: [AlarmMissionType] = []
     
     private let tableView = UITableView().then {
         $0.rowHeight = 65

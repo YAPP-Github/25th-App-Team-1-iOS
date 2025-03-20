@@ -5,10 +5,12 @@
 //  Created by choijunios on 1/4/25.
 //
 
-import RIBs
-import RxSwift
 import FeatureCommonDependencies
 import FeatureResources
+import FeatureLogger
+
+import RIBs
+import RxSwift
 
 protocol InputWakeUpAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -33,6 +35,8 @@ protocol InputWakeUpAlarmListener: AnyObject {
 }
 
 final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPresentable>, InputWakeUpAlarmInteractable, InputWakeUpAlarmPresentableListener {
+    // Dependency
+    private let logger: Logger
 
     weak var router: InputWakeUpAlarmRouting?
     weak var listener: InputWakeUpAlarmListener?
@@ -41,9 +45,11 @@ final class InputWakeUpAlarmInteractor: PresentableInteractor<InputWakeUpAlarmPr
     // in constructor.
     init(
         presenter: InputWakeUpAlarmPresentable,
+        logger: Logger,
         model: OnboardingModel
     ) {
         self.model = model
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -59,10 +65,16 @@ extension InputWakeUpAlarmInteractor {
         
         switch request {
         case .viewDidLoad:
+            let log = PageViewLogBuilder(event: .alarm).build()
+            logger.send(log)
             presenter.request(.setAlarm(model.alarm))
         case .exitPage:
             listener?.request(.back)
         case .confirmUserInputAndExit:
+            let log = PageActionBuilder(event: .alarmCreate)
+                .setProperty(key: "step", value: "초기 알람 생성")
+                .build()
+            logger.send(log)
             listener?.request(.next(model))
         case let .updateCurrentAlarmData(meridiem, hour, minute):
             model.alarm.meridiem = meridiem

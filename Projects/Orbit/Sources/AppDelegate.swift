@@ -7,9 +7,10 @@ import UserNotifications
 
 import FeatureCommonDependencies
 import FeatureMain
-import FeatureAlarmCommon
 import FeatureAlarmController
 import BackgroundTasks
+import FeatureRemoteConfig
+import FeatureLogger
 
 import RIBs
 import RxSwift
@@ -21,11 +22,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        let alarmController = DefaultAlarmController()
+        // Firebase
+        configureFirebase()
+        
+        // Logger
+        #if DEBUG
+        let logger = PrintOnlyLogger()
+        self.logger = logger
+        #else
+        let logger = AmplitudeEventLogger()
+        self.logger = logger
+        if let userId = Preference.userId {
+            // 로깅 유저 ID설정
+            logger.setupUser(id: String(userId))
+        }
+        #endif
+        
+        let alarmController = DefaultAlarmController(logger: logger)
         self.alarmController = alarmController
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        let appComponent = AppComponent(alarmController: alarmController)
+        let appComponent = AppComponent(
+            alarmController: alarmController,
+            logger: logger
+        )
         let (launchRouter, alarmIdHandler) = MainBuilder(dependency: appComponent).build()
         self.launchRouter = launchRouter
         self.alarmIdHandler = alarmIdHandler
@@ -67,6 +87,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     private var alarmController: AlarmController?
     private let jsonDecoder = JSONDecoder()
+    
+    private var logger: Logger?
 }
 
 
@@ -77,11 +99,11 @@ extension AppDelegate {
         let alarmMigrationKey = "alarmMigrationFinished"
         let isAlarmMigrationed = UserDefaults.standard.bool(forKey: alarmMigrationKey)
         if isAlarmMigrationed == false {
-            let alarms = AlarmStore.shared.getAll()
+            let alarms = OldAlarmStore.shared.getAll()
             let result = alarmController.createAlarms(alarms: alarms)
             switch result {
             case .success:
-                alarms.forEach(AlarmStore.shared.delete)
+                alarms.forEach(OldAlarmStore.shared.delete)
                 UserDefaults.standard.set(true, forKey: alarmMigrationKey)
                 debugPrint("알람데이터 미그레이션 성공")
             case .failure(let error):
@@ -94,6 +116,11 @@ extension AppDelegate {
 
 // MARK: Application lifecycle event
 extension AppDelegate {
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        // 리모트 컨피그 갱신
+        fetchAndActivateRemoteConfig()
+    }
+    
     func applicationWillTerminate(_ application: UIApplication) {
         // MARK: 엑티브 상태의 알람이 있는 경우 앱재실행 노티피케이션 표출
         if case .success(let alarms) = alarmController?.readAlarms() {
@@ -148,6 +175,38 @@ extension AppDelegate {
         let requestId = notification.request.identifier
         if alarmController?.checkIsAlarmNotification(notiRequestId: requestId) == true {
             handleAlarmNotification(notification: notification)
+        }
+    }
+}
+
+
+// MARK: Firebase
+private extension AppDelegate {
+    func configureFirebase() {
+        FirebaseApp.configure()
+        debugPrint("Firebase app 설정 완료")
+        
+        // Setup remote config
+        do {
+            let config = RemoteConfig.remoteConfig()
+            let settings = RemoteConfigSettings()
+            settings.minimumFetchInterval = 0
+            config.configSettings = settings
+            try config.setDefaults(from: [
+                "alarm_mission_type": "shake_mission"
+            ])
+            config.fetchAndActivate()
+        } catch {
+            debugPrint("Remote config 기본값 설정 오류 \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchAndActivateRemoteConfig() {
+        let remoteConfig = RemoteConfig.remoteConfig()
+        remoteConfig.fetchAndActivate { _, error in
+            if let error {
+                debugPrint("Remote cofig fetch error \(error.localizedDescription)")
+            }
         }
     }
 }

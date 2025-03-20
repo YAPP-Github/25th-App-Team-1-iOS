@@ -6,6 +6,7 @@
 //
 
 import FeatureUIDependencies
+import FeatureLogger
 
 import RIBs
 import RxSwift
@@ -49,6 +50,9 @@ enum TapMissionFlow: Equatable {
 }
 
 final class TapMissionWorkingInteractor: PresentableInteractor<TapMissionWorkingPresentable>, TapMissionWorkingInteractable, TapMissionWorkingPresentableListener {
+    // Dependency
+    private let logger: Logger
+    
 
     weak var router: TapMissionWorkingRouting?
     weak var listener: TapMissionWorkingListener?
@@ -65,7 +69,8 @@ final class TapMissionWorkingInteractor: PresentableInteractor<TapMissionWorking
     
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: TapMissionWorkingPresentable) {
+    init(presenter: TapMissionWorkingPresentable, logger: Logger) {
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -132,6 +137,8 @@ extension TapMissionWorkingInteractor {
                     router?.request(.dismissAlert())
                 }, rightButtonTapped: { [weak self] in
                     guard let self else { return }
+                    let log = MissionActionLogBuilder(eventType: .missionFailure, mission: .tap).build()
+                    logger.send(log)
                     router?.request(.dismissAlert(completion: { [weak self] in
                         guard let self else { return }
                         listener?.request(request: .exitPage(isMissionCompleted: false))
@@ -145,6 +152,8 @@ extension TapMissionWorkingInteractor {
             self.currentMissionFlow = nextFlow
             presenter.request(.startMissionFlow(nextFlow))
         case .missionSuccessEventFinished:
+            let log = MissionActionLogBuilder(eventType: .missionComplete, mission: .tap).build()
+            logger.send(log)
             listener?.request(request: .exitPage(isMissionCompleted: true))
         }
     }

@@ -9,6 +9,7 @@ import UserNotifications
 import CoreData
 
 import FeatureCommonEntity
+import FeatureLogger
 
 import RxSwift
 
@@ -16,6 +17,7 @@ public final class DefaultAlarmController: NSObject, AlarmController, UNUserNoti
     // Dependencies
     private let coreDataService: CoreDataService
     private let alarmScheduler: AlarmScheduler
+    private let logger: Logger
     
     
     // Util
@@ -24,13 +26,18 @@ public final class DefaultAlarmController: NSObject, AlarmController, UNUserNoti
     
     public init(
         coreDataService: CoreDataService = DefaultCoreDataService(),
-        alarmScheduler: AlarmScheduler = DefaultAlarmScheduler(
-            backgoundTaskScheduler: DefaultBackgoundTaskScheduler(),
-            alarmAudioController: DefualtAlarmAudioController(),
-            vibrationManager: DefaultVibrationManager()
-        )) {
+        backgoundTaskScheduler: BackgoundTaskScheduler = DefaultBackgoundTaskScheduler(),
+        alarmAudioController: AlarmAudioController = DefualtAlarmAudioController(),
+        vibrationManager: VibrationManager = DefaultVibrationManager(),
+        logger: Logger) {
         self.coreDataService = coreDataService
-        self.alarmScheduler = alarmScheduler
+        self.alarmScheduler = DefaultAlarmScheduler(
+            backgoundTaskScheduler: backgoundTaskScheduler,
+            alarmAudioController: alarmAudioController,
+            vibrationManager: vibrationManager,
+            logger: logger
+        )
+        self.logger = logger
         super.init()
     }
 }

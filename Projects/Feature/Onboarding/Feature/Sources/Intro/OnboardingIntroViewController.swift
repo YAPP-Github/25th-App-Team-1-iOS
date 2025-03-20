@@ -10,6 +10,7 @@ import RxSwift
 import UIKit
 
 enum OnboardingIntroPresentableListenerRequest {
+    case viewDidLoad
     case next
 }
 
@@ -29,6 +30,7 @@ final class OnboardingIntroViewController: UIViewController, OnboardingIntroPres
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
+        listener?.request(.viewDidLoad)
     }
     
     private let mainView = OnboardingIntroView()

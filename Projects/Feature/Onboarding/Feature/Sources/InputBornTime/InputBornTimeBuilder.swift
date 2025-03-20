@@ -5,11 +5,12 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import FeatureLogger
+
 import RIBs
 
 protocol InputBornTimeDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var logger: Logger { get }
 }
 
 final class InputBornTimeComponent: Component<InputBornTimeDependency> {
@@ -36,7 +37,11 @@ final class InputBornTimeBuilder: Builder<InputBornTimeDependency>, InputBornTim
     func build(withListener listener: InputBornTimeListener, model: OnboardingModel) -> InputBornTimeRouting {
         let component = InputBornTimeComponent(dependency: dependency, model: model)
         let viewController = InputBornTimeViewController()
-        let interactor = InputBornTimeInteractor(presenter: viewController, model: component.model)
+        let interactor = InputBornTimeInteractor(
+            presenter: viewController,
+            logger: dependency.logger,
+            model: component.model
+        )
         interactor.listener = listener
         return InputBornTimeRouter(interactor: interactor, viewController: viewController)
     }

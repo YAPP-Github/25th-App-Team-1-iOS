@@ -6,9 +6,13 @@
 //
 
 import UIKit
-import RIBs
+
 import FeatureCommonDependencies
 import FeatureUIDependencies
+import FeatureLogger
+import FeatureAlarmController
+
+import RIBs
 
 @testable import FeatureAlarmRelease
 
@@ -57,8 +61,7 @@ final class RootViewController: UIViewController {
     
     private func showAlarmRelease() {
         let builder = AlarmReleaseIntroBuilder(dependency: ExampleComponent(viewController: self))
-        
-        let router = builder.build(withListener: self, alarm: alarm)
+        let router = builder.build(withListener: self, alarm: alarm, isFirstAlarm: true)
         router.interactable.activate()
         alarmReleaseRouter = router
         router.interactable.activate()
@@ -82,6 +85,10 @@ extension RootViewController: AlarmReleaseIntroListener, AlarmReleaseIntroViewCo
 }
 
 extension ExampleComponent: AlarmReleaseIntroDependency {
+    var alarmController: AlarmController {
+        DefaultAlarmController(logger: PrintOnlyLogger())
+    }
+    
     var alarmRootViewController: AlarmReleaseIntroViewControllable {
         viewController
     }
@@ -112,7 +119,9 @@ extension RootViewController: UITableViewDelegate {
 
 class ExampleComponent: Component<EmptyDependency> {
     let viewController: AlarmReleaseIntroViewControllable
-    init(viewController: AlarmReleaseIntroViewControllable) {
+    let logger: Logger
+    init(viewController: AlarmReleaseIntroViewControllable, logger: Logger = PrintOnlyLogger()) {
+        self.logger = logger
         self.viewController = viewController
         super.init(dependency: EmptyComponent())
     }

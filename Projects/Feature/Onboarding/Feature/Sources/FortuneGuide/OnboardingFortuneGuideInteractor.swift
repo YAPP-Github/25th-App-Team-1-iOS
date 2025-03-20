@@ -5,9 +5,11 @@
 //  Created by ever on 1/15/25.
 //
 
+import FeatureLogger
+import FeatureCommonDependencies
+
 import RIBs
 import RxSwift
-import FeatureCommonDependencies
 
 protocol OnboardingFortuneGuideRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
@@ -28,13 +30,16 @@ protocol OnboardingFortuneGuideListener: AnyObject {
 }
 
 final class OnboardingFortuneGuideInteractor: PresentableInteractor<OnboardingFortuneGuidePresentable>, OnboardingFortuneGuideInteractable, OnboardingFortuneGuidePresentableListener {
+    // Dependency
+    private let logger: Logger
 
     weak var router: OnboardingFortuneGuideRouting?
     weak var listener: OnboardingFortuneGuideListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: OnboardingFortuneGuidePresentable) {
+    init(presenter: OnboardingFortuneGuidePresentable, logger: Logger) {
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -45,6 +50,10 @@ final class OnboardingFortuneGuideInteractor: PresentableInteractor<OnboardingFo
             listener?.request(.back)
         case .start:
             Preference.isOnboardingFinished = true
+            
+            let log = PageActionBuilder(event: .complete).build()
+            logger.send(log)
+            
             listener?.request(.start)
         }
     }

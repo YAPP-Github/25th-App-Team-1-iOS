@@ -56,8 +56,11 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToCreateAlarm(mode: mode)
         case .detachCreateEditAlarm:
             detachCreateEditAlarm()
-        case let .routeToAlarmMission(isFirstAlarm):
-            routeToAlarmMission(isFirstAlarm: isFirstAlarm)
+        case let .routeToAlarmMission(isFirstAlarm, missionType):
+            routeToAlarmMission(
+                isFirstAlarm: isFirstAlarm,
+                missionType: missionType
+            )
         case let .detachAlarmMission(completion):
             detachAlarmMission(completion)
         case let .routeToFortune(fortune, userInfo, fortuneInfo):
@@ -123,12 +126,12 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         detachChild(router)
     }
     
-    private func routeToAlarmMission(isFirstAlarm: Bool) {
+    private func routeToAlarmMission(isFirstAlarm: Bool, missionType: AlarmMissionType) {
         guard alarmMissionRootRouter == nil else { return }
         let router = alarmMissionRootBuilder.build(
             withListener: interactor,
             rootController: viewController.uiviewController,
-            mission: .tap,
+            missionType: missionType,
             isFirstAlarm: isFirstAlarm
         )
         self.alarmMissionRootRouter = router

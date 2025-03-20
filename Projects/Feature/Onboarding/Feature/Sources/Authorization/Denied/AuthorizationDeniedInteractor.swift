@@ -5,6 +5,8 @@
 //  Created by ever on 1/11/25.
 //
 
+import FeatureLogger
+
 import RIBs
 import RxSwift
 
@@ -27,13 +29,16 @@ protocol AuthorizationDeniedListener: AnyObject {
 }
 
 final class AuthorizationDeniedInteractor: PresentableInteractor<AuthorizationDeniedPresentable>, AuthorizationDeniedInteractable, AuthorizationDeniedPresentableListener {
+    // Dependency
+    private let logger: Logger
 
     weak var router: AuthorizationDeniedRouting?
     weak var listener: AuthorizationDeniedListener?
 
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    override init(presenter: AuthorizationDeniedPresentable) {
+    init(presenter: AuthorizationDeniedPresentable, logger: Logger) {
+        self.logger = logger
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -51,8 +56,16 @@ final class AuthorizationDeniedInteractor: PresentableInteractor<AuthorizationDe
     func request(_ request: AuthorizationDeniedPresentableListenerRequest) {
         switch request {
         case .later:
+            let log = PageActionBuilder(event: .permissionSelect)
+                .setProperty(key: "is_permission_granted", value: false)
+                .build()
+            logger.send(log)
             listener?.request(.later)
         case .allowed:
+            let log = PageActionBuilder(event: .permissionSelect)
+                .setProperty(key: "is_permission_granted", value: true)
+                .build()
+            logger.send(log)
             listener?.request(.allowed)
         }
     }

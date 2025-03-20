@@ -26,17 +26,21 @@ let project = Project(
                 ]
             ]),
             sources: ["Sources/**"],
-            resources: ["Resources/**"],
+            resources: [
+                "Resources/**",
+                "../../Secrets/GoogleService-Info.plist"
+            ],
 //            entitlements: .file(path: .relativeToRoot("Entitlements/App.entitlements")),
             dependencies: [
                 // Feature
                 .feature(implements: .Onboarding),
                 .feature(implements: .Main),
                 .feature(implements: .Alarm),
-                .feature(implements: .AlarmCommon),
                 .feature(implements: .AlarmController),
+                .feature(implements: .RemoteConfig),
+                
                 // Third party
-                .feature(implements: .ThirdPartyDependencies)
+                .feature(implements: .ThirdPartyDependencies),
             ]
         ),
     ],
@@ -58,7 +62,9 @@ let project = Project(
             buildAction: .buildAction(
                 targets: [ .target("Orbit") ]
             ),
-            runAction: .runAction(configuration: "Release"),
+            runAction: .runAction(
+                configuration: "Release"
+            ),
             archiveAction: .archiveAction(configuration: "Release")
         ),
     ]
