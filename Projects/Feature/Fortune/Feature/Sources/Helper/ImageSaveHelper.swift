@@ -15,7 +15,7 @@ final class ImageSaveHelper: NSObject {
         UIImageWriteToSavedPhotosAlbum(image, self, #selector(imageSavedToAlbum), nil)
     }
     
-    @objc func imageSavedToAlbum(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+    @objc private func imageSavedToAlbum(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error {
             onError?(error)
         } else {
