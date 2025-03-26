@@ -17,22 +17,27 @@ protocol MainPagePresentableListener: AnyObject {
 }
 
 enum MainPageViewPresenterRequest {
+    // MARK: Life cycle
     case viewDidLoad
     case viewWillAppear
-    case showFortuneNoti
-    case goToSettings
-    case createAlarm
-    case editAlarm(alarmId: String)
+    
+    // MARK: Action
+    case checkTodayFortuneIsArrived
     case changeAlarmActivityState(alarmId: String)
-    case changeAlarmCheckState(alarmId: String)
-    case deleteAlarm(alarmId: String)
+    case changeAlarmDeletionCheckState(alarmId: String)
     case changeAlarmListMode(mode: AlarmListMode)
-    case presentSingleAlarmDeletionView(alarmId: String)
+    case changeAllAlarmSelectionStateForDeletion
+    case deleteAlarm(alarmId: String)
+    case deleteSelectedAlarms
+    case alarmListOptionButtonTapped
+    case screenOutsideAlarmListOptionViewTapped
+    
+    // MARK: Routing
+    case routeToSettingPage
+    case routeToCreateAlarmPage
+    case routeToAlarmEditPage(alarmId: String)
+    case routeToSingleAlarmDeletionView(alarmId: String)
     case dismissSingleAlarmDeletionView
-    case deleteAlarms
-    case checkAllAlarmForDeletionButtonTapped
-    case screenWithoutAlarmOptionViewTapped
-    case alarmOptionButtonTapped
 }
 
 final class MainPageViewController: UIViewController, MainPagePresentable, MainPageViewControllable, MainPageViewListener {
@@ -127,35 +132,35 @@ extension MainPageViewController {
     func action(_ action: MainPageView.Action) {
         switch action {
         case .fortuneNotiButtonClicked:
-            listener?.request(.showFortuneNoti)
+            listener?.request(.checkTodayFortuneIsArrived)
         case .applicationSettingButtonClicked:
-            listener?.request(.goToSettings)
+            listener?.request(.routeToSettingPage)
         case .addAlarmButtonClicked:
-            listener?.request(.createAlarm)
+            listener?.request(.routeToCreateAlarmPage)
         case .alarmSelected(let alarmId):
-            listener?.request(.editAlarm(alarmId: alarmId))
+            listener?.request(.routeToAlarmEditPage(alarmId: alarmId))
         case .alarmActivityStateWillChange(let alarmId):
             listener?.request(.changeAlarmActivityState(alarmId: alarmId))
         case .alarmWillDelete(let alarmId):
             listener?.request(.deleteAlarm(alarmId: alarmId))
         case .alarmsWillDelete:
-            listener?.request(.deleteAlarms)
+            listener?.request(.deleteSelectedAlarms)
         case .alarmIsChecked(alarmId: let alarmId):
-            listener?.request(.changeAlarmCheckState(alarmId: alarmId))
+            listener?.request(.changeAlarmDeletionCheckState(alarmId: alarmId))
         case .changeModeToDeletionButtonClicked:
             listener?.request(.changeAlarmListMode(mode: .deletion))
         case .changeModeToIdleButtonClicked:
             listener?.request(.changeAlarmListMode(mode: .idle))
         case .deleteAllAlarmCheckBoxTapped:
-            listener?.request(.checkAllAlarmForDeletionButtonTapped)
+            listener?.request(.changeAllAlarmSelectionStateForDeletion)
         case .alarmCellIsLongPressed(let alarmId):
-            listener?.request(.presentSingleAlarmDeletionView(alarmId: alarmId))
+            listener?.request(.routeToSingleAlarmDeletionView(alarmId: alarmId))
         case .singleAlarmDeletionViewBackgroundTapped:
             listener?.request(.dismissSingleAlarmDeletionView)
         case .screenWithoutAlarmConfigureViewTapped:
-            listener?.request(.screenWithoutAlarmOptionViewTapped)
+            listener?.request(.screenOutsideAlarmListOptionViewTapped)
         case .configureAlarmListButtonClicked:
-            listener?.request(.alarmOptionButtonTapped)
+            listener?.request(.alarmListOptionButtonTapped)
         }
     }
 }
@@ -166,11 +171,11 @@ extension MainPageViewController: EmptyAlarmViewListener {
     func action(_ action: EmptyAlarmView.Action) {
         switch action {
         case .fortuneNotiButtonTapped:
-            listener?.request(.showFortuneNoti)
+            listener?.request(.checkTodayFortuneIsArrived)
         case .applicationSettingButtonTapped:
-            listener?.request(.goToSettings)
+            listener?.request(.routeToSettingPage)
         case .addAlarmButtonTapped:
-            listener?.request(.createAlarm)
+            listener?.request(.routeToCreateAlarmPage)
         }
     }
 }

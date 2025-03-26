@@ -113,10 +113,11 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
 extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
+            
+        // MARK: Alarm데이터 수정 관련
         case .viewDidLoad:
             // 알람 정보 업데이트
             refetchAndPresentAlarms()
-            
         case .viewWillAppear:
             // 알람 정보 업데이트
             refetchAndPresentAlarms()
@@ -160,45 +161,6 @@ extension MainPageInteractor {
             
             // 운세도착정보 표시
             updateNextFortuneDeliveryTimeText()
-
-        case .showFortuneNoti:
-            guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
-                let config = DSButtonAlert.Config(
-                    titleText: "받은 운세가 없어요",
-                    subTitleText: """
-                    알람이 울린 후 미션을 수행하면
-                    오늘의 운세를 받을 수 있어요.
-                    """,
-                    buttonText: "닫기", buttonAction: { [weak self] in
-                        guard let self else { return }
-                        router?.request(.dismissAlert())
-                    })
-                router?.request(.presentAlertType1(config))
-                return
-            }
-            
-            let request = APIRequest.Fortune.getFortune(fortuneId: fortuneInfo.id)
-            APIClient.request(Fortune.self, request: request) { [weak self] fortune in
-                guard let self else { return }
-                DispatchQueue.main.async {
-                    self.goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
-                }
-                
-                // 오늘 운세는 확인된 상태로 변경
-                UserDefaults.standard.setDailyFortuneChecked(isChecked: true)
-                
-            } failure: { error in
-                print(error)
-            }
-            
-        case .goToSettings:
-            router?.request(.presentSettingPage)
-        case .createAlarm:
-            router?.request(.routeToCreateEditAlarm(mode: .create))
-        case let .editAlarm(alarmId):
-            guard let alarm = alarms[alarmId] else { return }
-            if alarm.isActive { alarmController.unscheduleAlarm(alarm: alarm) }
-            router?.request(.routeToCreateEditAlarm(mode: .edit(alarm)))
         case let .changeAlarmActivityState(alarmId):
             guard var alarm = alarms[alarmId] else { return }
             let nextState = !alarm.isActive
@@ -310,7 +272,6 @@ extension MainPageInteractor {
                 }
             )
             router?.request(.presentAlertType2(alertConfig))
-            
         case .changeAlarmListMode(let mode):
             self.alarmListMode = mode
             self.checkedState = [:]
@@ -329,7 +290,7 @@ extension MainPageInteractor {
                 self.isAlarmListOptionViewPresented = false
                 presenter.request(.presentAlarmListOption(isPresenting: false))
             }
-        case .changeAlarmCheckState(let alarmId):
+        case .changeAlarmDeletionCheckState(let alarmId):
             // 체크 상태기록
             var nextState: Bool!
             if self.checkedState[alarmId] == true {
@@ -359,8 +320,7 @@ extension MainPageInteractor {
                 self.deleteAllAlarmsChecked = false
                 presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
             }
-            
-        case .deleteAlarms:
+        case .deleteSelectedAlarms:
             let alertConfig: DSTwoButtonAlert.Config = .init(
                 titleText: "알람 삭제",
                 subTitleText: "삭제하시겠어요?",
@@ -432,8 +392,7 @@ extension MainPageInteractor {
                 }
             )
             router?.request(.presentAlertType2(alertConfig))
-            
-        case .checkAllAlarmForDeletionButtonTapped:
+        case .changeAllAlarmSelectionStateForDeletion:
             let prevState = deleteAllAlarmsChecked
             if prevState == true {
                 // 전체선택 해제
@@ -457,19 +416,60 @@ extension MainPageInteractor {
             self.deleteAllAlarmsChecked = !prevState
             presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
             
-        case .presentSingleAlarmDeletionView(let alarmId):
+            
+        // MARK: =========================================
+            
+        case .checkTodayFortuneIsArrived:
+            guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
+                let config = DSButtonAlert.Config(
+                    titleText: "받은 운세가 없어요",
+                    subTitleText: """
+                    알람이 울린 후 미션을 수행하면
+                    오늘의 운세를 받을 수 있어요.
+                    """,
+                    buttonText: "닫기", buttonAction: { [weak self] in
+                        guard let self else { return }
+                        router?.request(.dismissAlert())
+                    })
+                router?.request(.presentAlertType1(config))
+                return
+            }
+            
+            let request = APIRequest.Fortune.getFortune(fortuneId: fortuneInfo.id)
+            APIClient.request(Fortune.self, request: request) { [weak self] fortune in
+                guard let self else { return }
+                DispatchQueue.main.async {
+                    self.goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
+                }
+                
+                // 오늘 운세는 확인된 상태로 변경
+                UserDefaults.standard.setDailyFortuneChecked(isChecked: true)
+                
+            } failure: { error in
+                print(error)
+            }
+            
+        case .routeToSettingPage:
+            router?.request(.presentSettingPage)
+        case .routeToCreateAlarmPage:
+            router?.request(.routeToCreateEditAlarm(mode: .create))
+        case let .routeToAlarmEditPage(alarmId):
+            guard let alarm = alarms[alarmId] else { return }
+            if alarm.isActive { alarmController.unscheduleAlarm(alarm: alarm) }
+            router?.request(.routeToCreateEditAlarm(mode: .edit(alarm)))
+        case .routeToSingleAlarmDeletionView(let alarmId):
             guard let alarmRO = alarmRenderObjects[alarmId] else { break }
             self.isSingleAlarmDeletionViewPresenting = true
             presenter.request(.presentSingleAlarmDeletionView(alarmRO))
         case .dismissSingleAlarmDeletionView:
             self.isSingleAlarmDeletionViewPresenting = false
             presenter.request(.dismissSingleAlarmDeletionView)
-        case .alarmOptionButtonTapped:
+        case .alarmListOptionButtonTapped:
             let isPresented = self.isAlarmListOptionViewPresented
             let nextState = !isPresented
             self.isAlarmListOptionViewPresented = nextState
             presenter.request(.presentAlarmListOption(isPresenting: nextState))
-        case .screenWithoutAlarmOptionViewTapped:
+        case .screenOutsideAlarmListOptionViewTapped:
             let isPresented = self.isAlarmListOptionViewPresented
             if isPresented {
                 self.isAlarmListOptionViewPresented = false
