@@ -15,8 +15,6 @@ let project = Project(
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
-                .feature(implements: .UIDependencies),
-                .feature(implements: .ThirdPartyDependencies),
                 .feature(implements: .Alarm)
             ]
         ),
@@ -30,7 +28,6 @@ let project = Project(
             bundleId: Project.Environment.bundleId(suffix: "feature.alarm.tests"),
             sources: ["Tests/**"],
             dependencies: [
-                
                 .feature(implements: .Alarm)
             ]
         ),

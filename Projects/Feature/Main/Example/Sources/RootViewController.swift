@@ -6,6 +6,10 @@
 //
 
 import UIKit
+
+import FeatureLogger
+import FeatureAlarmController
+
 import RIBs
 
 @testable import FeatureMain
@@ -92,7 +96,9 @@ extension RootViewController: UITableViewDelegate {
 }
 
 class ExampleComponent: Component<EmptyDependency> {
+    var logger: Logger = PrintOnlyLogger()
     let viewController: MainPageViewControllable
+    var alarmController: AlarmController = FakeAlarmController()
     init(viewController: MainPageViewControllable) {
         self.viewController = viewController
         super.init(dependency: EmptyComponent())
