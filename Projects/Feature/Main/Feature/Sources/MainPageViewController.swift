@@ -81,13 +81,7 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             mainView.update(.updateAlarmListCell(updateInfos: updateInfos))
             
         case .setAlarmListMode(let mode):
-            switch mode {
-            case .idle:
-                mainView.update(.dismissAlarmGroupDeletionView)
-            case .deletion:
-                mainView.update(.presentAlarmGroupDeletionView)
-            }
-            break
+            mainView.update(.setAlarmListMode(mode))
         case .setCountForAlarmsCheckedForDeletion(let count):
             let isActive: Bool = (count != 0)
             var text: String = "삭제"
@@ -104,7 +98,7 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
                 make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(12)
             }
             snackBar.play()
-        case .setCheckForDeleteAllAlarms(let isOn):
+        case .setCheckBoxStateForDeleteAllAlarms(let isOn):
             mainView.update(.setDeleteAllAlarmCheckBox(isOn: isOn))
         case .presentSingleAlarmDeletionView(let ro):
             mainView.update(.singleAlarmDeletionViewPresentation(
@@ -144,15 +138,15 @@ extension MainPageViewController {
             listener?.request(.routeToSettingPage)
         case .addAlarmButtonClicked:
             listener?.request(.routeToCreateAlarmPage)
-        case .alarmSelected(let alarmId):
+        case .alarmCellIsTapped(let alarmId):
             listener?.request(.routeToAlarmEditPage(alarmId: alarmId))
         case .alarmActivityStateWillChange(let alarmId):
             listener?.request(.changeAlarmActivityState(alarmId: alarmId))
-        case .alarmWillDelete(let alarmId):
+        case .alarmCellWillDelete(let alarmId):
             listener?.request(.deleteAlarm(alarmId: alarmId))
         case .alarmsWillDelete:
             listener?.request(.deleteSelectedAlarms)
-        case .alarmIsChecked(alarmId: let alarmId):
+        case .alarmIsCheckedForDeletion(alarmId: let alarmId):
             listener?.request(.changeAlarmDeletionCheckState(alarmId: alarmId))
         case .changeModeToDeletionButtonClicked:
             listener?.request(.changeAlarmListMode(mode: .deletion))

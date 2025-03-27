@@ -278,7 +278,6 @@ extension AlarmCell {
             checkBox.update(state: ro.isChecked ? .seleceted : .idle)
             contentView.backgroundColor = ro.isChecked ? R.Color.gray800 : R.Color.gray900
         }
-        
         return self
     }
 }

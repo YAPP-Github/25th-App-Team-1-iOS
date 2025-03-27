@@ -45,23 +45,35 @@ public protocol MainPageRouting: ViewableRouting {
 }
 
 enum MainPagePresentableRequest {
-    
+    // Alarm list CRUD
     case setAlarmList(newList: [AlarmCellRO])
     case insertAlarmListElements(updateInfos: [AlarmListCellUpdateInfo])
     case deleteAlarmListElements(identifiers: [String])
     case updateAlarmListElements(updateInfos: [AlarmListCellUpdateInfo])
     
+    // Single Alarm deletion
+    case presentSingleAlarmDeletionView(AlarmCellRO)
+    
+    // Alarm list mode(idle / edit)
     case setAlarmListMode(AlarmListMode)
+    case setCheckBoxStateForDeleteAllAlarms(isOn: Bool)
     case setCountForAlarmsCheckedForDeletion(countOfAlarms: Int)
-    case presentSnackBar(config: DSSnackBar.SnackBarConfig)
+    // - Single alarm deletion
+    case setSingleAlarmDeltionItem(AlarmCellRO)
+    case dismissSingleAlarmDeletionView
+    
+    // Alarm list util
+    case presentAlarmListOption(isPresenting: Bool)
+    
+    // Orbit
+    case setOrbitState(OrbitRenderState)
+    
+    // Fortune
     case setFortuneDeliverMark(isMarked: Bool)
     case nextFortuneDeliveryTime(text: String)
-    case setOrbitState(OrbitRenderState)
-    case setCheckForDeleteAllAlarms(isOn: Bool)
-    case presentSingleAlarmDeletionView(AlarmCellRO)
-    case dismissSingleAlarmDeletionView
-    case setSingleAlarmDeltionItem(AlarmCellRO)
-    case presentAlarmListOption(isPresenting: Bool)
+    
+    // SnackBar
+    case presentSnackBar(config: DSSnackBar.SnackBarConfig)
 }
 
 protocol MainPagePresentable: Presentable {
@@ -138,7 +150,7 @@ extension MainPageInteractor {
             guard let alarm = alarms[alarmId] else { return }
             let nextIsActiveState = !alarm.isActive
             
-            let changeAlarmActivity = { [weak self] in
+            let changeAlarmActivityTask = { [weak self] in
                 guard let self else { return }
                 // #1. 인터렉터 알람 상태 업데이트
                 var newAlarm = alarm
@@ -185,6 +197,9 @@ extension MainPageInteractor {
                 
                 // #7. 다음 운세도착시간 업데이트
                 updateNextFortuneDeliveryTimeText()
+                
+                // #8. Alert dismissal
+                router?.request(.dismissAlert())
             }
             
             let currentActiveAlarmCount = alarms.values.filter({ $0.isActive }).count
@@ -199,79 +214,39 @@ extension MainPageInteractor {
                         guard let self else { return }
                         router?.request(.dismissAlert())
                     },
-                    rightButtonTapped: { [weak self] in
-                        guard let self else { return }
-                        changeAlarmActivity()
-                        router?.request(.dismissAlert())
-                    }
+                    rightButtonTapped: changeAlarmActivityTask
                 )
                 router?.request(.presentAlertType2(alertConfig))
                 break
             } else {
-                changeAlarmActivity()
+                changeAlarmActivityTask()
             }
-            
-        case let .deleteAlarm(alarmId):
-            guard let alarm = alarms[alarmId] else { return }
-            let alertConfig: DSTwoButtonAlert.Config = .init(
-                titleText: "알람 삭제",
-                subTitleText: "삭제하시겠어요?",
-                leftButtonText: "취소",
-                rightButtonText: "삭제",
-                leftButtonTapped: { [weak self] in
-                    guard let self else { return }
-                    router?.request(.dismissAlert())
-                },
-                rightButtonTapped: { [weak self] in
-                    guard let self else { return }
-                    // 로컬저장소 업데이트
-                    alarmController.removeAlarm(alarm: alarm, completion: { [weak self] result in
-                        guard let self else { return }
-                        if case .failure(let error) = result {
-                            handle(error: error)
-                        }
-                    })
-                    alarmController.unscheduleAlarm(alarm: alarm)
-                    
-                    // 상태업데이트
-                    alarms.removeValue(forKey: alarmId)
-                    
-                    // 랜더오브젝트 상태 업데이트
-                    alarmRenderObjects.removeValue(forKey: alarmId)
-                    
-                    presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
-                    
-                    // Single alarm deletion뷰로 삭제중일 경우
-                    if isSingleAlarmDeletionViewPresenting {
-                        self.isSingleAlarmDeletionViewPresenting = false
-                        presenter.request(.dismissSingleAlarmDeletionView)
-                    }
-                    
-                    // 다음 운세도착정보 표시 업데이트
-                    updateNextFortuneDeliveryTimeText()
-                    
-                    router?.request(.dismissAlert())
-                }
-            )
-            router?.request(.presentAlertType2(alertConfig))
+        
         case .changeAlarmListMode(let mode):
+            // #1. 다중 알람 삭제 상태 초기화
             self.alarmListMode = mode
             self.checkedState = [:]
-            
-            alarmRenderObjects.keys.forEach { alarmCellROKey in
-                alarmRenderObjects[alarmCellROKey]?.isChecked = false
-                alarmRenderObjects[alarmCellROKey]?.mode = mode
+            alarmRenderObjects.keys.forEach {
+                alarmRenderObjects[$0]?.isChecked = false
+                alarmRenderObjects[$0]?.mode = mode
             }
-            
             self.deleteAllAlarmsChecked = false
-            presenter.request(.setCheckForDeleteAllAlarms(isOn: false))
-            presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
+            
+            // #2. 알람 전체삭제 선택 초기화
+            presenter.request(.setCheckBoxStateForDeleteAllAlarms(isOn: false))
+            
+            // #3. 알람리스트 업데이트
+            let sortedAlarms = getSorted(Array(alarmRenderObjects.values))
+            presenter.request(.setAlarmList(newList: sortedAlarms))
             presenter.request(.setAlarmListMode(mode))
             presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
+            
+            // #4. 알람리스트 옵션창 비활성화
             if isAlarmListOptionViewPresented {
                 self.isAlarmListOptionViewPresented = false
                 presenter.request(.presentAlarmListOption(isPresenting: false))
             }
+            
         case .changeAlarmDeletionCheckState(let alarmId):
             // 체크 상태기록
             var nextState: Bool!
@@ -295,14 +270,54 @@ extension MainPageInteractor {
             if checkedForDeletionAlarmCount == alarmCellCount, !deleteAllAlarmsChecked {
                 // 단일 선택으로 모든 알람을 선택한 경우
                 self.deleteAllAlarmsChecked = true
-                presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
+                presenter.request(.setCheckBoxStateForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
             }
             if checkedForDeletionAlarmCount != alarmCellCount, deleteAllAlarmsChecked {
                 // 단일 해제로 모든 알람 선택이 해제된 경우
                 self.deleteAllAlarmsChecked = false
-                presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
+                presenter.request(.setCheckBoxStateForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
             }
-        case .deleteSelectedAlarms:
+            
+        case .deleteAlarm(let alarmId):
+            guard let alarm = alarms[alarmId] else { return }
+            let alarmDeletionTask = { [weak self] in
+                guard let self else { return }
+                // #1. 인터렉터 상태 업데이트
+                alarms.removeValue(forKey: alarmId)
+                alarmRenderObjects.removeValue(forKey: alarmId)
+                
+                // #2. 로컬저장소 업데이트
+                alarmController.removeAlarm(alarm: alarm, completion: { [weak self] result in
+                    guard let self else { return }
+                    if case .failure(let error) = result {
+                        handle(error: error)
+                    }
+                })
+                
+                // #3. 스케쥴링된 알람 취소
+                alarmController.unscheduleAlarm(alarm: alarm)
+                
+                // #4. UI상태 업데이트
+                if alarmRenderObjects.isEmpty {
+                    // 알람리스트가 비어있는 경우
+                    presenter.request(.setAlarmList(newList: []))
+                } else {
+                    // 알람리스트가 비어있지 않은 경우
+                    presenter.request(.deleteAlarmListElements(identifiers: [alarmId]))
+                }
+                
+                // #5. 단일 알람삭제에서 삭제된 경우 해당 화면 닫기
+                if isSingleAlarmDeletionViewPresenting {
+                    self.isSingleAlarmDeletionViewPresenting = false
+                    presenter.request(.dismissSingleAlarmDeletionView)
+                }
+                
+                // #6. 다음운세 도착시간 업데이트
+                updateNextFortuneDeliveryTimeText()
+                
+                // #7. Alert닫기
+                router?.request(.dismissAlert())
+            }
             let alertConfig: DSTwoButtonAlert.Config = .init(
                 titleText: "알람 삭제",
                 subTitleText: "삭제하시겠어요?",
@@ -312,92 +327,166 @@ extension MainPageInteractor {
                     guard let self else { return }
                     router?.request(.dismissAlert())
                 },
-                rightButtonTapped: { [weak self] in
-                    guard let self else { return }
-                    router?.request(.dismissAlert())
-                    
-                    // 비즈니스 로직
-                    let willDeleteAlarms = alarms.values.filter { alarm in
-                        self.checkedState[alarm.id] == true
-                    }
-                    alarmController.removeAlarm(alarms: willDeleteAlarms, completion: { [weak self] result in
-                        guard let self else { return }
-                        if case .failure(let error) = result {
-                            handle(error: error)
-                        }
-                    })
-                    willDeleteAlarms.forEach { alarm in
-                        self.alarmController.unscheduleAlarm(alarm: alarm)
-                        self.alarms.removeValue(forKey: alarm.id)
-                        self.alarmRenderObjects.removeValue(forKey: alarm.id)
-                    }
-                    
-                    // UI 업데이트
-                    alarmRenderObjects.values.forEach { alarmRO in
-                        if self.checkedState[alarmRO.id] != true {
-                            self.alarmRenderObjects[alarmRO.id]?.mode = .idle
-                            self.alarmRenderObjects[alarmRO.id]?.isChecked = false
-                        }
-                    }
-                    self.checkedState = [:]
-                    self.alarmListMode = .idle
-                    presenter.request(.setAlarmListMode(.idle))
-                    presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
-                    presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
-                    
-                    // 다음 운세도착정보 표시 업데이트
-                    updateNextFortuneDeliveryTimeText()
-                    
-                    let config: DSSnackBar.SnackBarConfig = .init(
-                        status: .success,
-                        titleText: "삭제되었어요.",
-                        buttonText: "취소",
-                        buttonCompletion: { [weak self] in
-                            guard let self else { return }
-                            _ = self.alarmController.createAlarms(alarms: willDeleteAlarms)
-                            willDeleteAlarms.forEach { alarm in
-                                // 복구
-                                if alarm.isActive { self.alarmController.scheduleAlarm(alarm: alarm) }
-                                self.insertAlarm(alarm: alarm)
-                                self.insertAlarmRO(ro: self.transform(alarm: alarm))
-                            }
-                            
-                            // 다음 운세도착정보 표시 업데이트
-                            updateNextFortuneDeliveryTimeText()
-                            
-                            // UI업데이트
-                            presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
-                        }
-                    )
-                    presenter.request(.presentSnackBar(config: config))
-                    
-                }
+                rightButtonTapped: alarmDeletionTask
             )
             router?.request(.presentAlertType2(alertConfig))
+            
+        case .deleteSelectedAlarms:
+            let alarmsDeletionTask = { [weak self] in
+                guard let self else { return }
+                // #1. 선택된 알람리스트 획득
+                let willDeleteAlarms = alarms.values.filter { alarm in
+                    self.checkedState[alarm.id] == true
+                }
+                
+                // #2. 인터렉터 상태 업데이트
+                // - 삭제된 알람 배제
+                willDeleteAlarms.forEach { alarm in
+                    self.alarms.removeValue(forKey: alarm.id)
+                    self.alarmRenderObjects.removeValue(forKey: alarm.id)
+                }
+                // - 알람리스트 상태 변경
+                alarmListMode = .idle
+                checkedState = [:]
+                alarmRenderObjects.keys.forEach { alarmId in
+                    self.alarmRenderObjects[alarmId]?.mode = .idle
+                    self.alarmRenderObjects[alarmId]?.isChecked = false
+                }
+                
+                // #3. 영구 저장소에서 알람 삭제
+                alarmController.removeAlarm(alarms: willDeleteAlarms, completion: { [weak self] result in
+                    guard let self else { return }
+                    if case .failure(let error) = result {
+                        handle(error: error)
+                    }
+                })
+                
+                // #4. 삭제될 알람 스케쥴링 해제
+                willDeleteAlarms.forEach(alarmController.unscheduleAlarm)
+                
+                // #5. UI 업데이트
+                // - 알람리스트 업데이트
+                presenter.request(.setAlarmListMode(.idle))
+                if alarmRenderObjects.isEmpty {
+                    presenter.request(.setAlarmList(newList: []))
+                } else {
+                    let identifiers = willDeleteAlarms.map(\.id)
+                    presenter.request(.deleteAlarmListElements(identifiers: identifiers))
+                    
+                    let sortedAlarmRenderObject = getSorted(Array(alarmRenderObjects.values))
+                    let updateInfos = sortedAlarmRenderObject.enumerated()
+                        .map(AlarmListCellUpdateInfo.init)
+                    presenter.request(.updateAlarmListElements(updateInfos: updateInfos))
+                }
+                // - 다음 운세도착정보 표시 업데이트
+                updateNextFortuneDeliveryTimeText()
+                // - Alert Dismissal
+                router?.request(.dismissAlert())
+                
+                // #7. 복구 스낵바 표출
+                let restoreDeletionTask = { [weak self] in
+                    guard let self else { return }
+                    // #6-1. 인터렉터 상태 복구
+                    willDeleteAlarms.forEach { alarm in
+                        self.insertAlarm(alarm: alarm)
+                        self.insertAlarmRO(ro: self.transform(alarm: alarm))
+                    }
+                    
+                    // #6-2. 영구저장소 복구
+                    _ = alarmController.createAlarms(alarms: willDeleteAlarms)
+                    
+                    // #6-3. 알람 스케쥴링 복구
+                    willDeleteAlarms
+                        .filter(\.isActive)
+                        .forEach(alarmController.scheduleAlarm)
+                    
+                    // #6-4. UI업데이트
+                    // - 알람 리스트 업데이트
+                    let sortedAlarmRenderObjects = getSorted(Array(alarmRenderObjects.values))
+                    if sortedAlarmRenderObjects.count == willDeleteAlarms.count {
+                        // 전체삭제를 복구하는 경우
+                        presenter.request(.setAlarmList(newList: sortedAlarmRenderObjects))
+                    } else {
+                        // 일부알람들을 복구하는 경우
+                        let sortedDeletedAlarmRenderObjects = getSorted(willDeleteAlarms.map(transform(alarm:)))
+                        var updateInfos: [AlarmListCellUpdateInfo] = []
+                        var currentIndex = 0
+                        for (index, renderObject) in sortedAlarmRenderObjects.enumerated() {
+                            if currentIndex >= sortedDeletedAlarmRenderObjects.count { break }
+                            if renderObject.id == sortedDeletedAlarmRenderObjects[currentIndex].id {
+                                updateInfos.append(.init(
+                                    index: index,
+                                    renderObject: sortedDeletedAlarmRenderObjects[currentIndex]
+                                ))
+                                currentIndex += 1
+                            }
+                        }
+                        presenter.request(.insertAlarmListElements(updateInfos: updateInfos))
+                    }
+                    // - 알람 리스트 변경
+                    presenter.request(.setAlarmListMode(.idle))
+                    // - 다음 운세도착정보 표시 업데이트
+                    updateNextFortuneDeliveryTimeText()
+                }
+                let config: DSSnackBar.SnackBarConfig = .init(
+                    status: .success,
+                    titleText: "삭제되었어요.",
+                    buttonText: "취소",
+                    buttonCompletion: restoreDeletionTask
+                )
+                presenter.request(.presentSnackBar(config: config))
+            }
+       
+            let alertConfig: DSTwoButtonAlert.Config = .init(
+                titleText: "알람 삭제",
+                subTitleText: "삭제하시겠어요?",
+                leftButtonText: "취소",
+                rightButtonText: "삭제",
+                leftButtonTapped: { [weak self] in
+                    guard let self else { return }
+                    router?.request(.dismissAlert())
+                },
+                rightButtonTapped: alarmsDeletionTask
+            )
+            router?.request(.presentAlertType2(alertConfig))
+            
         case .changeAllAlarmSelectionStateForDeletion:
             let prevState = deleteAllAlarmsChecked
+            
+            // #1. 인터렉터 상태 업데이트
+            deleteAllAlarmsChecked = !prevState
+            
+            // #2. 상단 UI상태 업데이트
+            presenter.request(.setCheckBoxStateForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
+            
+            // #3. 셀UI 업데이트
             if prevState == true {
-                // 전체선택 해제
+                // 전체선택이 선택됬던 경우
+                
+                // #3-1. 인터렉터 상태 업데이트
+                checkedState = [:]
                 alarmRenderObjects.values.forEach { alarmRO in
                     alarmRenderObjects[alarmRO.id]?.isChecked = false
                 }
-                self.checkedState = [:]
-                presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
+                
+                // #3-2. UI상태 업데이트
+                let sortedAlarms = getSorted(Array(alarmRenderObjects.values))
+                presenter.request(.setAlarmList(newList: sortedAlarms))
                 presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
             } else {
-                // 전체선택
+                // 전체선택을 실행해야하는 경우
+                
+                // #3-1. 인터렉터 상태 업데이트
                 alarmRenderObjects.values.forEach { alarmRO in
                     alarmRenderObjects[alarmRO.id]?.isChecked = true
                     checkedState[alarmRO.id] = true
                 }
-                presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
-                presenter.request(.setCountForAlarmsCheckedForDeletion(
-                    countOfAlarms: self.checkedState.keys.count
-                ))
+                
+                // #3-2. UI상태 업데이트
+                let sortedAlarms = getSorted(Array(alarmRenderObjects.values))
+                presenter.request(.setAlarmList(newList: sortedAlarms))
+                presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: checkedState.keys.count))
             }
-            self.deleteAllAlarmsChecked = !prevState
-            presenter.request(.setCheckForDeleteAllAlarms(isOn: deleteAllAlarmsChecked))
-            
             
         // MARK: =========================================
             
@@ -515,41 +604,60 @@ extension MainPageInteractor {
         switch request {
         case .close:
             return
-        case let .done(alarm):
+        case .done(let alarm):
+            // #1. 인터렉터 상태 업데이트
+            insertAlarm(alarm: alarm)
+            insertAlarmRO(ro: transform(alarm: alarm))
+            
+            // #2. 영구저장소 업데이트
             alarmController.createAlarm(alarm: alarm, completion: { [weak self] result in
                 guard let self else { return }
                 if case .failure(let error) = result {
                     handle(error: error)
                 }
             })
+            
+            // #3. 알람 스케쥴링
             alarmController.scheduleAlarm(alarm: alarm)
-            insertAlarm(alarm: alarm)
-            insertAlarmRO(ro: transform(alarm: alarm))
+            
+            // #4. 스낵바 표출
             let config: DSSnackBar.SnackBarConfig = .init(
                 status: .success,
                 titleText: "기상 알람이 추가되었어요."
             )
             presenter.request(.presentSnackBar(config: config))
             
-        case let .updated(alarm):
-            alarmController.updateAlarm(alarm: alarm, completion: { [weak self] result in
-                guard let self else { return }
-                if case .failure(let error) = result {
-                    handle(error: error)
-                }
-            })
-            if alarm.isActive { alarmController.scheduleAlarm(alarm: alarm) }
+        case .updated(let alarm):
+            // #1. 인터렉터 상태 업데이트
             insertAlarm(alarm: alarm)
             insertAlarmRO(ro: transform(alarm: alarm))
-        case let .deleted(alarm):
-            alarmController.removeAlarm(alarm: alarm, completion: { [weak self] result in
+            
+            // #2. 영구저장소 업데이트
+            alarmController.updateAlarm(alarm: alarm, completion: { [weak self] result in
                 guard let self else { return }
-                if case .failure(let error) = result {
-                    handle(error: error)
-                }
+                if case .failure(let error) = result { handle(error: error) }
             })
+            
+            // #3. 알람 스케쥴링
+            if alarm.isActive { alarmController.scheduleAlarm(alarm: alarm) }
+            
+        case .deleted(let alarm):
+            // #1. 인터렉터 상태 업데이트
             alarms.removeValue(forKey: alarm.id)
             alarmRenderObjects.removeValue(forKey: alarm.id)
+            
+            // #2. 영구저장소 업데이트
+            alarmController.removeAlarm(alarm: alarm, completion: { [weak self] result in
+                guard let self else { return }
+                if case .failure(let error) = result { handle(error: error) }
+            })
+            
+            // #3. UI업데이트
+            if alarmRenderObjects.count == 0 {
+                presenter.request(.setAlarmList(newList: []))
+            } else {
+                presenter.request(.deleteAlarmListElements(identifiers: [alarm.id]))
+            }
         }
         
         // 다음 운세도착정보 표시 업데이트
@@ -847,13 +955,15 @@ private extension MainPageInteractor {
         let alarmFetchResult = alarmController.readAlarms()
         switch alarmFetchResult {
         case .success(let fetchedAlarms):
+            // #1. 인터렉터 상태 업데이트
             clearAlarms()
             insertAlarms(alarms: fetchedAlarms)
-            
             let renderObjects = transform(alarmList: fetchedAlarms)
             clearAlarmROs()
             insertAlarmROs(ros: renderObjects)
-            presenter.request(.setAlarmList(newList: getSorted( renderObjects)))
+            
+            // #2. UI업데이트
+            presenter.request(.setAlarmList(newList: getSorted(renderObjects)))
         case .failure(let error):
             debugPrint("Error, \(error.localizedDescription)")
             handle(error: error)

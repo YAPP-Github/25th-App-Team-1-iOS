@@ -27,10 +27,10 @@ final class MainPageView: UIView, DeleteAlarmGroupBarViewListener {
         case addAlarmButtonClicked
         case configureAlarmListButtonClicked
         
-        case alarmSelected(alarmId: String)
+        case alarmCellIsTapped(alarmId: String)
         case alarmActivityStateWillChange(alarmId: String)
-        case alarmIsChecked(alarmId: String)
-        case alarmWillDelete(alarmId: String)
+        case alarmIsCheckedForDeletion(alarmId: String)
+        case alarmCellWillDelete(alarmId: String)
         case alarmCellIsLongPressed(alarmId: String)
         case singleAlarmDeletionViewBackgroundTapped
         
@@ -479,9 +479,9 @@ extension MainPageView {
         case insertAlarmListCells(updateInfos: [AlarmListCellUpdateInfo])
         case deleteAlarmListCells(ids: [String])
         case updateAlarmListCell(updateInfos: [AlarmListCellUpdateInfo])
+        case setAlarmListMode(AlarmListMode)
         
-        case presentAlarmGroupDeletionView
-        case dismissAlarmGroupDeletionView
+        
         case alarmGroupDeletionButton(isActive: Bool, text: String)
         case setDeleteAllAlarmCheckBox(isOn: Bool)
         case singleAlarmDeletionViewPresentation(isPresent: Bool, presenting: AlarmCellRO?)
@@ -556,12 +556,15 @@ extension MainPageView {
                 cell.update(renderObject: info.renderObject)
             }
             
-        case .presentAlarmGroupDeletionView:
-            deleteGroupAlarmConfirmButton.isHidden = false
-            presentDeleteAllAlarmBarView()
-        case .dismissAlarmGroupDeletionView:
-            deleteGroupAlarmConfirmButton.isHidden = true
-            dismissDeleteAllAlarmBarView()
+        case .setAlarmListMode(let mode):
+            switch mode {
+            case .idle:
+                deleteGroupAlarmConfirmButton.isHidden = true
+                dismissDeleteAllAlarmBarView()
+            case .deletion:
+                deleteGroupAlarmConfirmButton.isHidden = false
+                presentDeleteAllAlarmBarView()
+            }
         case .alarmGroupDeletionButton(let isActive, let text):
             deleteGroupAlarmConfirmButton.update(state: isActive ? .active : .inactive)
             deleteGroupAlarmConfirmButton.update(title: text)
@@ -776,9 +779,9 @@ extension MainPageView: UITableViewDelegate, UITableViewDataSource {
             case .cellIsTapped:
                 switch renderObject.mode {
                 case .idle:
-                    listener?.action(.alarmSelected(alarmId: cellId))
+                    listener?.action(.alarmCellIsTapped(alarmId: cellId))
                 case .deletion:
-                    listener?.action(.alarmIsChecked(alarmId: cellId))
+                    listener?.action(.alarmIsCheckedForDeletion(alarmId: cellId))
                 }
             }
         }
@@ -815,7 +818,7 @@ extension MainPageView: UITableViewDelegate, UITableViewDataSource {
             guard let self else { return }
             let renderObject = alarmCellRenderObjects[indexPath.row]
             let cellId = renderObject.id
-            listener?.action(.alarmWillDelete(alarmId: cellId))
+            listener?.action(.alarmCellWillDelete(alarmId: cellId))
             completionHandler(true)
         }
         deleteAction.backgroundColor = R.Color.gray500
@@ -847,7 +850,7 @@ private extension MainPageView {
             case .backgroundTapped:
                 listener?.action(.singleAlarmDeletionViewBackgroundTapped)
             case .deleteButtonClicked:
-                listener?.action(.alarmWillDelete(alarmId: cellId))
+                listener?.action(.alarmCellWillDelete(alarmId: cellId))
             case .deletionItemToggleIsTapped:
                 listener?.action(.alarmActivityStateWillChange(alarmId: cellId))
             }
