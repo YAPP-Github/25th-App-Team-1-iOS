@@ -70,11 +70,6 @@ public final class DSToggle: TouchDetectingView {
             switch state.switchState {
             case .on:
                 let verticalInset: CGFloat = 3
-                let ballHeight = self.intrinsicContentSize.height - verticalInset*2
-                let size = CGSize(width: ballHeight, height: ballHeight)
-                self.switchBall.frame = CGRect(origin: .init(x: 3, y: 3), size: size)
-            case .off:
-                let verticalInset: CGFloat = 3
                 let horizontalInset: CGFloat = 3
                 let ballHeight = self.intrinsicContentSize.height - verticalInset*2
                 let size = CGSize(width: ballHeight, height: ballHeight)
@@ -84,6 +79,11 @@ public final class DSToggle: TouchDetectingView {
                     y: verticalInset
                 )
                 self.switchBall.frame = CGRect(origin: position, size: size)
+            case .off:
+                let verticalInset: CGFloat = 3
+                let ballHeight = self.intrinsicContentSize.height - verticalInset*2
+                let size = CGSize(width: ballHeight, height: ballHeight)
+                self.switchBall.frame = CGRect(origin: .init(x: 3, y: 3), size: size)
             }
             self.layoutIfNeeded()
         }
