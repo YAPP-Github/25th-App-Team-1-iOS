@@ -157,6 +157,12 @@ private extension AlarmCell {
         }
         
         
+        // dayLabelStack
+        dayLabelStack.snp.makeConstraints { make in
+            make.height.equalTo(20)
+        }
+        
+        
         // containerView
         containerView.snp.makeConstraints { make in
             make.verticalEdges.equalToSuperview().inset(20)

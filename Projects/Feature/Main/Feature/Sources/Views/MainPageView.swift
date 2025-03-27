@@ -799,8 +799,7 @@ extension MainPageView: UITableViewDelegate, UITableViewDataSource {
         alarmListView.backgroundColor = .clear
         alarmListView.delegate = self
         alarmListView.dataSource = self
-        alarmListView.rowHeight = UITableView.automaticDimension
-        alarmListView.estimatedRowHeight = 102
+        alarmListView.rowHeight = 102
         alarmListView.separatorStyle = .singleLine
         alarmListView.separatorColor = R.Color.gray800
         alarmListView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
