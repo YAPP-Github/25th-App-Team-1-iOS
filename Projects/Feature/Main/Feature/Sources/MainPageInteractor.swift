@@ -130,8 +130,6 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
 extension MainPageInteractor {
     func request(_ request: MainPageViewPresenterRequest) {
         switch request {
-            
-        // MARK: Alarm데이터 수정 관련
         case .viewDidLoad:
             
             // 알람 정보 업데이트
@@ -139,11 +137,13 @@ extension MainPageInteractor {
             
         case .viewWillAppear:
             
-            // 알람 정보 업데이트
+            // #1. 알람 정보 업데이트
             refetchAndPresentAlarms()
-            // 오늘의 운세를 기반으로 오르비 상태 업데이트
+            
+            // #2. 오늘의 운세를 기반으로 오르비 상태 업데이트
             updateOrbitStateUsingTodayFortune()
-            // 운세도착정보 표시
+            
+            // #3. 운세도착정보 표시
             updateNextFortuneDeliveryTimeText()
             
         case .changeAlarmActivityState(let alarmId):
@@ -487,8 +487,6 @@ extension MainPageInteractor {
                 presenter.request(.setAlarmList(newList: sortedAlarms))
                 presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: checkedState.keys.count))
             }
-            
-        // MARK: =========================================
             
         case .checkTodayFortuneIsArrived:
             guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
