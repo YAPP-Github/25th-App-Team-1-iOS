@@ -190,6 +190,7 @@ private extension AlarmCell {
         // tapGesture
         contentView.addGestureRecognizer(tapGesture)
         tapGesture.delegate = self
+        tapGesture.require(toFail: longPressGesture)
         tapGesture.addTarget(self, action: #selector(onTap(_:)))
         tapGesture.cancelsTouchesInView = false
     }
