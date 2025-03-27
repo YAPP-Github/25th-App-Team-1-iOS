@@ -45,7 +45,12 @@ public protocol MainPageRouting: ViewableRouting {
 }
 
 enum MainPagePresentableRequest {
-    case setAlarmList([AlarmCellRO])
+    
+    case setAlarmList(newList: [AlarmCellRO])
+    case insertAlarmListElements(updateInfos: [AlarmListCellUpdateInfo])
+    case deleteAlarmListElements(identifiers: [String])
+    case updateAlarmListElements(updateInfos: [AlarmListCellUpdateInfo])
+    
     case setAlarmListMode(AlarmListMode)
     case setCountForAlarmsCheckedForDeletion(countOfAlarms: Int)
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
@@ -116,98 +121,74 @@ extension MainPageInteractor {
             
         // MARK: Alarm데이터 수정 관련
         case .viewDidLoad:
+            
             // 알람 정보 업데이트
             refetchAndPresentAlarms()
+            
         case .viewWillAppear:
+            
             // 알람 정보 업데이트
             refetchAndPresentAlarms()
-            
-            // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
-            if let todayFortuneInfo = UserDefaults.standard.dailyFortune() {
-                self.fortuneSaveInfo = todayFortuneInfo
-                
-                // 오늘의 운세가 있는 경우
-                if fortuneSaveInfo == todayFortuneInfo, let fortune {
-                    // 메모리에 운세가 있는 경우
-                    updateOrbitState(fortune: fortune)
-                    return
-                }
-                
-                // API요청을 통해 운세획득
-                let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
-                if isDailyForuneIsChecked {
-                    // 오늘 운세가 확인된 경우
-                    presenter.request(.setFortuneDeliverMark(isMarked: false))
-                    
-                    // 오늘 운세가 확인된 경우, API를 통해 점수를 확인
-                    let fortuneId = todayFortuneInfo.id
-                    let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
-                    APIClient.request(Fortune.self, request: request) { [weak self] fetchedFortune in
-                        guard let self else { return }
-                        updateOrbitState(fortune: fetchedFortune)
-                        self.fortune = fetchedFortune
-                    } failure: { error in
-                        print(error)
-                    }
-                } else {
-                    // 오늘 운세가 확인되지 않은 경우, 편지함에 빨간점 추가
-                    presenter.request(.setFortuneDeliverMark(isMarked: true))
-                }
-            } else {
-                // 운세가 없는 경우
-                updateOrbitState(fortune: nil)
-                presenter.request(.setFortuneDeliverMark(isMarked: false))
-            }
-            
+            // 오늘의 운세를 기반으로 오르비 상태 업데이트
+            updateOrbitStateUsingTodayFortune()
             // 운세도착정보 표시
             updateNextFortuneDeliveryTimeText()
-        case let .changeAlarmActivityState(alarmId):
-            guard var alarm = alarms[alarmId] else { return }
-            let nextState = !alarm.isActive
+            
+        case .changeAlarmActivityState(let alarmId):
+            guard let alarm = alarms[alarmId] else { return }
+            let nextIsActiveState = !alarm.isActive
             
             let changeAlarmActivity = { [weak self] in
                 guard let self else { return }
-                // 로직 업데이트
-                alarm.isActive = nextState
+                // #1. 인터렉터 알람 상태 업데이트
+                var newAlarm = alarm
+                newAlarm.isActive = nextIsActiveState
+                alarms[alarm.id] = newAlarm
                 
-                
-                // 알람 스케쥴링 변경
-                if nextState == true {
-                    alarmController.scheduleAlarm(alarm: alarm)
-                } else {
-                    alarmController.unscheduleAlarm(alarm: alarm)
-                }
-                
-                
-                self.alarms[alarm.id] = alarm
-                alarmController.updateAlarm(alarm: alarm, completion: { [weak self] result in
+                // #2. 영구 저장소 업데이트
+                alarmController.updateAlarm(alarm: newAlarm, completion: { [weak self] result in
                     guard let self else { return }
                     if case .failure(let error) = result {
                         handle(error: error)
                     }
                 })
                 
-                // 알람 리스트 업데이트(토들)
-                self.alarmRenderObjects[alarm.id] = transform(alarm: alarm)
-                presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+                // #3. 알람 스케쥴링 상태 변경
+                if nextIsActiveState == true {
+                    alarmController.scheduleAlarm(alarm: newAlarm)
+                } else {
+                    alarmController.unscheduleAlarm(alarm: newAlarm)
+                }
                 
-                if self.isSingleAlarmDeletionViewPresenting {
+                // #4. 알람 리스트 업데이트
+                let newAlarmRenderObject = transform(alarm: newAlarm)
+                alarmRenderObjects[alarm.id] = newAlarmRenderObject
+                let sortedAlarmList = getSorted(Array(alarmRenderObjects.values))
+                if let index = sortedAlarmList.firstIndex(of: newAlarmRenderObject) {
+                    presenter.request(.updateAlarmListElements(
+                        updateInfos: [.init(
+                            index: index,
+                            renderObject: newAlarmRenderObject
+                        )]
+                    ))
+                }
+                
+                // #5. 비활성 알림이 단일알람 삭제화면의 알람일 경우
+                if isSingleAlarmDeletionViewPresenting {
                     // 단일 알람 삭제화면이 표시된 경우 해당 아이템도 업데이트
                     guard let alarm = alarms[alarmId] else { return }
                     presenter.request(.setSingleAlarmDeltionItem(transform(alarm: alarm)))
                 }
                 
-                
-                // 오르비 상태 업데이트
+                // #6. 오르비 상태 업데이트
                 updateOrbitState(fortune: fortune)
                 
-                
-                // 다음 운세도착정보 표시 업데이트
+                // #7. 다음 운세도착시간 업데이트
                 updateNextFortuneDeliveryTimeText()
             }
             
             let currentActiveAlarmCount = alarms.values.filter({ $0.isActive }).count
-            if nextState == false, currentActiveAlarmCount == 1 {
+            if nextIsActiveState == false, currentActiveAlarmCount == 1 {
                 // 알람을 비활성화할 때 현재 활성화된 알람의 수가 한개밖에 없는 경우
                 let alertConfig: DSTwoButtonAlert.Config = .init(
                     titleText: "모든 알람 해제",
@@ -229,6 +210,7 @@ extension MainPageInteractor {
             } else {
                 changeAlarmActivity()
             }
+            
         case let .deleteAlarm(alarmId):
             guard let alarm = alarms[alarmId] else { return }
             let alertConfig: DSTwoButtonAlert.Config = .init(
@@ -257,7 +239,7 @@ extension MainPageInteractor {
                     // 랜더오브젝트 상태 업데이트
                     alarmRenderObjects.removeValue(forKey: alarmId)
                     
-                    presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+                    presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
                     
                     // Single alarm deletion뷰로 삭제중일 경우
                     if isSingleAlarmDeletionViewPresenting {
@@ -283,7 +265,7 @@ extension MainPageInteractor {
             
             self.deleteAllAlarmsChecked = false
             presenter.request(.setCheckForDeleteAllAlarms(isOn: false))
-            presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+            presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
             presenter.request(.setAlarmListMode(mode))
             presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
             if isAlarmListOptionViewPresented {
@@ -303,7 +285,7 @@ extension MainPageInteractor {
             
             // UI업데이트
             alarmRenderObjects[alarmId]?.isChecked = nextState
-            presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+            presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
             presenter.request(.setCountForAlarmsCheckedForDeletion(
                 countOfAlarms: self.checkedState.keys.count
             ))
@@ -360,7 +342,7 @@ extension MainPageInteractor {
                     self.checkedState = [:]
                     self.alarmListMode = .idle
                     presenter.request(.setAlarmListMode(.idle))
-                    presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+                    presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
                     presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
                     
                     // 다음 운세도착정보 표시 업데이트
@@ -384,7 +366,7 @@ extension MainPageInteractor {
                             updateNextFortuneDeliveryTimeText()
                             
                             // UI업데이트
-                            presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+                            presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
                         }
                     )
                     presenter.request(.presentSnackBar(config: config))
@@ -400,7 +382,7 @@ extension MainPageInteractor {
                     alarmRenderObjects[alarmRO.id]?.isChecked = false
                 }
                 self.checkedState = [:]
-                presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+                presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
                 presenter.request(.setCountForAlarmsCheckedForDeletion(countOfAlarms: 0))
             } else {
                 // 전체선택
@@ -408,7 +390,7 @@ extension MainPageInteractor {
                     alarmRenderObjects[alarmRO.id]?.isChecked = true
                     checkedState[alarmRO.id] = true
                 }
-                presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+                presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
                 presenter.request(.setCountForAlarmsCheckedForDeletion(
                     countOfAlarms: self.checkedState.keys.count
                 ))
@@ -574,7 +556,7 @@ extension MainPageInteractor {
         updateNextFortuneDeliveryTimeText()
         
         // UI업데이트
-        presenter.request(.setAlarmList(getSorted(ros: alarmRenderObjects.values.map({$0}))))
+        presenter.request(.setAlarmList(newList: getSorted( alarmRenderObjects.values.map({$0}))))
     }
 }
 
@@ -671,7 +653,7 @@ private extension MainPageInteractor {
         alarmRenderObjects.removeAll()
     }
     
-    func getSorted(ros: [AlarmCellRO]) -> [AlarmCellRO] {
+    func getSorted(_ ros: [AlarmCellRO]) -> [AlarmCellRO] {
         ros.sorted(by: alarmSortType.compare(direction: .ascending))
     }
 }
@@ -816,6 +798,46 @@ private extension MainPageInteractor {
             presenter.request(.setOrbitState(newState))
         }
     }
+    
+    func updateOrbitStateUsingTodayFortune() {
+        
+        // 유저정보와 운세정보를 확인하여 오르빗 상태 업데이트
+        if let todayFortuneInfo = UserDefaults.standard.dailyFortune() {
+            self.fortuneSaveInfo = todayFortuneInfo
+            
+            // 오늘의 운세가 있는 경우
+            if fortuneSaveInfo == todayFortuneInfo, let fortune {
+                // 메모리에 운세가 있는 경우
+                updateOrbitState(fortune: fortune)
+                return
+            }
+            
+            // API요청을 통해 운세획득
+            let isDailyForuneIsChecked = UserDefaults.standard.dailyFortuneIsChecked()
+            if isDailyForuneIsChecked {
+                // 오늘 운세가 확인된 경우
+                presenter.request(.setFortuneDeliverMark(isMarked: false))
+                
+                // 오늘 운세가 확인된 경우, API를 통해 점수를 확인
+                let fortuneId = todayFortuneInfo.id
+                let request = APIRequest.Fortune.getFortune(fortuneId: fortuneId)
+                APIClient.request(Fortune.self, request: request) { [weak self] fetchedFortune in
+                    guard let self else { return }
+                    updateOrbitState(fortune: fetchedFortune)
+                    self.fortune = fetchedFortune
+                } failure: { error in
+                    print(error)
+                }
+            } else {
+                // 오늘 운세가 확인되지 않은 경우, 편지함에 빨간점 추가
+                presenter.request(.setFortuneDeliverMark(isMarked: true))
+            }
+        } else {
+            // 운세가 없는 경우
+            updateOrbitState(fortune: nil)
+            presenter.request(.setFortuneDeliverMark(isMarked: false))
+        }
+    }
 }
 
 
@@ -828,10 +850,10 @@ private extension MainPageInteractor {
             clearAlarms()
             insertAlarms(alarms: fetchedAlarms)
             
-            let alarmROs = transform(alarmList: fetchedAlarms)
+            let renderObjects = transform(alarmList: fetchedAlarms)
             clearAlarmROs()
-            insertAlarmROs(ros: alarmROs)
-            presenter.request(.setAlarmList(getSorted(ros: alarmROs)))
+            insertAlarmROs(ros: renderObjects)
+            presenter.request(.setAlarmList(newList: getSorted( renderObjects)))
         case .failure(let error):
             debugPrint("Error, \(error.localizedDescription)")
             handle(error: error)

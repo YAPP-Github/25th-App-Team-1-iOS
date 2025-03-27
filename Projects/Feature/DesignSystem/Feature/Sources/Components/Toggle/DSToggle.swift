@@ -41,7 +41,7 @@ public final class DSToggle: TouchDetectingView {
         super.init(frame: .zero)
         setupUI()
         setupLayout()
-        apply(state: initialState)
+        apply(state: initialState, animated: false)
     }
     public required init?(coder: NSCoder) { nil }
     
@@ -58,27 +58,34 @@ public final class DSToggle: TouchDetectingView {
         }
     }
     
-    private func apply(state: ToggleState) {
+    private func apply(state: ToggleState, animated: Bool = true) {
         self.backgroundColor = state.backgroundColor
         self.switchBall.backgroundColor = state.switchColor
         
-        switch state.switchState {
-        case .on:
-            let verticalInset: CGFloat = 3
-            let ballHeight = self.intrinsicContentSize.height - verticalInset*2
-            let size = CGSize(width: ballHeight, height: ballHeight)
-            self.switchBall.frame = CGRect(origin: .init(x: 3, y: 3), size: size)
-        case .off:
-            let verticalInset: CGFloat = 3
-            let horizontalInset: CGFloat = 3
-            let ballHeight = self.intrinsicContentSize.height - verticalInset*2
-            let size = CGSize(width: ballHeight, height: ballHeight)
-            let width = self.intrinsicContentSize.width
-            let position = CGPoint(
-                x: width-horizontalInset-ballHeight,
-                y: verticalInset
-            )
-            self.switchBall.frame = CGRect(origin: position, size: size)
+        UIView.animate(
+            withDuration: animated ? 0.2 : 0.0,
+            delay: 0,
+            options: [.curveEaseOut]
+        ) {
+            switch state.switchState {
+            case .on:
+                let verticalInset: CGFloat = 3
+                let ballHeight = self.intrinsicContentSize.height - verticalInset*2
+                let size = CGSize(width: ballHeight, height: ballHeight)
+                self.switchBall.frame = CGRect(origin: .init(x: 3, y: 3), size: size)
+            case .off:
+                let verticalInset: CGFloat = 3
+                let horizontalInset: CGFloat = 3
+                let ballHeight = self.intrinsicContentSize.height - verticalInset*2
+                let size = CGSize(width: ballHeight, height: ballHeight)
+                let width = self.intrinsicContentSize.width
+                let position = CGPoint(
+                    x: width-horizontalInset-ballHeight,
+                    y: verticalInset
+                )
+                self.switchBall.frame = CGRect(origin: position, size: size)
+            }
+            self.layoutIfNeeded()
         }
     }
 }
@@ -102,9 +109,9 @@ private extension DSToggle {
 
 // MARK: Public interface
 public extension DSToggle {
-    func update(state: ToggleState) {
+    func update(state: ToggleState, animated: Bool = true) {
         self.isEnabled = state.isEnabled
-        self.apply(state: state)
+        self.apply(state: state, animated: animated)
     }
     
     

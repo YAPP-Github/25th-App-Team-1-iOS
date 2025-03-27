@@ -16,7 +16,7 @@ protocol MainPageViewListener: AnyObject {
 }
 
 
-final class MainPageView: UIView, UITableViewDelegate, DeleteAlarmGroupBarViewListener {
+final class MainPageView: UIView, DeleteAlarmGroupBarViewListener {
     
     // Action
     enum Action {
@@ -113,9 +113,9 @@ final class MainPageView: UIView, UITableViewDelegate, DeleteAlarmGroupBarViewLi
     }
     private let alarmToolBarContainerView: UIView = .init()
     
-    // - TableView
-    private let alarmTableView: UITableView = .init()
-    private var alarmTableDiffableDataSource: UITableViewDiffableDataSource<Int, AlarmCellRO>!
+    // - AlarmListView
+    private let alarmListView: UITableView = .init()
+    private var alarmCellRenderObjects: [AlarmCellRO] = []
     
     // - AlarmDeletionView
     private var alarmDeletionView: AlarmDeletionView?
@@ -271,7 +271,7 @@ private extension MainPageView {
         
         
         // alarmTableView
-        alarmTableView.isScrollEnabled = false
+        alarmListView.isScrollEnabled = false
         setupAlarmTableView()
         
         
@@ -369,7 +369,7 @@ private extension MainPageView {
         
         
         // alarmTableView
-        alarmTableView.snp.makeConstraints { make in
+        alarmListView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
             make.top.equalTo(alarmToolBarContainerView.snp.bottom)
             make.bottom.equalToSuperview()
@@ -469,11 +469,17 @@ private extension MainPageView {
 // MARK: Public interface
 extension MainPageView {
     enum UpdateRequest {
+        // MARK: 상단
         case orbitState(OrbitRenderState)
         case fortuneDeliveryTimeText(String)
         case turnOnFortuneNoti(Bool)
         case turnOnFortuneIsDeliveredBubble(Bool)
-        case presentAlarmCell(list: [AlarmCellRO])
+        // MARK: 알람리스트
+        case loadAlarmList(elements: [AlarmCellRO])
+        case insertAlarmListCells(updateInfos: [AlarmListCellUpdateInfo])
+        case deleteAlarmListCells(ids: [String])
+        case updateAlarmListCell(updateInfos: [AlarmListCellUpdateInfo])
+        
         case presentAlarmGroupDeletionView
         case dismissAlarmGroupDeletionView
         case alarmGroupDeletionButton(isActive: Bool, text: String)
@@ -498,8 +504,58 @@ extension MainPageView {
             fortuneNotiButton.update(image: notiIconImage)
         case .turnOnFortuneIsDeliveredBubble(let isOn):
             fortuneDeliveredBubbleView.alpha = isOn ? 1 : 0
-        case .presentAlarmCell(let list):
-            presentAlarmROs(list)
+            
+            
+        // MARK: 알람 리스트
+        case .loadAlarmList(let elements):
+            self.alarmCellRenderObjects = elements
+            self.alarmListView.reloadData()
+            
+        case .insertAlarmListCells(let updateInfos):
+            guard updateInfos.isEmpty == false else { break }
+            alarmListView.beginUpdates()
+            var needUpdateIndexPaths: [IndexPath] = []
+            for info in updateInfos {
+                let index = info.index
+                let renderObject = info.renderObject
+                alarmCellRenderObjects.insert(renderObject, at: index)
+                needUpdateIndexPaths.append(.init(row: index, section: 0))
+            }
+            alarmListView.insertRows(
+                at: needUpdateIndexPaths,
+                with: .bottom
+            )
+            alarmListView.endUpdates()
+            
+        case .deleteAlarmListCells(let ids):
+            guard ids.isEmpty == false else { break }
+            var offsets: [Int] = []
+            ids.forEach { id in
+                if let index = alarmCellRenderObjects.firstIndex(where: { $0.id == id }) {
+                    offsets.append(index)
+                }
+            }
+            guard offsets.isEmpty == false else { break }
+            alarmListView.beginUpdates()
+            alarmCellRenderObjects.remove(atOffsets: .init(offsets))
+            let needUpdateIndexPaths = offsets.map({ IndexPath(row: $0, section: 0) })
+            alarmListView.deleteRows(
+                at: needUpdateIndexPaths,
+                with: .automatic
+            )
+            alarmListView.endUpdates()
+            
+        case .updateAlarmListCell(let updateInfos):
+            updateInfos.forEach { info in
+                // #1. 데이터 소스 업데이트
+                alarmCellRenderObjects[info.index] = info.renderObject
+                
+                // #2. 알람Cell UI 업데이트
+                let indexPath = IndexPath(row: info.index, section: 0)
+                guard let cell = alarmListView.cellForRow(at: indexPath) as? Cell else { return }
+                cell.update(renderObject: info.renderObject)
+            }
+            
         case .presentAlarmGroupDeletionView:
             deleteGroupAlarmConfirmButton.isHidden = false
             presentDeleteAllAlarmBarView()
@@ -655,7 +711,7 @@ private extension MainPageView {
         resizableContentViewDragRecognizer.isEnabled = false
         
         // tableView스크롤 가능
-        alarmTableView.isScrollEnabled = true
+        alarmListView.isScrollEnabled = true
         
         self.resizableContentViewScreenState = .full
         resizableContentViewDragRecognizer.isEnabled = false
@@ -678,7 +734,7 @@ private extension MainPageView {
         resizableContentViewDragRecognizer.isEnabled = true
         
         // tableView스크롤 불가
-        alarmTableView.isScrollEnabled = false
+        alarmListView.isScrollEnabled = false
         
         self.resizableContentViewScreenState = .half
         self.resizableContentViewDragRecognizer.isEnabled = false
@@ -698,8 +754,36 @@ private extension MainPageView {
 
 
 // MARK: TableView
-extension MainPageView {
+extension MainPageView: UITableViewDelegate, UITableViewDataSource {
     typealias Cell = AlarmCell
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        alarmCellRenderObjects.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let alarmCell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
+        
+        let renderObject = alarmCellRenderObjects[indexPath.row]
+        alarmCell.action = { [weak self] action in
+            let cellId = renderObject.id
+            guard let self else { return }
+            switch action {
+            case .activityToggleTapped:
+                listener?.action(.alarmActivityStateWillChange(alarmId: cellId))
+            case .cellIsLongPressed:
+                listener?.action(.alarmCellIsLongPressed(alarmId: cellId))
+            case .cellIsTapped:
+                switch renderObject.mode {
+                case .idle:
+                    listener?.action(.alarmSelected(alarmId: cellId))
+                case .deletion:
+                    listener?.action(.alarmIsChecked(alarmId: cellId))
+                }
+            }
+        }
+        return alarmCell.update(renderObject: renderObject, animated: false)
+    }
     
     class AlarmDiffableDataSource: UITableViewDiffableDataSource<Int, AlarmCellRO> {
         override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -707,61 +791,29 @@ extension MainPageView {
         }
     }
     
-    func presentAlarmROs(_ ros: [AlarmCellRO]) {
-        var snapShot = NSDiffableDataSourceSnapshot<Int, AlarmCellRO>()
-        snapShot.appendSections([0])
-        snapShot.appendItems(ros)
-        self.alarmTableDiffableDataSource.apply(snapShot, animatingDifferences: false)
-    }
-    
     func setupAlarmTableView() {
-        // alarmTableDiffableDataSource
-        let diffableDataSource = AlarmDiffableDataSource(
-            tableView: alarmTableView) { [weak self] tableView, indexPath, ro in
-                guard let self, let cell = tableView.dequeueReusableCell(withIdentifier: Cell.identifier) as? Cell else { fatalError() }
-                cell.action = { [weak self] action in
-                    let cellId = ro.id
-                    guard let self else { return }
-                    switch action {
-                    case .activityToggleTapped:
-                        listener?.action(.alarmActivityStateWillChange(alarmId: cellId))
-                    case .cellIsLongPressed:
-                        listener?.action(.alarmCellIsLongPressed(alarmId: cellId))
-                    case .cellIsTapped:
-                        switch ro.mode {
-                        case .idle:
-                            listener?.action(.alarmSelected(alarmId: cellId))
-                        case .deletion:
-                            listener?.action(.alarmIsChecked(alarmId: cellId))
-                        }
-                    }
-                }
-                return cell.update(renderObject: ro)
-            }
-        self.alarmTableDiffableDataSource = diffableDataSource
-        
         // alarmTableView
-        alarmTableView.backgroundColor = .clear
-        alarmTableView.delegate = self
-        alarmTableView.dataSource = diffableDataSource
-        alarmTableView.rowHeight = UITableView.automaticDimension
-        alarmTableView.estimatedRowHeight = 102
-        alarmTableView.separatorStyle = .singleLine
-        alarmTableView.separatorColor = R.Color.gray800
-        alarmTableView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
-        alarmTableView.contentInset = .init(top: 0, left: 0, bottom: 114, right: 0)
-        alarmTableView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
-        resizableContentView.addSubview(alarmTableView)
+        alarmListView.backgroundColor = .clear
+        alarmListView.delegate = self
+        alarmListView.dataSource = self
+        alarmListView.rowHeight = UITableView.automaticDimension
+        alarmListView.estimatedRowHeight = 102
+        alarmListView.separatorStyle = .singleLine
+        alarmListView.separatorColor = R.Color.gray800
+        alarmListView.separatorInset = .init(top:0,left:24,bottom:0,right: 24)
+        alarmListView.contentInset = .init(top: 0, left: 0, bottom: 114, right: 0)
+        alarmListView.register(Cell.self, forCellReuseIdentifier: Cell.identifier)
+        resizableContentView.addSubview(alarmListView)
         
         // iOS 15+ cell Swipe 관련 버그 해결 코드
-        alarmTableView.isEditing = true
-        alarmTableView.isEditing = false
+        alarmListView.isEditing = true
+        alarmListView.isEditing = false
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "") { [weak self] (action, view, completionHandler) in
             guard let self else { return }
-            let renderObject = alarmTableDiffableDataSource.snapshot().itemIdentifiers[indexPath.item]
+            let renderObject = alarmCellRenderObjects[indexPath.row]
             let cellId = renderObject.id
             listener?.action(.alarmWillDelete(alarmId: cellId))
             completionHandler(true)

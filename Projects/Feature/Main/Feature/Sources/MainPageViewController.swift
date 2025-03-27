@@ -66,13 +66,20 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             mainView.update(.orbitState(state))
         case .setFortuneDeliverMark(let isMarked):
             mainView.update(.turnOnFortuneNoti(isMarked))
-        case let .setAlarmList(alarmCellROs):
-            if alarmCellROs.isEmpty {
+        case .setAlarmList(let newAlarmList):
+            if newAlarmList.isEmpty == true {
                 view = emptyView
             } else {
                 view = mainView
-                mainView.update(.presentAlarmCell(list: alarmCellROs))
+                mainView.update(.loadAlarmList(elements: newAlarmList))
             }
+        case .insertAlarmListElements(let updateInfos):
+            mainView.update(.insertAlarmListCells(updateInfos: updateInfos))
+        case .deleteAlarmListElements(let identifiers):
+            mainView.update(.deleteAlarmListCells(ids: identifiers))
+        case .updateAlarmListElements(let updateInfos):
+            mainView.update(.updateAlarmListCell(updateInfos: updateInfos))
+            
         case .setAlarmListMode(let mode):
             switch mode {
             case .idle:

@@ -16,12 +16,24 @@ enum AlarmSortType {
         switch self {
         case .hourAndMinute:
             return { (lhs, rhs) -> Bool in
-                let lh = lhs.hour.to24Hour(with: lhs.meridiem)
-                let lm = lhs.minute.value
-                let rh = rhs.hour.to24Hour(with: rhs.meridiem)
-                let rm = rhs.minute.value
-                if lh != rh { return lh < rh }
-                else { return lm < rm }
+                let lhs_hour = lhs.hour.to24Hour(with: lhs.meridiem)
+                let rhs_hour = rhs.hour.to24Hour(with: rhs.meridiem)
+                
+                let lhs_minute = lhs.minute.value
+                let rhs_minute = rhs.minute.value
+                
+                if lhs_hour == rhs_hour {
+                    // 시간이 같은 경우
+                    if lhs_minute == rhs_minute {
+                        // 시간과 분이 같은 경우
+                        return lhs.id < rhs.id
+                    } else {
+                        return lhs_minute < rhs_minute
+                    }
+                } else {
+                    // 시간이 다른 경우
+                    return lhs_hour < rhs_hour
+                }
             }
         }
     }
