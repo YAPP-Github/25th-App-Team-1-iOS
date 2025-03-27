@@ -44,6 +44,7 @@ final class AlarmCell: UITableViewCell {
     private let dayLabel: UILabel = .init()
     private let dayLabelStack: UIStackView = .init().then {
         $0.axis = .horizontal
+        $0.alignment = .center
         $0.spacing = 4
     }
     private let holidayImage: UIImageView = .init()
@@ -70,11 +71,6 @@ final class AlarmCell: UITableViewCell {
         $0.alignment = .center
     }
     
-    
-    // State
-    private var currentAlarm: Alarm?
-    
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -82,11 +78,6 @@ final class AlarmCell: UITableViewCell {
         setupGesture()
     }
     required init?(coder: NSCoder) { nil }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        self.currentAlarm = nil
-    }
 }
 
 

@@ -788,12 +788,6 @@ extension MainPageView: UITableViewDelegate, UITableViewDataSource {
         return alarmCell.update(renderObject: renderObject, animated: false)
     }
     
-    class AlarmDiffableDataSource: UITableViewDiffableDataSource<Int, AlarmCellRO> {
-        override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-            return true
-        }
-    }
-    
     func setupAlarmTableView() {
         // alarmTableView
         alarmListView.backgroundColor = .clear
