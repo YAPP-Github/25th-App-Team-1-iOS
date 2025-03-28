@@ -67,7 +67,7 @@ final class AlarmCell: UITableViewCell {
     
     private let containerView: UIStackView = .init().then {
         $0.axis = .horizontal
-        $0.spacing = 16
+        $0.distribution = .fill
         $0.alignment = .center
     }
     
@@ -133,7 +133,7 @@ private extension AlarmCell {
         
         
         // containerView
-        [timeLabelContainer, toggle].forEach {
+        [timeLabelContainer, UIView(), toggle].forEach {
             containerView.addArrangedSubview($0)
         }
         contentView.addSubview(containerView)
@@ -156,7 +156,7 @@ private extension AlarmCell {
         
         // containerView
         containerView.snp.makeConstraints { make in
-            make.verticalEdges.equalToSuperview().inset(20)
+            make.centerY.equalToSuperview()
             make.horizontalEdges.equalToSuperview().inset(22).priority(.high)
         }
         
