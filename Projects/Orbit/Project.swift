@@ -16,7 +16,7 @@ let project = Project(
                     "UIInterfaceOrientationPortrait"
                 ],
                 "CFBundleDisplayName": "오르비 알람",
-                "CFBundleShortVersionString": "1.0.3",
+                "CFBundleShortVersionString": "1.0.4",
                 "NSPhotoLibraryUsageDescription": "부적 이미지를 저장하기 위해서는 앨범 접근 권한이 필요해요!",
                 "UIBackgroundModes": [
                     "processing", "audio"
