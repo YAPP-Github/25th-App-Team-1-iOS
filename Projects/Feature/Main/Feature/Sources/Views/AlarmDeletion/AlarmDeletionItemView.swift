@@ -152,7 +152,7 @@ extension AlarmDeletionItemView {
         toggle.update(state: .init(
             isEnabled: true,
             switchState: isAlarmActive ? .on : .off
-        ))
+        ), animated: animated)
         
         
         // day

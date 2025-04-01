@@ -578,7 +578,7 @@ extension MainPageView {
                 dismissAlarmDeletionView()
             }
         case .updateSingleAlarmDeletionItem(let ro):
-            alarmDeletionView?.update(.renderObject(ro))
+            alarmDeletionView?.update(.renderObject(ro, animated: true))
         case .presentAlarmOptionListView:
             configureAlarmButton.update(state: .selected)
             presentAlarmOptionBottomListView()
@@ -830,7 +830,7 @@ extension MainPageView: UITableViewDelegate, UITableViewDataSource {
 private extension MainPageView {
     func presentAlarmDeletionView(alarm ro: AlarmCellRO) {
         let deletionView = AlarmDeletionView()
-            .update(.renderObject(ro))
+            .update(.renderObject(ro, animated: false))
             .update(.present)
         deletionView.action = { [weak self] action in
             let cellId = ro.id

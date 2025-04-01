@@ -55,7 +55,7 @@ extension AlarmDeletionView {
     enum Update {
         case present
         case dismiss(completion: (() -> Void)?)
-        case renderObject(AlarmCellRO)
+        case renderObject(AlarmCellRO, animated: Bool)
     }
     
     @discardableResult
@@ -70,8 +70,11 @@ extension AlarmDeletionView {
             UIView.animate(withDuration: 0.2) {
                 self.alpha = 0
             } completion: { _ in completion?() }
-        case .renderObject(let alarmCellRO):
-            deletionItemView.update(renderObject: alarmCellRO)
+        case .renderObject(let alarmCellRO, let animated):
+            deletionItemView.update(
+                renderObject: alarmCellRO,
+                animated: animated
+            )
         }
         return self
     }
