@@ -5,6 +5,8 @@
 //  Created by choijunios on 3/9/25.
 //
 
+import FeatureCommonEntity
+
 enum SortDirection {
     case ascending, descending
 }
@@ -12,7 +14,7 @@ enum SortDirection {
 enum AlarmSortType {
     case hourAndMinute
     
-    func compare(direction: SortDirection) -> (AlarmCellRO, AlarmCellRO) -> Bool {
+    func compare(direction: SortDirection) -> (Alarm, Alarm) -> Bool {
         switch self {
         case .hourAndMinute:
             return { (lhs, rhs) -> Bool in

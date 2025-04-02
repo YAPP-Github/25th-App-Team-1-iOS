@@ -209,59 +209,42 @@ extension AlarmRowView {
         ), animated: animated)
         
         
-        // day
-        let dayColor = isAlarmActive ? R.Color.gray300 : R.Color.gray500
-        let alarmDays = ro.alarmDays
-        everyWeekLabel.isHidden = alarmDays.days.isEmpty
-        holidayImage.isHidden = !alarmDays.shoundTurnOffHolidayAlarm
+        // '매주' 라벨
+        everyWeekLabel.isHidden = (ro.isEveryWeekRepeating == false)
         everyWeekLabel.displayText = everyWeekLabel.displayText?.string.displayText(
             font: .label1SemiBold,
-            color: dayColor
+            color: isAlarmActive ? R.Color.gray300 : R.Color.gray500
         )
-        var dayDisplayText = ""
-        if !alarmDays.days.isEmpty {
-            dayDisplayText = alarmDays.days
-                .sorted(by: { $0.rawValue < $1.rawValue })
-                .map { $0.toShortKoreanFormat }.joined(separator: ", ")
-        } else {
-            var alarmHour = ro.hour.value
-            if ro.meridiem == .pm, (1...11).contains(alarmHour) {
-                alarmHour += 12
-            }
-            let alarmMinute = ro.minute.value
-            let currentHour = Calendar.current.component(.hour, from: .now)
-            let currentMinute = Calendar.current.component(.minute, from: .now)
-            
-            // 알람이 현재 시간 이후에 울리는지 확인
-            let isTodayAlarm = (alarmHour > currentHour) || (alarmHour == currentHour && alarmMinute > currentMinute)
-            var alarmDate: Date = .now
-            if !isTodayAlarm {
-                // 내일 울릴 알람인 경우
-                alarmDate = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
-            }
-            let month = Calendar.current.component(.month, from: alarmDate)
-            let day = Calendar.current.component(.day, from: alarmDate)
-            dayDisplayText = "\(month)월 \(day)일"
-        }
-        dayLabel.displayText = dayDisplayText.displayText(
+        
+        
+        // 알람이 울리는 날짜 정보(월, 화, 수 .. or n월 n일)
+        dayLabel.displayText = ro.alarmDayText.displayText(
             font: .label1SemiBold,
-            color: dayColor
-        )
-        holidayImage.tintColor = dayColor
-        
-        // clock
-        let clockColor = isAlarmActive ? R.Color.white100 : R.Color.gray500
-        meridiemLabel.displayText = ro.meridiem.toKoreanFormat.displayText(
-            font: .title2Medium,
-            color: clockColor
-        )
-        hourAndMinuteLabel.displayText = String(format: "%d:%02d", ro.hour.value, ro.minute.value).displayText(
-            font: .title2Medium,
-            color: clockColor
+            color: isAlarmActive ? R.Color.gray300 : R.Color.gray500
         )
         
-        // Mode
-        switch ro.mode {
+        
+        // 공휴일 제외
+        holidayImage.tintColor = isAlarmActive ? R.Color.gray300 : R.Color.gray500
+        holidayImage.isHidden = !ro.isExceptForHoliday
+        
+        
+        // 오전, 오후 라벨
+        meridiemLabel.displayText = ro.meridiemText.displayText(
+            font: .title2Medium,
+            color: isAlarmActive ? R.Color.white100 : R.Color.gray500
+        )
+        
+        
+        // 시간 라벨
+        hourAndMinuteLabel.displayText = ro.hourAndMinuteText.displayText(
+            font: .title2Medium,
+            color: isAlarmActive ? R.Color.white100 : R.Color.gray500
+        )
+        
+        
+        // 알람 열 모드
+        switch ro.alarmRowMode {
         case .idle:
             checkBox.isHidden = true
             toggle.isHidden = false

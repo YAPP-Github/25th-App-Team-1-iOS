@@ -777,7 +777,7 @@ extension MainPageView: UITableViewDelegate, UITableViewDataSource {
             case .cellIsLongPressed:
                 listener?.action(.alarmCellIsLongPressed(alarmId: cellId))
             case .cellIsTapped:
-                switch renderObject.mode {
+                switch renderObject.alarmRowMode {
                 case .idle:
                     listener?.action(.alarmCellIsTapped(alarmId: cellId))
                 case .deletion:
