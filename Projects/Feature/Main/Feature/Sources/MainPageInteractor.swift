@@ -589,11 +589,29 @@ extension MainPageInteractor {
             alarmDayText: {
                 var dayDisplayText = ""
                 if !alarm.repeatDays.days.isEmpty {
-                    
                     dayDisplayText = alarm.repeatDays.days
-                        .sorted(by: { $0.rawValue < $1.rawValue })
-                        .map { $0.toShortKoreanFormat }.joined(separator: ", ")
-                    
+                        .map { day in
+                            let orderIndex = switch day {
+                            case .monday:
+                                0
+                            case .tuesday:
+                                1
+                            case .wednesday:
+                                2
+                            case .thursday:
+                                3
+                            case .friday:
+                                4
+                            case .saturday:
+                                5
+                            case .sunday:
+                                6
+                            }
+                            return (orderIndex, day)
+                        }
+                        .sorted { lhs, rhs in lhs.0 < rhs.0 }
+                        .map { $0.1.toShortKoreanFormat }
+                        .joined(separator: ", ")
                 } else {
                     var alarmHour = alarm.hour.value
                     if alarm.meridiem == .pm, (1...11).contains(alarmHour) {
