@@ -83,7 +83,6 @@ final class AlarmRowView: UIView, UIGestureRecognizerDelegate {
 // MARK: Setup
 private extension AlarmRowView {
     func setupUI() {
-        
         // contentView
         self.backgroundColor = R.Color.gray900
         

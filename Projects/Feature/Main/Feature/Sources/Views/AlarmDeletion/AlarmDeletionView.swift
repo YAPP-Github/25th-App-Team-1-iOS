@@ -11,8 +11,7 @@ import FeatureResources
 import FeatureThirdPartyDependencies
 import FeatureCommonDependencies
 
-final class AlarmDeletionView: UIView, UIGestureRecognizerDelegate, AlarmDeletionItemViewListener {
-    
+final class AlarmDeletionView: UIView, AlarmRowViewListener, UIGestureRecognizerDelegate {
     // Action
     enum Action {
         case deleteButtonClicked
@@ -23,7 +22,7 @@ final class AlarmDeletionView: UIView, UIGestureRecognizerDelegate, AlarmDeletio
     
     // Sub view
     private let blurEffectView: UIVisualEffectView = .init()
-    private let deletionItemView: AlarmDeletionItemView = .init()
+    private let alarmRowView: AlarmRowView = .init()
     private let alarmDeleteButton: AlarmDeleteButton = .init()
     
     
@@ -71,10 +70,7 @@ extension AlarmDeletionView {
                 self.alpha = 0
             } completion: { _ in completion?() }
         case .renderObject(let alarmCellRO, let animated):
-            deletionItemView.update(
-                renderObject: alarmCellRO,
-                animated: animated
-            )
+            alarmRowView.update(renderObject: alarmCellRO, animated: animated)
         }
         return self
     }
@@ -94,8 +90,12 @@ private extension AlarmDeletionView {
         addSubview(blurEffectView)
         
         // deletionItemView
-        deletionItemView.listener = self
-        addSubview(deletionItemView)
+        alarmRowView.layer.cornerRadius = 24
+        alarmRowView.layer.borderWidth = 1
+        alarmRowView.layer.borderColor = R.Color.gray700.cgColor
+        alarmRowView.backgroundColor = R.Color.gray800
+        alarmRowView.listener = self
+        addSubview(alarmRowView)
         
         // alarmDeleteButton
         alarmDeleteButton.buttonAction = { [weak self] in
@@ -112,15 +112,16 @@ private extension AlarmDeletionView {
         }
         
         // deletionItemView
-        deletionItemView.snp.makeConstraints { make in
+        alarmRowView.snp.makeConstraints { make in
+            make.height.equalTo(102)
             make.bottom.equalToSuperview().inset(204)
             make.horizontalEdges.equalToSuperview().inset(20)
         }
         
         // alarmDeleteButton
         alarmDeleteButton.snp.makeConstraints { make in
-            make.centerX.equalTo(deletionItemView)
-            make.top.equalTo(deletionItemView.snp.bottom).offset(20)
+            make.centerX.equalTo(alarmRowView)
+            make.top.equalTo(alarmRowView.snp.bottom).offset(20)
         }
     }
     
@@ -138,12 +139,14 @@ private extension AlarmDeletionView {
 }
 
 
-// MARK: AlarmDeletionItemViewListener
+// MARK: AlarmRowViewListener
 extension AlarmDeletionView {
-    func action(_ action: AlarmDeletionItemView.Action) {
+    func action(_ action: AlarmRowView.Action) {
         switch action {
-        case .toggleIsTapped:
+        case .activityToggleTapped:
             self.action?(.deletionItemToggleIsTapped)
+        case .cellIsLongPressed, .cellIsTapped:
+            break
         }
     }
 }
