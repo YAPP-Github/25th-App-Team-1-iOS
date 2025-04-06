@@ -37,6 +37,15 @@ final class CompleteWithFortuneView: TouchDetectingView {
         listener?.action(.prev)
     }
     
+    override func onTap(direction: TouchDetectingView.TapDirection) {
+        switch direction {
+        case .left:
+            listener?.action(.prev)
+        case .right:
+            break
+        }
+    }
+    
     private let decoImageView = UIImageView()
     private let pageIndicatorView = PageIndicatorView(activeCount: 6, totalCount: 6)
     private let titleLabel = UILabel()

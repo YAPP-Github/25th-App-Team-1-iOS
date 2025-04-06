@@ -10,14 +10,28 @@ import UIKit
 import UIKit
 
 open class TouchDetectingView: UIView {
-
+    public enum TapDirection {
+        case left
+        case right
+    }
     // 클릭, 왼쪽 스와이프, 오른쪽 스와이프 이벤트를 처리할 함수들
     open func onTouchIn() {}
     open func onTouchOut(isInbound: Bool?) {}
-    open func onTap() {}
+    open func onTap(direction: TapDirection) {}
     open func onSwipeLeft() {}
     open func onSwipeRight() {}
-
+    open func onTapLeft() { print(#function) }
+    open func onTapRight() { print(#function) }
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupTouchEvent()
+    }
+    
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private var initialTouchLocation: CGPoint = .zero
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -48,19 +62,6 @@ open class TouchDetectingView: UIView {
         }
     }
 
-    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesEnded(touches, with: event)
-        
-        // 터치가 끝났을 때 클릭 이벤트 발생
-        if let touch = touches.first {
-            onTouchOut(isInbound: judgeTouchIsInbound(touch))
-            let currentLocation = touch.location(in: self)
-            if currentLocation == initialTouchLocation {
-                onTap()
-            }
-        }
-    }
-
     public override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
         
@@ -83,4 +84,22 @@ open class TouchDetectingView: UIView {
         let isInbound = inbound_on_horizontality && inbound_on_verticality
         return isInbound
     }
+    
+    private func setupTouchEvent() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+           // 터치된 위치 가져오기
+           let touchPoint = gesture.location(in: self)
+           // 뷰의 중앙 x 좌표 계산
+           let centerX = bounds.midX
+           
+           if touchPoint.x < centerX {
+               onTap(direction: .left)
+           } else {
+               onTap(direction: .right)
+           }
+       }
 }

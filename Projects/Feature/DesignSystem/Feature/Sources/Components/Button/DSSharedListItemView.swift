@@ -30,7 +30,7 @@ public final class DSSharedListItemView: TouchDetectingView {
     
     public override func onTouchOut(isInbound: Bool?) { }
     
-    public override func onTap() { tapAction?() }
+    public override func onTap(direction: TouchDetectingView.TapDirection) { tapAction?() }
 }
 
 

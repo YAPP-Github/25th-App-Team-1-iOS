@@ -52,7 +52,7 @@ final public class DSDefaultIconButton: TouchDetectingView {
         self.imageView.tintColor = style.type.defaultImageTintColor
     }
     
-    public override func onTap() { buttonAction?() }
+    public override func onTap(direction: TouchDetectingView.TapDirection) { buttonAction?() }
 }
 
 

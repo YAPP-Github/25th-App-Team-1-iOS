@@ -87,7 +87,7 @@ final class AlarmDeleteButton: TouchDetectingView {
         trashImage.tintColor = R.Color.statusAlert
     }
     
-    override func onTap() { buttonAction?() }
+    override func onTap(direction: TouchDetectingView.TapDirection) { buttonAction?() }
 }
 
 #Preview {

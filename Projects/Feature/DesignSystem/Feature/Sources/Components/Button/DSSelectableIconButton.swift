@@ -46,8 +46,7 @@ final public class DSSelectableIconButton: TouchDetectingView {
         self.layer.cornerRadius = self.layer.bounds.height/2
     }
     
-    public override func onTap() {
-        super.onTap()
+    public override func onTap(direction: TouchDetectingView.TapDirection) {
         buttonAction?()
     }
 }

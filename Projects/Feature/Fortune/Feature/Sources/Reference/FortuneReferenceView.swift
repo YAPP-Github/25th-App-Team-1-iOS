@@ -48,8 +48,13 @@ final class FortuneReferenceView: TouchDetectingView {
         }
     }
     
-    override func onTap() {
-        listener?.action(.next)
+    override func onTap(direction: TouchDetectingView.TapDirection) {
+        switch direction {
+        case .left:
+            listener?.action(.prev)
+        case .right:
+            listener?.action(.next)
+        }
     }
     
     override func onSwipeLeft() {

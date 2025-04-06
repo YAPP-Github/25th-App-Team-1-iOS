@@ -135,7 +135,7 @@ public final class DSRightImageButton: TouchDetectingView {
         )
         imageView.tintColor = R.Color.white100
     }
-    public override func onTap() { buttonAction?() }
+    public override func onTap(direction: TouchDetectingView.TapDirection) { buttonAction?() }
 }
 
 
