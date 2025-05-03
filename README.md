@@ -6,17 +6,46 @@
 
 ## 기능 소개
 
+### 메인화면
 <table>
   <tr>
-    <td><b>전체 플로우(알람 -> 탭 미션수행 -> 운세확인)</b></td>
+    <td><b>메인화면 인터렉션</b></td>
+    <td><b>알람 삭제 및 복구</b></td>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://github.com/user-attachments/assets/71b575fc-5c82-4fb8-b483-6c1556f262e2" width=300 />
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/4fb5dfe2-e535-4b8f-aac2-9060a8d96b59" width=300 />
+    </td>
+  </tr>
+</table>
+
+### 기상 미션 수행
+<table>
+  <tr>
+    <td><b>누르기 미션</b></td>
     <td><b>흔들기 미션</b></td>
   </tr>
   <tr>
     <td>
-      <img src="https://github.com/user-attachments/assets/5301b59e-d081-495b-a9d6-4c54f04cd286" width=300 />
+      <img src="https://github.com/user-attachments/assets/276e0cd2-eda8-4e5e-ad15-d58dacd9c77b" width=300 />
     </td>
     <td>
-      <img src="https://github.com/user-attachments/assets/b7e71b9b-d609-4f22-acd7-f3f1df06a1ee" width=300 />
+      <img src="https://github.com/user-attachments/assets/0f60bb9e-12a3-4b0c-af11-004dbe3c6300" width=300 />
+    </td>
+  </tr>
+</table>
+
+### 전채 플로우
+<table>
+  <tr>
+    <td><b>전체 플로우(알람 -> 탭 미션수행 -> 운세확인)</b></td>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://github.com/user-attachments/assets/5301b59e-d081-495b-a9d6-4c54f04cd286" width=300 />
     </td>
   </tr>
 </table>
