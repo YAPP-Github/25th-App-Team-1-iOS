@@ -32,10 +32,7 @@ class WorkContainer<T: WorkCancellable> {
         itemLock.lock()
         defer { itemLock.unlock() }
         return items.keys.filter { id in
-            for check in checkings {
-                if id.contains(check) { return true }
-            }
-            return false
+            checkings.contains(where: { id.contains($0) })
         }
     }
     
@@ -68,12 +65,12 @@ class WorkContainer<T: WorkCancellable> {
     func getValues() -> [T] {
         itemLock.lock()
         defer { itemLock.unlock() }
-        return items.values.map{$0}
+        return Array(items.values)
     }
     
     func getKeys() -> [String] {
         itemLock.lock()
         defer { itemLock.unlock() }
-        return items.keys.map{$0}
+        return Array(items.keys)
     }
 }
