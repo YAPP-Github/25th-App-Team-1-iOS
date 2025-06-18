@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Alarm: Identifiable, Equatable, Codable, Hashable {
+public struct Alarm: Identifiable, Codable {
     public var id: String
     public var meridiem: Meridiem
     public var hour: Hour
@@ -38,19 +38,15 @@ public struct Alarm: Identifiable, Equatable, Codable, Hashable {
         self.isActive = isActive
     }
     
-    public static func == (lhs: Alarm, rhs: Alarm) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(meridiem)
-        hasher.combine(hour)
-        hasher.combine(minute)
-        hasher.combine(repeatDays)
-        hasher.combine(snoozeOption)
-        hasher.combine(soundOption)
-        hasher.combine(isActive)
+    public func isEqualTo(_ other: Alarm) -> Bool {
+        return self.id == other.id
+        && self.meridiem == other.meridiem
+        && self.hour == other.hour
+        && self.minute == other.minute
+        && self.repeatDays == other.repeatDays
+        && self.snoozeOption == other.snoozeOption
+        && self.soundOption == other.soundOption
+        && self.isActive == other.isActive
     }
 }
 

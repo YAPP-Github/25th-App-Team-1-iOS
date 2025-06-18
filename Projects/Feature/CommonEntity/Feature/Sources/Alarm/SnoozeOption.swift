@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SnoozeOption: Codable, Hashable {
+public struct SnoozeOption: Codable, Equatable {
     public var isSnoozeOn: Bool
     public var frequency: SnoozeFrequency
     public var count: SnoozeCount
@@ -17,15 +17,9 @@ public struct SnoozeOption: Codable, Hashable {
         self.frequency = frequency
         self.count = count
     }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(isSnoozeOn)
-        hasher.combine(frequency)
-        hasher.combine(count)
-    }
 }
 
-public enum SnoozeFrequency: Int, CaseIterable, Codable, Hashable {
+public enum SnoozeFrequency: Int, CaseIterable, Codable {
     case oneMinute = 1
     case threeMinutes = 3
     case fiveMinutes = 5
@@ -41,13 +35,9 @@ public enum SnoozeFrequency: Int, CaseIterable, Codable, Hashable {
         case .fifteenMinutes: "15분"
         }
     }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
-    }
 }
 
-public enum SnoozeCount: Int, CaseIterable, Codable, Hashable {
+public enum SnoozeCount: Int, CaseIterable, Codable {
     case once = 1
     case threeTimes = 3
     case fiveTimes = 5
@@ -72,9 +62,5 @@ public enum SnoozeCount: Int, CaseIterable, Codable, Hashable {
         case .tenTimes: "10회"
         case .unlimited: "무한번"
         }
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
     }
 }

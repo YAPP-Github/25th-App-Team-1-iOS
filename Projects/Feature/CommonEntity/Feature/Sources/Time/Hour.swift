@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Hour: Codable, Hashable {
+public struct Hour: Codable, Equatable {
     public let value: Int
     
     public func to24Hour(with meridiem: Meridiem) -> Int {
@@ -22,10 +22,6 @@ public struct Hour: Codable, Hashable {
     public init?(_ value: Int) {
         guard (1...12).contains(value) else { return nil }
         self.value = value
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(value)
     }
 }
 

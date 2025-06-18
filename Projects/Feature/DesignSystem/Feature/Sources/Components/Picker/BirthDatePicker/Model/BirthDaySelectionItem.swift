@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct BirthDaySelectionItem: Hashable {
+public struct BirthDaySelectionItem {
     
     public let content: String
     public let displayingText: String
@@ -17,9 +17,5 @@ public struct BirthDaySelectionItem: Hashable {
         self.displayingText = displayingText
         self.content = content
         self.contentSize = contentSize
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(content)
     }
 }

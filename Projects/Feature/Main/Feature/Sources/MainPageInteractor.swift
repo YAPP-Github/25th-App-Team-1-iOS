@@ -170,7 +170,7 @@ extension MainPageInteractor {
                 
                 // #4. 알람 리스트 업데이트
                 let sortedAlarmList = getSorted(alarms.arr)
-                if let index = sortedAlarmList.firstIndex(of: newAlarm) {
+                if let index = sortedAlarmList.firstIndex(where: { $0.isEqualTo(newAlarm) }) {
                     presenter.request(.updateAlarmListElements(
                         updateInfos: [
                             .init(
@@ -260,7 +260,7 @@ extension MainPageInteractor {
             // - 알람열 업데이트
             if let alarm = alarms[alarmId] {
                 let sortedAlarmList = getSorted(alarms.arr)
-                if let index = sortedAlarmList.firstIndex(of: alarm) {
+                if let index = sortedAlarmList.firstIndex(where: { $0.isEqualTo(alarm) }) {
                     var renderObject = transform(alarm: alarm)
                     renderObject.isChecked = nextState
                     presenter.request(.updateAlarmListElements(
