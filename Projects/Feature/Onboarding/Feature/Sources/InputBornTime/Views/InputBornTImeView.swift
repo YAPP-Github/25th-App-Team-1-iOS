@@ -72,7 +72,7 @@ final class InputBornTImeView: UIView {
         UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
     }
     
-    private let navigationBar: OnBoardingNavBarView = .init()
+    private let navigationBar: CommonNavBarView = .init()
     private let titleLabel = UILabel()
     private let timeField = DSTextFieldWithTitleWithMessage(
         config: .init(
@@ -254,8 +254,8 @@ private extension InputBornTImeView {
     }
 }
 
-extension InputBornTImeView: OnBoardingNavBarViewListener {
-    func action(_ action: FeatureDesignSystem.OnBoardingNavBarView.Action) {
+extension InputBornTImeView: CommonNavBarViewListener {
+    func action(_ action: FeatureDesignSystem.CommonNavBarView.Action) {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)

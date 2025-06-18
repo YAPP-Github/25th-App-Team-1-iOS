@@ -35,7 +35,7 @@ final class OnboardingFortuneGuideView: UIView {
         animationView.play()
     }
     
-    private let navigationBar = OnBoardingNavBarView()
+    private let navigationBar = CommonNavBarView()
     private let welcomeLabel = UILabel()
     private let guideLabel = UILabel()
     private let animationView = LottieAnimationView(name: "onboarding_3", bundle: Bundle.resources)
@@ -105,8 +105,8 @@ private extension OnboardingFortuneGuideView {
     }
 }
 
-extension OnboardingFortuneGuideView: OnBoardingNavBarViewListener {
-    func action(_ action: OnBoardingNavBarView.Action) {
+extension OnboardingFortuneGuideView: CommonNavBarViewListener {
+    func action(_ action: CommonNavBarView.Action) {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)

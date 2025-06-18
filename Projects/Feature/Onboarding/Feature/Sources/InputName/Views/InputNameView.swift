@@ -57,7 +57,7 @@ final class InputNameView: UIView {
         }
     }
     
-    private let navigationBar: OnBoardingNavBarView = .init()
+    private let navigationBar: CommonNavBarView = .init()
     private let titleLabel = UILabel()
     private let nameField = DSTextFieldWithTitleWithMessage(
         config: .init(
@@ -188,8 +188,8 @@ private extension InputNameView {
     }
 }
 
-extension InputNameView: OnBoardingNavBarViewListener {
-    func action(_ action: OnBoardingNavBarView.Action) {
+extension InputNameView: CommonNavBarViewListener {
+    func action(_ action: CommonNavBarView.Action) {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)

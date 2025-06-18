@@ -14,7 +14,7 @@ protocol InputGenderViewListener: AnyObject {
     func action(_ action: InputGenderView.Action)
 }
 
-final class InputGenderView: UIView, DSBoxButtonListener, OnBoardingNavBarViewListener {
+final class InputGenderView: UIView, DSBoxButtonListener, CommonNavBarViewListener {
     
     // View action
     enum Action {
@@ -25,7 +25,7 @@ final class InputGenderView: UIView, DSBoxButtonListener, OnBoardingNavBarViewLi
     
     
     // Sub view
-    let navigationBar = OnBoardingNavBarView()
+    let navigationBar = CommonNavBarView()
     let titleLabel: UILabel = .init().then {
         $0.displayText = "성별을 알려주세요".displayText(
             font: .heading1SemiBold,
@@ -205,7 +205,7 @@ extension InputGenderView {
 // MARK: OnBoardingNavBarViewListener
 extension InputGenderView {
     
-    func action(_ action: OnBoardingNavBarView.Action) {
+    func action(_ action: CommonNavBarView.Action) {
         
         listener?.action(.backButtonClicked)
     }

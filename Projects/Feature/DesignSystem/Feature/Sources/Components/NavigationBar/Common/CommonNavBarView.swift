@@ -1,5 +1,5 @@
 //
-//  OnBoardingNavBarView.swift
+//  CommonNavBarView.swift
 //  FeatureOnboarding
 //
 //  Created by choijunios on 1/4/25.
@@ -9,11 +9,11 @@ import UIKit
 import FeatureResources
 import FeatureThirdPartyDependencies
 
-public protocol OnBoardingNavBarViewListener: AnyObject {
-    func action(_ action: OnBoardingNavBarView.Action)
+public protocol CommonNavBarViewListener: AnyObject {
+    func action(_ action: CommonNavBarView.Action)
 }
 
-public final class OnBoardingNavBarView: UIView {
+public final class CommonNavBarView: UIView {
     
     // View actions
     public enum Action {
@@ -22,7 +22,7 @@ public final class OnBoardingNavBarView: UIView {
     }
     
     // Listener
-    public weak var listener: OnBoardingNavBarViewListener?
+    public weak var listener: CommonNavBarViewListener?
     
     // Sub view
     private let backButton: UIButton = .init().then {
@@ -125,7 +125,7 @@ public final class OnBoardingNavBarView: UIView {
 
 #Preview {
     
-    let view = OnBoardingNavBarView()
+    let view = CommonNavBarView()
     
     view.stageIndexView.update(currentStage: 4, stageCount: 6)
     view.backgroundColor = R.Color.gray900

@@ -57,7 +57,7 @@ final class CreateEditAlarmView: UIView {
     
     private let alarmPickerContainer = UIView()
     private let alarmPicker = AlarmPicker()
-    private let navigationBar = OnBoardingNavBarView()
+    private let navigationBar = CommonNavBarView()
     private let selectWeekDayView = SelectWeekDayView()
     private let doneButton = DSDefaultCTAButton()
     
@@ -132,8 +132,8 @@ private extension CreateEditAlarmView {
 }
 
 
-extension CreateEditAlarmView: OnBoardingNavBarViewListener {
-    func action(_ action: OnBoardingNavBarView.Action) {
+extension CreateEditAlarmView: CommonNavBarViewListener {
+    func action(_ action: CommonNavBarView.Action) {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)
