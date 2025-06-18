@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Alarm: Identifiable, Codable {
+public struct Alarm: Identifiable {
     public var id: String
     public var meridiem: Meridiem
     public var hour: Hour

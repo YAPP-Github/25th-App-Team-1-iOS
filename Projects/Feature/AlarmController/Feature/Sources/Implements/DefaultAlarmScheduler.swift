@@ -91,9 +91,7 @@ public extension DefaultAlarmScheduler {
                 // MARK: 최초 로컬노티피케이션 등록
                 
                 var notificationUserinfo: [String: Any] = [:]
-                if let encoded = try? jsonEncoder.encode(alarm) {
-                    notificationUserinfo["alarm"] = encoded
-                }
+                notificationUserinfo["alarm_id"] = alarm.id
                 let notificationId = KeyGenerator.notification(alarmId: alarm.id)
                 registerNotification(
                     id: notificationId,
@@ -107,9 +105,7 @@ public extension DefaultAlarmScheduler {
                 // MARK: 로컬 노티피케이션 반복등록 작업 등록
                 
                 var notificationUserinfo: [String: Any] = [:]
-                if let encoded = try? jsonEncoder.encode(alarm) {
-                    notificationUserinfo["alarm"] = encoded
-                }
+                notificationUserinfo["alarm_id"] = alarm.id
                 backgoundTaskScheduler.register(
                     id: KeyGenerator.backgroundTask(content: content.contentKey, alarmId: alarm.id),
                     startDate: alarmDate,

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SnoozeOption: Codable, Equatable {
+public struct SnoozeOption: Equatable {
     public var isSnoozeOn: Bool
     public var frequency: SnoozeFrequency
     public var count: SnoozeCount
@@ -19,7 +19,7 @@ public struct SnoozeOption: Codable, Equatable {
     }
 }
 
-public enum SnoozeFrequency: Int, CaseIterable, Codable {
+public enum SnoozeFrequency: Int, CaseIterable {
     case oneMinute = 1
     case threeMinutes = 3
     case fiveMinutes = 5
@@ -37,7 +37,7 @@ public enum SnoozeFrequency: Int, CaseIterable, Codable {
     }
 }
 
-public enum SnoozeCount: Int, CaseIterable, Codable {
+public enum SnoozeCount: Int, CaseIterable {
     case once = 1
     case threeTimes = 3
     case fiveTimes = 5
