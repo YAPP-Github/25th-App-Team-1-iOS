@@ -64,37 +64,7 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
         self.mode = mode
         switch mode {
         case .create:
-            var hour = Hour(6)!
-            var minute = Minute(0)!
-            var meridiem: Meridiem = .am
-            let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: .now)
-            
-            if let currentHour = dateComponents.hour {
-
-                if currentHour >= 12 {
-                    meridiem = .pm
-                }
-                if currentHour >= 13, let formatted = Hour(currentHour-12) {
-                    hour = formatted
-                } else {
-                    var hourValue = currentHour
-                    if currentHour == 0 {
-                        hourValue = 12
-                    }
-                    hour = Hour(hourValue)!
-                }
-            }
-            if let currentMinute = dateComponents.minute, let formatted = Minute(currentMinute) {
-                minute = formatted
-            }
-            self.alarm = .init(
-                meridiem: meridiem,
-                hour: hour,
-                minute: minute,
-                repeatDays: AlarmDays(days: []),
-                snoozeOption: SnoozeOption(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
-                soundOption: SoundOption(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound:  R.AlarmSound.Marimba.title)
-            )
+            self.alarm = Alarm.default
         case .edit(let alarm):
             self.alarm = alarm
         }
@@ -193,7 +163,9 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
         case .create:
             listener?.request(.back)
         case let .edit(alarm):
-            if alarm.hashValue != self.alarm.hashValue {
+            if alarm.isEqualTo(self.alarm) {
+                listener?.request(.back)
+            } else {
                 router?.request(.presentAlert(
                     DSTwoButtonAlert.Config(
                         titleText: "변경 사항 삭제",
@@ -206,8 +178,6 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
                     ),
                     self
                 ))
-            } else {
-                listener?.request(.back)
             }
         }
     }

@@ -48,6 +48,37 @@ public struct Alarm: Identifiable, Codable {
         && self.soundOption == other.soundOption
         && self.isActive == other.isActive
     }
+    
+    public static var `default`: Alarm {
+        var hour = Hour(6)!
+        var minute = Minute(0)!
+        var meridiem: Meridiem = .am
+        let dateComponents = Calendar.current.dateComponents([.hour, .minute], from: .now)
+        
+        if let currentHour = dateComponents.hour {
+            if currentHour >= 12 {
+                meridiem = .pm
+            }
+            if currentHour >= 13, let formatted = Hour(currentHour-12) {
+                hour = formatted
+            } else if let formatted = Hour(currentHour) {
+                hour = formatted
+            }
+        }
+        if let currentMinute = dateComponents.minute, let formatted = Minute(currentMinute) {
+            minute = formatted
+        }
+        
+        let alarm = Alarm(
+            meridiem: meridiem,
+            hour: hour,
+            minute: minute,
+            repeatDays: AlarmDays(days: [.monday, .tuesday, .wednesday, .thursday, .friday]),
+            snoozeOption: .init(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
+            soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: "마림바")
+        )
+        return alarm
+    }
 }
 
 extension Alarm {
