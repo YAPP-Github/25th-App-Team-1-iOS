@@ -6,16 +6,12 @@
 //
 
 import UIKit
-
 import FeatureResources
-
 import FeatureThirdPartyDependencies
 
 public protocol OnBoardingNavBarViewListener: AnyObject {
-    
     func action(_ action: OnBoardingNavBarView.Action)
 }
-
 
 public final class OnBoardingNavBarView: UIView {
     
@@ -34,9 +30,9 @@ public final class OnBoardingNavBarView: UIView {
         $0.setImage(buttonImage, for: .normal)
     }
     
-    private let rightButton: UIButton = .init()
+    private lazy var rightButton: UIButton = .init()
     private let titleLabel = UILabel()
-    fileprivate let stageIndexView: StageIndexView = .init()
+    fileprivate lazy var stageIndexView: StageIndexView = .init()
         
     public override var intrinsicContentSize: CGSize {
         return .init(width: UIView.noIntrinsicMetric, height: 56)
@@ -44,10 +40,10 @@ public final class OnBoardingNavBarView: UIView {
          
     public init() {
         super.init(frame: .zero)
-        
         setupUI()
         setupLayout()
     }
+    
     required init?(coder: NSCoder) { nil }
     
     public func update(title: String) {
@@ -55,23 +51,37 @@ public final class OnBoardingNavBarView: UIView {
     }
     
     public func update(rightButtonTitle: NSAttributedString) {
+        guard !subviews.contains(rightButton) else { return }
+        addSubview(rightButton)
+        
+        rightButton.snp.makeConstraints {
+            $0.trailing.equalTo(-18)
+            $0.centerY.equalToSuperview()
+        }
+        
         rightButton.setAttributedTitle(rightButtonTitle, for: .normal)
-        rightButton.isHidden = false
+        rightButton.addTarget(self,
+                              action: #selector(rightButtonClicked),
+                              for: .touchUpInside)
     }
     
     public func setIndex(_ currentStage: Int, of stageCount: Int) {
-        stageIndexView.isHidden = false
+        guard !subviews.contains(stageIndexView) else { return }
+        addSubview(stageIndexView)
+        
+        stageIndexView.snp.makeConstraints {
+            $0.trailing.equalTo(-20)
+            $0.centerY.equalToSuperview()
+        }
+        
         stageIndexView.update(currentStage: currentStage, stageCount: stageCount)
     }
     
     @objc
     private func backButtonClicked() {
-        
         listener?.action(.backButtonClicked)
-        
         backButton.imageView?.alpha = 0.5
         UIView.animate(withDuration: 0.35) {
-        
             self.backButton.imageView?.alpha = 1
         }
     }
@@ -89,19 +99,14 @@ public final class OnBoardingNavBarView: UIView {
     
     private func setupUI() {
         self.backgroundColor = .clear
-        stageIndexView.isHidden = true
         backButton.addTarget(self,
             action: #selector(backButtonClicked),
             for: .touchUpInside)
-        rightButton.addTarget(self,
-            action: #selector(rightButtonClicked),
-            for: .touchUpInside)
-        rightButton.isHidden = true
     }
     
     
     private func setupLayout() {
-        [backButton, titleLabel, rightButton, stageIndexView].forEach {
+        [backButton, titleLabel].forEach {
             addSubview($0)
         }
         
@@ -112,16 +117,6 @@ public final class OnBoardingNavBarView: UIView {
         }
         titleLabel.snp.makeConstraints {
             $0.center.equalToSuperview()
-        }
-        
-        stageIndexView.snp.makeConstraints {
-            $0.trailing.equalTo(-20)
-            $0.centerY.equalToSuperview()
-        }
-        
-        rightButton.snp.makeConstraints {
-            $0.trailing.equalTo(-18)
-            $0.centerY.equalToSuperview()
         }
     }
     
