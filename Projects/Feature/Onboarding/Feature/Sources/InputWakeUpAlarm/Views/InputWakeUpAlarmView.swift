@@ -15,7 +15,7 @@ protocol InputWakeUpAlarmViewListener: AnyObject {
 }
 
 
-final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPickerListener {
+final class InputWakeUpAlarmView: UIView, CommonNavBarViewListener, AlarmPickerListener {
     
     // View action
     enum Action {
@@ -27,7 +27,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
     
     
     // Sub view
-    private let navigationBar: OnBoardingNavBarView = .init()
+    private let navigationBar: CommonNavBarView = .init()
     private let titleLabel: UILabel = .init()
     private let subTitleLabel: UILabel = .init()
     private let alarmPicker: AlarmPicker = .init()
@@ -137,7 +137,7 @@ final class InputWakeUpAlarmView: UIView, OnBoardingNavBarViewListener, AlarmPic
 // MARK: OnBoardingNavBarViewListener
 extension InputWakeUpAlarmView {
     
-    func action(_ action: OnBoardingNavBarView.Action) {
+    func action(_ action: CommonNavBarView.Action) {
         
         switch action {
         case .backButtonClicked:

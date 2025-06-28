@@ -33,7 +33,7 @@ final class AuthorizationRequestView: UIView {
     
     weak var listener: AuthorizationRequestViewListener?
 
-    private let navigationBar = OnBoardingNavBarView()
+    private let navigationBar = CommonNavBarView()
     private let titleLabel = UILabel()
     private let guideImageView = UIImageView()
 }
@@ -81,8 +81,8 @@ private extension AuthorizationRequestView {
     }
 }
 
-extension AuthorizationRequestView: OnBoardingNavBarViewListener {
-    func action(_ action: OnBoardingNavBarView.Action) {
+extension AuthorizationRequestView: CommonNavBarViewListener {
+    func action(_ action: CommonNavBarView.Action) {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)

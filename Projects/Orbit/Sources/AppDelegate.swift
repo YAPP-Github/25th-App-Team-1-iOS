@@ -54,20 +54,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         UNUserNotificationCenter.current().delegate = self
         
-//
-//        BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.yaf.orbit.checkAndScheduleAlarm", using: nil) { task in
-//            // 백그라운드 작업이 실행될 때 handleBackgroundTask 호출
-//            AlarmScheduler.shared.handleBackgroundTask(task)
-//        }
-        
-        // 백그라운드 작업 등록
-//        AlarmScheduler.shared.registerBackgroundTask()
-        
-        
-        // MARK: Migrantion UserDefaults --> CoreData
-        migrateAlarms()
-        
-        
         // 앱을 종료시키지 않음
         BackgroundMaintainer.shared.activate()
         
@@ -90,29 +76,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     private var logger: Logger?
 }
-
-
-// MARK: Alarm migration
-extension AppDelegate {
-    func migrateAlarms() {
-        guard let alarmController else { fatalError() }
-        let alarmMigrationKey = "alarmMigrationFinished"
-        let isAlarmMigrationed = UserDefaults.standard.bool(forKey: alarmMigrationKey)
-        if isAlarmMigrationed == false {
-            let alarms = OldAlarmStore.shared.getAll()
-            let result = alarmController.createAlarms(alarms: alarms)
-            switch result {
-            case .success:
-                alarms.forEach(OldAlarmStore.shared.delete)
-                UserDefaults.standard.set(true, forKey: alarmMigrationKey)
-                debugPrint("알람데이터 미그레이션 성공")
-            case .failure(let error):
-                debugPrint("알람데이터 미그레이션 실패 \(error.localizedDescription)")
-            }
-        }
-    }
-}
-
 
 // MARK: Application lifecycle event
 extension AppDelegate {
@@ -153,9 +116,8 @@ extension AppDelegate {
 // MARK: Handle local notification events
 extension AppDelegate {
     func handleAlarmNotification(notification: UNNotification) {
-        guard let codable = notification.request.content.userInfo["alarm"] as? Data,
-              let alarm = try? jsonDecoder.decode(Alarm.self, from: codable) else { return }
-        alarmIdHandler?.handle(alarm.id)
+        guard let alarmIdd = notification.request.content.userInfo["alarm_id"] as? String else { return }
+        alarmIdHandler?.handle(alarmIdd)
     }
 }
 

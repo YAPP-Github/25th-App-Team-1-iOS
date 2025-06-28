@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Month: Int, CaseIterable, Codable, Hashable {
+public enum Month: Int, CaseIterable {
     case january = 1, february, march, april, may, june
     case july, august, september, october, november, december
 
@@ -38,9 +38,5 @@ public enum Month: Int, CaseIterable, Codable, Hashable {
         case .december:
             "12월"
         }
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
     }
 }

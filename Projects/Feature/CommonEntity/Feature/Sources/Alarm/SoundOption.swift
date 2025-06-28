@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SoundOption: Codable, Equatable, Hashable {
+public struct SoundOption: Equatable {
     public var isVibrationOn: Bool
     public var isSoundOn: Bool
     public var volume: Float
@@ -18,12 +18,5 @@ public struct SoundOption: Codable, Equatable, Hashable {
         self.isSoundOn = isSoundOn
         self.volume = volume
         self.selectedSound = selectedSound
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(isVibrationOn)
-        hasher.combine(isSoundOn)
-        hasher.combine(volume)
-        hasher.combine(selectedSound)
     }
 }

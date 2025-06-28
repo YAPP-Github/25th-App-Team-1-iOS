@@ -35,7 +35,7 @@ final class OnboardingMissionGuideView: UIView {
         animationView.play()
     }
     
-    private let navigationBar: OnBoardingNavBarView = .init()
+    private let navigationBar: CommonNavBarView = .init()
     private let welcomeLabel = UILabel()
     private let guideLabel = UILabel()
     private let animationView = LottieAnimationView(name: "onboarding_2", bundle: Bundle.resources)
@@ -106,8 +106,8 @@ private extension OnboardingMissionGuideView {
     }
 }
 
-extension OnboardingMissionGuideView: OnBoardingNavBarViewListener {
-    func action(_ action: OnBoardingNavBarView.Action) {
+extension OnboardingMissionGuideView: CommonNavBarViewListener {
+    func action(_ action: CommonNavBarView.Action) {
         switch action {
         case .backButtonClicked:
             listener?.action(.backButtonTapped)

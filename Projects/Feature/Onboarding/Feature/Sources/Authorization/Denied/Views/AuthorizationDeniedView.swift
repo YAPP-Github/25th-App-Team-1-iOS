@@ -34,7 +34,7 @@ final class AuthorizationDeniedView: UIView {
     
     weak var listener: AuthorizationDeniedViewListener?
     
-    private let navigationBar: OnBoardingNavBarView = .init()
+    private let navigationBar: CommonNavBarView = .init()
     private let titleLabel = UILabel()
     private let deniedImageView = UIImageView()
     private let buttonStackView = UIStackView()

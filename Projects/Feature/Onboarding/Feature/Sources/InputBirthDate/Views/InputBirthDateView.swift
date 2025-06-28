@@ -15,7 +15,7 @@ protocol InputBirthDateViewListener: AnyObject {
 }
 
 
-final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDatePickerListener {
+final class InputBirthDateView: UIView, CommonNavBarViewListener, BirthDatePickerListener {
     
     // View action
     enum Action {
@@ -26,7 +26,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
     
     
     // Sub view
-    private let navigationBar: OnBoardingNavBarView = .init()
+    private let navigationBar: CommonNavBarView = .init()
     private let titleLabel: UILabel = .init()
     let birthDatePicker: BirthDatePicker = .init()
     private let ctaButton: DSDefaultCTAButton = .init(initialState: .active)
@@ -142,7 +142,7 @@ final class InputBirthDateView: UIView, OnBoardingNavBarViewListener, BirthDateP
 // MARK: OnBoardingNavBarViewListener
 extension InputBirthDateView {
     
-    func action(_ action: OnBoardingNavBarView.Action) {
+    func action(_ action: CommonNavBarView.Action) {
         
         listener?.action(.backButtonClicked)
     }

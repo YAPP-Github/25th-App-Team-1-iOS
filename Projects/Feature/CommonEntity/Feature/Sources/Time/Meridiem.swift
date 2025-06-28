@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Meridiem: String, Codable, Hashable {
+public enum Meridiem: String, Equatable {
     case am = "AM"
     case pm = "PM"
     
@@ -18,9 +18,5 @@ public enum Meridiem: String, Codable, Hashable {
         case .pm:
             "오후"
         }
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
     }
 }
