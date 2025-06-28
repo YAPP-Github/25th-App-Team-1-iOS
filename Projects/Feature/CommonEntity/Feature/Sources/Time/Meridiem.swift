@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Meridiem: String, Equatable {
+public enum Meridiem: String, Codable, Equatable {
     case am = "AM"
     case pm = "PM"
     
