@@ -26,7 +26,7 @@ final class AlarmMissionRootComponent: Component<AlarmMissionRootDependency> {
 // MARK: - Builder
 
 public protocol AlarmMissionRootBuildable: Buildable {
-    func build(withListener listener: AlarmMissionRootListener, rootController: UIViewController, missionType: AlarmMissionType, isFirstAlarm: Bool) -> AlarmMissionRootRouting
+    func build(withListener listener: AlarmMissionRootListener, navigationController: UINavigationController, missionType: AlarmMissionType) -> AlarmMissionRootRouting
 }
 
 public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>, AlarmMissionRootBuildable {
@@ -36,21 +36,20 @@ public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>,
 
     public func build(
         withListener listener: AlarmMissionRootListener,
-        rootController: UIViewController,
-        missionType: AlarmMissionType,
-        isFirstAlarm: Bool) -> AlarmMissionRootRouting {
+        navigationController: UINavigationController,
+        missionType: AlarmMissionType
+    ) -> AlarmMissionRootRouting {
         let component = AlarmMissionRootComponent(dependency: dependency)
         let interactor = AlarmMissionRootInteractor(
             missionType: missionType,
-            isFirstAlarm: isFirstAlarm,
             missionAction: component.missionAction
         )
         interactor.listener = listener
-        let shakeMissionBuilder = ShakeMissionMainBuilder(dependency: component)
-        let tapMissionBuilder = TapMissionMainBuilder(dependency: component)
+        let shakeMissionBuilder = ShakeMissionWorkingBuilder(dependency: component)
+        let tapMissionBuilder = TapMissionWorkingBuilder(dependency: component)
         return AlarmMissionRootRouter(
             interactor: interactor,
-            viewController: rootController,
+            viewController: navigationController,
             shakeMissionBuilder: shakeMissionBuilder,
             tapMissionBuilder: tapMissionBuilder
         )

@@ -27,12 +27,10 @@ public protocol MainPageActionableItem: AnyObject {
 public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
     case detachCreateEditAlarm
-    case routeToAlarmMission(isFirstAlarm: Bool, missionType: AlarmMissionType)
-    case detachAlarmMission((() -> Void)?)
     case routeToFortune(Fortune, UserInfo, FortuneSaveInfo)
     case detachFortune
     case routeToAlarmRelease(Alarm, Bool)
-    case detachAlarmRelease((() -> Void)?)
+    case detachAlarmRelease
     case presentAlertType1(DSButtonAlert.Config)
     case presentAlertType2(DSTwoButtonAlert.Config)
     case dismissAlert(completion: (()->Void)?=nil)
@@ -675,10 +673,19 @@ extension MainPageInteractor {
     }
 }
 
-
-// MARK: - RootListenerRequest
+// MARK: - FeatureAlarmRelease.RootListenerRequest
 extension MainPageInteractor {
-    func reqeust(_ request: RootListenerRequest) {
+    func request(_ request: FeatureAlarmRelease.RootListenerRequest) {
+        switch request {
+        case .close:
+            router?.request(.detachAlarmRelease)
+        }
+    }
+}
+
+// MARK: - FeatureAlarm.RootListenerRequest
+extension MainPageInteractor {
+    func reqeust(_ request: FeatureAlarm.RootListenerRequest) {
         router?.request(.detachCreateEditAlarm)
         // 비즈니스 로직 업데이트
         switch request {
@@ -746,27 +753,6 @@ extension MainPageInteractor {
     }
 }
 
-
-// MARK: ShakeMissionMainListener
-extension MainPageInteractor {
-    func request(_ request: FeatureAlarmMission.AlarmMissionRootListenerRequest) {
-        switch request {
-        case let .missionCompleted(fortune, fortuneInfo):
-            router?.request(.detachAlarmMission { [weak self] in
-                guard let self else { return }
-                goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
-            })
-        case let .close(fortune, fortuneInfo):
-            router?.request(.detachAlarmMission { [weak self] in
-                guard let self else { return }
-                guard let fortune, let fortuneInfo else { return }
-                goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
-            })
-        }
-    }
-}
-
-
 // MARK: - FortuneListenerRequest
 extension MainPageInteractor {
     func request(_ request: FeatureFortune.FortuneListenerRequest) {
@@ -777,25 +763,6 @@ extension MainPageInteractor {
             
             // 운세페이지 종료
             router?.request(.detachFortune)
-        }
-    }
-}
-
-extension MainPageInteractor {
-    func request(_ request: FeatureAlarmRelease.AlarmReleaseIntroListenerRequest) {
-        switch request {
-        case let .releaseAlarm(isFirstAlarm):
-            router?.request(.detachAlarmRelease({ [weak self] in
-                guard let self else { return }
-                let config = RemoteConfig.remoteConfig()
-                let configValue = config["alarm_mission_type"].stringValue
-                debugPrint("Remote config에서 획득한 미션타입: \(configValue)")
-                let mission = AlarmMissionType(key: configValue)
-                router?.request(.routeToAlarmMission(
-                    isFirstAlarm: isFirstAlarm,
-                    missionType: mission
-                ))
-            }))
         }
     }
 }

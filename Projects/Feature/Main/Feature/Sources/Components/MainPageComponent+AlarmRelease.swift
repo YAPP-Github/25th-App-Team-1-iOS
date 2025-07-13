@@ -8,6 +8,9 @@
 import FeatureAlarmRelease
 import FeatureAlarmController
 
-extension MainPageComponent: AlarmReleaseIntroDependency {
+extension MainPageComponent: FeatureAlarmRelease.RootDependency {
+    var alarmReleaseRootViewController: FeatureAlarmRelease.RootViewControllable {
+        viewController
+    }
     var alarmController: AlarmController { dependency.alarmController }
 }

@@ -10,54 +10,51 @@ import UIKit
 import FeatureCommonDependencies
 import FeatureAlarmController
 import FeatureLogger
+import FeatureAlarmMission
+import FeatureFortune
 
 import RIBs
 
-public protocol AlarmReleaseIntroDependency: Dependency {
+protocol AlarmReleaseIntroDependency: Dependency {
+    var alarm: Alarm { get }
+    var isFirstAlarm: Bool { get }
     var alarmController: AlarmController { get }
+    var releaseAlarmStream: ReleaseAlarmStream { get }
     var logger: Logger { get }
 }
 
 final class AlarmReleaseIntroComponent: Component<AlarmReleaseIntroDependency> {
-    fileprivate let alarm: Alarm
-    fileprivate let isFirstAlarm: Bool
-    
-    init(dependency: AlarmReleaseIntroDependency, alarm: Alarm, isFirstAlarm: Bool) {
-        self.alarm = alarm
-        self.isFirstAlarm = isFirstAlarm
-        super.init(dependency: dependency)
-    }
+    var logger: Logger { dependency.logger }
 }
 
 // MARK: - Builder
 
 public protocol AlarmReleaseIntroBuildable: Buildable {
-    func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm, isFirstAlarm: Bool) -> AlarmReleaseIntroRouting
+    func build(withListener listener: AlarmReleaseIntroListener) -> AlarmReleaseIntroRouting
 }
 
-public final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency>, AlarmReleaseIntroBuildable {
+final class AlarmReleaseIntroBuilder: Builder<AlarmReleaseIntroDependency>, AlarmReleaseIntroBuildable {
 
-    public override init(dependency: AlarmReleaseIntroDependency) {
+    override init(dependency: AlarmReleaseIntroDependency) {
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: AlarmReleaseIntroListener, alarm: Alarm, isFirstAlarm: Bool) -> AlarmReleaseIntroRouting {
-        let component = AlarmReleaseIntroComponent(dependency: dependency, alarm: alarm, isFirstAlarm: isFirstAlarm)
+    func build(withListener listener: AlarmReleaseIntroListener) -> AlarmReleaseIntroRouting {
+        let component = AlarmReleaseIntroComponent(dependency: dependency)
         let viewController = AlarmReleaseIntroViewController()
         let interactor = AlarmReleaseIntroInteractor(
             presenter: viewController,
-            alarm: component.alarm,
-            isFirstAlarm: isFirstAlarm,
+            alarm: dependency.alarm,
+            isFirstAlarm: dependency.isFirstAlarm,
             alarmController: dependency.alarmController,
+            stream: dependency.releaseAlarmStream,
             logger: dependency.logger
         )
         interactor.listener = listener
-        
-        let snoozeBuilder = AlarmReleaseSnoozeBuilder(dependency: component)
+
         return AlarmReleaseIntroRouter(
             interactor: interactor,
-            viewController: viewController,
-            snoozeBuilder: snoozeBuilder
+            viewController: viewController
         )
     }
 }

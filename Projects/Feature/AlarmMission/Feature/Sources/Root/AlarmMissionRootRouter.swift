@@ -11,7 +11,7 @@ import FeatureUIDependencies
 
 import RIBs
 
-protocol AlarmMissionRootInteractable: Interactable, ShakeMissionMainListener, TapMissionMainListener {
+protocol AlarmMissionRootInteractable: Interactable, ShakeMissionWorkingListener, TapMissionWorkingListener {
     var router: AlarmMissionRootRouting? { get set }
     var listener: AlarmMissionRootListener? { get set }
 }
@@ -21,20 +21,20 @@ final class AlarmMissionRootRouter: Router<AlarmMissionRootInteractable>, AlarmM
     private var navigationController: UINavigationController?
     
     // Builder
-    private let shakeMissionBuilder: ShakeMissionMainBuilder
-    private let tapMissionBuilder: TapMissionMainBuilder
+    private let shakeMissionBuilder: ShakeMissionWorkingBuilder
+    private let tapMissionBuilder: TapMissionWorkingBuilder
     
     // Router
-    private var shakeMissionRouter: ShakeMissionMainRouting?
-    private var tapMissionRouter: TapMissionMainRouting?
+    private var shakeMissionRouter: ShakeMissionWorkingRouting?
+    private var tapMissionRouter: TapMissionWorkingRouting?
     
     
     // TODO: Constructor inject child builder protocols to allow building children.
     init(
         interactor: AlarmMissionRootInteractable,
         viewController: UIViewController,
-        shakeMissionBuilder: ShakeMissionMainBuilder,
-        tapMissionBuilder: TapMissionMainBuilder
+        shakeMissionBuilder: ShakeMissionWorkingBuilder,
+        tapMissionBuilder: TapMissionWorkingBuilder
     ) {
         self.viewController = viewController
         self.shakeMissionBuilder = shakeMissionBuilder
@@ -94,8 +94,8 @@ extension AlarmMissionRootRouter {
             case .tap:
                 dismissTapMission(completion: completion)
             }
-        case .presentShakeMission(let isFirstAlarm):
-            presentShakeMission(isFirstAlarm: isFirstAlarm)
+        case .presentShakeMission:
+            presentShakeMission()
         case .presentTapMission:
             presentTapMission()
         case .presentAlert(let config):
@@ -116,8 +116,8 @@ extension AlarmMissionRootRouter {
 // MARK: Routing RIB
 private extension AlarmMissionRootRouter {
     // Shake mission
-    func presentShakeMission(isFirstAlarm: Bool) {
-        let router = shakeMissionBuilder.build(withListener: interactor, isFirstAlarm: isFirstAlarm)
+    func presentShakeMission() {
+        let router = shakeMissionBuilder.build(withListener: interactor)
         self.shakeMissionRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)

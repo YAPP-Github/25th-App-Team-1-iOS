@@ -38,11 +38,11 @@ final class ExampleRIBRouter: ViewableRouter<ExampleRIBInteractable, ExampleRIBV
     }
     
     func presentMission(_ mission: AlarmMissionType) {
+        guard let navigationController else { return }
         let router = missionBuilder.build(
             withListener: interactor,
-            rootController: viewController.uiviewController,
-            missionType: mission,
-            isFirstAlarm: true
+            navigationController: navigationController,
+            missionType: mission
         )
         self.missionRouter = router
         attachChild(router)

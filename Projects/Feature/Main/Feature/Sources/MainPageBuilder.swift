@@ -6,7 +6,6 @@
 //
 
 import FeatureAlarm
-import FeatureAlarmMission
 import FeatureFortune
 import FeatureAlarmRelease
 import FeatureSetting
@@ -52,15 +51,13 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
         interactor.listener = listener
         
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
-        let alarmMissionRootBuilder = FeatureAlarmMission.AlarmMissionRootBuilder(dependency: component)
         let fortuneBuilder = FeatureFortune.FortuneBuilder(dependency: component)
-        let alarmReleaseBuilder = FeatureAlarmRelease.AlarmReleaseIntroBuilder(dependency: component)
+        let alarmReleaseBuilder = FeatureAlarmRelease.RootBuilder(dependency: component)
         let settingBuilder = SettingMainBuilder(dependency: component)
         let router = MainPageRouter(
             interactor: interactor,
             viewController: viewController,
             alarmBuilder: alarmBuilder,
-            alarmMissionRootBuilder: alarmMissionRootBuilder,
             fortuneBuilder: fortuneBuilder,
             alarmReleaseBuilder: alarmReleaseBuilder,
             settingBuilder: settingBuilder

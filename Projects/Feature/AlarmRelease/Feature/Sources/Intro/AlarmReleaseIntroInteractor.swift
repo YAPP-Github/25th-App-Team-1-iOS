@@ -12,18 +12,12 @@ import FeatureResources
 import FeatureAlarmCommon
 import FeatureAlarmController
 import FeatureLogger
+import FeatureNetworking
 
 import RIBs
 import RxSwift
 
-public enum AlarmReleaseIntroRouterRequest {
-    case routeToSnooze(SnoozeOption)
-    case detachSnooze
-}
-
-public protocol AlarmReleaseIntroRouting: ViewableRouting {
-    func request(_ request: AlarmReleaseIntroRouterRequest)
-}
+public protocol AlarmReleaseIntroRouting: ViewableRouting {}
 
 enum AlarmReleaseIntroPresentableRequest {
     case updateSnooze(SnoozeOption)
@@ -38,7 +32,8 @@ protocol AlarmReleaseIntroPresentable: Presentable {
 }
 
 public enum AlarmReleaseIntroListenerRequest {
-    case releaseAlarm(Bool)
+    case releaseAlarm
+    case snoozeAlarm
 }
 
 public protocol AlarmReleaseIntroListener: AnyObject {
@@ -48,6 +43,7 @@ public protocol AlarmReleaseIntroListener: AnyObject {
 final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntroPresentable>, AlarmReleaseIntroInteractable, AlarmReleaseIntroPresentableListener {
     // Dependency
     private let alarmController: AlarmController
+    private let stream: ReleaseAlarmStream
     private let logger: Logger
 
     weak var router: AlarmReleaseIntroRouting?
@@ -60,11 +56,13 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         alarm: Alarm,
         isFirstAlarm: Bool,
         alarmController: AlarmController,
+        stream: ReleaseAlarmStream,
         logger: Logger
     ) {
         self.alarm = alarm
         self.isFirstAlarm = isFirstAlarm
         self.alarmController = alarmController
+        self.stream = stream
         self.logger = logger
         remainSnoozeCount = alarm.snoozeOption.count.rawValue
         super.init(presenter: presenter)
@@ -73,7 +71,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     
     override func didBecomeActive() {
         super.didBecomeActive()
-        
+        bind()
         // 백그라운드 알람 종료
         alarmController.inactivateAlarmWithoutConsecutiveAlarmTask(alarm: alarm)
         
@@ -94,6 +92,23 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         playAlarm()
     }
     
+    private func bind() {
+        stream.snoozeFinished
+            .observe(on: MainScheduler.instance)
+            .subscribe { [weak self] _ in
+                guard let self else { return }
+                updateSnoozeCount()
+                playAlarm()
+            }.disposeOnDeactivate(interactor: self)
+        
+        stream.stopTimer
+            .observe(on: MainScheduler.instance)
+            .subscribe { [weak self] _ in
+                guard let self else { return }
+                presenter.request(.stopTimer)
+            }.disposeOnDeactivate(interactor: self)
+    }
+    
     func request(_ request: AlarmReleaseIntroPresentableListenerRequest) {
         switch request {
         case .viewDidLoad:
@@ -102,7 +117,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
             let log = ExecuteSnoozeLogBuilder(alarmId: alarm.id).build()
             logger.send(log)
             stopAlarm()
-            router?.request(.routeToSnooze(alarm.snoozeOption))
+            listener?.request(.snoozeAlarm)
         case .releaseAlarm:
             var isFirstAlarmOfDay = true
             if UserDefaults.standard.dailyFirstAlarmIsReleased() {
@@ -120,7 +135,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
             logger.send(log)
             
             stopAlarm()
-            listener?.request(.releaseAlarm(isFirstAlarm))
+            listener?.request(.releaseAlarm)
         }
     }
     
@@ -150,21 +165,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
     }
     
     private func stopAlarm() {
+        alarmController.inactivateAlarmWithoutConsecutiveAlarmTask(alarm: alarm)
         AudioPlayerManager.shared.stopPlayingSound()
-    }
-}
-
-extension AlarmReleaseIntroInteractor {
-    func request(_ request: AlarmReleaseSnoozeListenerRequest) {
-        router?.request(.detachSnooze)
-        switch request {
-        case .releaseAlarm:
-            presenter.request(.stopTimer)
-            stopAlarm()
-            listener?.request(.releaseAlarm(isFirstAlarm))
-        case .snoozeFinished:
-            updateSnoozeCount()
-            playAlarm()
-        }
     }
 }

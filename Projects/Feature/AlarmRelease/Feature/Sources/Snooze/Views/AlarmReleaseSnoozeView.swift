@@ -72,7 +72,7 @@ private extension AlarmReleaseSnoozeView {
         }
         guageView.listener = self
         releaseAlarmButton.do {
-            $0.setAttributedTitle("알람끄기".displayText(font: .headline1SemiBold, color: R.Color.white100), for: .normal)
+            $0.setAttributedTitle("미션 시작".displayText(font: .headline1SemiBold, color: R.Color.white100), for: .normal)
             $0.backgroundColor = R.Color.white20
             $0.layer.cornerRadius = 29
             $0.layer.cornerCurve = .continuous
