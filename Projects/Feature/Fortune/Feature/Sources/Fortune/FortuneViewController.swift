@@ -16,7 +16,7 @@ enum FortunePresentableListenerRequest {
     case charmSelected(Int)
     case exitPage
     case endPage
-    case saveCharmToAlbumAndExit(image: UIImage)
+    case saveCharmToAlbum(image: UIImage)
 }
 
 protocol FortunePresentableListener: AnyObject {
@@ -177,7 +177,7 @@ extension FortuneViewController: CharmViewListener {
     func action(_ action: CharmView.Action) {
         switch action {
         case let .saveToAlbumTapped(image):
-            listener?.request(.saveCharmToAlbumAndExit(image: image))
+            listener?.request(.saveCharmToAlbum(image: image))
         case .done:
             listener?.request(.endPage)
         case let .charmSelected(index):
