@@ -5,8 +5,8 @@
 //  Created by ever on 7/1/25.
 //
 
-import RIBs
 import UIKit
+import RIBs
 import FeatureCommonEntity
 import FeatureAlarmMission
 import FeatureFortune
@@ -21,20 +21,19 @@ protocol RootInteractable: Interactable,
     var listener: RootListener? { get set }
 }
 
-public protocol RootViewControllable: ViewControllable {}
 
 final class RootRouter: Router<RootInteractable>, RootRouting {
     
     // TODO: Constructor inject child builder protocols to allow building children.
     init(
         interactor: RootInteractable,
-        viewController: RootViewControllable,
+        presentingViewController: UIViewController,
         introBuilder: AlarmReleaseIntroBuildable,
         snoozeBuilder: AlarmReleaseSnoozeBuildable,
         missionBuilder: AlarmMissionRootBuildable,
         fortuneBuilder: FortuneBuildable
     ) {
-        self.viewController = viewController
+        self.presentingViewController = presentingViewController
         self.introBuilder = introBuilder
         self.snoozeBuilder = snoozeBuilder
         self.missionBuilder = missionBuilder
@@ -74,7 +73,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     // MARK: - Private
     
-    private let viewController: RootViewControllable
+    private let presentingViewController: UIViewController
     private var navigationController: UINavigationController?
     
     private let introBuilder: AlarmReleaseIntroBuildable
@@ -97,7 +96,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         } else {
             let navigationController = generateNavigationControllerIfNeeded()
             navigationController.setViewControllers([targetVC], animated: false)
-            viewController.uiviewController.present(navigationController, animated: true)
+            presentingViewController.present(navigationController, animated: true)
             self.navigationController = navigationController
         }
     }

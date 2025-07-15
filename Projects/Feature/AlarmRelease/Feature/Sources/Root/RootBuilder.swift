@@ -5,6 +5,7 @@
 //  Created by ever on 7/1/25.
 //
 
+import UIKit
 import RIBs
 import FeatureAlarmController
 import FeatureCommonDependencies
@@ -14,15 +15,14 @@ import FeatureFortune
 
 
 public protocol RootDependency: Dependency {
-    // TODO: Make sure to convert the variable into lower-camelcase.
-    var alarmReleaseRootViewController: RootViewControllable { get }
+    var presentingViewController: UIViewController { get }
     var alarmController: AlarmController { get }
     var logger: Logger { get }
 }
 
 final class RootComponent: Component<RootDependency> {
-    fileprivate var rootViewController: RootViewControllable {
-        return dependency.alarmReleaseRootViewController
+    fileprivate var presentingViewController: UIViewController {
+        return dependency.presentingViewController
     }
     let alarm: Alarm
     let isFirstAlarm: Bool
@@ -66,7 +66,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let fortuneBuilder = FortuneBuilder(dependency: component)
         return RootRouter(
             interactor: interactor,
-            viewController: component.rootViewController,
+            presentingViewController: component.presentingViewController,
             introBuilder: introBuilder,
             snoozeBuilder: snoozeBuilder,
             missionBuilder: missionBuilder,

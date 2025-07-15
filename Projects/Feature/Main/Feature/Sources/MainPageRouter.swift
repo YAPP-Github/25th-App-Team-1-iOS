@@ -11,21 +11,18 @@ import FeatureCommonDependencies
 import FeatureDesignSystem
 import FeatureAlarm
 import FeatureFortune
-import FeatureAlarmRelease
 import FeatureSetting
 
 protocol MainPageInteractable: Interactable,
                                FeatureAlarm.RootListener,
                                FeatureFortune.FortuneListener,
-                               FeatureAlarmRelease.RootListener,
                                SettingMainListener {
     var router: MainPageRouting? { get set }
     var listener: MainPageListener? { get set }
 }
 
 protocol MainPageViewControllable: ViewControllable,
-                                   FeatureAlarm.RootViewControllable,
-                                   FeatureAlarmRelease.RootViewControllable {
+                                   FeatureAlarm.RootViewControllable {
     // TODO: Declare methods the router invokes to manipulate the view hierarchy.
 }
 
@@ -36,12 +33,10 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         viewController: MainPageViewControllable,
         alarmBuilder: FeatureAlarm.RootBuildable,
         fortuneBuilder: FeatureFortune.FortuneBuildable,
-        alarmReleaseBuilder: FeatureAlarmRelease.RootBuildable,
         settingBuilder: SettingMainBuildable
     ) {
         self.alarmBuilder = alarmBuilder
         self.fortuneBuilder = fortuneBuilder
-        self.alarmReleaseBuilder = alarmReleaseBuilder
         self.settingBuilder = settingBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
@@ -57,10 +52,6 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToFortune(fortune: fortune, userInfo: userInfo, fortuneInfo: fortuneInfo)
         case .detachFortune:
             detachFortune()
-        case let .routeToAlarmRelease(alarm, isFirstAlarm):
-            routeToAlarmRelease(alarm: alarm, isFirstAlarm: isFirstAlarm)
-        case .detachAlarmRelease:
-            detachAlarmRelease()
         case .presentAlertType1(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -91,8 +82,6 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     private let fortuneBuilder: FeatureFortune.FortuneBuildable
     private var fortuneRouter: FeatureFortune.FortuneRouting?
     
-    private let alarmReleaseBuilder: FeatureAlarmRelease.RootBuildable
-    private var alarmReleaseRouter: FeatureAlarmRelease.RootRouting?
     
     private let settingBuilder: FeatureSetting.SettingMainBuildable
     private var settingRouter: FeatureSetting.SettingMainRouting?
@@ -138,18 +127,6 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         navigationController = nil
     }
     
-    private func routeToAlarmRelease(alarm: Alarm, isFirstAlarm: Bool) {
-        guard alarmReleaseRouter == nil else { return }
-        let router = alarmReleaseBuilder.build(withListener: interactor, alarm: alarm, isFirstAlarm: isFirstAlarm)
-        self.alarmReleaseRouter = router
-        attachChild(router)
-    }
-    
-    private func detachAlarmRelease() {
-        guard let router = alarmReleaseRouter else { return }
-        alarmReleaseRouter = nil
-        detachChild(router)
-    }
     
     private func routeToSetting() {
         guard settingRouter == nil else { return }

@@ -37,6 +37,7 @@ let project = Project(
                 .feature(implements: .Main),
                 .feature(implements: .Alarm),
                 .feature(implements: .AlarmController),
+                .feature(implements: .AlarmRelease),
                 .feature(implements: .RemoteConfig),
                 
                 // Third party
