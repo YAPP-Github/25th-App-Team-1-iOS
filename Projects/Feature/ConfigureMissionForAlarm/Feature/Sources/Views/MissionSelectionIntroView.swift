@@ -9,7 +9,19 @@ import UIKit
 
 import FeatureUIDependencies
 
+enum MissionSelectionIntroViewAction {
+    case addNewMission
+}
+
+protocol MissionSelectionIntroViewListener: AnyObject {
+    func request(_ action: MissionSelectionIntroViewAction)
+}
+
 final class MissionSelectionIntroView: UIView {
+    
+    // Listener
+    weak var listener: MissionSelectionIntroViewListener?
+    
     
     // UI
     private let headTitleLabel: UILabel = .init()
@@ -95,6 +107,9 @@ private extension MissionSelectionIntroView {
         addMissionButton.update(leftImage: FeatureResourcesAsset.plus.image)
         addMissionButton.update(title: "미션추가")
         contentsStackView.addArrangedSubview(addMissionButton)
+        addMissionButton.buttonAction = { [unowned self] in
+            listener?.request(.addNewMission)
+        }
     }
     
     func setupLayout() {

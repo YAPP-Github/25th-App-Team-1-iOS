@@ -38,6 +38,7 @@ private extension ConfigureMissionForAlarmViewController {
     func setupUI() {
         
         // missionSelectionIntroView
+        missionSelectionIntroView.listener = self
         view.addSubview(missionSelectionIntroView)
     }
     
@@ -48,6 +49,17 @@ private extension ConfigureMissionForAlarmViewController {
             make.top.equalToSuperview().inset(212)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
+        }
+    }
+}
+
+
+// MARK: MissionSelectionIntroViewListener
+extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListener {
+    func request(_ action: MissionSelectionIntroViewAction) {
+        switch action {
+        case .addNewMission:
+            break
         }
     }
 }
