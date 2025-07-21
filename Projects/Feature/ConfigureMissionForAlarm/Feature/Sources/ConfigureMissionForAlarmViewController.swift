@@ -5,9 +5,12 @@
 //  Created by choijunios on 7/21/25.
 //
 
+import UIKit
+
+import FeatureUIDependencies
+
 import RIBs
 import RxSwift
-import UIKit
 
 protocol ConfigureMissionForAlarmPresentableListener: AnyObject {
     // TODO: Declare properties and methods that the view controller can invoke to perform
@@ -19,7 +22,37 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
 
     weak var listener: ConfigureMissionForAlarmPresentableListener?
     
+    // UI
+    private let missionSelectionIntroView: MissionSelectionIntroView = .init()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setupUI()
+        setupLayout()
     }
 }
+
+
+private extension ConfigureMissionForAlarmViewController {
+    func setupUI() {
+        
+        // missionSelectionIntroView
+        view.addSubview(missionSelectionIntroView)
+    }
+    
+    func setupLayout() {
+        
+        // missionSelectionIntroView
+        missionSelectionIntroView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(212)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+    }
+}
+
+
+#Preview(traits: .defaultLayout, body: {
+    ConfigureMissionForAlarmViewController()
+})

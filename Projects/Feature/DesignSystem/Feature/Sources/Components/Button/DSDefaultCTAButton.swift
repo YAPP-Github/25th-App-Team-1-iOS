@@ -35,6 +35,15 @@ public final class DSDefaultCTAButton: TouchDetectingView {
             font: style.size.font,
             color: style.type.pressedTitleColor
         )
+        
+        if leftIconImageView.isHidden == false {
+            self.leftIconImageView.tintColor = style.type.pressedTitleColor
+        }
+        
+        if rightIconImageView.isHidden == false {
+            self.rightIconImageView.tintColor = style.type.pressedTitleColor
+        }
+        
         self.layer.cornerRadius = style.cornerRadius.pressedValue
         let originalWidth = bounds.width
         let originalHeight = bounds.height
@@ -141,6 +150,7 @@ public final class DSDefaultCTAButton: TouchDetectingView {
 public extension DSDefaultCTAButton {
     func update(leftImage: UIImage) {
         leftIconImageView.image = leftImage
+        leftIconImageView.tintColor = style.type.titleColor
         leftIconImageView.isHidden = false
     }
     
@@ -151,6 +161,7 @@ public extension DSDefaultCTAButton {
     
     func update(rightImage: UIImage) {
         rightIconImageView.image = rightImage
+        rightIconImageView.tintColor = style.type.titleColor
         rightIconImageView.isHidden = false
     }
     
