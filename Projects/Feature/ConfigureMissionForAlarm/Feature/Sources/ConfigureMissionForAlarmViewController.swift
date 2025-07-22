@@ -28,6 +28,10 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
     private let missionSelectionIntroViewTopInset: CGFloat = 212
     
     
+    // Gesture
+    private let backgroundTapGesture: UITapGestureRecognizer = .init()
+    
+    
     // Trasition
     private var vcTransitionDelegate: VCTransitionDelegate?
     
@@ -47,6 +51,7 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
         super.viewDidLoad()
         
         setupUI()
+        setupGesture()
         setupLayout()
     }
 }
@@ -61,6 +66,7 @@ private extension ConfigureMissionForAlarmViewController {
         
         // dimmedBackgroundView
         dimmedBackgroundView.backgroundColor = R.Color.dimmed.withAlphaComponent(0.8)
+        dimmedBackgroundView.addGestureRecognizer(backgroundTapGesture)
         view.addSubview(dimmedBackgroundView)
         
         
@@ -87,8 +93,19 @@ private extension ConfigureMissionForAlarmViewController {
     }
     
     
+    func setupGesture() {
+        backgroundTapGesture.addTarget(self, action: #selector(onBackgroundTapped(_:)))
+    }
+    
+    
     func setupPresentationStyle() {
         self.modalPresentationStyle = .overFullScreen
+    }
+    
+    
+    @objc
+    func onBackgroundTapped(_ recog: UITapGestureRecognizer) {
+        presentingViewController?.dismiss(animated: true)
     }
 }
 
@@ -112,13 +129,25 @@ private extension ConfigureMissionForAlarmViewController {
         
         // #1. Initial State
         dimmedBackgroundView.alpha = 0
-        missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height - missionSelectionIntroViewTopInset
+        missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height
         
         
         // #2. Animate
         UIView.animate(withDuration: duration) {
             self.dimmedBackgroundView.alpha = 1
-            self.missionSelectionIntroView.layer.frame.origin.y = 0
+            self.missionSelectionIntroView.frame.origin.y = self.missionSelectionIntroViewTopInset
+        } completion: { _ in
+            completion()
+        }
+    }
+    
+    func startDismissalAnimation(duration: TimeInterval, completion: @escaping () -> Void) {
+        
+        // #1. Animate
+        UIView.animate(withDuration: duration) {
+            self.dimmedBackgroundView.alpha = 0
+            self.missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height
+        } completion: { _ in
             completion()
         }
     }
@@ -130,7 +159,7 @@ fileprivate final class VCTransitionDelegate: NSObject, UIViewControllerTransiti
     
     func animationController(
         forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
-        nil
+        VCDismissalAnimator()
     }
     
     func animationController(
@@ -144,19 +173,39 @@ fileprivate final class VCTransitionDelegate: NSObject, UIViewControllerTransiti
 
 fileprivate final class VCPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     
-    private let presentationDuration: TimeInterval = 0.2
+    private let animationDuration: TimeInterval = 0.3
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         guard let toVC = transitionContext.viewController(forKey: .to) as? ConfigureMissionForAlarmViewController else { return }
         let container = transitionContext.containerView
         container.addSubview(toVC.view)
-        toVC.startPresentationAnimation(duration: presentationDuration) {
+        toVC.startPresentationAnimation(duration: animationDuration) {
             transitionContext.completeTransition(true)
         }
     }
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return presentationDuration
+        return animationDuration
+    }
+}
+
+
+fileprivate final class VCDismissalAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    
+    private let animationDuration: TimeInterval = 0.3
+    
+    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?) -> TimeInterval {
+        return animationDuration
+    }
+    
+    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
+        guard let fromVC = transitionContext.viewController(forKey: .from) as? ConfigureMissionForAlarmViewController else { return }
+        let container = transitionContext.containerView
+        
+        fromVC.startDismissalAnimation(duration: animationDuration) {
+            fromVC.view.removeFromSuperview()
+            transitionContext.completeTransition(true)
+        }
     }
 }
 
