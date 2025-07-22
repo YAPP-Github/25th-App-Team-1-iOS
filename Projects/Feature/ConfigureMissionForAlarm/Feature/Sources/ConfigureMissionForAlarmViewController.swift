@@ -37,6 +37,11 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
 private extension ConfigureMissionForAlarmViewController {
     func setupUI() {
         
+        // view
+        view.isOpaque = false
+        view.backgroundColor = R.Color.dimmed.withAlphaComponent(0.8)
+        
+        
         // missionSelectionIntroView
         missionSelectionIntroView.listener = self
         view.addSubview(missionSelectionIntroView)

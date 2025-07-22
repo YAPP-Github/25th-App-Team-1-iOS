@@ -147,6 +147,7 @@ public class R {
         public static let bgBottomSheet = UIColor(hex: "#17191F")
         public static let bgModal = UIColor(hex: "#1F2127")
         public static let bgToast = UIColor(hex: "#3D424B")
+        public static let dimmed = UIColor(hex: "#17191F")
         
         // Btn
         public static let btnPrimary = UIColor(hex: "#FEFF65")

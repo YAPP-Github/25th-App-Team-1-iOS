@@ -74,7 +74,7 @@ private extension MissionSelectionIntroView {
         
         
         // titleLabel
-        headTitleLabel.displayText = "미션 선택".displayText(font: .heading2SemiBold, color: R.Color.white100)
+        headTitleLabel.displayText = "미션".displayText(font: .heading2SemiBold, color: R.Color.white100)
         addSubview(headTitleLabel)
         
         
