@@ -43,3 +43,10 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
         // TODO: Pause any business logic.
     }
 }
+
+
+extension ConfigureMissionForAlarmInteractor {
+    func request(_ request: ConfigureMissionForAlarmPresenterRequest) {
+        
+    }
+}

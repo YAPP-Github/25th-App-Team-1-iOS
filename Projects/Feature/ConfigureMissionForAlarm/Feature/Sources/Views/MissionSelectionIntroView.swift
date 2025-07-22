@@ -46,22 +46,6 @@ final class MissionSelectionIntroView: UIView {
         setupLayout()
     }
     required init?(coder: NSCoder) { nil }
-    
-    override func draw(_ rect: CGRect) {
-        
-        let radius: CGFloat = 24.0
-
-        // 라운딩할 모서리 지정 (상단 좌우만)
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: [.topLeft, .topRight],
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        
-        // 클리핑과 색상 채우기
-        R.Color.gray800.setFill()
-        path.fill()
-    }
 }
 
 
@@ -71,6 +55,12 @@ private extension MissionSelectionIntroView {
         
         // self
         isOpaque = false
+        self.backgroundColor = R.Color.gray800
+        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        self.layer.borderColor = R.Color.gray700.cgColor
+        self.layer.borderWidth = 1
+        self.layer.cornerRadius = 28
+        self.layer.masksToBounds = true
         
         
         // titleLabel
