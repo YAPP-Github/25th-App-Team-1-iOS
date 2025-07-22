@@ -8,7 +8,7 @@
 import RIBs
 import RxSwift
 
-protocol ConfigureMissionForAlarmRouting: ViewableRouting {
+public protocol ConfigureMissionForAlarmRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
@@ -17,7 +17,7 @@ protocol ConfigureMissionForAlarmPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
-protocol ConfigureMissionForAlarmListener: AnyObject {
+public protocol ConfigureMissionForAlarmListener: AnyObject {
     // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
 }
 

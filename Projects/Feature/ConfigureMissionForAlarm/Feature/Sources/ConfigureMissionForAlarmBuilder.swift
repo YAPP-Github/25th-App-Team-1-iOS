@@ -7,7 +7,7 @@
 
 import RIBs
 
-protocol ConfigureMissionForAlarmDependency: Dependency {
+public protocol ConfigureMissionForAlarmDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
     // created by this RIB.
 }
@@ -19,17 +19,17 @@ final class ConfigureMissionForAlarmComponent: Component<ConfigureMissionForAlar
 
 // MARK: - Builder
 
-protocol ConfigureMissionForAlarmBuildable: Buildable {
+public protocol ConfigureMissionForAlarmBuildable: Buildable {
     func build(withListener listener: ConfigureMissionForAlarmListener) -> ConfigureMissionForAlarmRouting
 }
 
-final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForAlarmDependency>, ConfigureMissionForAlarmBuildable {
+public final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForAlarmDependency>, ConfigureMissionForAlarmBuildable {
 
-    override init(dependency: ConfigureMissionForAlarmDependency) {
+    public override init(dependency: ConfigureMissionForAlarmDependency) {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: ConfigureMissionForAlarmListener) -> ConfigureMissionForAlarmRouting {
+    public func build(withListener listener: ConfigureMissionForAlarmListener) -> ConfigureMissionForAlarmRouting {
         let component = ConfigureMissionForAlarmComponent(dependency: dependency)
         let viewController = ConfigureMissionForAlarmViewController()
         let interactor = ConfigureMissionForAlarmInteractor(presenter: viewController)

@@ -30,6 +30,7 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
         
         setupUI()
         setupLayout()
+        setupPresentationStyle()
     }
 }
 
@@ -47,6 +48,7 @@ private extension ConfigureMissionForAlarmViewController {
         view.addSubview(missionSelectionIntroView)
     }
     
+    
     func setupLayout() {
         
         // missionSelectionIntroView
@@ -55,6 +57,11 @@ private extension ConfigureMissionForAlarmViewController {
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }
+    }
+    
+    
+    func setupPresentationStyle() {
+        self.modalPresentationStyle = .overFullScreen
     }
 }
 
