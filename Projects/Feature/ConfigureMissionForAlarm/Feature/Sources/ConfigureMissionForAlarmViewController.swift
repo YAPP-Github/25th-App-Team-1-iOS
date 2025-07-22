@@ -23,14 +23,31 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
     weak var listener: ConfigureMissionForAlarmPresentableListener?
     
     // UI
+    private let dimmedBackgroundView: UIView = .init()
     private let missionSelectionIntroView: MissionSelectionIntroView = .init()
+    private let missionSelectionIntroViewTopInset: CGFloat = 212
+    
+    
+    // Trasition
+    private var vcTransitionDelegate: VCTransitionDelegate?
+    
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+        
+        self.vcTransitionDelegate = VCTransitionDelegate()
+        self.transitioningDelegate = vcTransitionDelegate
+        
+        setupPresentationStyle()
+    }
+    required init?(coder: NSCoder) { nil }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUI()
         setupLayout()
-        setupPresentationStyle()
     }
 }
 
@@ -40,7 +57,11 @@ private extension ConfigureMissionForAlarmViewController {
         
         // view
         view.isOpaque = false
-        view.backgroundColor = R.Color.dimmed.withAlphaComponent(0.8)
+        
+        
+        // dimmedBackgroundView
+        dimmedBackgroundView.backgroundColor = R.Color.dimmed.withAlphaComponent(0.8)
+        view.addSubview(dimmedBackgroundView)
         
         
         // missionSelectionIntroView
@@ -51,9 +72,15 @@ private extension ConfigureMissionForAlarmViewController {
     
     func setupLayout() {
         
+        // dimmedBackgroundView
+        dimmedBackgroundView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        
         // missionSelectionIntroView
         missionSelectionIntroView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(212)
+            make.top.equalToSuperview().inset(missionSelectionIntroViewTopInset)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }
@@ -75,6 +102,64 @@ extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListe
         }
     }
 }
+
+
+
+// MARK: Presentation
+private extension ConfigureMissionForAlarmViewController {
+    
+    func startPresentationAnimation(duration: TimeInterval, completion: @escaping () -> Void) {
+        
+        // #1. Initial State
+        dimmedBackgroundView.alpha = 0
+        missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height - missionSelectionIntroViewTopInset
+        
+        
+        // #2. Animate
+        UIView.animate(withDuration: duration) {
+            self.dimmedBackgroundView.alpha = 1
+            self.missionSelectionIntroView.layer.frame.origin.y = 0
+            completion()
+        }
+    }
+}
+
+
+// MARK: Transition
+fileprivate final class VCTransitionDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    
+    func animationController(
+        forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
+        nil
+    }
+    
+    func animationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController,
+        source: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
+        VCPresentationAnimator()
+    }
+}
+
+
+fileprivate final class VCPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    
+    private let presentationDuration: TimeInterval = 0.2
+    
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        guard let toVC = transitionContext.viewController(forKey: .to) as? ConfigureMissionForAlarmViewController else { return }
+        let container = transitionContext.containerView
+        container.addSubview(toVC.view)
+        toVC.startPresentationAnimation(duration: presentationDuration) {
+            transitionContext.completeTransition(true)
+        }
+    }
+    
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        return presentationDuration
+    }
+}
+
 
 
 #Preview(traits: .defaultLayout, body: {
