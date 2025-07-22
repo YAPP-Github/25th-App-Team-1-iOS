@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "shake_mission_config_item.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

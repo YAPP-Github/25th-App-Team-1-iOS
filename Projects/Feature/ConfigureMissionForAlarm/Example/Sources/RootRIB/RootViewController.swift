@@ -1,18 +1,30 @@
 //
 //  RootViewController.swift
-//  ConfigureMissionForAlarm
+//  FeatureConfigureMissionForAlarm
 //
 //  Created by choijunios on 7/22/25.
 //
 
+import RIBs
+import RxSwift
 import UIKit
 
 import FeatureConfigureMissionForAlarm
 
-import SnapKit
+protocol RootPresentableListener: AnyObject {
+    func request(_ request: RootPresentableListenerRequest)
+}
 
-final class RootViewController: UIViewController {
+enum RootPresentableListenerRequest {
+    case startButtonTapped
+}
+
+final class RootViewController: UIViewController, RootPresentable, RootViewControllable {
     
+    weak var listener: RootPresentableListener?
+    
+    
+    // UI
     private let button: UIButton = .init()
     
     
@@ -40,19 +52,6 @@ final class RootViewController: UIViewController {
     
     @objc
     func onButtonTapped(_ sender: UIButton) {
-        let builder = ConfigureMissionForAlarmBuilder(
-            dependency: ModuleDependency()
-        )
-        let router = builder.build(withListener: self)
-        self.router = router
-        
-        self.present(
-            router.viewControllable.uiviewController,
-            animated: true
-        )
+        listener?.request(.startButtonTapped)
     }
-}
-
-extension RootViewController: ConfigureMissionForAlarmListener {
-    
 }

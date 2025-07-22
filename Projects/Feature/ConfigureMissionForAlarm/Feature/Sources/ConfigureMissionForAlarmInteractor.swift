@@ -14,11 +14,19 @@ public protocol ConfigureMissionForAlarmRouting: ViewableRouting {
 
 protocol ConfigureMissionForAlarmPresentable: Presentable {
     var listener: ConfigureMissionForAlarmPresentableListener? { get set }
-    // TODO: Declare methods the interactor can invoke the presenter to present data.
+    func update(_ update: ConfigureMissionForAlarmPresentableUpdate)
+}
+
+enum ConfigureMissionForAlarmPresentableUpdate {
+    case presentMissionList(items: [MissionItemRenderObject])
 }
 
 public protocol ConfigureMissionForAlarmListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func request(_ request: ConfigureMissionForAlarmListenerRequest)
+}
+
+public enum ConfigureMissionForAlarmListenerRequest {
+    case dismissScreen
 }
 
 final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureMissionForAlarmPresentable>, ConfigureMissionForAlarmInteractable, ConfigureMissionForAlarmPresentableListener {
@@ -47,6 +55,11 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
 
 extension ConfigureMissionForAlarmInteractor {
     func request(_ request: ConfigureMissionForAlarmPresenterRequest) {
-        
+        switch request {
+        case .dimmedBackgroundIsTapped:
+            listener?.request(.dismissScreen)
+        case .addMissionButtonIsTapped:
+            presenter.update(.presentMissionList(items: [.shake, .tap]))
+        }
     }
 }

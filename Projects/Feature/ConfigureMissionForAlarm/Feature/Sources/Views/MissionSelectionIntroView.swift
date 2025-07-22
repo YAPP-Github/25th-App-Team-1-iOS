@@ -14,7 +14,7 @@ enum MissionSelectionIntroViewAction {
 }
 
 protocol MissionSelectionIntroViewListener: AnyObject {
-    func request(_ action: MissionSelectionIntroViewAction)
+    func action(_ action: MissionSelectionIntroViewAction)
 }
 
 final class MissionSelectionIntroView: UIView {
@@ -37,6 +37,7 @@ final class MissionSelectionIntroView: UIView {
             cornerRadius: .large
         )
     )
+    private var missionConfigureProcessView: MissionConfigureProcessView?
     
     
     init() {
@@ -59,7 +60,7 @@ private extension MissionSelectionIntroView {
         self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         self.layer.borderColor = R.Color.gray700.cgColor
         self.layer.borderWidth = 1
-        self.layer.cornerRadius = 28
+        self.layer.cornerRadius = 14
         self.layer.masksToBounds = true
         
         
@@ -98,7 +99,7 @@ private extension MissionSelectionIntroView {
         addMissionButton.update(title: "미션추가")
         contentsStackView.addArrangedSubview(addMissionButton)
         addMissionButton.buttonAction = { [unowned self] in
-            listener?.request(.addNewMission)
+            listener?.action(.addNewMission)
         }
     }
     
@@ -129,6 +130,53 @@ private extension MissionSelectionIntroView {
         addMissionButton.snp.makeConstraints { make in
             make.height.equalTo(48)
             make.width.equalTo(127)
+        }
+    }
+    
+    
+    func presentMissionConfigureProcessView() {
+        guard missionConfigureProcessView == nil else { return }
+        
+        let subView = MissionConfigureProcessView()
+        addSubview(subView)
+        
+        subView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(14)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+        
+        self.missionConfigureProcessView = subView
+    }
+}
+
+
+// MARK: Request
+extension MissionSelectionIntroView {
+    enum UpdateRequest {
+        case presentMissionList(items: [MissionItemRenderObject])
+    }
+    
+    func update(_ request: UpdateRequest) {
+        switch request {
+        case let .presentMissionList(items):
+            presentMissionConfigureProcessView()
+            missionConfigureProcessView?.update(.presentMissionList(items: items))
+        }
+    }
+}
+
+
+// MARK: Listener
+extension MissionSelectionIntroView: MissionConfigureProcessViewViewListener {
+    func action(_ action: MissionConfigureProcessView.Action) {
+        switch action {
+        case .missionIsSelected(let item):
+            break
+        case .prevButtonTapped:
+            break
+        case .exitButtonTapped:
+            break
         }
     }
 }
