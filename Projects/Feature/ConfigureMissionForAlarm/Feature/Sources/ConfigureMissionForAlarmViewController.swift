@@ -200,7 +200,6 @@ fileprivate final class VCDismissalAnimator: NSObject, UIViewControllerAnimatedT
     
     func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
         guard let fromVC = transitionContext.viewController(forKey: .from) as? ConfigureMissionForAlarmViewController else { return }
-        let container = transitionContext.containerView
         
         fromVC.startDismissalAnimation(duration: animationDuration) {
             fromVC.view.removeFromSuperview()
