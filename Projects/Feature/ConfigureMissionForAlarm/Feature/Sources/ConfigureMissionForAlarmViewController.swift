@@ -105,7 +105,7 @@ private extension ConfigureMissionForAlarmViewController {
     
     @objc
     func onBackgroundTapped(_ recog: UITapGestureRecognizer) {
-        presentingViewController?.dismiss(animated: true)
+        
     }
 }
 
@@ -122,7 +122,7 @@ extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListe
 
 
 
-// MARK: Presentation
+// MARK: Presentation & Dismissal
 private extension ConfigureMissionForAlarmViewController {
     
     func startPresentationAnimation(duration: TimeInterval, completion: @escaping () -> Void) {
