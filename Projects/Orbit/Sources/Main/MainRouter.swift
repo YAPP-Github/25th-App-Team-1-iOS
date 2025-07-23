@@ -5,14 +5,18 @@
 //  Created by 손병근 on 1/4/25.
 //
 
+import UIKit
 import FeatureOnboarding
 import FeatureMain
+import FeatureAlarmRelease
+import FeatureCommonEntity
 
 import RIBs
 
 protocol MainInteractable: Interactable,
                            FeatureOnboarding.RootListener,
-                           FeatureMain.MainPageListener {
+                           FeatureMain.MainPageListener,
+                           FeatureAlarmRelease.RootListener {
     var router: MainRouting? { get set }
     var listener: MainListener? { get set }
 }
@@ -23,16 +27,20 @@ protocol MainViewControllable: ViewControllable,
 }
 
 final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, MainRouting {
-
+    
     // TODO: Constructor inject child builder protocols to allow building children.
     init(
         interactor: MainInteractable,
         viewController: MainViewControllable,
         onboardingBuilder: FeatureOnboarding.RootBuildable,
-        mainBuilder: FeatureMain.MainPageBuildable
+        mainBuilder: FeatureMain.MainPageBuildable,
+        alarmReleaseBuilder: FeatureAlarmRelease.RootBuildable,
+        component: MainComponent
     ) {
         self.onboardingBuilder = onboardingBuilder
         self.mainBuilder = mainBuilder
+        self.alarmReleaseBuilder = alarmReleaseBuilder
+        self.component = component
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -52,6 +60,10 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
             routeToMain(completion: completion)
         case .detachMain:
             detachMain()
+        case let .routeToAlarmRelease(alarm, isFirstAlarm):
+            routeToAlarmRelease(alarm: alarm, isFirstAlarm: isFirstAlarm)
+        case .detachAlarmRelease:
+            detachAlarmRelease()
         }
     }
     
@@ -60,6 +72,10 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
     
     private let mainBuilder: FeatureMain.MainPageBuildable
     private var mainRouter: FeatureMain.MainPageRouting?
+    
+    private let alarmReleaseBuilder: FeatureAlarmRelease.RootBuildable
+    private var alarmReleaseRouter: FeatureAlarmRelease.RootRouting?
+    private let component: MainComponent
     
     private func routeToOnboarding() {
         guard onboardingRouter == nil else { return }
@@ -74,19 +90,39 @@ final class MainRouter: LaunchRouter<MainInteractable, MainViewControllable>, Ma
         detachChild(router)
     }
     
-    private func routeToMain(completion: ((MainPageActionableItem) -> Void)?) {
+    private func routeToMain(completion: ((Any) -> Void)?) {
         guard mainRouter == nil else { return }
-        let (router, actionableItem) = mainBuilder.build(withListener: interactor)
+        let router = mainBuilder.build(withListener: interactor)
         mainRouter = router
+        
+        // Set the main router reference in the component for AlarmRelease dependency
+        component.mainRouter = router
+        
         attachChild(router)
         router.viewControllable.uiviewController.modalPresentationStyle = .fullScreen
         viewController.uiviewController.present(router.viewControllable.uiviewController, animated: true)
-        completion?(actionableItem)
+        completion?(router)
     }
     
     private func detachMain() {
         guard let router = mainRouter else { return }
         mainRouter = nil
+        component.mainRouter = nil
         detachChild(router)
+    }
+    
+    private func routeToAlarmRelease(alarm: Alarm, isFirstAlarm: Bool) {
+        guard alarmReleaseRouter == nil else { return }
+        let router = alarmReleaseBuilder.build(withListener: interactor, alarm: alarm, isFirstAlarm: isFirstAlarm)
+        alarmReleaseRouter = router
+        attachChild(router)
+        // AlarmRelease will handle its own presentation using the presentingViewController from dependency
+    }
+    
+    private func detachAlarmRelease() {
+        guard let router = alarmReleaseRouter else { return }
+        alarmReleaseRouter = nil
+        detachChild(router)
+        // AlarmRelease will handle its own dismissal
     }
 }

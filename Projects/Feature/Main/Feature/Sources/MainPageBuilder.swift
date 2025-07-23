@@ -6,9 +6,7 @@
 //
 
 import FeatureAlarm
-import FeatureAlarmMission
 import FeatureFortune
-import FeatureAlarmRelease
 import FeatureSetting
 import FeatureAlarmController
 import FeatureLogger
@@ -33,7 +31,7 @@ final class MainPageComponent: Component<MainPageDependency> {
 // MARK: - Builder
 
 public protocol MainPageBuildable: Buildable {
-    func build(withListener listener: MainPageListener) -> (router: MainPageRouting, actionableItem: MainPageActionableItem)
+    func build(withListener listener: MainPageListener) -> MainPageRouting
 }
 
 public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildable {
@@ -42,7 +40,7 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: MainPageListener) -> (router: MainPageRouting, actionableItem: MainPageActionableItem) {
+    public func build(withListener listener: MainPageListener) -> MainPageRouting {
         let viewController = MainPageViewController()
         let component = MainPageComponent(dependency: dependency, viewController: viewController)
         let interactor = MainPageInteractor(
@@ -52,20 +50,16 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
         interactor.listener = listener
         
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
-        let alarmMissionRootBuilder = FeatureAlarmMission.AlarmMissionRootBuilder(dependency: component)
         let fortuneBuilder = FeatureFortune.FortuneBuilder(dependency: component)
-        let alarmReleaseBuilder = FeatureAlarmRelease.AlarmReleaseIntroBuilder(dependency: component)
         let settingBuilder = SettingMainBuilder(dependency: component)
         let router = MainPageRouter(
             interactor: interactor,
             viewController: viewController,
             alarmBuilder: alarmBuilder,
-            alarmMissionRootBuilder: alarmMissionRootBuilder,
             fortuneBuilder: fortuneBuilder,
-            alarmReleaseBuilder: alarmReleaseBuilder,
             settingBuilder: settingBuilder
         )
         
-        return (router: router, actionableItem: interactor)
+        return router
     }
 }

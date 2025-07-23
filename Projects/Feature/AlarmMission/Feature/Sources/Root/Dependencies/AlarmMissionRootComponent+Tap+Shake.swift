@@ -7,4 +7,4 @@
 
 import RxRelay
 
-extension AlarmMissionRootComponent: ShakeMissionMainDependency { }
+extension AlarmMissionRootComponent: ShakeMissionWorkingDependency { }

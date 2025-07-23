@@ -108,13 +108,23 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
                 logger.send(log)
             }
             listener?.request(.close)
-        case .saveCharmToAlbumAndExit(let image):
+        case .saveCharmToAlbum(let image):
             let log = LogObjectBuilder(eventType: "fortune_talisman_save").build()
             logger.send(log)
             
             imageSaveHelper.onSuccess = { [weak self] in
                 guard let self else { return }
-                listener?.request(.close)
+                // 저장 성공 메시지 표시
+                let config = DSButtonAlert.Config(
+                    titleText: "앨범 저장 완료",
+                    subTitleText: "부적이 앨범에 저장되었어요.",
+                    buttonText: "확인",
+                    buttonAction: { [weak self] in
+                        guard let self else { return }
+                        router?.request(.dismissAlert(completion: nil))
+                    }
+                )
+                router?.request(.presentAlert(config))
             }
             imageSaveHelper.onError = { [weak self] error in
                 debugPrint("\(Self.self) \(error.localizedDescription)")
@@ -131,7 +141,7 @@ final class FortuneInteractor: PresentableInteractor<FortunePresentable>, Fortun
                 )
                 router?.request(.presentAlert(config))
             }
-            imageSaveHelper.saveImageToAlbumAndExit(image: image)
+            imageSaveHelper.saveImageToAlbum(image: image)
         }
     }
     

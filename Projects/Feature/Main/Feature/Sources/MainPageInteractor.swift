@@ -12,7 +12,6 @@ import FeatureAlarm
 import FeatureAlarmMission
 import FeatureCommonDependencies
 import FeatureFortune
-import FeatureAlarmRelease
 import FeatureNetworking
 import FeatureAlarmController
 
@@ -20,19 +19,12 @@ import RIBs
 import RxSwift
 import FirebaseRemoteConfig
 
-public protocol MainPageActionableItem: AnyObject {
-    func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())>
-}
 
 public enum MainPageRouterRequest {
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
     case detachCreateEditAlarm
-    case routeToAlarmMission(isFirstAlarm: Bool, missionType: AlarmMissionType)
-    case detachAlarmMission((() -> Void)?)
     case routeToFortune(Fortune, UserInfo, FortuneSaveInfo)
     case detachFortune
-    case routeToAlarmRelease(Alarm, Bool)
-    case detachAlarmRelease((() -> Void)?)
     case presentAlertType1(DSButtonAlert.Config)
     case presentAlertType2(DSTwoButtonAlert.Config)
     case dismissAlert(completion: (()->Void)?=nil)
@@ -532,9 +524,20 @@ extension MainPageInteractor {
             let request = APIRequest.Fortune.getFortune(fortuneId: fortuneInfo.id)
             APIClient.request(Fortune.self, request: request) { [weak self] fortune in
                 guard let self else { return }
-                DispatchQueue.main.async {
-                    self.goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
-                }
+                guard let userId = Preference.userId else { return }
+                APIClient.request(
+                    UserInfoResponseDTO.self,
+                    request: APIRequest.Users.getUser(userId: userId),
+                    success: { [weak router] userInfo in
+                        guard let router else { return }
+                        let userInfoEntity = userInfo.toUserInfo()
+                        DispatchQueue.main.async {
+                            router.request(.routeToFortune(fortune, userInfoEntity, fortuneInfo))
+                        }
+                    }) { error in
+                        // 유저정보 획득 실패
+                        debugPrint(error.localizedDescription)
+                    }
                 
                 // 오늘 운세는 확인된 상태로 변경
                 UserDefaults.standard.setDailyFortuneChecked(isChecked: true)
@@ -647,22 +650,6 @@ extension MainPageInteractor {
         return renderObject
     }
     
-    private func goToFortune(fortune: Fortune, fortuneInfo: FortuneSaveInfo) {
-        guard let userId = Preference.userId else { return }
-        APIClient.request(
-            UserInfoResponseDTO.self,
-            request: APIRequest.Users.getUser(userId: userId),
-            success: { [weak router] userInfo in
-                guard let router else { return }
-                let userInfoEntity = userInfo.toUserInfo()
-                DispatchQueue.main.async {
-                    router.request(.routeToFortune(fortune, userInfoEntity, fortuneInfo))
-                }
-            }) { error in
-                // 유저정보 획득 실패
-                debugPrint(error.localizedDescription)
-            }
-    }
     
     private func checkIsFirstAlarm(with alarm: Alarm) -> Bool {
         let activeAlarmList = alarms.values.filter(\.isActive)
@@ -676,9 +663,9 @@ extension MainPageInteractor {
 }
 
 
-// MARK: - RootListenerRequest
+// MARK: - FeatureAlarm.RootListenerRequest
 extension MainPageInteractor {
-    func reqeust(_ request: RootListenerRequest) {
+    func reqeust(_ request: FeatureAlarm.RootListenerRequest) {
         router?.request(.detachCreateEditAlarm)
         // 비즈니스 로직 업데이트
         switch request {
@@ -746,27 +733,6 @@ extension MainPageInteractor {
     }
 }
 
-
-// MARK: ShakeMissionMainListener
-extension MainPageInteractor {
-    func request(_ request: FeatureAlarmMission.AlarmMissionRootListenerRequest) {
-        switch request {
-        case let .missionCompleted(fortune, fortuneInfo):
-            router?.request(.detachAlarmMission { [weak self] in
-                guard let self else { return }
-                goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
-            })
-        case let .close(fortune, fortuneInfo):
-            router?.request(.detachAlarmMission { [weak self] in
-                guard let self else { return }
-                guard let fortune, let fortuneInfo else { return }
-                goToFortune(fortune: fortune, fortuneInfo: fortuneInfo)
-            })
-        }
-    }
-}
-
-
 // MARK: - FortuneListenerRequest
 extension MainPageInteractor {
     func request(_ request: FeatureFortune.FortuneListenerRequest) {
@@ -781,33 +747,6 @@ extension MainPageInteractor {
     }
 }
 
-extension MainPageInteractor {
-    func request(_ request: FeatureAlarmRelease.AlarmReleaseIntroListenerRequest) {
-        switch request {
-        case let .releaseAlarm(isFirstAlarm):
-            router?.request(.detachAlarmRelease({ [weak self] in
-                guard let self else { return }
-                let config = RemoteConfig.remoteConfig()
-                let configValue = config["alarm_mission_type"].stringValue
-                debugPrint("Remote config에서 획득한 미션타입: \(configValue)")
-                let mission = AlarmMissionType(key: configValue)
-                router?.request(.routeToAlarmMission(
-                    isFirstAlarm: isFirstAlarm,
-                    missionType: mission
-                ))
-            }))
-        }
-    }
-}
-
-extension MainPageInteractor: MainPageActionableItem {
-    func showAlarm(alarmId: String) -> Observable<(MainPageActionableItem, ())> {
-        guard let alarm = alarms[alarmId] else { return .just((self, ())) }
-        let isFirstAlarm = self.checkIsFirstAlarm(with: alarm)
-        router?.request(.routeToAlarmRelease(alarm, isFirstAlarm))
-        return .just((self, ()))
-    }
-}
 
 
 // MARK: Update Alarm

@@ -9,6 +9,7 @@ import FeatureOnboarding
 import FeatureMain
 import FeatureAlarmController
 import FeatureLogger
+import FeatureAlarmRelease
 
 import RIBs
 
@@ -19,6 +20,8 @@ protocol MainDependency: Dependency {
 
 final class MainComponent: Component<MainDependency> {
     let rootViewController: MainViewControllable
+    weak var mainRouter: FeatureMain.MainPageRouting?
+    
     init(
         dependency: MainDependency,
         viewController: MainViewControllable
@@ -50,11 +53,14 @@ final class MainBuilder: Builder<MainDependency>, MainBuildable {
         )
         let onboardingBuilder = FeatureOnboarding.RootBuilder(dependency: component)
         let mainBuilder = FeatureMain.MainPageBuilder(dependency: component)
+        let alarmReleaseBuilder = FeatureAlarmRelease.RootBuilder(dependency: component)
         let router = MainRouter(
             interactor: interactor,
             viewController: viewController,
             onboardingBuilder: onboardingBuilder,
-            mainBuilder: mainBuilder
+            mainBuilder: mainBuilder,
+            alarmReleaseBuilder: alarmReleaseBuilder,
+            component: component
         )
         
         return (router, interactor)

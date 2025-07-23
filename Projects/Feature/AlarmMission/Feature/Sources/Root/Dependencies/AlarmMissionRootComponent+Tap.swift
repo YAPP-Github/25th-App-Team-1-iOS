@@ -9,4 +9,4 @@ import FeatureLogger
 
 import RxRelay
 
-extension AlarmMissionRootComponent: TapMissionMainDependency { }
+extension AlarmMissionRootComponent: TapMissionWorkingDependency { }

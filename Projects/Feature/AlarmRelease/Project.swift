@@ -54,11 +54,15 @@ let project = Project(
             sources: ["Feature/Sources/**"],
             dependencies: [
                 .feature(implements: .AlarmCommon),
+                .feature(implements: .AlarmMission),
+                .feature(implements: .Fortune),
+                .feature(implements: .Networking),
                 .feature(implements: .UIDependencies),
                 .feature(implements: .CommonDependencies),
                 .feature(implements: .ThirdPartyDependencies),
                 .feature(implements: .AlarmController),
                 .feature(implements: .Logger),
+                .feature(implements: .RemoteConfig),
             ]
         ),
     ]

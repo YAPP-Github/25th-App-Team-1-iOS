@@ -11,7 +11,7 @@ final class ImageSaveHelper: NSObject {
     var onError: ((Error) -> Void)?
     var onSuccess: (() -> Void)?
     
-    func saveImageToAlbumAndExit(image: UIImage) {
+    func saveImageToAlbum(image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, self, #selector(imageSavedToAlbum), nil)
     }
     

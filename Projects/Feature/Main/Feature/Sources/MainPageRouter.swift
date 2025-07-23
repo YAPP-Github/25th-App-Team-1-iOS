@@ -10,16 +10,12 @@ import UIKit
 import FeatureCommonDependencies
 import FeatureDesignSystem
 import FeatureAlarm
-import FeatureAlarmMission
 import FeatureFortune
-import FeatureAlarmRelease
 import FeatureSetting
 
 protocol MainPageInteractable: Interactable,
                                FeatureAlarm.RootListener,
-                               FeatureAlarmMission.AlarmMissionRootListener,
                                FeatureFortune.FortuneListener,
-                               FeatureAlarmRelease.AlarmReleaseIntroListener,
                                SettingMainListener {
     var router: MainPageRouting? { get set }
     var listener: MainPageListener? { get set }
@@ -36,15 +32,11 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         interactor: MainPageInteractable,
         viewController: MainPageViewControllable,
         alarmBuilder: FeatureAlarm.RootBuildable,
-        alarmMissionRootBuilder: FeatureAlarmMission.AlarmMissionRootBuilder,
         fortuneBuilder: FeatureFortune.FortuneBuildable,
-        alarmReleaseBuilder: FeatureAlarmRelease.AlarmReleaseIntroBuildable,
         settingBuilder: SettingMainBuildable
     ) {
         self.alarmBuilder = alarmBuilder
-        self.alarmMissionRootBuilder = alarmMissionRootBuilder
         self.fortuneBuilder = fortuneBuilder
-        self.alarmReleaseBuilder = alarmReleaseBuilder
         self.settingBuilder = settingBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
@@ -56,21 +48,10 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToCreateAlarm(mode: mode)
         case .detachCreateEditAlarm:
             detachCreateEditAlarm()
-        case let .routeToAlarmMission(isFirstAlarm, missionType):
-            routeToAlarmMission(
-                isFirstAlarm: isFirstAlarm,
-                missionType: missionType
-            )
-        case let .detachAlarmMission(completion):
-            detachAlarmMission(completion)
         case let .routeToFortune(fortune, userInfo, fortuneInfo):
             routeToFortune(fortune: fortune, userInfo: userInfo, fortuneInfo: fortuneInfo)
         case .detachFortune:
             detachFortune()
-        case let .routeToAlarmRelease(alarm, isFirstAlarm):
-            routeToAlarmRelease(alarm: alarm, isFirstAlarm: isFirstAlarm)
-        case let .detachAlarmRelease(completion):
-            detachAlarmRelease(completion: completion)
         case .presentAlertType1(let config):
             presentAlert(
                 presentingController: viewController.uiviewController,
@@ -98,14 +79,9 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     private let alarmBuilder: FeatureAlarm.RootBuildable
     private var alarmRouter: FeatureAlarm.RootRouting?
     
-    private let alarmMissionRootBuilder: FeatureAlarmMission.AlarmMissionRootBuildable
-    private var alarmMissionRootRouter: FeatureAlarmMission.AlarmMissionRootRouting?
-    
     private let fortuneBuilder: FeatureFortune.FortuneBuildable
     private var fortuneRouter: FeatureFortune.FortuneRouting?
     
-    private let alarmReleaseBuilder: FeatureAlarmRelease.AlarmReleaseIntroBuildable
-    private var alarmReleaseRouter: FeatureAlarmRelease.AlarmReleaseIntroRouting?
     
     private let settingBuilder: FeatureSetting.SettingMainBuildable
     private var settingRouter: FeatureSetting.SettingMainRouting?
@@ -124,25 +100,6 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         guard let router = alarmRouter else { return }
         alarmRouter = nil
         detachChild(router)
-    }
-    
-    private func routeToAlarmMission(isFirstAlarm: Bool, missionType: AlarmMissionType) {
-        guard alarmMissionRootRouter == nil else { return }
-        let router = alarmMissionRootBuilder.build(
-            withListener: interactor,
-            rootController: viewController.uiviewController,
-            missionType: missionType,
-            isFirstAlarm: isFirstAlarm
-        )
-        self.alarmMissionRootRouter = router
-        attachChild(router)
-    }
-    
-    private func detachAlarmMission(_ completion: (() -> Void)?) {
-        guard let router = alarmMissionRootRouter else { return }
-        alarmMissionRootRouter = nil
-        detachChild(router)
-        completion?()
     }
     
     private func routeToFortune(fortune: Fortune, userInfo: UserInfo, fortuneInfo: FortuneSaveInfo) {
@@ -170,25 +127,6 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         navigationController = nil
     }
     
-    private func routeToAlarmRelease(alarm: Alarm, isFirstAlarm: Bool) {
-        guard alarmReleaseRouter == nil else { return }
-        let router = alarmReleaseBuilder.build(withListener: interactor, alarm: alarm, isFirstAlarm: isFirstAlarm)
-        self.alarmReleaseRouter = router
-        attachChild(router)
-        let navigationController = UINavigationController(rootViewController: router.viewControllable.uiviewController)
-        navigationController.modalPresentationStyle = .fullScreen
-        navigationController.isNavigationBarHidden = true
-        viewController.uiviewController.present(navigationController, animated: true)
-    }
-    
-    private func detachAlarmRelease(completion: (() -> Void)?) {
-        guard let router = alarmReleaseRouter else { return }
-        alarmReleaseRouter = nil
-        detachChild(router)
-        viewController.uiviewController.dismiss(animated: true) {
-            completion?()
-        }
-    }
     
     private func routeToSetting() {
         guard settingRouter == nil else { return }

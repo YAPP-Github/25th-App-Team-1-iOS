@@ -13,13 +13,16 @@ import FeatureCommonDependencies
 import FeatureResources
 import FeatureMain
 import FeatureAlarmController
+import FeatureAlarmRelease
 
 import RIBs
 import RxSwift
 import RxRelay
 
 protocol RootActionableItem: AnyObject {
-    func waitFoOnboarding() -> Observable<(MainPageActionableItem, ())>
+    func waitForOnboarding() -> Observable<(Any, ())>
+    func routeToAlarmRelease(alarm: Alarm, isFirstAlarm: Bool)
+    var alarmController: AlarmController { get }
 }
 
 protocol AlarmIdHandler: AnyObject {
@@ -29,8 +32,10 @@ protocol AlarmIdHandler: AnyObject {
 enum MainRouterRequest {
     case routeToOnboarding
     case detachOnboarding
-    case routeToMain(((MainPageActionableItem) -> Void)?)
+    case routeToMain(((Any) -> Void)?)
     case detachMain
+    case routeToAlarmRelease(Alarm, Bool)
+    case detachAlarmRelease
 }
 
 protocol MainRouting: ViewableRouting {
@@ -49,7 +54,7 @@ protocol MainListener: AnyObject {
 final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteractable, MainPresentableListener {
     
     // Dependency
-    private let alarmController: AlarmController
+    internal let alarmController: AlarmController
 
     weak var router: MainRouting?
     weak var listener: MainListener?
@@ -65,20 +70,17 @@ final class MainInteractor: PresentableInteractor<MainPresentable>, MainInteract
     override func didBecomeActive() {
         super.didBecomeActive()
         if Preference.isOnboardingFinished {
-            router?.request(.routeToMain { [weak self] actionableItem in
-                self?.mainPageActionableItemSubject.onNext(actionableItem)
-            })
+            router?.request(.routeToMain(nil))
         } else {
             router?.request(.routeToOnboarding)
         }
     }
     
-    private let mainPageActionableItemSubject = ReplaySubject<MainPageActionableItem>.create(bufferSize: 1)
 }
 
 // MARK: OnboardRootListenerRequest
 extension MainInteractor {
-    func request(_ request: RootListenerRequest) {
+    func request(_ request: FeatureOnboarding.RootListenerRequest) {
         switch request {
         case let .start(alarm):
             router?.request(.detachOnboarding)
@@ -94,9 +96,7 @@ extension MainInteractor {
                 }
             }
             
-            router?.request(.routeToMain { [weak self] actionableItem in
-                self?.mainPageActionableItemSubject.onNext(actionableItem)
-            })
+            router?.request(.routeToMain(nil))
             
 //            AlarmScheduler.shared.addAlarm(alarm)
         }
@@ -113,10 +113,21 @@ extension MainInteractor: AlarmIdHandler {
 }
 
 extension MainInteractor: RootActionableItem {
-    func waitFoOnboarding() -> Observable<(MainPageActionableItem, ())> {
-        return mainPageActionableItemSubject
-            .map { (mainPageItem: MainPageActionableItem) -> (MainPageActionableItem, ()) in
-                    (mainPageItem, ())
-                }
+    func waitForOnboarding() -> Observable<(Any, ())> {
+        return Observable.just((self, ()))
+    }
+    
+    func routeToAlarmRelease(alarm: Alarm, isFirstAlarm: Bool) {
+        router?.request(.routeToAlarmRelease(alarm, isFirstAlarm))
+    }
+}
+
+// MARK: - FeatureAlarmRelease.RootListener  
+extension MainInteractor {
+    func request(_ request: FeatureAlarmRelease.RootListenerRequest) {
+        switch request {
+        case .close:
+            router?.request(.detachAlarmRelease)
+        }
     }
 }
