@@ -35,12 +35,8 @@ final class MissionItemView: TouchDetectingView {
     required init?(coder: NSCoder) { nil }
     
     
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        
-        if bounds.contains(touch.location(in: self)) {
-            action?(.itemIsTapped)
-        }
+    override func onTap(direction: TouchDetectingView.TapDirection) {
+        action?(.itemIsTapped)
     }
     
     

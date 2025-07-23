@@ -19,6 +19,7 @@ protocol ConfigureMissionForAlarmPresentableListener: AnyObject {
 enum ConfigureMissionForAlarmPresenterRequest {
     case dimmedBackgroundIsTapped
     case addMissionButtonIsTapped
+    case missionIsSelected(item: MissionItemRenderObject)
 }
 
 final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureMissionForAlarmPresentable, ConfigureMissionForAlarmViewControllable {
@@ -120,6 +121,8 @@ extension ConfigureMissionForAlarmViewController {
         switch update {
         case .presentMissionList(let items):
             missionSelectionIntroView.update(.presentMissionList(items: items))
+        case .presentMissionConditionSetting(let item):
+            missionSelectionIntroView.update(.presentMissionConditionSetting(item: item))
         }
     }
 }
@@ -131,6 +134,8 @@ extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListe
         switch action {
         case .addNewMission:
             listener?.request(.addMissionButtonIsTapped)
+        case .missionIsSelected(let item):
+            listener?.request(.missionIsSelected(item: item))
         }
     }
 }

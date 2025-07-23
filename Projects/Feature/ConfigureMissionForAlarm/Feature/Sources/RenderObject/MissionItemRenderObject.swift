@@ -30,4 +30,13 @@ enum MissionItemRenderObject {
             FeatureResourcesAsset.tapMissionConfigItem.image
         }
     }
+    
+    var guideLottiePath: String {
+        switch self {
+        case .shake:
+            return Bundle.resources.path(forResource: "mission_shake_condition_setting", ofType: "json")!
+        case .tap:
+            return Bundle.resources.path(forResource: "mission_tap_condition_setting", ofType: "json")!
+        }
+    }
 }

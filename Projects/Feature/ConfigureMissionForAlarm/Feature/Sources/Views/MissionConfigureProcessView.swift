@@ -145,6 +145,20 @@ private extension MissionConfigureProcessView {
             make.bottom.equalToSuperview()
         }
     }
+    
+    
+    func presentMissionCondtionSettingView(item: MissionItemRenderObject) {
+        
+        let conditionView = MissionConditionSettingView()
+        conditionView.update(.changeMissionItem(item: item))
+        
+        addSubview(conditionView)
+        conditionView.snp.makeConstraints { make in
+            make.top.equalTo(appBar.snp.bottom)
+            make.bottom.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
+        }
+    }
 }
 
 
@@ -152,6 +166,7 @@ private extension MissionConfigureProcessView {
 extension MissionConfigureProcessView {
     enum Update {
         case presentMissionList(items: [MissionItemRenderObject])
+        case presentMissionConditionSetting(item: MissionItemRenderObject)
     }
     
     func update(_ update: Update) {
@@ -159,6 +174,9 @@ extension MissionConfigureProcessView {
         case .presentMissionList(let items):
             appBar.update(titleText: "미션 선택")
             presentMissionItemList(items: items)
+        case .presentMissionConditionSetting(let item):
+            appBar.update(titleText: item.title)
+            presentMissionCondtionSettingView(item: item)
         }
     }
 }

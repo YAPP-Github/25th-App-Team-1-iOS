@@ -19,6 +19,7 @@ protocol ConfigureMissionForAlarmPresentable: Presentable {
 
 enum ConfigureMissionForAlarmPresentableUpdate {
     case presentMissionList(items: [MissionItemRenderObject])
+    case presentMissionConditionSetting(item: MissionItemRenderObject)
 }
 
 public protocol ConfigureMissionForAlarmListener: AnyObject {
@@ -34,8 +35,13 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     weak var router: ConfigureMissionForAlarmRouting?
     weak var listener: ConfigureMissionForAlarmListener?
 
-    // TODO: Add additional dependencies to constructor. Do not perform any logic
-    // in constructor.
+    
+    // State
+    // - Mission
+    private var currentSelectedMission: MissionItemRenderObject?
+    
+    
+    
     override init(presenter: ConfigureMissionForAlarmPresentable) {
         super.init(presenter: presenter)
         presenter.listener = self
@@ -52,7 +58,6 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     }
 }
 
-
 extension ConfigureMissionForAlarmInteractor {
     func request(_ request: ConfigureMissionForAlarmPresenterRequest) {
         switch request {
@@ -60,6 +65,9 @@ extension ConfigureMissionForAlarmInteractor {
             listener?.request(.dismissScreen)
         case .addMissionButtonIsTapped:
             presenter.update(.presentMissionList(items: [.shake, .tap]))
+        case .missionIsSelected(let item):
+            self.currentSelectedMission = item
+            presenter.update(.presentMissionConditionSetting(item: item))
         }
     }
 }
