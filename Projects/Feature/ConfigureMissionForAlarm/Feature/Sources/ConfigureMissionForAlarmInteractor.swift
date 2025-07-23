@@ -20,6 +20,7 @@ protocol ConfigureMissionForAlarmPresentable: Presentable {
 enum ConfigureMissionForAlarmPresentableUpdate {
     case presentMissionList(items: [MissionItemRenderObject])
     case presentMissionConditionSetting(item: MissionItemRenderObject)
+    case selecteMissionCondition(index: Int)
 }
 
 public protocol ConfigureMissionForAlarmListener: AnyObject {
@@ -39,7 +40,7 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     // State
     // - Mission
     private var currentSelectedMission: MissionItemRenderObject?
-    
+    private var currentSelectedMissionConditionIndex: Int?
     
     
     override init(presenter: ConfigureMissionForAlarmPresentable) {
@@ -68,6 +69,19 @@ extension ConfigureMissionForAlarmInteractor {
         case .missionIsSelected(let item):
             self.currentSelectedMission = item
             presenter.update(.presentMissionConditionSetting(item: item))
+            
+            let initialConditionIndex = 2
+            self.currentSelectedMissionConditionIndex = initialConditionIndex
+            presenter.update(.selecteMissionCondition(index: initialConditionIndex))
+            
+        case .missionConditionIsSelected(let index):
+            guard let currentSelectedMission else { preconditionFailure() }
+            let conditionItem = currentSelectedMission.conditionItems[index]
+            
+            // conditionItem
+            self.currentSelectedMissionConditionIndex = index
+            
+            presenter.update(.selecteMissionCondition(index: index))
         }
     }
 }

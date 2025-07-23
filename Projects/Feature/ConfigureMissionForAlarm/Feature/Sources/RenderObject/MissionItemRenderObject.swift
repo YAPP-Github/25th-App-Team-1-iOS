@@ -39,4 +39,14 @@ enum MissionItemRenderObject {
             return Bundle.resources.path(forResource: "mission_tap_condition_setting", ofType: "json")!
         }
     }
+    
+    var conditionItems: [MissionCondtionItem] {
+        [
+            MissionCondtionItem(title: "5회", value: 5),
+            MissionCondtionItem(title: "10회", value: 10),
+            MissionCondtionItem(title: "15회", value: 15),
+            MissionCondtionItem(title: "20회", value: 20),
+            MissionCondtionItem(title: "25회", value: 25),
+        ]
+    }
 }

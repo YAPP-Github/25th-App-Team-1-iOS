@@ -21,6 +21,7 @@ final class MissionConfigureProcessView: UIView {
         case exitButtonTapped
         case prevButtonTapped
         case missionIsSelected(item: MissionItemRenderObject)
+        case missionConditionIsSelected(index: Int)
     }
     
     
@@ -45,6 +46,7 @@ final class MissionConfigureProcessView: UIView {
     )
     private let appBar: DSAppBar = .init()
     private let contentView: UIView = .init()
+    private var conditionSettingView: MissionConditionSettingView?
     
     
     init() {
@@ -150,7 +152,9 @@ private extension MissionConfigureProcessView {
     func presentMissionCondtionSettingView(item: MissionItemRenderObject) {
         
         let conditionView = MissionConditionSettingView()
+        conditionView.listener = self
         conditionView.update(.changeMissionItem(item: item))
+        self.conditionSettingView = conditionView
         
         addSubview(conditionView)
         conditionView.snp.makeConstraints { make in
@@ -167,6 +171,7 @@ extension MissionConfigureProcessView {
     enum Update {
         case presentMissionList(items: [MissionItemRenderObject])
         case presentMissionConditionSetting(item: MissionItemRenderObject)
+        case selectMissionCondition(index: Int)
     }
     
     func update(_ update: Update) {
@@ -177,6 +182,18 @@ extension MissionConfigureProcessView {
         case .presentMissionConditionSetting(let item):
             appBar.update(titleText: item.title)
             presentMissionCondtionSettingView(item: item)
+        case .selectMissionCondition(let index):
+            conditionSettingView?.update(.selectCondition(index: index))
+        }
+    }
+}
+
+
+extension MissionConfigureProcessView: MissionConditionSettingViewListener {
+    func action(_ action: MissionConditionSettingView.Action) {
+        switch action {
+        case .buttonIsTapped(let index):
+            listener?.action(.missionConditionIsSelected(index: index))
         }
     }
 }

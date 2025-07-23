@@ -11,7 +11,22 @@ import FeatureUIDependencies
 
 import Lottie
 
+protocol MissionConditionSettingViewListener: AnyObject {
+    func action(_ action: MissionConditionSettingView.Action)
+}
+
+
 final class MissionConditionSettingView: UIView {
+    
+    // Action
+    enum Action {
+        case buttonIsTapped(index: Int)
+    }
+    
+    
+    // Listener
+    weak var listener: MissionConditionSettingViewListener?
+    
     
     // UI
     private let missionThumbnailContainer = UIView()
@@ -195,15 +210,37 @@ private extension MissionConditionSettingView {
         // titleStackView
         titleStackView.snp.makeConstraints {
             $0.top.equalTo(lineContainer.snp.bottom).offset(12)
-            $0.horizontalEdges.equalToSuperview().inset(24)
+            $0.horizontalEdges.equalTo(buttonStackView)
             $0.bottom.lessThanOrEqualToSuperview().inset(74)
         }
     }
     
-    @objc
-    private func buttonSelected(button: MissionOptionButton) {
+    @objc func buttonSelected(button: MissionOptionButton) {
         guard let buttonIndex = optionButtons.firstIndex(where: { $0 == button }) else { return }
-        
+        listener?.action(.buttonIsTapped(index: buttonIndex))
+    }
+    
+    
+    func selectOption(_ index: Int) {
+        [option1Button, option2Button, option3Button, option4Button, option5Button].forEach {
+            $0.isEnabled = true
+            $0.isSelected = false
+        }
+        lineView.backgroundColor = R.Color.gray600
+        switch index {
+        case 0:
+            option1Button.isSelected = true
+        case 1:
+            option2Button.isSelected = true
+        case 2:
+            option3Button.isSelected = true
+        case 3:
+            option4Button.isSelected = true
+        case 4:
+            option5Button.isSelected = true
+        default:
+            break
+        }
     }
 }
 
@@ -213,12 +250,14 @@ extension MissionConditionSettingView {
     
     enum Update {
         case changeMissionItem(item: MissionItemRenderObject)
+        case selectCondition(index: Int)
     }
     
     func update(_ update: Update) {
         switch update {
         case .changeMissionItem(let item):
             
+            // Lottie animation
             if missionThumbnailView.isAnimationPlaying {
                 missionThumbnailView.stop()
             }
@@ -226,6 +265,16 @@ extension MissionConditionSettingView {
             let lottieAnimation = LottieAnimation.filepath(item.guideLottiePath)
             missionThumbnailView.animation = lottieAnimation
             missionThumbnailView.play()
+            
+            
+            // title
+            optionLabels.enumerated().forEach { index, label in
+                
+                let conditionItem = item.conditionItems[index]
+                label.displayText = conditionItem.title.displayText(font: .body1Medium, color: R.Color.gray50)
+            }
+        case .selectCondition(let index):
+            selectOption(index)
         }
     }
 }

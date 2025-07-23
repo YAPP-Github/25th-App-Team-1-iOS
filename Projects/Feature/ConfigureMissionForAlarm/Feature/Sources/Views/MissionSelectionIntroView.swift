@@ -12,6 +12,7 @@ import FeatureUIDependencies
 enum MissionSelectionIntroViewAction {
     case addNewMission
     case missionIsSelected(item: MissionItemRenderObject)
+    case missionConditionIsSelected(index: Int)
 }
 
 protocol MissionSelectionIntroViewListener: AnyObject {
@@ -158,6 +159,7 @@ extension MissionSelectionIntroView {
     enum UpdateRequest {
         case presentMissionList(items: [MissionItemRenderObject])
         case presentMissionConditionSetting(item: MissionItemRenderObject)
+        case selectMissionCondition(index: Int)
     }
     
     func update(_ request: UpdateRequest) {
@@ -167,6 +169,8 @@ extension MissionSelectionIntroView {
             missionConfigureProcessView?.update(.presentMissionList(items: items))
         case .presentMissionConditionSetting(let item):
             missionConfigureProcessView?.update(.presentMissionConditionSetting(item: item))
+        case .selectMissionCondition(let index):
+            missionConfigureProcessView?.update(.selectMissionCondition(index: index))
         }
     }
 }
@@ -178,6 +182,8 @@ extension MissionSelectionIntroView: MissionConfigureProcessViewViewListener {
         switch action {
         case .missionIsSelected(let item):
             listener?.action(.missionIsSelected(item: item))
+        case .missionConditionIsSelected(let index):
+            listener?.action(.missionConditionIsSelected(index: index))
         case .prevButtonTapped:
             break
         case .exitButtonTapped:

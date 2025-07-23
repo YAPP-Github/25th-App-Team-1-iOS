@@ -20,6 +20,7 @@ enum ConfigureMissionForAlarmPresenterRequest {
     case dimmedBackgroundIsTapped
     case addMissionButtonIsTapped
     case missionIsSelected(item: MissionItemRenderObject)
+    case missionConditionIsSelected(index: Int)
 }
 
 final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureMissionForAlarmPresentable, ConfigureMissionForAlarmViewControllable {
@@ -123,6 +124,8 @@ extension ConfigureMissionForAlarmViewController {
             missionSelectionIntroView.update(.presentMissionList(items: items))
         case .presentMissionConditionSetting(let item):
             missionSelectionIntroView.update(.presentMissionConditionSetting(item: item))
+        case .selecteMissionCondition(let index):
+            missionSelectionIntroView.update(.selectMissionCondition(index: index))
         }
     }
 }
@@ -136,6 +139,8 @@ extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListe
             listener?.request(.addMissionButtonIsTapped)
         case .missionIsSelected(let item):
             listener?.request(.missionIsSelected(item: item))
+        case .missionConditionIsSelected(let index):
+            listener?.request(.missionConditionIsSelected(index: index))
         }
     }
 }
