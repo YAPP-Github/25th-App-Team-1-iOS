@@ -18,4 +18,16 @@ protocol MissionPreviewPresentableListener: AnyObject {
 final class MissionPreviewViewController: UIViewController, MissionPreviewPresentable, MissionPreviewViewControllable {
 
     weak var listener: MissionPreviewPresentableListener?
+    
+    override func loadView() {
+        self.view = MissionBackgroundView()
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
 }
+
+#Preview(traits: .defaultLayout, body: {
+    MissionPreviewViewController()
+})
