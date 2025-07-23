@@ -51,6 +51,7 @@ public extension ModulePath {
         case Main
         case Fortune
         case Setting
+        case ConfigureMissionForAlarm
         
         case Networking
         

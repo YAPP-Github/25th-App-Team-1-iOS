@@ -1,0 +1,256 @@
+//
+//  ConfigureMissionForAlarmViewController.swift
+//  FeatureConfigureMissionForAlarm
+//
+//  Created by choijunios on 7/21/25.
+//
+
+import UIKit
+
+import FeatureUIDependencies
+
+import RIBs
+import RxSwift
+
+protocol ConfigureMissionForAlarmPresentableListener: AnyObject {
+    func request(_ request: ConfigureMissionForAlarmPresenterRequest)
+}
+
+enum ConfigureMissionForAlarmPresenterRequest {
+    case dimmedBackgroundIsTapped
+    case addMissionButtonIsTapped
+    case missionIsSelected(item: MissionItemRenderObject)
+    case missionConditionIsSelected(index: Int)
+    case exitButtonTapped
+    case prevButtonTapped
+    case missionPreviewButtonTapped
+    case missionConditionConfirmButtonTapped
+}
+
+final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureMissionForAlarmPresentable, ConfigureMissionForAlarmViewControllable {
+
+    weak var listener: ConfigureMissionForAlarmPresentableListener?
+    
+    // UI
+    private let dimmedBackgroundView: UIView = .init()
+    private let missionSelectionIntroView: MissionSelectionIntroView = .init()
+    private let missionSelectionIntroViewTopInset: CGFloat = 212
+    
+    
+    // Gesture
+    private let backgroundTapGesture: UITapGestureRecognizer = .init()
+    
+    
+    // Trasition
+    private var vcTransitionDelegate: VCTransitionDelegate?
+    
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+        
+        self.vcTransitionDelegate = VCTransitionDelegate()
+        self.transitioningDelegate = vcTransitionDelegate
+        
+        setupPresentationStyle()
+    }
+    required init?(coder: NSCoder) { nil }
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        setupUI()
+        setupGesture()
+        setupLayout()
+    }
+}
+
+
+// MARK: Setup
+private extension ConfigureMissionForAlarmViewController {
+    func setupUI() {
+        
+        // view
+        view.isOpaque = false
+        
+        
+        // dimmedBackgroundView
+        dimmedBackgroundView.backgroundColor = R.Color.dimmed.withAlphaComponent(0.8)
+        dimmedBackgroundView.addGestureRecognizer(backgroundTapGesture)
+        view.addSubview(dimmedBackgroundView)
+        
+        
+        // missionSelectionIntroView
+        missionSelectionIntroView.listener = self
+        view.addSubview(missionSelectionIntroView)
+    }
+    
+    
+    func setupLayout() {
+        
+        // dimmedBackgroundView
+        dimmedBackgroundView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        
+        // missionSelectionIntroView
+        missionSelectionIntroView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(missionSelectionIntroViewTopInset)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+    }
+    
+    
+    func setupGesture() {
+        backgroundTapGesture.addTarget(self, action: #selector(onBackgroundTapped(_:)))
+    }
+    
+    
+    func setupPresentationStyle() {
+        self.modalPresentationStyle = .overFullScreen
+    }
+    
+    
+    @objc
+    func onBackgroundTapped(_ recog: UITapGestureRecognizer) {
+        listener?.request(.dimmedBackgroundIsTapped)
+    }
+}
+
+
+// MARK: Update
+extension ConfigureMissionForAlarmViewController {
+    func update(_ update: ConfigureMissionForAlarmPresentableUpdate) {
+        switch update {
+        case .presentMissionList(let items):
+            missionSelectionIntroView.update(.presentMissionList(items: items))
+        case .presentMissionConditionSetting(let item):
+            missionSelectionIntroView.update(.presentMissionConditionSetting(item: item))
+        case .selecteMissionCondition(let index):
+            missionSelectionIntroView.update(.selectMissionCondition(index: index))
+        case .dismissMissionList:
+            missionSelectionIntroView.update(.dismissMissionList)
+        case .dismissMissionConditionSetting:
+            missionSelectionIntroView.update(.dismissMissionConditionSetting)
+        }
+    }
+}
+
+
+// MARK: MissionSelectionIntroViewListener
+extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListener {
+    func action(_ action: MissionSelectionIntroView.Action) {
+        switch action {
+        case .addNewMission:
+            listener?.request(.addMissionButtonIsTapped)
+        case .missionIsSelected(let item):
+            listener?.request(.missionIsSelected(item: item))
+        case .missionConditionIsSelected(let index):
+            listener?.request(.missionConditionIsSelected(index: index))
+        case .exitButtonTapped:
+            listener?.request(.exitButtonTapped)
+        case .prevButtonTapped:
+            listener?.request(.prevButtonTapped)
+        case .missionConditionConfirmButtonTapped:
+            listener?.request(.missionConditionConfirmButtonTapped)
+        case .missionPreviewButtonTapped:
+            listener?.request(.prevButtonTapped)
+        }
+    }
+}
+
+
+
+// MARK: Presentation & Dismissal
+private extension ConfigureMissionForAlarmViewController {
+    
+    func startPresentationAnimation(duration: TimeInterval, completion: @escaping () -> Void) {
+        
+        // #1. Initial State
+        dimmedBackgroundView.alpha = 0
+        missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height
+        
+        
+        // #2. Animate
+        UIView.animate(withDuration: duration) {
+            self.dimmedBackgroundView.alpha = 1
+            self.missionSelectionIntroView.frame.origin.y = self.missionSelectionIntroViewTopInset
+        } completion: { _ in
+            completion()
+        }
+    }
+    
+    func startDismissalAnimation(duration: TimeInterval, completion: @escaping () -> Void) {
+        
+        // #1. Animate
+        UIView.animate(withDuration: duration) {
+            self.dimmedBackgroundView.alpha = 0
+            self.missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height
+        } completion: { _ in
+            completion()
+        }
+    }
+}
+
+
+// MARK: Transition
+fileprivate final class VCTransitionDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    
+    func animationController(
+        forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
+        VCDismissalAnimator()
+    }
+    
+    func animationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController,
+        source: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
+        VCPresentationAnimator()
+    }
+}
+
+
+fileprivate final class VCPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    
+    private let animationDuration: TimeInterval = 0.3
+    
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        guard let toVC = transitionContext.viewController(forKey: .to) as? ConfigureMissionForAlarmViewController else { return }
+        let container = transitionContext.containerView
+        container.addSubview(toVC.view)
+        toVC.startPresentationAnimation(duration: animationDuration) {
+            transitionContext.completeTransition(true)
+        }
+    }
+    
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        return animationDuration
+    }
+}
+
+
+fileprivate final class VCDismissalAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    
+    private let animationDuration: TimeInterval = 0.3
+    
+    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?) -> TimeInterval {
+        return animationDuration
+    }
+    
+    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
+        guard let fromVC = transitionContext.viewController(forKey: .from) as? ConfigureMissionForAlarmViewController else { return }
+        
+        fromVC.startDismissalAnimation(duration: animationDuration) {
+            fromVC.view.removeFromSuperview()
+            transitionContext.completeTransition(true)
+        }
+    }
+}
+
+
+
+#Preview(traits: .defaultLayout, body: {
+    ConfigureMissionForAlarmViewController()
+})
