@@ -75,12 +75,8 @@ extension ConfigureMissionForAlarmInteractor {
             presenter.update(.selecteMissionCondition(index: initialConditionIndex))
             
         case .missionConditionIsSelected(let index):
-            guard let currentSelectedMission else { preconditionFailure() }
-            let conditionItem = currentSelectedMission.conditionItems[index]
-            
-            // conditionItem
+        
             self.currentSelectedMissionConditionIndex = index
-            
             presenter.update(.selecteMissionCondition(index: index))
         }
     }
