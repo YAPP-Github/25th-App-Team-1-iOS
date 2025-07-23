@@ -88,8 +88,8 @@ extension ConfigureMissionForAlarmInteractor {
             presenter.update(.selecteMissionCondition(index: index))
             
         case .exitButtonTapped:
-            // exit
-            break
+            listener?.request(.dismissScreen)
+            
         case .prevButtonTapped:
             guard processStack.isEmpty == false else { preconditionFailure("UI오류발생 가능") }
             
@@ -102,8 +102,8 @@ extension ConfigureMissionForAlarmInteractor {
             _ = processStack.popLast()
             
         case .missionConditionConfirmButtonTapped:
-            // save & exit
-            break
+            // save
+            listener?.request(.dismissScreen)
         case .missionPreviewButtonTapped:
             // show preview
             break
