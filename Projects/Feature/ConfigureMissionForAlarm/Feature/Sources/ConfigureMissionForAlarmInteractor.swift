@@ -20,6 +20,8 @@ protocol ConfigureMissionForAlarmPresentable: Presentable {
 enum ConfigureMissionForAlarmPresentableUpdate {
     case presentMissionList(items: [MissionItemRenderObject])
     case presentMissionConditionSetting(item: MissionItemRenderObject)
+    case dismissMissionList
+    case dismissMissionConditionSetting
     case selecteMissionCondition(index: Int)
 }
 
@@ -38,6 +40,9 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
 
     
     // State
+    // - Navigation
+    private var processStack: [ConfigureProcess] = []
+    
     // - Mission
     private var currentSelectedMission: MissionItemRenderObject?
     private var currentSelectedMissionConditionIndex: Int?
@@ -65,6 +70,7 @@ extension ConfigureMissionForAlarmInteractor {
         case .dimmedBackgroundIsTapped:
             listener?.request(.dismissScreen)
         case .addMissionButtonIsTapped:
+            self.processStack.append(.selectMissionPage)
             presenter.update(.presentMissionList(items: [.shake, .tap]))
         case .missionIsSelected(let item):
             self.currentSelectedMission = item
@@ -74,10 +80,33 @@ extension ConfigureMissionForAlarmInteractor {
             self.currentSelectedMissionConditionIndex = initialConditionIndex
             presenter.update(.selecteMissionCondition(index: initialConditionIndex))
             
+            self.processStack.append(.missionConditionPage)
+            
         case .missionConditionIsSelected(let index):
         
             self.currentSelectedMissionConditionIndex = index
             presenter.update(.selecteMissionCondition(index: index))
+            
+        case .exitButtonTapped:
+            // exit
+            break
+        case .prevButtonTapped:
+            guard processStack.isEmpty == false else { preconditionFailure("UI오류발생 가능") }
+            
+            switch processStack.last! {
+            case .selectMissionPage:
+                presenter.update(.dismissMissionList)
+            case .missionConditionPage:
+                presenter.update(.dismissMissionConditionSetting)
+            }
+            _ = processStack.popLast()
+            
+        case .missionConditionConfirmButtonTapped:
+            // save & exit
+            break
+        case .missionPreviewButtonTapped:
+            // show preview
+            break
         }
     }
 }

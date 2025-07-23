@@ -9,17 +9,23 @@ import UIKit
 
 import FeatureUIDependencies
 
-enum MissionSelectionIntroViewAction {
-    case addNewMission
-    case missionIsSelected(item: MissionItemRenderObject)
-    case missionConditionIsSelected(index: Int)
-}
-
 protocol MissionSelectionIntroViewListener: AnyObject {
-    func action(_ action: MissionSelectionIntroViewAction)
+    func action(_ action: MissionSelectionIntroView.Action)
 }
 
 final class MissionSelectionIntroView: UIView {
+    
+    // Action
+    enum Action {
+        case addNewMission
+        case missionIsSelected(item: MissionItemRenderObject)
+        case missionConditionIsSelected(index: Int)
+        case exitButtonTapped
+        case prevButtonTapped
+        case missionPreviewButtonTapped
+        case missionConditionConfirmButtonTapped
+    }
+    
     
     // Listener
     weak var listener: MissionSelectionIntroViewListener?
@@ -151,6 +157,13 @@ private extension MissionSelectionIntroView {
         
         self.missionConfigureProcessView = subView
     }
+    
+    func dismissMissionConfigureProcessView() {
+        guard let view = missionConfigureProcessView else { return }
+        
+        view.removeFromSuperview()
+        self.missionConfigureProcessView = nil
+    }
 }
 
 
@@ -159,6 +172,8 @@ extension MissionSelectionIntroView {
     enum UpdateRequest {
         case presentMissionList(items: [MissionItemRenderObject])
         case presentMissionConditionSetting(item: MissionItemRenderObject)
+        case dismissMissionList
+        case dismissMissionConditionSetting
         case selectMissionCondition(index: Int)
     }
     
@@ -171,6 +186,10 @@ extension MissionSelectionIntroView {
             missionConfigureProcessView?.update(.presentMissionConditionSetting(item: item))
         case .selectMissionCondition(let index):
             missionConfigureProcessView?.update(.selectMissionCondition(index: index))
+        case .dismissMissionList:
+            dismissMissionConfigureProcessView()
+        case .dismissMissionConditionSetting:
+            missionConfigureProcessView?.update(.dismissMissionConditionSetting)
         }
     }
 }
@@ -185,9 +204,13 @@ extension MissionSelectionIntroView: MissionConfigureProcessViewViewListener {
         case .missionConditionIsSelected(let index):
             listener?.action(.missionConditionIsSelected(index: index))
         case .prevButtonTapped:
-            break
+            listener?.action(.prevButtonTapped)
         case .exitButtonTapped:
-            break
+            listener?.action(.exitButtonTapped)
+        case .missionConditionConfirmButtonTapped:
+            listener?.action(.missionConditionConfirmButtonTapped)
+        case .missionPreviewButtonTapped:
+            listener?.action(.missionPreviewButtonTapped)
         }
     }
 }

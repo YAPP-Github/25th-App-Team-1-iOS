@@ -20,6 +20,8 @@ final class MissionConfigureProcessView: UIView {
     enum Action {
         case exitButtonTapped
         case prevButtonTapped
+        case missionPreviewButtonTapped
+        case missionConditionConfirmButtonTapped
         case missionIsSelected(item: MissionItemRenderObject)
         case missionConditionIsSelected(index: Int)
     }
@@ -163,6 +165,13 @@ private extension MissionConfigureProcessView {
             make.horizontalEdges.equalToSuperview()
         }
     }
+    
+    
+    func dismissMissionCondtionSettingView() {
+        guard let view = conditionSettingView else { return }
+        view.removeFromSuperview()
+        self.conditionSettingView = nil
+    }
 }
 
 
@@ -172,6 +181,7 @@ extension MissionConfigureProcessView {
         case presentMissionList(items: [MissionItemRenderObject])
         case presentMissionConditionSetting(item: MissionItemRenderObject)
         case selectMissionCondition(index: Int)
+        case dismissMissionConditionSetting
     }
     
     func update(_ update: Update) {
@@ -184,6 +194,9 @@ extension MissionConfigureProcessView {
             presentMissionCondtionSettingView(item: item)
         case .selectMissionCondition(let index):
             conditionSettingView?.update(.selectCondition(index: index))
+        case .dismissMissionConditionSetting:
+            appBar.update(titleText: "미션 선택")
+            dismissMissionCondtionSettingView()
         }
     }
 }
@@ -194,6 +207,10 @@ extension MissionConfigureProcessView: MissionConditionSettingViewListener {
         switch action {
         case .buttonIsTapped(let index):
             listener?.action(.missionConditionIsSelected(index: index))
+        case .confirmButtonIsTapped:
+            listener?.action(.missionConditionConfirmButtonTapped)
+        case .previewButtonIsTapped:
+            listener?.action(.missionPreviewButtonTapped)
         }
     }
 }

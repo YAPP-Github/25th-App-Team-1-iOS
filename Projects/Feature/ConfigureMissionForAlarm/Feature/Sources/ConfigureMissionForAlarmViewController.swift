@@ -21,6 +21,10 @@ enum ConfigureMissionForAlarmPresenterRequest {
     case addMissionButtonIsTapped
     case missionIsSelected(item: MissionItemRenderObject)
     case missionConditionIsSelected(index: Int)
+    case exitButtonTapped
+    case prevButtonTapped
+    case missionPreviewButtonTapped
+    case missionConditionConfirmButtonTapped
 }
 
 final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureMissionForAlarmPresentable, ConfigureMissionForAlarmViewControllable {
@@ -126,6 +130,10 @@ extension ConfigureMissionForAlarmViewController {
             missionSelectionIntroView.update(.presentMissionConditionSetting(item: item))
         case .selecteMissionCondition(let index):
             missionSelectionIntroView.update(.selectMissionCondition(index: index))
+        case .dismissMissionList:
+            missionSelectionIntroView.update(.dismissMissionList)
+        case .dismissMissionConditionSetting:
+            missionSelectionIntroView.update(.dismissMissionConditionSetting)
         }
     }
 }
@@ -133,7 +141,7 @@ extension ConfigureMissionForAlarmViewController {
 
 // MARK: MissionSelectionIntroViewListener
 extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListener {
-    func action(_ action: MissionSelectionIntroViewAction) {
+    func action(_ action: MissionSelectionIntroView.Action) {
         switch action {
         case .addNewMission:
             listener?.request(.addMissionButtonIsTapped)
@@ -141,6 +149,14 @@ extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListe
             listener?.request(.missionIsSelected(item: item))
         case .missionConditionIsSelected(let index):
             listener?.request(.missionConditionIsSelected(index: index))
+        case .exitButtonTapped:
+            listener?.request(.exitButtonTapped)
+        case .prevButtonTapped:
+            listener?.request(.prevButtonTapped)
+        case .missionConditionConfirmButtonTapped:
+            listener?.request(.missionConditionConfirmButtonTapped)
+        case .missionPreviewButtonTapped:
+            listener?.request(.prevButtonTapped)
         }
     }
 }

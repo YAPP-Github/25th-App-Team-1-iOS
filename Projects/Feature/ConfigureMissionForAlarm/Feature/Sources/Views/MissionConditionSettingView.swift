@@ -21,6 +21,8 @@ final class MissionConditionSettingView: UIView {
     // Action
     enum Action {
         case buttonIsTapped(index: Int)
+        case previewButtonIsTapped
+        case confirmButtonIsTapped
     }
     
     
@@ -29,23 +31,23 @@ final class MissionConditionSettingView: UIView {
     
     
     // UI
-    private let missionThumbnailContainer = UIView()
+    private let missionThumbnailContainer: UIView = .init()
     private let missionThumbnailView: LottieAnimationView = .init()
     
     // Count buttons
     private let missionConditionTitleLabel: UILabel = .init()
-    private let conditionGuideLabel1 : UILabel = .init()
-    private let conditionGuideLabel2 : UILabel = .init()
-    private let option1Button = MissionOptionButton()
-    private let option1Label = UILabel()
-    private let option2Button = MissionOptionButton()
-    private let option2Label = UILabel()
-    private let option3Button = MissionOptionButton()
-    private let option3Label = UILabel()
-    private let option4Button = MissionOptionButton()
-    private let option4Label = UILabel()
-    private let option5Button = MissionOptionButton()
-    private let option5Label = UILabel()
+    private let conditionGuideLabel1: UILabel = .init()
+    private let conditionGuideLabel2: UILabel = .init()
+    private let option1Button: MissionOptionButton = .init()
+    private let option1Label: UILabel = .init()
+    private let option2Button: MissionOptionButton = .init()
+    private let option2Label: UILabel = .init()
+    private let option3Button: MissionOptionButton = .init()
+    private let option3Label: UILabel = .init()
+    private let option4Button: MissionOptionButton = .init()
+    private let option4Label: UILabel = .init()
+    private let option5Button: MissionOptionButton = .init()
+    private let option5Label: UILabel = .init()
     
     private var optionButtons: [MissionOptionButton] {
         [option1Button, option2Button, option3Button, option4Button, option5Button]
@@ -55,11 +57,15 @@ final class MissionConditionSettingView: UIView {
         [option1Label, option2Label, option3Label, option4Label, option5Label]
     }
     
-    private let conditionGuideLabelStack = UIStackView()
-    private let lineContainer = UIView()
-    private let lineView = UIView()
-    private let buttonStackView = UIStackView()
-    private let titleStackView = UIStackView()
+    private let conditionGuideLabelStack: UIStackView = .init()
+    private let lineContainer: UIView = .init()
+    private let lineView: UIView = .init()
+    private let buttonStackView: UIStackView = .init()
+    private let titleStackView: UIStackView = .init()
+    
+    private let previewButton: DSDefaultCTAButton = .init(style: .init(type: .secondary, size: .large))
+    private let confirmButton: DSDefaultCTAButton = .init(style: .init(type: .primary, size: .large))
+    private let bottomButtonContainer: UIStackView = .init()
     
     
     init() {
@@ -152,6 +158,32 @@ private extension MissionConditionSettingView {
         [missionConditionTitleLabel, conditionGuideLabelStack, lineContainer, titleStackView].forEach {
             addSubview($0)
         }
+        
+        
+        // previewButton
+        previewButton.do {
+            $0.update(title: "미리보기")
+            $0.buttonAction = { [unowned self] in
+                listener?.action(.previewButtonIsTapped)
+            }
+            bottomButtonContainer.addArrangedSubview($0)
+        }
+        
+        
+        // confirmButton
+        confirmButton.do {
+            $0.update(title: "미션 저장")
+            $0.buttonAction = { [unowned self] in
+                listener?.action(.confirmButtonIsTapped)
+            }
+            bottomButtonContainer.addArrangedSubview($0)
+        }
+        
+        
+        // bottomButtonContainer
+        bottomButtonContainer.axis = .horizontal
+        bottomButtonContainer.spacing = 10
+        addSubview(bottomButtonContainer)
     }
     
     func setupLayout() {
@@ -211,7 +243,20 @@ private extension MissionConditionSettingView {
         titleStackView.snp.makeConstraints {
             $0.top.equalTo(lineContainer.snp.bottom).offset(12)
             $0.horizontalEdges.equalTo(buttonStackView)
-            $0.bottom.lessThanOrEqualToSuperview().inset(74)
+            $0.bottom.lessThanOrEqualTo(bottomButtonContainer.snp.top).inset(74)
+        }
+        
+        
+        // previewButton
+        previewButton.snp.makeConstraints { make in
+            make.width.equalToSuperview().multipliedBy(0.35)
+        }
+        
+        
+        // bottomButtonContainer
+        bottomButtonContainer.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(15)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(12)
         }
     }
     
