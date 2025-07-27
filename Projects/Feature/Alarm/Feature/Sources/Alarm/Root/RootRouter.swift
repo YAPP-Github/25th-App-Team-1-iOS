@@ -9,8 +9,9 @@ import RIBs
 import UIKit
 import FeatureResources
 import FeatureCommonDependencies
+import FeatureConfigureMissionForAlarm
 
-protocol RootInteractable: Interactable, CreateEditAlarmListener, CreateEditAlarmSnoozeOptionListener, CreateEditAlarmSoundOptionListener {
+protocol RootInteractable: Interactable, CreateEditAlarmListener, ConfigureMissionForAlarmListener, CreateEditAlarmSnoozeOptionListener, CreateEditAlarmSoundOptionListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -28,11 +29,13 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         interactor: RootInteractable,
         viewController: RootViewControllable,
         createAlarmBuilder: CreateEditAlarmBuildable,
+        configureMissionBuilder: ConfigureMissionForAlarmBuildable,
         snoozeOptionBuilder: CreateEditAlarmSnoozeOptionBuildable,
         soundOptionBuilder: CreateEditAlarmSoundOptionBuildable
     ) {
         self.viewController = viewController
         self.createAlarmBuilder = createAlarmBuilder
+        self.configureMissionBuilder = configureMissionBuilder
         self.snoozeOptionBuilder = snoozeOptionBuilder
         self.soundOptionBuilder = soundOptionBuilder
         super.init(interactor: interactor)
@@ -45,6 +48,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             cleanupViews()
         case let .routeToCreateEditAlarm(mode):
             routeToCreateEditAlarm(mode: mode)
+        case let .routeToConfigureMission(mission):
+            routeToConfigureMission(mission: mission)
+        case .detachConfigureMission:
+            detachConfigureMission()
         case let .routeToSnoozeOption(snoozeOption):
             routeToSnoozeOption(snoozeOption: snoozeOption)
         case .detachSnoozeOption:
@@ -62,6 +69,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let createAlarmBuilder: CreateEditAlarmBuildable
     private var createAlarmRouter: CreateEditAlarmRouting?
+    
+    private let configureMissionBuilder: ConfigureMissionForAlarmBuildable
+    private var configureMissionRouter: ConfigureMissionForAlarmRouting?
     
     private let snoozeOptionBuilder: CreateEditAlarmSnoozeOptionBuildable
     private var snoozeOptionRouter: CreateEditAlarmSnoozeOptionRouting?
@@ -87,6 +97,25 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard let router = createAlarmRouter else { return }
         createAlarmRouter = nil
         viewController.uiviewController.dismiss(animated: true) { [weak self] in
+            self?.detachChild(router)
+        }
+    }
+    
+    func routeToConfigureMission(mission: Mission) {
+        guard configureMissionRouter == nil else { return }
+        let router = configureMissionBuilder.build(withListener: interactor, initialMission: mission)
+        self.configureMissionRouter = router
+        attachChild(router)
+        router.viewControllable.uiviewController.modalPresentationStyle = .overCurrentContext
+        router.viewControllable.uiviewController.modalTransitionStyle = .crossDissolve
+        createAlarmRouter?.viewControllable.uiviewController.present(router.viewControllable.uiviewController, animated: true)
+    }
+    
+    func detachConfigureMission() {
+        guard let router = configureMissionRouter else { return }
+        configureMissionRouter = nil
+        detachChild(router)
+        router.viewControllable.uiviewController.dismiss(animated: true) { [weak self] in
             self?.detachChild(router)
         }
     }

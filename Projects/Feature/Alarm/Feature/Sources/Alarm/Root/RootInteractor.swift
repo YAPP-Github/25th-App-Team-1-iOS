@@ -9,10 +9,13 @@ import RIBs
 import RxSwift
 import FeatureResources
 import FeatureCommonDependencies
+import FeatureConfigureMissionForAlarm
 
 public enum RootRouterRequest {
     case cleanupViews
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
+    case routeToConfigureMission(Mission)
+    case detachConfigureMission
     case routeToSnoozeOption(SnoozeOption)
     case detachSnoozeOption
     case routeToSoundOption(SoundOption)
@@ -79,6 +82,8 @@ extension RootInteractor {
         switch request {
         case .back:
             listener?.reqeust(.close)
+        case let .selectMission(mission):
+            router?.request(.routeToConfigureMission(mission))
         case let .snoozeOption(snoozeOption):
             router?.request(.routeToSnoozeOption(snoozeOption))
         case let .soundOption(soundOption):
@@ -103,6 +108,19 @@ extension RootInteractor {
         case let .done(snoozeOption):
             router?.request(.detachSnoozeOption)
             createAlarmMutableStream.mutableSnoozeOption.onNext(snoozeOption)
+        }
+    }
+}
+
+// MARK: ConfigureMissionForAlarmListenerRequest
+extension RootInteractor {
+    func request(_ request: ConfigureMissionForAlarmListenerRequest) {
+        switch request {
+        case .dismissScreen:
+            router?.request(.detachConfigureMission)
+        case let .missionSelected(mission):
+            router?.request(.detachConfigureMission)
+            createAlarmMutableStream.mutableMission.onNext(mission)
         }
     }
 }

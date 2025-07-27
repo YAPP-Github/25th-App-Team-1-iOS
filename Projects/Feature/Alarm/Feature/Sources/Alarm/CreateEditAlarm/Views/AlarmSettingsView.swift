@@ -17,6 +17,7 @@ protocol AlarmSettingsViewListener: AnyObject {
 
 final class AlarmSettingsView: UIView {
     enum Action {
+        case missionButtonTapped
         case snoozeButtonTapped
         case soundButtonTapped
     }
@@ -35,6 +36,10 @@ final class AlarmSettingsView: UIView {
     weak var listener: AlarmSettingsViewListener?
     
     func update(alarm: Alarm) {
+        // 미션 설정 업데이트
+        let missionTitle = alarm.mission.displayTitle
+        missionValueButton.setAttributedTitle(missionTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
+        
         if alarm.snoozeOption.isSnoozeOn {
             snoozeValueButton.setAttributedTitle("\(alarm.snoozeOption.frequency.toKoreanFormat), \(alarm.snoozeOption.count.toKoreanTitleFormat)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         } else {
@@ -52,7 +57,13 @@ final class AlarmSettingsView: UIView {
     }
     
     // MARK: - Views
+    private let missionContainer = UIView()
+    private let missionTitleLabel = UILabel()
+    private let missionValueButton = UIButton()
+    private let missionContainerButton = UIButton()
+    
     private let snoozeContainer = UIView()
+    private let snoozeDivider = UIView()
     private let snoozeTitleLabel = UILabel()
     private let snoozeValueButton = UIButton()
     private let snoozeContainerButton = UIButton()
@@ -62,6 +73,11 @@ final class AlarmSettingsView: UIView {
     private let soundTitleLabel = UILabel()
     private let soundValueButton = UIButton()
     private let soundContainerButton = UIButton()
+    
+    @objc
+    private func missionButtonTapped() {
+        listener?.action(.missionButtonTapped)
+    }
     
     @objc
     private func snoozeButtonTapped() {
@@ -80,6 +96,17 @@ private extension AlarmSettingsView {
         layer.cornerRadius = 12
         layer.masksToBounds = true
         
+        missionTitleLabel.do {
+            $0.displayText = "미션".displayText(font: .body1SemiBold, color: R.Color.white100)
+        }
+        
+        missionValueButton.do {
+            $0.semanticContentAttribute = .forceRightToLeft
+            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+        
+        missionContainerButton.addTarget(self, action: #selector(missionButtonTapped), for: .touchUpInside)
+        
         snoozeTitleLabel.do {
             $0.displayText = "알람 미루기".displayText(font: .body1SemiBold, color: R.Color.white100)
         }
@@ -95,7 +122,7 @@ private extension AlarmSettingsView {
             $0.displayText = "사운드".displayText(font: .body1SemiBold, color: R.Color.white100)
         }
         
-        soundDivider.do {
+        [snoozeDivider, soundDivider].forEach {
             $0.backgroundColor = R.Color.gray700
         }
         
@@ -106,7 +133,11 @@ private extension AlarmSettingsView {
         
         soundContainerButton.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
         
-        [snoozeTitleLabel, snoozeValueButton, snoozeContainerButton].forEach {
+        [missionTitleLabel, missionValueButton, missionContainerButton].forEach {
+            missionContainer.addSubview($0)
+        }
+        
+        [snoozeDivider, snoozeTitleLabel, snoozeValueButton, snoozeContainerButton].forEach {
             snoozeContainer.addSubview($0)
         }
         
@@ -114,14 +145,40 @@ private extension AlarmSettingsView {
             soundContainer.addSubview($0)
         }
         
-        [snoozeContainer, soundContainer].forEach {
+        [missionContainer, snoozeContainer, soundContainer].forEach {
             addSubview($0)
         }
     }
     
     func layout() {
-        snoozeContainer.snp.makeConstraints {
+        missionContainer.snp.makeConstraints {
             $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(54)
+        }
+        
+        missionTitleLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.equalTo(20)
+        }
+        
+        missionValueButton.snp.makeConstraints {
+            $0.trailing.equalTo(-16)
+            $0.centerY.equalTo(missionTitleLabel)
+        }
+        
+        missionContainerButton.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        snoozeDivider.snp.makeConstraints {
+            $0.top.equalTo(missionContainer.snp.bottom)
+            $0.height.equalTo(1)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+        }
+        
+        snoozeContainer.snp.makeConstraints {
+            $0.top.equalTo(snoozeDivider.snp.bottom)
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(54)
         }

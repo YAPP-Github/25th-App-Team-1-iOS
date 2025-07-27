@@ -13,6 +13,7 @@ public struct Alarm: Identifiable {
     public var hour: Hour
     public var minute: Minute
     public var repeatDays: AlarmDays // 반복할 요일
+    public var mission: Mission
     public var snoozeOption: SnoozeOption
     public var soundOption: SoundOption
     public var isActive: Bool
@@ -24,6 +25,7 @@ public struct Alarm: Identifiable {
         hour: Hour,
         minute: Minute,
         repeatDays: AlarmDays,
+        mission: Mission = .default,
         snoozeOption: SnoozeOption,
         soundOption: SoundOption,
         isActive: Bool = true
@@ -33,6 +35,7 @@ public struct Alarm: Identifiable {
         self.hour = hour
         self.minute = minute
         self.repeatDays = repeatDays
+        self.mission = mission
         self.snoozeOption = snoozeOption
         self.soundOption = soundOption
         self.isActive = isActive
@@ -44,6 +47,7 @@ public struct Alarm: Identifiable {
         && self.hour == other.hour
         && self.minute == other.minute
         && self.repeatDays == other.repeatDays
+        && self.mission == other.mission
         && self.snoozeOption == other.snoozeOption
         && self.soundOption == other.soundOption
         && self.isActive == other.isActive
@@ -74,6 +78,7 @@ public struct Alarm: Identifiable {
             hour: hour,
             minute: minute,
             repeatDays: AlarmDays(days: [.monday, .tuesday, .wednesday, .thursday, .friday]),
+            mission: .default,
             snoozeOption: .init(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
             soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: "마림바")
         )

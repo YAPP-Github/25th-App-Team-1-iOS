@@ -6,6 +6,7 @@
 //
 
 import RIBs
+import FeatureCommonEntity
 
 public protocol ConfigureMissionForAlarmDependency: Dependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
@@ -20,7 +21,7 @@ final class ConfigureMissionForAlarmComponent: Component<ConfigureMissionForAlar
 // MARK: - Builder
 
 public protocol ConfigureMissionForAlarmBuildable: Buildable {
-    func build(withListener listener: ConfigureMissionForAlarmListener) -> ConfigureMissionForAlarmRouting
+    func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission) -> ConfigureMissionForAlarmRouting
 }
 
 public final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForAlarmDependency>, ConfigureMissionForAlarmBuildable {
@@ -29,10 +30,10 @@ public final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForA
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ConfigureMissionForAlarmListener) -> ConfigureMissionForAlarmRouting {
+    public func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission) -> ConfigureMissionForAlarmRouting {
         let component = ConfigureMissionForAlarmComponent(dependency: dependency)
         let viewController = ConfigureMissionForAlarmViewController()
-        let interactor = ConfigureMissionForAlarmInteractor(presenter: viewController)
+        let interactor = ConfigureMissionForAlarmInteractor(presenter: viewController, initialMission: initialMission)
         interactor.listener = listener
         return ConfigureMissionForAlarmRouter(interactor: interactor, viewController: viewController)
     }

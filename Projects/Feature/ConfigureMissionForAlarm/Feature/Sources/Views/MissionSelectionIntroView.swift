@@ -20,6 +20,8 @@ final class MissionSelectionIntroView: UIView {
         case addNewMission
         case missionIsSelected(item: MissionItemRenderObject)
         case missionConditionIsSelected(index: Int)
+        case missionChangeButtonTapped
+        case missionDeleteButtonTapped
         case exitButtonTapped
         case prevButtonTapped
         case missionPreviewButtonTapped
@@ -45,7 +47,30 @@ final class MissionSelectionIntroView: UIView {
             cornerRadius: .large
         )
     )
+    
+    // Current mission UI
+    private let currentMissionContainer: UIView = .init()
+    private let missionIconImageView: UIImageView = .init()
+    private let missionTitleLabel: UILabel = .init()
+    private let missionDeleteButton: UIButton = .init()
+    
+    // Bottom buttons for mission state
+    private let bottomButtonContainer: UIStackView = .init()
+    private let missionChangeButton: DSDefaultCTAButton = .init(
+        style: .init(
+            type: .secondary,
+            size: .large
+        )
+    )
+    private let confirmButton: DSDefaultCTAButton = .init(
+        style: .init(
+            type: .primary,
+            size: .large
+        )
+    )
+    
     private var missionConfigureProcessView: MissionConfigureProcessView?
+    private var hasExistingMission: Bool = false
     
     
     init() {
@@ -109,6 +134,64 @@ private extension MissionSelectionIntroView {
         addMissionButton.buttonAction = { [unowned self] in
             listener?.action(.addNewMission)
         }
+        
+        // currentMissionContainer
+        currentMissionContainer.do {
+            $0.backgroundColor = R.Color.gray700
+            $0.layer.cornerRadius = 12
+            $0.clipsToBounds = true
+            $0.isHidden = true // 초기에는 숨김
+        }
+        addSubview(currentMissionContainer)
+        
+        // missionIconImageView
+        missionIconImageView.do {
+            $0.contentMode = .scaleAspectFit
+            $0.layer.cornerRadius = 8
+            $0.clipsToBounds = true
+            $0.backgroundColor = R.Color.main100
+        }
+        currentMissionContainer.addSubview(missionIconImageView)
+        
+        // missionTitleLabel
+        missionTitleLabel.do {
+            $0.displayText = "흐들기 15회".displayText(font: .body1SemiBold, color: R.Color.white100)
+        }
+        currentMissionContainer.addSubview(missionTitleLabel)
+        
+        // missionDeleteButton
+        missionDeleteButton.do {
+            $0.setImage(FeatureResourcesAsset.trashFill.image.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.tintColor = R.Color.gray400
+            $0.addTarget(self, action: #selector(missionDeleteButtonTapped), for: .touchUpInside)
+        }
+        currentMissionContainer.addSubview(missionDeleteButton)
+        
+        // bottomButtonContainer
+        bottomButtonContainer.do {
+            $0.axis = .horizontal
+            $0.spacing = 10
+            $0.isHidden = true // 초기에는 숨김
+        }
+        addSubview(bottomButtonContainer)
+        
+        // missionChangeButton
+        missionChangeButton.do {
+            $0.update(title: "미션변경")
+            $0.buttonAction = { [unowned self] in
+                listener?.action(.missionChangeButtonTapped)
+            }
+        }
+        bottomButtonContainer.addArrangedSubview(missionChangeButton)
+        
+        // confirmButton
+        confirmButton.do {
+            $0.update(title: "완료")
+            $0.buttonAction = { [unowned self] in
+                listener?.action(.missionConditionConfirmButtonTapped)
+            }
+        }
+        bottomButtonContainer.addArrangedSubview(confirmButton)
     }
     
     func setupLayout() {
@@ -139,6 +222,44 @@ private extension MissionSelectionIntroView {
             make.height.equalTo(48)
             make.width.equalTo(127)
         }
+        
+        // currentMissionContainer
+        currentMissionContainer.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(24)
+            make.top.equalTo(headTitleLabel.snp.bottom).offset(32)
+            make.height.equalTo(54)
+        }
+        
+        // missionIconImageView
+        missionIconImageView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(24)
+        }
+        
+        // missionTitleLabel
+        missionTitleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(missionIconImageView.snp.trailing).offset(12)
+            make.centerY.equalToSuperview()
+        }
+        
+        // missionDeleteButton
+        missionDeleteButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(24)
+        }
+        
+        // bottomButtonContainer
+        bottomButtonContainer.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(24)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(12)
+        }
+        
+        // missionChangeButton
+        missionChangeButton.snp.makeConstraints { make in
+            make.width.equalToSuperview().multipliedBy(0.35)
+        }
     }
     
     
@@ -164,6 +285,31 @@ private extension MissionSelectionIntroView {
         view.removeFromSuperview()
         self.missionConfigureProcessView = nil
     }
+    
+    @objc private func missionDeleteButtonTapped() {
+        listener?.action(.missionDeleteButtonTapped)
+    }
+    
+    private func showCurrentMissionUI() {
+        hasExistingMission = true
+        currentMissionContainer.isHidden = false
+        contentsBaseView.isHidden = true
+        bottomButtonContainer.isHidden = false
+    }
+    
+    private func showDefaultUI() {
+        hasExistingMission = false
+        currentMissionContainer.isHidden = true
+        contentsBaseView.isHidden = false
+        bottomButtonContainer.isHidden = true
+    }
+    
+    private func updateMissionDisplay(item: MissionItemRenderObject, conditionIndex: Int) {
+        missionIconImageView.image = item.iconImage
+        let conditionItem = item.conditionItems[conditionIndex]
+        let titleText = "\(item.title) \(conditionItem.title)"
+        missionTitleLabel.displayText = titleText.displayText(font: .body1SemiBold, color: R.Color.white100)
+    }
 }
 
 
@@ -175,6 +321,8 @@ extension MissionSelectionIntroView {
         case dismissMissionList
         case dismissMissionConditionSetting
         case selectMissionCondition(index: Int)
+        case updateMissionDisplay(item: MissionItemRenderObject, conditionIndex: Int)
+        case showDefaultUIAfterMissionDelete
     }
     
     func update(_ request: UpdateRequest) {
@@ -183,6 +331,8 @@ extension MissionSelectionIntroView {
             presentMissionConfigureProcessView()
             missionConfigureProcessView?.update(.presentMissionList(items: items))
         case .presentMissionConditionSetting(let item):
+            // 미션이 있는 경우 현재 미션 컴테이너를 보이고, 기본 UI를 숨김
+            showCurrentMissionUI()
             missionConfigureProcessView?.update(.presentMissionConditionSetting(item: item))
         case .selectMissionCondition(let index):
             missionConfigureProcessView?.update(.selectMissionCondition(index: index))
@@ -190,6 +340,10 @@ extension MissionSelectionIntroView {
             dismissMissionConfigureProcessView()
         case .dismissMissionConditionSetting:
             missionConfigureProcessView?.update(.dismissMissionConditionSetting)
+        case .updateMissionDisplay(let item, let conditionIndex):
+            updateMissionDisplay(item: item, conditionIndex: conditionIndex)
+        case .showDefaultUIAfterMissionDelete:
+            showDefaultUI()
         }
     }
 }

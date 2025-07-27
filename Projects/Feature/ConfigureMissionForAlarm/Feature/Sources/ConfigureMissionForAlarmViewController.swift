@@ -19,6 +19,8 @@ protocol ConfigureMissionForAlarmPresentableListener: AnyObject {
 enum ConfigureMissionForAlarmPresenterRequest {
     case dimmedBackgroundIsTapped
     case addMissionButtonIsTapped
+    case missionChangeButtonTapped
+    case missionDeleteButtonTapped
     case missionIsSelected(item: MissionItemRenderObject)
     case missionConditionIsSelected(index: Int)
     case exitButtonTapped
@@ -134,6 +136,10 @@ extension ConfigureMissionForAlarmViewController {
             missionSelectionIntroView.update(.dismissMissionList)
         case .dismissMissionConditionSetting:
             missionSelectionIntroView.update(.dismissMissionConditionSetting)
+        case .updateMissionDisplay(let item, let conditionIndex):
+            missionSelectionIntroView.update(.updateMissionDisplay(item: item, conditionIndex: conditionIndex))
+        case .showDefaultUIAfterMissionDelete:
+            missionSelectionIntroView.update(.showDefaultUIAfterMissionDelete)
         }
     }
 }
@@ -149,6 +155,10 @@ extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListe
             listener?.request(.missionIsSelected(item: item))
         case .missionConditionIsSelected(let index):
             listener?.request(.missionConditionIsSelected(index: index))
+        case .missionChangeButtonTapped:
+            listener?.request(.missionChangeButtonTapped)
+        case .missionDeleteButtonTapped:
+            listener?.request(.missionDeleteButtonTapped)
         case .exitButtonTapped:
             listener?.request(.exitButtonTapped)
         case .prevButtonTapped:

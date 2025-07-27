@@ -6,6 +6,7 @@
 //
 
 import FeatureLogger
+import FeatureConfigureMissionForAlarm
 
 import RIBs
 
@@ -63,6 +64,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
         )
         interactor.listener = listener
         let createAlarmBuilder = CreateEditAlarmBuilder(dependency: component)
+        let configureMissionBuilder = ConfigureMissionForAlarmBuilder(dependency: component)
         let snoozeOptionBuilder = CreateEditAlarmSnoozeOptionBuilder(dependency: component)
         let soundOptionBuilder = CreateEditAlarmSoundOptionBuilder(dependency: component)
         
@@ -70,6 +72,7 @@ public final class RootBuilder: Builder<RootDependency>, RootBuildable {
             interactor: interactor,
             viewController: component.rootViewController,
             createAlarmBuilder: createAlarmBuilder,
+            configureMissionBuilder: configureMissionBuilder,
             snoozeOptionBuilder: snoozeOptionBuilder,
             soundOptionBuilder: soundOptionBuilder
         )

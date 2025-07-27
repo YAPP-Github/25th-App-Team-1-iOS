@@ -29,7 +29,6 @@ final class MissionConditionSettingView: UIView {
     // Listener
     weak var listener: MissionConditionSettingViewListener?
     
-    
     // UI
     private let missionThumbnailContainer: UIView = .init()
     private let missionThumbnailView: LottieAnimationView = .init()
@@ -84,7 +83,6 @@ private extension MissionConditionSettingView {
         
         // self
         self.backgroundColor = R.Color.gray800
-        
         
         // missionThumbnailContainer
         missionThumbnailContainer.layer.cornerRadius = 16
@@ -264,6 +262,7 @@ private extension MissionConditionSettingView {
         guard let buttonIndex = optionButtons.firstIndex(where: { $0 == button }) else { return }
         listener?.action(.buttonIsTapped(index: buttonIndex))
     }
+    
     
     
     func selectOption(_ index: Int) {

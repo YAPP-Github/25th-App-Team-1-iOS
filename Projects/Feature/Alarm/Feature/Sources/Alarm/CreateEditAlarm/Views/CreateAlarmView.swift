@@ -22,6 +22,7 @@ final class CreateEditAlarmView: UIView {
         case hourChanged(Hour)
         case minuteChanged(Minute)
         case selectWeekday(AlarmDays)
+        case missionButtonTapped
         case snoozeButtonTapped
         case soundButtonTapped
         case doneButtonTapped
@@ -173,6 +174,8 @@ extension CreateEditAlarmView: SelectWeekDayViewListener {
 extension CreateEditAlarmView: AlarmSettingsViewListener {
     func action(_ action: AlarmSettingsView.Action) {
         switch action {
+        case .missionButtonTapped:
+            listener?.action(.missionButtonTapped)
         case .snoozeButtonTapped:
             listener?.action(.snoozeButtonTapped)
         case .soundButtonTapped:
