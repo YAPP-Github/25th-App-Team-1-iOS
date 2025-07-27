@@ -44,15 +44,16 @@ final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable
     
     // State
     private let missionType: AlarmMissionType
+    private let isPreviewMode: Bool
     
     // Stream
     private let missionAction: PublishRelay<MissionState>
     private let disposeBag = DisposeBag()
     
-    
-    init(missionType: AlarmMissionType, missionAction: PublishRelay<MissionState>) {
+    init(missionType: AlarmMissionType, missionAction: PublishRelay<MissionState>, isPreviewMode: Bool = false) {
         self.missionType = missionType
         self.missionAction = missionAction
+        self.isPreviewMode = isPreviewMode
     }
 
     override func didBecomeActive() {

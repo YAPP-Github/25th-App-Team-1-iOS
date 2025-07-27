@@ -8,9 +8,11 @@
 import RIBs
 import RxSwift
 import FeatureCommonEntity
+import FeatureAlarmMission
 
 public protocol ConfigureMissionForAlarmRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func routeToMissionPreview(missionType: AlarmMissionType, isPreviewMode: Bool)
+    func detachMissionPreview()
 }
 
 protocol ConfigureMissionForAlarmPresentable: Presentable {
@@ -146,7 +148,16 @@ extension ConfigureMissionForAlarmInteractor {
             listener?.request(.dismissScreen)
         case .missionPreviewButtonTapped:
             // show preview
-            break
+            if let selectedMission = currentSelectedMission {
+                let missionType: AlarmMissionType
+                switch selectedMission {
+                case .shake:
+                    missionType = .shake
+                case .tap:
+                    missionType = .tap
+                }
+                router?.routeToMissionPreview(missionType: missionType, isPreviewMode: true)
+            }
         }
     }
     
@@ -176,5 +187,15 @@ extension ConfigureMissionForAlarmInteractor {
         let conditionIndex = renderObject.conditionItems.firstIndex { $0.value == mission.count } ?? 2 // 기본값 2 (15회)
         
         return (renderObject, conditionIndex)
+    }
+}
+
+// MARK: - AlarmMissionRootListener
+extension ConfigureMissionForAlarmInteractor {
+    func request(_ request: AlarmMissionRootListenerRequest) {
+        switch request {
+        case .missionCompleted, .close:
+            router?.detachMissionPreview()
+        }
     }
 }

@@ -166,7 +166,7 @@ extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListe
         case .missionConditionConfirmButtonTapped:
             listener?.request(.missionConditionConfirmButtonTapped)
         case .missionPreviewButtonTapped:
-            listener?.request(.prevButtonTapped)
+            listener?.request(.missionPreviewButtonTapped)
         }
     }
 }

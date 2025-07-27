@@ -27,6 +27,7 @@ final class AlarmMissionRootComponent: Component<AlarmMissionRootDependency> {
 
 public protocol AlarmMissionRootBuildable: Buildable {
     func build(withListener listener: AlarmMissionRootListener, navigationController: UINavigationController, missionType: AlarmMissionType) -> AlarmMissionRootRouting
+    func build(withListener listener: AlarmMissionRootListener, navigationController: UINavigationController, missionType: AlarmMissionType, isPreviewMode: Bool) -> AlarmMissionRootRouting
 }
 
 public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>, AlarmMissionRootBuildable {
@@ -39,10 +40,25 @@ public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>,
         navigationController: UINavigationController,
         missionType: AlarmMissionType
     ) -> AlarmMissionRootRouting {
+        return build(
+            withListener: listener,
+            navigationController: navigationController,
+            missionType: missionType,
+            isPreviewMode: false
+        )
+    }
+    
+    public func build(
+        withListener listener: AlarmMissionRootListener,
+        navigationController: UINavigationController,
+        missionType: AlarmMissionType,
+        isPreviewMode: Bool
+    ) -> AlarmMissionRootRouting {
         let component = AlarmMissionRootComponent(dependency: dependency)
         let interactor = AlarmMissionRootInteractor(
             missionType: missionType,
-            missionAction: component.missionAction
+            missionAction: component.missionAction,
+            isPreviewMode: isPreviewMode
         )
         interactor.listener = listener
         let shakeMissionBuilder = ShakeMissionWorkingBuilder(dependency: component)
