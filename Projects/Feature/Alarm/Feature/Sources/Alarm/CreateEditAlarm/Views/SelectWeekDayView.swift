@@ -18,8 +18,6 @@ protocol SelectWeekDayViewListener: AnyObject {
 final class SelectWeekDayView: UIView {
     enum Action {
         case selectWeekday(AlarmDays)
-        case snoozeButtonTapped
-        case soundButtonTapped
     }
     
     init() {
@@ -37,21 +35,6 @@ final class SelectWeekDayView: UIView {
     func update(alarm: Alarm) {
         self.selectedDays = alarm.repeatDays
         updateButtons()
-        
-        if alarm.snoozeOption.isSnoozeOn {
-            snoozeValueButton.setAttributedTitle("\(alarm.snoozeOption.frequency.toKoreanFormat), \(alarm.snoozeOption.count.toKoreanTitleFormat)".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
-        } else {
-            snoozeValueButton.setAttributedTitle("안 함".displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
-        }
-        
-        if alarm.soundOption.isSoundOn {
-            let selectedSound = alarm.soundOption.selectedSound
-            let soundTitle = alarm.soundOption.isVibrationOn ? "진동, \(selectedSound)" : selectedSound
-            soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
-        } else {
-            let soundTitle = alarm.soundOption.isVibrationOn ? "진동" : "안 함"
-            soundValueButton.setAttributedTitle(soundTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
-        }
     }
     
     // MARK: - Properties
@@ -83,18 +66,6 @@ final class SelectWeekDayView: UIView {
     private let holidayImageView = UIImageView()
     private let holidayLabel = UILabel()
     private let holidayToggle = UISwitch()
-    
-    private let snoozeContainer = UIView()
-    private let snoozeDivider = UIView()
-    private let snoozeTitleLabel = UILabel()
-    private let snoozeValueButton = UIButton()
-    private let snoozeContainerButton = UIButton()
-    
-    private let soundContainer = UIView()
-    private let soundDivider = UIView()
-    private let soundTitleLabel = UILabel()
-    private let soundValueButton = UIButton()
-    private let soundContainerButton = UIButton()
     
     @objc
     private func holidayToggleChanged(toggle: UISwitch) {
@@ -148,16 +119,6 @@ final class SelectWeekDayView: UIView {
         }
         updateButtons()
         listener?.action(.selectWeekday(selectedDays))
-    }
-    
-    @objc
-    private func snoozeButtonTapped() {
-        listener?.action(.snoozeButtonTapped)
-    }
-    
-    @objc
-    private func soundButtonTapped() {
-        listener?.action(.soundButtonTapped)
     }
 }
 
@@ -239,46 +200,10 @@ private extension SelectWeekDayView {
             $0.addTarget(self, action: #selector(holidayToggleChanged), for: .valueChanged)
         }
         
-        snoozeTitleLabel.do {
-            $0.displayText = "알람 미루기".displayText(font: .body1SemiBold, color: R.Color.white100)
-        }
- 
-        snoozeValueButton.do {
-            $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
-            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        
-        snoozeContainerButton.addTarget(self, action: #selector(snoozeButtonTapped), for: .touchUpInside)
-        
-        soundTitleLabel.do {
-            $0.displayText = "사운드".displayText(font: .body1SemiBold, color: R.Color.white100)
-        }
-        
-        [snoozeDivider, soundDivider].forEach {
-            $0.backgroundColor = R.Color.gray700
-        }
-        
-        soundValueButton.do {
-            $0.semanticContentAttribute = .forceRightToLeft // 추후 수정 예정
-            $0.setImage(FeatureResourcesAsset.svgChevronRight.image.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        
-        soundContainerButton.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
-        
-        [snoozeDivider, snoozeTitleLabel, snoozeValueButton, snoozeContainerButton].forEach {
-            snoozeContainer.addSubview($0)
-        }
-        
-        [soundDivider, soundTitleLabel, soundValueButton, soundContainerButton].forEach {
-            soundContainer.addSubview($0)
-        }
-        
         [
             weekdayRepeatLabel, weekdayToggleButton, weekendToggleButton,
             dayButtonsStackView,
-            holidayImageView, holidayLabel, holidayToggle,
-            snoozeContainer,
-            soundContainer
+            holidayImageView, holidayLabel, holidayToggle
         ].forEach {
             addSubview($0)
         }
@@ -326,59 +251,7 @@ private extension SelectWeekDayView {
         holidayLabel.snp.makeConstraints {
             $0.leading.equalTo(holidayImageView.snp.trailing).offset(4)
             $0.centerY.equalTo(holidayToggle)
-        }
-        
-        snoozeDivider.snp.makeConstraints {
-            $0.top.equalTo(holidayToggle.snp.bottom).offset(19)
-            $0.height.equalTo(1)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-        }
-        
-        snoozeContainer.snp.makeConstraints {
-            $0.top.equalTo(snoozeDivider.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(54)
-        }
-        
-        snoozeTitleLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.equalTo(20)
-        }
-        
-        snoozeValueButton.snp.makeConstraints {
-            $0.trailing.equalTo(-16)
-            $0.centerY.equalTo(snoozeTitleLabel)
-        }
-        
-        snoozeContainerButton.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        soundDivider.snp.makeConstraints {
-            $0.top.equalTo(snoozeContainer.snp.bottom)
-            $0.height.equalTo(1)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-        }
-        
-        soundContainer.snp.makeConstraints {
-            $0.top.equalTo(soundDivider.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(54)
-            $0.bottom.equalToSuperview()
-        }
-        
-        soundTitleLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.equalTo(20)
-        }
-        
-        soundValueButton.snp.makeConstraints {
-            $0.trailing.equalTo(-16)
-            $0.centerY.equalTo(soundTitleLabel)
-        }
-        
-        soundContainerButton.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(16)
         }
     }
 }
