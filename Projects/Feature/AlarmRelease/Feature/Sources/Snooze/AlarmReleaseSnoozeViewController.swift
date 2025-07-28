@@ -33,6 +33,15 @@ final class AlarmReleaseSnoozeViewController: UIViewController, AlarmReleaseSnoo
         listener?.request(.viewDidLoad)
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        mainView.stopTimer()
+    }
+    
+    deinit {
+        mainView.stopTimer()
+    }
+    
     func request(_ request: AlarmReleaseSnoozePresentableRequest) {
         switch request {
         case .startTimer(let snoozeOption):

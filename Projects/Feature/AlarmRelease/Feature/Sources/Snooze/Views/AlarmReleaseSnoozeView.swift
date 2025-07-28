@@ -35,7 +35,15 @@ final class AlarmReleaseSnoozeView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        guageView.stopTimer()
+    }
+    
     weak var listener: AlarmReleaseSnoozeViewListener?
+    
+    func stopTimer() {
+        guageView.stopTimer()
+    }
     
     func update(_ state: State) {
         switch state {
