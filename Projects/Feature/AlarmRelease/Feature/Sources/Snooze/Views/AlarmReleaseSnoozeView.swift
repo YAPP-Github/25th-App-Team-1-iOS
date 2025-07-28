@@ -22,6 +22,7 @@ final class AlarmReleaseSnoozeView: UIView {
     
     enum State {
         case startTimer(SnoozeOption)
+        case hasMission(Bool)
     }
     
     init() {
@@ -41,6 +42,9 @@ final class AlarmReleaseSnoozeView: UIView {
         case .startTimer(let snoozeOption):
             guageView.totalTime = TimeInterval(snoozeOption.frequency.rawValue * 60)
             guageView.startTimer()
+        case let .hasMission(hasMission):
+            let buttonText = hasMission ? "미션 시작" : "알람끄기"
+            releaseAlarmButton.setAttributedTitle(buttonText.displayText(font: .headline1SemiBold, color: R.Color.white100), for: .normal)
         }
     }
     

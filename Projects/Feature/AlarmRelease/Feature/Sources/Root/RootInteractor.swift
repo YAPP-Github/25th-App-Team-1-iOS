@@ -41,7 +41,7 @@ extension Result {
 public enum RootRouterRequest {
     case cleanUpViews
     case routeToIntro
-    case routeToSnooze(SnoozeOption)
+    case routeToSnooze(SnoozeOption, Bool)
     case detachSnooze
     case routeToMission(missionType: AlarmMissionType)
     case detachAlarmMission
@@ -173,7 +173,7 @@ extension RootInteractor {
                 missionType: mission
             ))
         case .snoozeAlarm:
-            router?.request(.routeToSnooze(alarm.snoozeOption))
+            router?.request(.routeToSnooze(alarm.snoozeOption, alarm.mission != nil))
         }
     }
 }

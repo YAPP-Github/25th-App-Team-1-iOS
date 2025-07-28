@@ -37,6 +37,8 @@ final class AlarmReleaseSnoozeViewController: UIViewController, AlarmReleaseSnoo
         switch request {
         case .startTimer(let snoozeOption):
             mainView.update(.startTimer(snoozeOption))
+        case let .hasMission(hasMission):
+            mainView.update(.hasMission(hasMission))
         }
     }
     

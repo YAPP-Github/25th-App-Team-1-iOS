@@ -16,6 +16,7 @@ protocol AlarmReleaseSnoozeRouting: ViewableRouting {
 
 enum AlarmReleaseSnoozePresentableRequest {
     case startTimer(SnoozeOption)
+    case hasMission(Bool)
 }
 
 protocol AlarmReleaseSnoozePresentable: Presentable {
@@ -41,9 +42,11 @@ final class AlarmReleaseSnoozeInteractor: PresentableInteractor<AlarmReleaseSnoo
     // in constructor.
     init(
         presenter: AlarmReleaseSnoozePresentable,
-        snoozeOption: SnoozeOption
+        snoozeOption: SnoozeOption,
+        hasMission: Bool
     ) {
         self.snoozeOption = snoozeOption
+        self.hasMission = hasMission
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -52,6 +55,7 @@ final class AlarmReleaseSnoozeInteractor: PresentableInteractor<AlarmReleaseSnoo
         switch request {
         case .viewDidLoad:
             presenter.request(.startTimer(snoozeOption))
+            presenter.request(.hasMission(hasMission))
         case .releaseAlarm:
             listener?.request(.releaseAlarm)
         case .snoozeFinished:
@@ -60,4 +64,5 @@ final class AlarmReleaseSnoozeInteractor: PresentableInteractor<AlarmReleaseSnoo
     }
     
     private let snoozeOption: SnoozeOption
+    private let hasMission: Bool
 }

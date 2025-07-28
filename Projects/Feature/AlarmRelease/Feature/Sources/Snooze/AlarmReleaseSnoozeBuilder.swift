@@ -16,9 +16,11 @@ protocol AlarmReleaseSnoozeDependency: Dependency {
 
 final class AlarmReleaseSnoozeComponent: Component<AlarmReleaseSnoozeDependency> {
     fileprivate let snoozeOption: SnoozeOption
+    fileprivate let hasMission: Bool
     
-    init(dependency: AlarmReleaseSnoozeDependency, snoozeOption: SnoozeOption) {
+    init(dependency: AlarmReleaseSnoozeDependency, snoozeOption: SnoozeOption, hasMission: Bool) {
         self.snoozeOption = snoozeOption
+        self.hasMission = hasMission
         super.init(dependency: dependency)
     }
 }
@@ -26,7 +28,7 @@ final class AlarmReleaseSnoozeComponent: Component<AlarmReleaseSnoozeDependency>
 // MARK: - Builder
 
 protocol AlarmReleaseSnoozeBuildable: Buildable {
-    func build(withListener listener: AlarmReleaseSnoozeListener, snoozeOption: SnoozeOption) -> AlarmReleaseSnoozeRouting
+    func build(withListener listener: AlarmReleaseSnoozeListener, snoozeOption: SnoozeOption, hasMission: Bool) -> AlarmReleaseSnoozeRouting
 }
 
 final class AlarmReleaseSnoozeBuilder: Builder<AlarmReleaseSnoozeDependency>, AlarmReleaseSnoozeBuildable {
@@ -35,10 +37,10 @@ final class AlarmReleaseSnoozeBuilder: Builder<AlarmReleaseSnoozeDependency>, Al
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: AlarmReleaseSnoozeListener, snoozeOption: SnoozeOption) -> AlarmReleaseSnoozeRouting {
-        let component = AlarmReleaseSnoozeComponent(dependency: dependency, snoozeOption: snoozeOption)
+    func build(withListener listener: AlarmReleaseSnoozeListener, snoozeOption: SnoozeOption, hasMission: Bool) -> AlarmReleaseSnoozeRouting {
+        let component = AlarmReleaseSnoozeComponent(dependency: dependency, snoozeOption: snoozeOption, hasMission: hasMission)
         let viewController = AlarmReleaseSnoozeViewController()
-        let interactor = AlarmReleaseSnoozeInteractor(presenter: viewController, snoozeOption: component.snoozeOption)
+        let interactor = AlarmReleaseSnoozeInteractor(presenter: viewController, snoozeOption: component.snoozeOption, hasMission: component.hasMission)
         interactor.listener = listener
         return AlarmReleaseSnoozeRouter(interactor: interactor, viewController: viewController)
     }

@@ -48,8 +48,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             cleanupViews()
         case .routeToIntro:
             routeToIntro()
-        case .routeToSnooze(let snoozeOption):
-            routeToSnooze(snoozeOption: snoozeOption)
+        case .routeToSnooze(let snoozeOption, let hasMission):
+            routeToSnooze(snoozeOption: snoozeOption, hasMission: hasMission)
         case .detachSnooze:
             detachSnooze()
         case let .routeToMission(missionType):
@@ -116,9 +116,9 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         presentOrPush(router)
     }
     
-    private func routeToSnooze(snoozeOption: SnoozeOption) {
+    private func routeToSnooze(snoozeOption: SnoozeOption, hasMission: Bool) {
         guard snoozeRouter == nil else { return }
-        let router = snoozeBuilder.build(withListener: interactor, snoozeOption: snoozeOption)
+        let router = snoozeBuilder.build(withListener: interactor, snoozeOption: snoozeOption, hasMission: hasMission)
         self.snoozeRouter = router
         presentOrPush(router)
     }

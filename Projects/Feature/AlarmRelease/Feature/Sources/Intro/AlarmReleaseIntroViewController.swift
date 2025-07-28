@@ -53,6 +53,8 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
         case .stopTimer:
             timer?.invalidate()
             timer = nil
+        case let .hasMission(hasMission):
+            mainView.update(.hasMission(hasMission))
         }
     }
     
