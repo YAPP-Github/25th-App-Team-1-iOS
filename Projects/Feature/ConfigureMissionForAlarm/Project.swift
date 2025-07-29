@@ -62,5 +62,16 @@ let project = Project(
                 .feature(implements: .AlarmMission),
             ]
         ),
+    ],
+    schemes: [
+        // MARK: Release scheme
+        .scheme(
+            name: "FeatureConfigureMissionForAlarmExample-Release",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureConfigureMissionForAlarmExample") ]
+            ),
+            runAction: .runAction(configuration: "Release"),
+            archiveAction: .archiveAction(configuration: "Release")
+        ),
     ]
 )
