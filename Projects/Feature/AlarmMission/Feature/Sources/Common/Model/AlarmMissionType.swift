@@ -7,6 +7,8 @@
 
 import RIBs
 
+import FeatureCommonEntity
+
 public enum AlarmMissionType: String {
     case shake = "shake_mission"
     case tap = "tap_mission"
@@ -14,6 +16,15 @@ public enum AlarmMissionType: String {
     public init(key: String) {
         let instance = AlarmMissionType(rawValue: key)
         self = instance ?? .defaultValue
+    }
+    
+    public init(entity: Mission) {
+        switch entity.type {
+        case .shake:
+            self = .shake
+        case .tap:
+            self = .tap
+        }
     }
     
     public static var defaultValue: Self {

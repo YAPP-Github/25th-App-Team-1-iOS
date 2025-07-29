@@ -164,14 +164,8 @@ extension RootInteractor {
     func request(_ request: AlarmReleaseIntroListenerRequest) {
         switch request {
         case .releaseAlarm:
-            let config = RemoteConfig.remoteConfig()
-            let configValue = config["alarm_mission_type"].stringValue
-            debugPrint("Remote config에서 획득한 미션타입: \(configValue)")
-            let mission = AlarmMissionType(key: configValue)
             stream.stopTimerSubject.onNext(())
-            router?.request(.routeToMission(
-                missionType: mission
-            ))
+            router?.request(.routeToMission(missionType: .init(entity: alarm.mission)))
         case .snoozeAlarm:
             router?.request(.routeToSnooze(alarm.snoozeOption, alarm.mission != nil))
         }
