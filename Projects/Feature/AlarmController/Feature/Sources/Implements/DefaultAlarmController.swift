@@ -400,10 +400,16 @@ private extension DefaultAlarmController {
         alarmEntity.minute = Int16(alarm.minute.value)
         alarmEntity.isActive = alarm.isActive
         
+        // #5. Mission
+        let missionEntity = Mission(context: context)
+        missionEntity.type = alarm.mission.type.rawValue
+        missionEntity.count = Int16(alarm.mission.count)
+        
         // - Releation
         alarmEntity.repeatDays = alarmDaysEntity
         alarmEntity.snoozeOption = snoozeOptionEntity
         alarmEntity.soundOption = soundOptionEntity
+        alarmEntity.mission = missionEntity
         
         return alarmEntity
     }
@@ -449,13 +455,21 @@ private extension DefaultAlarmController {
             selectedSound: soundOptionEntity.selectedSound!
         )
         
-        // #4. Alarm
+        // #4. Mission
+        let missionEntity = alarmEntity.mission!
+        let mission = FeatureCommonEntity.Mission(
+            type: .init(rawValue: missionEntity.type!)!,
+            count: Int(missionEntity.count)
+        )
+        
+        // #5. Alarm
         let alarm = Alarm(
             id: alarmEntity.id!,
             meridiem: Meridiem(rawValue: alarmEntity.meridiem!)!,
             hour: Hour(Int(alarmEntity.hour))!,
             minute: Minute(Int(alarmEntity.minute))!,
             repeatDays: alarmDays,
+            mission: mission,
             snoozeOption: snoozeOption,
             soundOption: soundOption,
             isActive: alarmEntity.isActive
