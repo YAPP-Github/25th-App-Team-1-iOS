@@ -26,26 +26,12 @@ final class AlarmMissionRootComponent: Component<AlarmMissionRootDependency> {
 // MARK: - Builder
 
 public protocol AlarmMissionRootBuildable: Buildable {
-    func build(withListener listener: AlarmMissionRootListener, navigationController: UINavigationController, missionType: AlarmMissionType) -> AlarmMissionRootRouting
     func build(withListener listener: AlarmMissionRootListener, navigationController: UINavigationController, missionType: AlarmMissionType, isPreviewMode: Bool) -> AlarmMissionRootRouting
 }
 
 public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>, AlarmMissionRootBuildable {
     public override init(dependency: AlarmMissionRootDependency) {
         super.init(dependency: dependency)
-    }
-
-    public func build(
-        withListener listener: AlarmMissionRootListener,
-        navigationController: UINavigationController,
-        missionType: AlarmMissionType
-    ) -> AlarmMissionRootRouting {
-        return build(
-            withListener: listener,
-            navigationController: navigationController,
-            missionType: missionType,
-            isPreviewMode: false
-        )
     }
     
     public func build(

@@ -46,6 +46,7 @@ enum ShakeMissionWorkingInteractorRequest {
     case hapticGeneratorAction(HapticGeneratorAction)
     case updateSuccessCount(Int)
     case updateMissionProgressPercent(Double)
+    case setupPreviewMode(Bool)
 }
 
 
@@ -77,10 +78,13 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
     private var currentMissionFlow: ShakeMissionFlowState?
     
 
+    private let isPreviewMode: Bool
+    
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(presenter: ShakeMissionWorkingPresentable, logger: Logger) {
+    init(presenter: ShakeMissionWorkingPresentable, logger: Logger, isPreviewMode: Bool = false) {
         self.logger = logger
+        self.isPreviewMode = isPreviewMode
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -105,6 +109,7 @@ extension ShakeMissionWorkingInteractor {
         case .initializeMission:
             let nextFlow: ShakeMissionFlowState = .initial(successShakeCount: successShakeCount)
             self.currentMissionFlow = nextFlow
+            presenter.request(.setupPreviewMode(isPreviewMode))
             presenter.request(.missionFlow(nextFlow))
         case .missionPageIsReady:
             let nextFlow: ShakeMissionFlowState = .guide
@@ -121,7 +126,10 @@ extension ShakeMissionWorkingInteractor {
             logger.send(log)
             listener?.request(request: .exitPage(isMissionCompleted: true))
         case .exitPage:
-            
+            if isPreviewMode {
+                listener?.request(request: .exitPage(isMissionCompleted: false))
+                return
+            }
             // 미션이 성공 상태인 경우 Alert표출 금지
             if isMissionSuccess { return }
             

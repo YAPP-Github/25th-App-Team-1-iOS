@@ -21,6 +21,7 @@ final class ShakeMissionWorkingView: UIView {
         case exitButtonClicked
         case missionGuideAnimationCompleted
         case missionSuccessAnimationCompleted
+        case previewExitButtonTapped
     }
     
     // Listener
@@ -50,6 +51,9 @@ final class ShakeMissionWorkingView: UIView {
     // Mission start & complete view
     private var startMissionView: StartMissionView?
     private var missionCompleteView: MissionCompleteView?
+    
+    // Preview mode UI
+    private let previewExitButton = UIButton(type: .system)
     private let invisibleLayer = CALayer()
     
     
@@ -104,6 +108,17 @@ private extension ShakeMissionWorkingView {
         
         // amuletCardImage
         addSubview(amuletCardBackImage)
+        
+        // previewExitButton
+        previewExitButton.do {
+            $0.setAttributedTitle("미리보기 종료".displayText(font: .body1SemiBold, color: R.Color.gray900), for: .normal)
+            $0.backgroundColor = R.Color.white100
+            $0.layer.cornerRadius = 24
+            $0.layer.cornerCurve = .continuous
+            $0.isHidden = true
+            $0.addTarget(self, action: #selector(previewExitButtonTapped), for: .touchUpInside)
+        }
+        addSubview(previewExitButton)
     }
     
     func setupLayout() {
@@ -144,6 +159,14 @@ private extension ShakeMissionWorkingView {
             make.centerX.equalToSuperview()
             make.bottom.lessThanOrEqualTo(self.safeAreaLayoutGuide).priority(.required)
         }
+        
+        // previewExitButton
+        previewExitButton.snp.makeConstraints { make in
+            make.bottom.equalTo(self.safeAreaLayoutGuide).offset(-27)
+            make.width.equalTo(156)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(48)
+        }
     }
 }
 
@@ -155,6 +178,10 @@ extension ShakeMissionWorkingView {
         case guide
         case working
         case success
+    }
+    
+    enum Update {
+        case previewMode(Bool)
     }
     
     @discardableResult
@@ -220,6 +247,21 @@ extension ShakeMissionWorkingView {
     /// 입력값 범위: 0.0...1.0
     func update(progress: Double) -> Self {
         self.missionProgressView.update(progress: progress)
+        return self
+    }
+    
+    @discardableResult
+    func update(previewMode: Bool) -> Self {
+        setupPreviewMode(previewMode)
+        return self
+    }
+    
+    @discardableResult
+    func update(_ update: Update) -> Self {
+        switch update {
+        case .previewMode(let isPreview):
+            setupPreviewMode(isPreview)
+        }
         return self
     }
 }
@@ -334,5 +376,17 @@ private extension ShakeMissionWorkingView {
         ))
         CATransaction.commit()
         return imageLayer
+    }
+    
+    @objc
+    private func previewExitButtonTapped() {
+        listener?.action(.previewExitButtonTapped)
+    }
+    
+    private func setupPreviewMode(_ isPreview: Bool) {
+        DispatchQueue.main.async {
+            self.exitButton.isHidden = isPreview
+            self.previewExitButton.isHidden = !isPreview
+        }
     }
 }

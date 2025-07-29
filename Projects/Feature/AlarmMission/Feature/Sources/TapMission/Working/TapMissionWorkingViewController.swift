@@ -64,6 +64,8 @@ extension TapMissionWorkingViewController {
                 .update(.countText("\(newCount)"))
         case .updateMissionProgressPercent(let newPercent):
             mainView.update(.missionProgress(newPercent))
+        case .setupPreviewMode(let isPreview):
+            mainView.update(.previewMode(isPreview))
         }
     }
     
@@ -110,6 +112,8 @@ extension TapMissionWorkingViewController {
             listener?.request(.missionGuideFinished)
         case .missionSuccessAnimationCompleted:
             listener?.request(.missionSuccessEventFinished)
+        case .previewExitButtonTapped:
+            listener?.request(.exitPage)
         }
     }
 }

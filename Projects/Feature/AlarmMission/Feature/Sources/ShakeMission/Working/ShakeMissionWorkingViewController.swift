@@ -112,7 +112,8 @@ extension ShakeMissionWorkingViewController {
             case .stop:
                 self.impactFeedBackGenerator = nil
             }
-            
+        case .setupPreviewMode(let isPreview):
+            mainView.update(.previewMode(isPreview))
         }
     }
 }
@@ -129,6 +130,8 @@ extension ShakeMissionWorkingViewController {
             listener?.request(.missionGuideFinished)
         case .missionSuccessAnimationCompleted:
             listener?.request(.missionSuccessEventFinished)
+        case .previewExitButtonTapped:
+            listener?.request(.exitPage)
         }
     }
 }

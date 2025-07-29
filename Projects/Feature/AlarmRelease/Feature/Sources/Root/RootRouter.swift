@@ -135,7 +135,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         let router = missionBuilder.build(
             withListener: interactor,
             navigationController: generateNavigationControllerIfNeeded(),
-            missionType: missionType
+            missionType: missionType,
+            isPreviewMode: false
         )
         self.missionRouter = router
         attachChild(router)

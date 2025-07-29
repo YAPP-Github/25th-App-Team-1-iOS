@@ -14,6 +14,7 @@ import RIBs
 protocol AlarmMissionRootInteractable: Interactable, ShakeMissionWorkingListener, TapMissionWorkingListener {
     var router: AlarmMissionRootRouting? { get set }
     var listener: AlarmMissionRootListener? { get set }
+    var isPreviewMode: Bool { get }
 }
 
 final class AlarmMissionRootRouter: Router<AlarmMissionRootInteractable>, AlarmMissionRootRouting, DSButtonAlertPresentable {
@@ -117,7 +118,7 @@ extension AlarmMissionRootRouter {
 private extension AlarmMissionRootRouter {
     // Shake mission
     func presentShakeMission() {
-        let router = shakeMissionBuilder.build(withListener: interactor)
+        let router = shakeMissionBuilder.build(withListener: interactor, isPreviewMode: interactor.isPreviewMode)
         self.shakeMissionRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
@@ -133,7 +134,7 @@ private extension AlarmMissionRootRouter {
     
     // Tap mission
     func presentTapMission() {
-        let router = tapMissionBuilder.build(withListener: interactor)
+        let router = tapMissionBuilder.build(withListener: interactor, isPreviewMode: interactor.isPreviewMode)
         self.tapMissionRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)

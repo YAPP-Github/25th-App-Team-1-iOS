@@ -44,7 +44,7 @@ final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable
     
     // State
     private let missionType: AlarmMissionType
-    private let isPreviewMode: Bool
+    internal let isPreviewMode: Bool
     
     // Stream
     private let missionAction: PublishRelay<MissionState>

@@ -31,6 +31,7 @@ enum TapMissionWorkingInteractorRequest {
     case hapticGeneratorAction(HapticGeneratorAction)
     case updateSuccessCount(Int)
     case updateMissionProgressPercent(Double)
+    case setupPreviewMode(Bool)
 }
 
 protocol TapMissionWorkingListener: AnyObject {
@@ -67,17 +68,19 @@ final class TapMissionWorkingInteractor: PresentableInteractor<TapMissionWorking
     private var currentMissionFlow: TapMissionFlow?
     
     
+    private let isPreviewMode: Bool
+    
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(presenter: TapMissionWorkingPresentable, logger: Logger) {
+    init(presenter: TapMissionWorkingPresentable, logger: Logger, isPreviewMode: Bool = false) {
         self.logger = logger
+        self.isPreviewMode = isPreviewMode
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
     override func didBecomeActive() {
         super.didBecomeActive()
-        // TODO: Implement business logic here.
     }
 
     override func willResignActive() {
@@ -93,6 +96,7 @@ extension TapMissionWorkingInteractor {
         case .initializeMission:
             let nextFlow: TapMissionFlow = .initial(successTapCount: successTapCount)
             self.currentMissionFlow = nextFlow
+            presenter.request(.setupPreviewMode(isPreviewMode))
             presenter.request(.startMissionFlow(nextFlow))
         case .viewIsReadyForMission:
             let nextFlow: TapMissionFlow = .guide
@@ -122,7 +126,10 @@ extension TapMissionWorkingInteractor {
             }
             
         case .exitPage:
-            
+            if isPreviewMode {
+                listener?.request(request: .exitPage(isMissionCompleted: false))
+                return
+            }
             // 미션이 성공 상태인 경우 Alert표출 금지
             if isMissionSuccess { return }
             
