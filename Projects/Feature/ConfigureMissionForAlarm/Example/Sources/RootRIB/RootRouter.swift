@@ -8,6 +8,7 @@
 import RIBs
 
 import FeatureConfigureMissionForAlarm
+import FeatureLogger
 
 protocol RootInteractable: Interactable, ConfigureMissionForAlarmListener {
     var router: RootRouting? { get set }
@@ -31,9 +32,9 @@ final class RootRouter: ViewableRouter<RootInteractable, RootViewControllable>, 
     func presentConfigureMission() {
         
         let builder = ConfigureMissionForAlarmBuilder(
-            dependency: ModuleDependency()
+            dependency: ModuleDependency(logger: PrintOnlyLogger())
         )
-        let router = builder.build(withListener: interactor)
+        let router = builder.build(withListener: interactor, initialMission: .default)
         self.configureMissionRouter = router
         attachChild(router)
         
