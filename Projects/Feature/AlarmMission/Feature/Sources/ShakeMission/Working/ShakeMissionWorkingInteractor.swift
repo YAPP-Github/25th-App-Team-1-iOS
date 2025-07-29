@@ -69,7 +69,7 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
     
     
     // Mission configuration
-    private let successShakeCount = 10
+    private let successShakeCount: Int
     
     
     // State
@@ -82,8 +82,9 @@ final class ShakeMissionWorkingInteractor: PresentableInteractor<ShakeMissionWor
     
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(presenter: ShakeMissionWorkingPresentable, logger: Logger, isPreviewMode: Bool = false) {
+    init(presenter: ShakeMissionWorkingPresentable, logger: Logger, successCount: Int, isPreviewMode: Bool = false) {
         self.logger = logger
+        self.successShakeCount = successCount
         self.isPreviewMode = isPreviewMode
         super.init(presenter: presenter)
         presenter.listener = self

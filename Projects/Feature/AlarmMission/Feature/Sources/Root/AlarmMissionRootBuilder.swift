@@ -8,6 +8,7 @@
 import UIKit
 
 import FeatureLogger
+import FeatureCommonEntity
 
 import RIBs
 import RxRelay
@@ -26,7 +27,7 @@ final class AlarmMissionRootComponent: Component<AlarmMissionRootDependency> {
 // MARK: - Builder
 
 public protocol AlarmMissionRootBuildable: Buildable {
-    func build(withListener listener: AlarmMissionRootListener, navigationController: UINavigationController, missionType: AlarmMissionType, isPreviewMode: Bool) -> AlarmMissionRootRouting
+    func build(withListener listener: AlarmMissionRootListener, navigationController: UINavigationController, mission: Mission, isPreviewMode: Bool) -> AlarmMissionRootRouting
 }
 
 public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>, AlarmMissionRootBuildable {
@@ -37,12 +38,12 @@ public final class AlarmMissionRootBuilder: Builder<AlarmMissionRootDependency>,
     public func build(
         withListener listener: AlarmMissionRootListener,
         navigationController: UINavigationController,
-        missionType: AlarmMissionType,
+        mission: Mission,
         isPreviewMode: Bool
     ) -> AlarmMissionRootRouting {
         let component = AlarmMissionRootComponent(dependency: dependency)
         let interactor = AlarmMissionRootInteractor(
-            missionType: missionType,
+            mission: mission,
             missionAction: component.missionAction,
             isPreviewMode: isPreviewMode
         )

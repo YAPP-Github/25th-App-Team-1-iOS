@@ -10,6 +10,7 @@ import UIKit
 import RIBs
 
 import FeatureAlarmMission
+import FeatureCommonEntity
 
 protocol ExampleRIBInteractable: Interactable, AlarmMissionRootListener {
     var router: ExampleRIBRouting? { get set }
@@ -37,12 +38,13 @@ final class ExampleRIBRouter: ViewableRouter<ExampleRIBInteractable, ExampleRIBV
         interactor.router = self
     }
     
-    func presentMission(_ mission: AlarmMissionType) {
+    func presentMission(_ mission: Mission) {
         guard let navigationController else { return }
         let router = missionBuilder.build(
             withListener: interactor,
             navigationController: navigationController,
-            missionType: mission
+            mission: mission,
+            isPreviewMode: false
         )
         self.missionRouter = router
         attachChild(router)

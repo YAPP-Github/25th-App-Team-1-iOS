@@ -9,9 +9,10 @@ import RIBs
 import RxSwift
 
 import FeatureAlarmMission
+import FeatureCommonEntity
 
 protocol ExampleRIBRouting: ViewableRouting {
-    func presentMission(_ mission: AlarmMissionType)
+    func presentMission(_ mission: Mission)
     func dismissMission()
 }
 
@@ -59,16 +60,25 @@ final class ExampleRIBInteractor: PresentableInteractor<ExampleRIBPresentable>, 
             presenter.request(.setItems(missions))
         case .cellIsTapped(let index):
             let mission = missions[index]
-            router?.presentMission(mission)
+            router?.presentMission(convert(mission))
         }
     }
     
     func request(_ request: AlarmMissionRootListenerRequest) {
         switch request {
-        case .missionCompleted(let fortune, let fortuneSaveInfo):
+        case .missionCompleted:
             router?.dismissMission()
-        case .close(let fortune, let fortuneSaveInfo):
+        case .close:
             router?.dismissMission()
+        }
+    }
+    
+    func convert(_ mission: AlarmMissionType) -> Mission {
+        switch mission {
+        case .shake:
+            return .init(type: .shake, count: 10)
+        case .tap:
+            return .init(type: .tap, count: 10)
         }
     }
 }

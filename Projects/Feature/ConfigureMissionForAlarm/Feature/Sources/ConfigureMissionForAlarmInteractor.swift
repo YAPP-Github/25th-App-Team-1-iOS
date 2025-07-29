@@ -11,7 +11,7 @@ import FeatureCommonEntity
 import FeatureAlarmMission
 
 public protocol ConfigureMissionForAlarmRouting: ViewableRouting {
-    func routeToMissionPreview(missionType: AlarmMissionType, isPreviewMode: Bool)
+    func routeToMissionPreview(mission: Mission, isPreviewMode: Bool)
     func detachMissionPreview()
 }
 
@@ -148,15 +148,15 @@ extension ConfigureMissionForAlarmInteractor {
             listener?.request(.dismissScreen)
         case .missionPreviewButtonTapped:
             // show preview
-            if let selectedMission = currentSelectedMission {
-                let missionType: AlarmMissionType
+            if let selectedMission = currentSelectedMission, let count = currentSelectedMissionConditionIndex {
+                let mission: Mission
                 switch selectedMission {
                 case .shake:
-                    missionType = .shake
+                    mission = .init(type: .shake, count: count)
                 case .tap:
-                    missionType = .tap
+                    mission = .init(type: .tap, count: count)
                 }
-                router?.routeToMissionPreview(missionType: missionType, isPreviewMode: true)
+                router?.routeToMissionPreview(mission: mission, isPreviewMode: true)
             }
         }
     }

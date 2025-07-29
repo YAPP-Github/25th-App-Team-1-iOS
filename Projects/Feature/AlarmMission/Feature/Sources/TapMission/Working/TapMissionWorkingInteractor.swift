@@ -59,7 +59,7 @@ final class TapMissionWorkingInteractor: PresentableInteractor<TapMissionWorking
     weak var listener: TapMissionWorkingListener?
 
     // Mission configuration
-    private let successTapCount = 10
+    private let successTapCount: Int
     
     
     // State
@@ -72,8 +72,9 @@ final class TapMissionWorkingInteractor: PresentableInteractor<TapMissionWorking
     
     // TODO: Add additional dependencies to constructor. Do not perform any logic
     // in constructor.
-    init(presenter: TapMissionWorkingPresentable, logger: Logger, isPreviewMode: Bool = false) {
+    init(presenter: TapMissionWorkingPresentable, logger: Logger, successCount: Int, isPreviewMode: Bool = false) {
         self.logger = logger
+        self.successTapCount = successCount
         self.isPreviewMode = isPreviewMode
         super.init(presenter: presenter)
         presenter.listener = self

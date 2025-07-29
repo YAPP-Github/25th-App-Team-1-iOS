@@ -167,6 +167,12 @@ public extension DefaultAlarmController {
                 alarmEntity.minute = Int16(alarm.minute.value)
                 alarmEntity.isActive = alarm.isActive
                 
+                // #5. Mission
+                let alarmMission = alarm.mission
+                let missionEntity = alarmEntity.mission!
+                missionEntity.type = alarm.mission.type.rawValue
+                missionEntity.count = Int16(alarm.mission.count)
+                
                 try context.save()
                 completion(.success(()))
             } catch {
@@ -228,6 +234,12 @@ public extension DefaultAlarmController {
                 alarmEntity.hour = Int16(alarm.hour.value)
                 alarmEntity.minute = Int16(alarm.minute.value)
                 alarmEntity.isActive = alarm.isActive
+                
+                // #5. Mission
+                let alarmMission = alarm.mission
+                let missionEntity = alarmEntity.mission!
+                missionEntity.type = alarm.mission.type.rawValue
+                missionEntity.count = Int16(alarm.mission.count)
                 
                 try context.save()
                 return .success(())

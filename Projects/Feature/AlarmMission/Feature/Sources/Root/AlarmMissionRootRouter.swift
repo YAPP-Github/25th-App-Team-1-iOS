@@ -89,16 +89,16 @@ extension AlarmMissionRootRouter {
     func request(_ request: AlarmMissionRootRoutingRequest) {
         switch request {
         case .dismissMission(let mission, let completion):
-            switch mission {
+            switch mission.type {
             case .shake:
                 dismissShakeMission(completion: completion)
             case .tap:
                 dismissTapMission(completion: completion)
             }
-        case .presentShakeMission:
-            presentShakeMission()
-        case .presentTapMission:
-            presentTapMission()
+        case .presentShakeMission(let count):
+            presentShakeMission(count: count)
+        case .presentTapMission(let count):
+            presentTapMission(count: count)
         case .presentAlert(let config):
             guard let navigationController else { return }
             presentAlert(
@@ -117,8 +117,12 @@ extension AlarmMissionRootRouter {
 // MARK: Routing RIB
 private extension AlarmMissionRootRouter {
     // Shake mission
-    func presentShakeMission() {
-        let router = shakeMissionBuilder.build(withListener: interactor, isPreviewMode: interactor.isPreviewMode)
+    func presentShakeMission(count: Int) {
+        let router = shakeMissionBuilder.build(
+            withListener: interactor,
+            successCount: count,
+            isPreviewMode: interactor.isPreviewMode
+        )
         self.shakeMissionRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)
@@ -133,8 +137,12 @@ private extension AlarmMissionRootRouter {
     
     
     // Tap mission
-    func presentTapMission() {
-        let router = tapMissionBuilder.build(withListener: interactor, isPreviewMode: interactor.isPreviewMode)
+    func presentTapMission(count: Int) {
+        let router = tapMissionBuilder.build(
+            withListener: interactor,
+            successCount: count,
+            isPreviewMode: interactor.isPreviewMode
+        )
         self.tapMissionRouter = router
         attachChild(router)
         presentOrPushViewController(with: router)

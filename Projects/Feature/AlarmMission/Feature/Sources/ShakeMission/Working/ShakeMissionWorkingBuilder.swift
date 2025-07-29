@@ -21,7 +21,7 @@ final class ShakeMissionWorkingComponent: Component<ShakeMissionWorkingDependenc
 // MARK: - Builder
 
 protocol ShakeMissionWorkingBuildable: Buildable {
-    func build(withListener listener: ShakeMissionWorkingListener, isPreviewMode: Bool) -> ShakeMissionWorkingRouting
+    func build(withListener listener: ShakeMissionWorkingListener, successCount: Int, isPreviewMode: Bool) -> ShakeMissionWorkingRouting
 }
 
 final class ShakeMissionWorkingBuilder: Builder<ShakeMissionWorkingDependency>, ShakeMissionWorkingBuildable {
@@ -30,10 +30,15 @@ final class ShakeMissionWorkingBuilder: Builder<ShakeMissionWorkingDependency>, 
         super.init(dependency: dependency)
     }
     
-    func build(withListener listener: ShakeMissionWorkingListener, isPreviewMode: Bool) -> ShakeMissionWorkingRouting {
+    func build(withListener listener: ShakeMissionWorkingListener, successCount: Int, isPreviewMode: Bool) -> ShakeMissionWorkingRouting {
         let component = ShakeMissionWorkingComponent(dependency: dependency)
         let viewController = ShakeMissionWorkingViewController()
-        let interactor = ShakeMissionWorkingInteractor(presenter: viewController, logger: dependency.logger, isPreviewMode: isPreviewMode)
+        let interactor = ShakeMissionWorkingInteractor(
+            presenter: viewController,
+            logger: dependency.logger,
+            successCount: successCount,
+            isPreviewMode: isPreviewMode
+        )
         interactor.listener = listener
         return ShakeMissionWorkingRouter(interactor: interactor, viewController: viewController)
     }

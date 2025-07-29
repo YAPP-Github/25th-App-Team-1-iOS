@@ -21,9 +21,9 @@ public protocol AlarmMissionRootRouting: Routing {
 }
 
 public enum AlarmMissionRootRoutingRequest {
-    case presentShakeMission
-    case presentTapMission
-    case dismissMission(AlarmMissionType, competion: (() -> Void)? = nil)
+    case presentShakeMission(count: Int)
+    case presentTapMission(count: Int)
+    case dismissMission(Mission, competion: (() -> Void)? = nil)
     case dismissAlert(competion: (() -> Void)? = nil)
     case presentAlert(DSButtonAlert.Config)
 }
@@ -43,15 +43,15 @@ final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable
     weak var listener: AlarmMissionRootListener?
     
     // State
-    private let missionType: AlarmMissionType
+    private let mission: Mission
     internal let isPreviewMode: Bool
     
     // Stream
     private let missionAction: PublishRelay<MissionState>
     private let disposeBag = DisposeBag()
     
-    init(missionType: AlarmMissionType, missionAction: PublishRelay<MissionState>, isPreviewMode: Bool = false) {
-        self.missionType = missionType
+    init(mission: Mission, missionAction: PublishRelay<MissionState>, isPreviewMode: Bool = false) {
+        self.mission = mission
         self.missionAction = missionAction
         self.isPreviewMode = isPreviewMode
     }
@@ -63,11 +63,11 @@ final class AlarmMissionRootInteractor: Interactor, AlarmMissionRootInteractable
         handleMissionAction()
 
         // 미션시작
-        switch missionType {
+        switch mission.type {
         case .shake:
-            router?.request(.presentShakeMission)
+            router?.request(.presentShakeMission(count: mission.count))
         case .tap:
-            router?.request(.presentTapMission)
+            router?.request(.presentTapMission(count: mission.count))
         }
     }
 
@@ -85,7 +85,7 @@ private extension AlarmMissionRootInteractor {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] _ in
                 guard let self else { return }
-                router?.request(.dismissMission(missionType))
+                router?.request(.dismissMission(mission))
                 listener?.request(.close)
             })
             .disposed(by: disposeBag)
@@ -94,7 +94,7 @@ private extension AlarmMissionRootInteractor {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] _ in
                 guard let self else { return }
-                router?.request(.dismissMission(missionType))
+                router?.request(.dismissMission(mission))
                 listener?.request(.missionCompleted)
             })
             .disposed(by: disposeBag)

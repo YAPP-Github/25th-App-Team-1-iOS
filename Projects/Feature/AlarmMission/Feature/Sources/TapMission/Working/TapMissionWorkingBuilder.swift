@@ -21,7 +21,7 @@ final class TapMissionWorkingComponent: Component<TapMissionWorkingDependency> {
 // MARK: - Builder
 
 protocol TapMissionWorkingBuildable: Buildable {
-    func build(withListener listener: TapMissionWorkingListener, isPreviewMode: Bool) -> TapMissionWorkingRouting
+    func build(withListener listener: TapMissionWorkingListener, successCount: Int, isPreviewMode: Bool) -> TapMissionWorkingRouting
 }
 
 final class TapMissionWorkingBuilder: Builder<TapMissionWorkingDependency>, TapMissionWorkingBuildable {
@@ -30,10 +30,15 @@ final class TapMissionWorkingBuilder: Builder<TapMissionWorkingDependency>, TapM
         super.init(dependency: dependency)
     }
     
-    func build(withListener listener: TapMissionWorkingListener, isPreviewMode: Bool) -> TapMissionWorkingRouting {
+    func build(withListener listener: TapMissionWorkingListener, successCount: Int, isPreviewMode: Bool) -> TapMissionWorkingRouting {
         let component = TapMissionWorkingComponent(dependency: dependency)
         let viewController = TapMissionWorkingViewController()
-        let interactor = TapMissionWorkingInteractor(presenter: viewController, logger: dependency.logger, isPreviewMode: isPreviewMode)
+        let interactor = TapMissionWorkingInteractor(
+            presenter: viewController,
+            logger: dependency.logger,
+            successCount: successCount,
+            isPreviewMode: isPreviewMode
+        )
         interactor.listener = listener
         return TapMissionWorkingRouter(interactor: interactor, viewController: viewController)
     }
