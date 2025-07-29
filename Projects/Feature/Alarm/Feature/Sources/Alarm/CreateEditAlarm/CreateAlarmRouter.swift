@@ -19,7 +19,6 @@ protocol CreateEditAlarmViewControllable: ViewControllable {
 
 final class CreateEditAlarmRouter: ViewableRouter<CreateEditAlarmInteractable, CreateEditAlarmViewControllable>, CreateEditAlarmRouting, DSTwoButtonAlertPresentable {
 
-    // TODO: Constructor inject child builder protocols to allow building children.
     override init(interactor: CreateEditAlarmInteractable, viewController: CreateEditAlarmViewControllable) {
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self

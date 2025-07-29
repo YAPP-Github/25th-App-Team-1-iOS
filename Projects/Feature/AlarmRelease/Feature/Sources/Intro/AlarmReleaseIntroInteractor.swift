@@ -24,6 +24,7 @@ enum AlarmReleaseIntroPresentableRequest {
     case updateSnoozeCount(Int)
     case hideSnoozeButton
     case stopTimer
+    case hasMission(Bool)
 }
 
 protocol AlarmReleaseIntroPresentable: Presentable {
@@ -113,6 +114,7 @@ final class AlarmReleaseIntroInteractor: PresentableInteractor<AlarmReleaseIntro
         switch request {
         case .viewDidLoad:
             presenter.request(.updateSnooze(alarm.snoozeOption))
+            presenter.request(.hasMission(alarm.mission != nil))
         case .snoozeAlarm:
             let log = ExecuteSnoozeLogBuilder(alarmId: alarm.id).build()
             logger.send(log)

@@ -56,11 +56,9 @@ final class CircularGaugeView: UIView {
         timer?.invalidate()
         remainingTime = totalTime
         
-        timer = Timer.scheduledTimer(timeInterval: 1.0,
-                                     target: self,
-                                     selector: #selector(updateTimer),
-                                     userInfo: nil,
-                                     repeats: true)
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.updateTimer()
+        }
     }
     
     func stopTimer() {
@@ -68,7 +66,6 @@ final class CircularGaugeView: UIView {
         timer = nil
     }
     
-    @objc
     private func updateTimer() {
         if remainingTime > 0 {
             remainingTime -= 1
@@ -121,6 +118,7 @@ final class CircularGaugeView: UIView {
     }
     
     deinit {
+        stopTimer()
         print(#function)
     }
 }

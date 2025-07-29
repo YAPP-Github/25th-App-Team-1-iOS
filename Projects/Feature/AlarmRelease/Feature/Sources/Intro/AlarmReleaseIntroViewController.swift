@@ -32,13 +32,9 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        timer = Timer.scheduledTimer(
-            timeInterval: 1.0,
-            target: self,
-            selector: #selector(timerFired),
-            userInfo: nil,
-            repeats: true
-        )
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.timerFired()
+        }
         listener?.request(.viewDidLoad)
     }
     
@@ -51,14 +47,28 @@ final class AlarmReleaseIntroViewController: UIViewController, AlarmReleaseIntro
         case .hideSnoozeButton:
             mainView.update(.hideSnoozeButton)
         case .stopTimer:
-            timer?.invalidate()
-            timer = nil
+            cleanupTimer()
+        case let .hasMission(hasMission):
+            mainView.update(.hasMission(hasMission))
         }
     }
     
-    @objc
     private func timerFired() {
         mainView.update(.updateTime)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cleanupTimer()
+    }
+    
+    deinit {
+        cleanupTimer()
+    }
+    
+    private func cleanupTimer() {
+        timer?.invalidate()
+        timer = nil
     }
     
     private let mainView = AlarmReleaseIntroView()
@@ -70,8 +80,7 @@ extension AlarmReleaseIntroViewController: AlarmReleaseIntroViewListener {
         case .snoozeButtonTapped:
             listener?.request(.snoozeAlarm)
         case .releaseAlarmButtonTapped:
-            timer?.invalidate()
-            timer = nil
+            cleanupTimer()
             listener?.request(.releaseAlarm)
         }
     }

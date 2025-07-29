@@ -6,21 +6,23 @@
 //
 
 import RIBs
+import FeatureCommonEntity
+import FeatureAlarmMission
+import FeatureLogger
 
-public protocol ConfigureMissionForAlarmDependency: Dependency {
+public protocol ConfigureMissionForAlarmDependency: Dependency, AlarmMissionRootDependency {
     // TODO: Declare the set of dependencies required by this RIB, but cannot be
     // created by this RIB.
 }
 
-final class ConfigureMissionForAlarmComponent: Component<ConfigureMissionForAlarmDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+final class ConfigureMissionForAlarmComponent: Component<ConfigureMissionForAlarmDependency>, AlarmMissionRootDependency {
+    var logger: Logger { dependency.logger }
 }
 
 // MARK: - Builder
 
 public protocol ConfigureMissionForAlarmBuildable: Buildable {
-    func build(withListener listener: ConfigureMissionForAlarmListener) -> ConfigureMissionForAlarmRouting
+    func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission) -> ConfigureMissionForAlarmRouting
 }
 
 public final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForAlarmDependency>, ConfigureMissionForAlarmBuildable {
@@ -29,11 +31,16 @@ public final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForA
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ConfigureMissionForAlarmListener) -> ConfigureMissionForAlarmRouting {
+    public func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission) -> ConfigureMissionForAlarmRouting {
         let component = ConfigureMissionForAlarmComponent(dependency: dependency)
         let viewController = ConfigureMissionForAlarmViewController()
-        let interactor = ConfigureMissionForAlarmInteractor(presenter: viewController)
+        let interactor = ConfigureMissionForAlarmInteractor(presenter: viewController, initialMission: initialMission)
         interactor.listener = listener
-        return ConfigureMissionForAlarmRouter(interactor: interactor, viewController: viewController)
+        let alarmMissionBuilder = AlarmMissionRootBuilder(dependency: component)
+        return ConfigureMissionForAlarmRouter(
+            interactor: interactor, 
+            viewController: viewController,
+            alarmMissionBuilder: alarmMissionBuilder
+        )
     }
 }

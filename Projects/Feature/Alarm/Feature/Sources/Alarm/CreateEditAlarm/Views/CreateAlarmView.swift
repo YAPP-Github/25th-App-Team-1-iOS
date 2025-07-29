@@ -22,6 +22,7 @@ final class CreateEditAlarmView: UIView {
         case hourChanged(Hour)
         case minuteChanged(Minute)
         case selectWeekday(AlarmDays)
+        case missionButtonTapped
         case snoozeButtonTapped
         case soundButtonTapped
         case doneButtonTapped
@@ -59,11 +60,13 @@ final class CreateEditAlarmView: UIView {
     private let alarmPicker = AlarmPicker()
     private let navigationBar = CommonNavBarView()
     private let selectWeekDayView = SelectWeekDayView()
+    private let alarmSettingsView = AlarmSettingsView()
     private let doneButton = DSDefaultCTAButton()
     
     private func updateView(with alarm: Alarm) {
         layoutIfNeeded()
         selectWeekDayView.update(alarm: alarm)
+        alarmSettingsView.update(alarm: alarm)
         alarmPicker.update(
             meridiem: alarm.meridiem,
             hour: alarm.hour,
@@ -92,6 +95,9 @@ private extension CreateEditAlarmView {
         selectWeekDayView.do {
             $0.listener = self
         }
+        alarmSettingsView.do {
+            $0.listener = self
+        }
         doneButton.do {
             $0.buttonAction = { [weak self] in
                 self?.listener?.action(.doneButtonTapped)
@@ -100,7 +106,7 @@ private extension CreateEditAlarmView {
         }
         
         alarmPickerContainer.addSubview(alarmPicker)
-        [navigationBar, alarmPickerContainer, selectWeekDayView, doneButton].forEach { addSubview($0) }
+        [navigationBar, alarmPickerContainer, selectWeekDayView, alarmSettingsView, doneButton].forEach { addSubview($0) }
     }
     
     func layout() {
@@ -112,8 +118,13 @@ private extension CreateEditAlarmView {
             $0.bottom.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
-        selectWeekDayView.snp.makeConstraints {
+        alarmSettingsView.snp.makeConstraints {
             $0.bottom.equalTo(doneButton.snp.top).offset(-24)
+            $0.horizontalEdges.equalToSuperview().inset(20)
+        }
+        
+        selectWeekDayView.snp.makeConstraints {
+            $0.bottom.equalTo(alarmSettingsView.snp.top).offset(-12)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
         
@@ -156,6 +167,15 @@ extension CreateEditAlarmView: SelectWeekDayViewListener {
         switch action {
         case let .selectWeekday(set):
             listener?.action(.selectWeekday(set))
+        }
+    }
+}
+
+extension CreateEditAlarmView: AlarmSettingsViewListener {
+    func action(_ action: AlarmSettingsView.Action) {
+        switch action {
+        case .missionButtonTapped:
+            listener?.action(.missionButtonTapped)
         case .snoozeButtonTapped:
             listener?.action(.snoozeButtonTapped)
         case .soundButtonTapped:

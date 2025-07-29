@@ -19,6 +19,7 @@ enum CreateEditAlarmPresentableListenerRequest {
     case hourChanged(Hour)
     case minuteChanged(Minute)
     case selectedDaysChanged(AlarmDays)
+    case selectMission
     case selectSnooze
     case selectSound
     case done
@@ -84,6 +85,8 @@ extension CreateEditAlarmViewController: CreateEditAlarmViewListener {
             listener?.request(.minuteChanged(minute))
         case let .selectWeekday(set):
             listener?.request(.selectedDaysChanged(set))
+        case .missionButtonTapped:
+            listener?.request(.selectMission)
         case .snoozeButtonTapped:
             listener?.request(.selectSnooze)
         case .soundButtonTapped:

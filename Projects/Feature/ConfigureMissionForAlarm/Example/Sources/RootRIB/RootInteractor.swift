@@ -66,6 +66,8 @@ extension RootInteractor {
         switch request {
         case .dismissScreen:
             router?.request(.dismissConfigureMissionForAlarm)
+        case .missionSelected(let mission):
+            router?.request(.dismissConfigureMissionForAlarm)
         }
     }
 }

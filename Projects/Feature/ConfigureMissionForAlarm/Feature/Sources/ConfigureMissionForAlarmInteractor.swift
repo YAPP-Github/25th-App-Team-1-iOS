@@ -7,9 +7,12 @@
 
 import RIBs
 import RxSwift
+import FeatureCommonEntity
+import FeatureAlarmMission
 
 public protocol ConfigureMissionForAlarmRouting: ViewableRouting {
-    // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
+    func routeToMissionPreview(missionType: AlarmMissionType, isPreviewMode: Bool)
+    func detachMissionPreview()
 }
 
 protocol ConfigureMissionForAlarmPresentable: Presentable {
@@ -23,6 +26,8 @@ enum ConfigureMissionForAlarmPresentableUpdate {
     case dismissMissionList
     case dismissMissionConditionSetting
     case selecteMissionCondition(index: Int)
+    case updateMissionDisplay(item: MissionItemRenderObject, conditionIndex: Int)
+    case showDefaultUIAfterMissionDelete
 }
 
 public protocol ConfigureMissionForAlarmListener: AnyObject {
@@ -30,6 +35,7 @@ public protocol ConfigureMissionForAlarmListener: AnyObject {
 }
 
 public enum ConfigureMissionForAlarmListenerRequest {
+    case missionSelected(Mission)
     case dismissScreen
 }
 
@@ -48,14 +54,26 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     private var currentSelectedMissionConditionIndex: Int?
     
     
-    override init(presenter: ConfigureMissionForAlarmPresentable) {
+    private let initialMission: Mission
+    
+    init(presenter: ConfigureMissionForAlarmPresentable, initialMission: Mission) {
+        self.initialMission = initialMission
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
     override func didBecomeActive() {
         super.didBecomeActive()
-        // TODO: Implement business logic here.
+        // 초기 미션 설정
+        let (renderObject, conditionIndex) = convertMissionToRenderObject(initialMission)
+        currentSelectedMission = renderObject
+        currentSelectedMissionConditionIndex = conditionIndex
+        
+        // 기존에 선택된 미션이 있는 경우 바로 미션 조건 설정 화면으로 진입
+        presenter.update(.updateMissionDisplay(item: renderObject, conditionIndex: conditionIndex))
+        presenter.update(.presentMissionConditionSetting(item: renderObject))
+        presenter.update(.selecteMissionCondition(index: conditionIndex))
+        processStack.append(.missionConditionPage)
     }
 
     override func willResignActive() {
@@ -72,6 +90,16 @@ extension ConfigureMissionForAlarmInteractor {
         case .addMissionButtonIsTapped:
             self.processStack.append(.selectMissionPage)
             presenter.update(.presentMissionList(items: [.shake, .tap]))
+        case .missionChangeButtonTapped:
+            // 미션 변경 버튼을 누른 경우 미션 선택 화면으로 이동
+            self.processStack.append(.selectMissionPage)
+            presenter.update(.presentMissionList(items: [.shake, .tap]))
+        case .missionDeleteButtonTapped:
+            // 미션 삭제 버튼을 누른 경우 기본 UI로 전환
+            currentSelectedMission = nil
+            currentSelectedMissionConditionIndex = nil
+            processStack.removeAll()
+            presenter.update(.showDefaultUIAfterMissionDelete)
         case .missionIsSelected(let item):
             self.currentSelectedMission = item
             presenter.update(.presentMissionConditionSetting(item: item))
@@ -97,16 +125,77 @@ extension ConfigureMissionForAlarmInteractor {
             case .selectMissionPage:
                 presenter.update(.dismissMissionList)
             case .missionConditionPage:
-                presenter.update(.dismissMissionConditionSetting)
+                // 미션 조건 설정 화면에서 뒤로 가기
+                if processStack.count == 1 {
+                    // 초기 미션이 있어서 바로 조건 설정으로 진입한 경우 화면 닫기
+                    listener?.request(.dismissScreen)
+                    return
+                } else {
+                    // 미션 선택 화면으로 돌아가기
+                    presenter.update(.dismissMissionConditionSetting)
+                }
             }
             _ = processStack.popLast()
             
         case .missionConditionConfirmButtonTapped:
             // save
+            if let selectedMission = currentSelectedMission,
+               let selectedConditionIndex = currentSelectedMissionConditionIndex {
+                let mission = convertToMission(renderObject: selectedMission, conditionIndex: selectedConditionIndex)
+                listener?.request(.missionSelected(mission))
+                return
+            }
             listener?.request(.dismissScreen)
         case .missionPreviewButtonTapped:
             // show preview
-            break
+            if let selectedMission = currentSelectedMission {
+                let missionType: AlarmMissionType
+                switch selectedMission {
+                case .shake:
+                    missionType = .shake
+                case .tap:
+                    missionType = .tap
+                }
+                router?.routeToMissionPreview(missionType: missionType, isPreviewMode: true)
+            }
+        }
+    }
+    
+    private func convertToMission(renderObject: MissionItemRenderObject, conditionIndex: Int) -> Mission {
+        let missionType: Mission.MissionType
+        switch renderObject {
+        case .shake:
+            missionType = .shake
+        case .tap:
+            missionType = .tap
+        }
+        
+        let count = renderObject.conditionItems[conditionIndex].value
+        return Mission(type: missionType, count: count)
+    }
+    
+    private func convertMissionToRenderObject(_ mission: Mission) -> (MissionItemRenderObject, Int) {
+        let renderObject: MissionItemRenderObject
+        switch mission.type {
+        case .shake:
+            renderObject = .shake
+        case .tap:
+            renderObject = .tap
+        }
+        
+        // conditionItems에서 count와 일치하는 인덱스 찾기
+        let conditionIndex = renderObject.conditionItems.firstIndex { $0.value == mission.count } ?? 2 // 기본값 2 (15회)
+        
+        return (renderObject, conditionIndex)
+    }
+}
+
+// MARK: - AlarmMissionRootListener
+extension ConfigureMissionForAlarmInteractor {
+    func request(_ request: AlarmMissionRootListenerRequest) {
+        switch request {
+        case .missionCompleted, .close:
+            router?.detachMissionPreview()
         }
     }
 }

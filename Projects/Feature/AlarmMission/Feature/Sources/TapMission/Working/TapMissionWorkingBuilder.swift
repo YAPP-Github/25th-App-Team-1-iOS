@@ -21,7 +21,7 @@ final class TapMissionWorkingComponent: Component<TapMissionWorkingDependency> {
 // MARK: - Builder
 
 protocol TapMissionWorkingBuildable: Buildable {
-    func build(withListener listener: TapMissionWorkingListener) -> TapMissionWorkingRouting
+    func build(withListener listener: TapMissionWorkingListener, isPreviewMode: Bool) -> TapMissionWorkingRouting
 }
 
 final class TapMissionWorkingBuilder: Builder<TapMissionWorkingDependency>, TapMissionWorkingBuildable {
@@ -29,11 +29,11 @@ final class TapMissionWorkingBuilder: Builder<TapMissionWorkingDependency>, TapM
     override init(dependency: TapMissionWorkingDependency) {
         super.init(dependency: dependency)
     }
-
-    func build(withListener listener: TapMissionWorkingListener) -> TapMissionWorkingRouting {
+    
+    func build(withListener listener: TapMissionWorkingListener, isPreviewMode: Bool) -> TapMissionWorkingRouting {
         let component = TapMissionWorkingComponent(dependency: dependency)
         let viewController = TapMissionWorkingViewController()
-        let interactor = TapMissionWorkingInteractor(presenter: viewController, logger: dependency.logger)
+        let interactor = TapMissionWorkingInteractor(presenter: viewController, logger: dependency.logger, isPreviewMode: isPreviewMode)
         interactor.listener = listener
         return TapMissionWorkingRouter(interactor: interactor, viewController: viewController)
     }

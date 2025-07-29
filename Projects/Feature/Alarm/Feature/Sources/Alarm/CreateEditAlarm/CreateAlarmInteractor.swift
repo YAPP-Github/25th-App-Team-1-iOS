@@ -37,6 +37,7 @@ protocol CreateEditAlarmPresentable: Presentable {
 
 enum CreateEditAlarmListenerRequest {
     case back
+    case selectMission(Mission)
     case snoozeOption(SnoozeOption)
     case soundOption(SoundOption)
     case done(Alarm)
@@ -118,6 +119,8 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
                     }
                 presenter.request(.presentSnackBar(config: config))
             }
+        case .selectMission:
+            listener?.request(.selectMission(alarm.mission))
         case .selectSnooze:
             listener?.request(.snoozeOption(alarm.snoozeOption))
         case .selectSound:
@@ -128,6 +131,15 @@ final class CreateEditAlarmInteractor: PresentableInteractor<CreateEditAlarmPres
     }
     
     private func bind() {
+        createAlarmStream.missionChanged
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] mission in
+                guard let self else { return }
+                alarm.mission = mission
+                presenter.request(.alarmUpdated(alarm))
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         createAlarmStream.snoozeOptionChanged
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] option in
@@ -209,6 +221,7 @@ extension CreateEditAlarmInteractor: DSTwoButtonAlertViewControllerListener {
         }
     }
 }
+
 
 extension Alarm {
     func timeRemainingDescription(from now: Date = Date()) -> String {

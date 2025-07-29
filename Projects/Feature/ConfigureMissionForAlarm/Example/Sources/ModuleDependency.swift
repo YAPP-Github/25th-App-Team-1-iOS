@@ -6,8 +6,13 @@
 //
 
 import FeatureConfigureMissionForAlarm
+import FeatureLogger
 
 class ModuleDependency: ConfigureMissionForAlarmDependency {
+    var logger: FeatureLogger.Logger
     
+    init(logger: FeatureLogger.Logger) {
+        self.logger = logger
+    }
 }
 
