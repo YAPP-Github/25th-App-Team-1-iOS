@@ -22,7 +22,7 @@ final class ConfigureMissionForAlarmComponent: Component<ConfigureMissionForAlar
 // MARK: - Builder
 
 public protocol ConfigureMissionForAlarmBuildable: Buildable {
-    func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission) -> ConfigureMissionForAlarmRouting
+    func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission?) -> ConfigureMissionForAlarmRouting
 }
 
 public final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForAlarmDependency>, ConfigureMissionForAlarmBuildable {
@@ -31,7 +31,7 @@ public final class ConfigureMissionForAlarmBuilder: Builder<ConfigureMissionForA
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission) -> ConfigureMissionForAlarmRouting {
+    public func build(withListener listener: ConfigureMissionForAlarmListener, initialMission: Mission?) -> ConfigureMissionForAlarmRouting {
         let component = ConfigureMissionForAlarmComponent(dependency: dependency)
         let viewController = ConfigureMissionForAlarmViewController()
         let interactor = ConfigureMissionForAlarmInteractor(presenter: viewController, initialMission: initialMission)

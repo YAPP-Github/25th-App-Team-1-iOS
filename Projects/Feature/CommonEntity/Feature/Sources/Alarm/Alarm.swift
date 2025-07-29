@@ -13,7 +13,7 @@ public struct Alarm: Identifiable {
     public var hour: Hour
     public var minute: Minute
     public var repeatDays: AlarmDays // 반복할 요일
-    public var mission: Mission
+    public var mission: Mission?
     public var snoozeOption: SnoozeOption
     public var soundOption: SoundOption
     public var isActive: Bool
@@ -25,7 +25,7 @@ public struct Alarm: Identifiable {
         hour: Hour,
         minute: Minute,
         repeatDays: AlarmDays,
-        mission: Mission = .default,
+        mission: Mission? = .default,
         snoozeOption: SnoozeOption,
         soundOption: SoundOption,
         isActive: Bool = true

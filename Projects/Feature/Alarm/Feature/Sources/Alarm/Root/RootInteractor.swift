@@ -14,7 +14,7 @@ import FeatureConfigureMissionForAlarm
 public enum RootRouterRequest {
     case cleanupViews
     case routeToCreateEditAlarm(mode: AlarmCreateEditMode)
-    case routeToConfigureMission(Mission)
+    case routeToConfigureMission(Mission?)
     case detachConfigureMission
     case routeToSnoozeOption(SnoozeOption)
     case detachSnoozeOption
@@ -121,6 +121,8 @@ extension RootInteractor {
         case let .missionSelected(mission):
             router?.request(.detachConfigureMission)
             createAlarmMutableStream.mutableMission.onNext(mission)
+        case .missionIsRemoved:
+            createAlarmMutableStream.mutableMission.onNext(nil)
         }
     }
 }

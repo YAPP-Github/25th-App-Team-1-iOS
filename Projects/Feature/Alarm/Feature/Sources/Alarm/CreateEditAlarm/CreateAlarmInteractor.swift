@@ -37,7 +37,7 @@ protocol CreateEditAlarmPresentable: Presentable {
 
 enum CreateEditAlarmListenerRequest {
     case back
-    case selectMission(Mission)
+    case selectMission(Mission?)
     case snoozeOption(SnoozeOption)
     case soundOption(SoundOption)
     case done(Alarm)

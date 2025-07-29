@@ -168,10 +168,14 @@ public extension DefaultAlarmController {
                 alarmEntity.isActive = alarm.isActive
                 
                 // #5. Mission
-                let alarmMission = alarm.mission
-                let missionEntity = alarmEntity.mission!
-                missionEntity.type = alarm.mission.type.rawValue
-                missionEntity.count = Int16(alarm.mission.count)
+                if let mission = alarm.mission {
+                    let missionEntity = alarmEntity.mission ?? Mission(context: context)
+                    missionEntity.type = mission.type.rawValue
+                    missionEntity.count = Int16(mission.count)
+                    alarmEntity.mission = missionEntity
+                } else {
+                    alarmEntity.mission = nil
+                }
                 
                 try context.save()
                 completion(.success(()))
@@ -236,10 +240,14 @@ public extension DefaultAlarmController {
                 alarmEntity.isActive = alarm.isActive
                 
                 // #5. Mission
-                let alarmMission = alarm.mission
-                let missionEntity = alarmEntity.mission!
-                missionEntity.type = alarm.mission.type.rawValue
-                missionEntity.count = Int16(alarm.mission.count)
+                if let mission = alarm.mission {
+                    let missionEntity = alarmEntity.mission ?? Mission(context: context)
+                    missionEntity.type = mission.type.rawValue
+                    missionEntity.count = Int16(mission.count)
+                    alarmEntity.mission = missionEntity
+                } else {
+                    alarmEntity.mission = nil
+                }
                 
                 try context.save()
                 return .success(())
@@ -413,15 +421,18 @@ private extension DefaultAlarmController {
         alarmEntity.isActive = alarm.isActive
         
         // #5. Mission
-        let missionEntity = Mission(context: context)
-        missionEntity.type = alarm.mission.type.rawValue
-        missionEntity.count = Int16(alarm.mission.count)
+        if let mission = alarm.mission {
+            let missionEntity = Mission(context: context)
+            missionEntity.type = mission.type.rawValue
+            missionEntity.count = Int16(mission.count)
+            alarmEntity.mission = missionEntity
+        }
         
         // - Releation
         alarmEntity.repeatDays = alarmDaysEntity
         alarmEntity.snoozeOption = snoozeOptionEntity
         alarmEntity.soundOption = soundOptionEntity
-        alarmEntity.mission = missionEntity
+        
         
         return alarmEntity
     }
@@ -468,11 +479,13 @@ private extension DefaultAlarmController {
         )
         
         // #4. Mission
-        let missionEntity = alarmEntity.mission!
-        let mission = FeatureCommonEntity.Mission(
-            type: .init(rawValue: missionEntity.type!)!,
-            count: Int(missionEntity.count)
-        )
+        var mission: FeatureCommonEntity.Mission? = nil
+        if let missionEntity = alarmEntity.mission {
+            mission = FeatureCommonEntity.Mission(
+                type: .init(rawValue: missionEntity.type!)!,
+                count: Int(missionEntity.count)
+            )
+        }
         
         // #5. Alarm
         let alarm = Alarm(

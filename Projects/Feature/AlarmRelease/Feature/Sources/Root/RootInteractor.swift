@@ -165,7 +165,11 @@ extension RootInteractor {
         switch request {
         case .releaseAlarm:
             stream.stopTimerSubject.onNext(())
-            router?.request(.routeToMission(mission: alarm.mission))
+            if let mission = alarm.mission {
+                router?.request(.routeToMission(mission: mission))
+            } else {
+                finishWithMissionComplete.onNext(true)
+            }
         case .snoozeAlarm:
             router?.request(.routeToSnooze(alarm.snoozeOption, alarm.mission != nil))
         }
@@ -178,7 +182,11 @@ extension RootInteractor {
         router?.request(.detachSnooze)
         switch request {
         case .releaseAlarm:
-            router?.request(.routeToMission(mission: alarm.mission))
+            if let mission = alarm.mission {
+                router?.request(.routeToMission(mission: mission))
+            } else {
+                finishWithMissionComplete.onNext(true)
+            }
         case .snoozeFinished:
             stream.snoozeFinishedSubject.onNext(())
         }

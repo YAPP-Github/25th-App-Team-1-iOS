@@ -101,7 +101,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         }
     }
     
-    func routeToConfigureMission(mission: Mission) {
+    func routeToConfigureMission(mission: Mission?) {
         guard configureMissionRouter == nil else { return }
         let router = configureMissionBuilder.build(withListener: interactor, initialMission: mission)
         self.configureMissionRouter = router
