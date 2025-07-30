@@ -10,13 +10,14 @@ import RxSwift
 import UIKit
 
 import FeatureConfigureMissionForAlarm
+import FeatureCommonEntity
 
 protocol RootPresentableListener: AnyObject {
     func request(_ request: RootPresentableListenerRequest)
 }
 
 enum RootPresentableListenerRequest {
-    case startButtonTapped
+    case startButtonTapped(mission: Mission?)
 }
 
 final class RootViewController: UIViewController, RootPresentable, RootViewControllable {
@@ -25,7 +26,8 @@ final class RootViewController: UIViewController, RootPresentable, RootViewContr
     
     
     // UI
-    private let button: UIButton = .init()
+    private let buttonWithNoMission: UIButton = .init()
+    private let buttonWithMission: UIButton = .init()
     
     
     // Module
@@ -38,20 +40,40 @@ final class RootViewController: UIViewController, RootPresentable, RootViewContr
         view.backgroundColor = .white
         
         
-        button.setTitle("시작", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.setTitleColor(.gray, for: .focused)
-        button.addTarget(self, action: #selector(onButtonTapped(_:)), for: .touchUpInside)
-        view.addSubview(button)
+        buttonWithNoMission.setTitle("미션 없는 상태 시작", for: .normal)
+        buttonWithNoMission.setTitleColor(.black, for: .normal)
+        buttonWithNoMission.setTitleColor(.gray, for: .focused)
+        buttonWithNoMission.addTarget(self, action: #selector(onButtonTapped(_:)), for: .touchUpInside)
+        view.addSubview(buttonWithNoMission)
         
         
-        button.snp.makeConstraints { make in
+        buttonWithMission.setTitle("기본 미션 있는 상태 시작", for: .normal)
+        buttonWithMission.setTitleColor(.black, for: .normal)
+        buttonWithMission.setTitleColor(.gray, for: .focused)
+        buttonWithMission.addTarget(self, action: #selector(onButtonTapped(_:)), for: .touchUpInside)
+        view.addSubview(buttonWithMission)
+        
+        
+        buttonWithNoMission.snp.makeConstraints { make in
             make.center.equalToSuperview()
+        }
+        
+        buttonWithMission.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(buttonWithNoMission.snp.bottom).offset(10)
         }
     }
     
     @objc
     func onButtonTapped(_ sender: UIButton) {
-        listener?.request(.startButtonTapped)
+        
+        if sender === buttonWithMission {
+            
+            listener?.request(.startButtonTapped(mission: .default))
+            
+        } else if sender === buttonWithNoMission {
+            
+            listener?.request(.startButtonTapped(mission: nil))
+        }
     }
 }

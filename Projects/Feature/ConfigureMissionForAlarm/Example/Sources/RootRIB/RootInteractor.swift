@@ -9,13 +9,14 @@ import RIBs
 import RxSwift
 
 import FeatureConfigureMissionForAlarm
+import FeatureCommonEntity
 
 protocol RootRouting: ViewableRouting {
     func request(_ request: RootRoutingRequest)
 }
 
 enum RootRoutingRequest {
-    case presentConfigureMissionForAlarm
+    case presentConfigureMissionForAlarm(mission: Mission?)
     case dismissConfigureMissionForAlarm
 }
 
@@ -54,8 +55,8 @@ final class RootInteractor: PresentableInteractor<RootPresentable>, RootInteract
 extension RootInteractor {
     func request(_ request: RootPresentableListenerRequest) {
         switch request {
-        case .startButtonTapped:
-            router?.request(.presentConfigureMissionForAlarm)
+        case .startButtonTapped(let mission):
+            router?.request(.presentConfigureMissionForAlarm(mission: mission))
         }
     }
 }
