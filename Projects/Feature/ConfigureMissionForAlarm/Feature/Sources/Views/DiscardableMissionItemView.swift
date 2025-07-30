@@ -7,11 +7,160 @@
 
 import UIKit
 
+import FeatureUIDependencies
+
+protocol DiscardableMissionItemViewListener: AnyObject {
+    func action(_ action: DiscardableMissionItemView.Action)
+}
+
 final class DiscardableMissionItemView: UIView {
+    
+    // Action
+    enum Action {
+        case missionCountButtonTapped
+        case discardButtonTapped
+    }
+    
+    
+    // Listener
+    weak var listener: DiscardableMissionItemViewListener?
+    
     
     // UI
     private let iconImageView: UIImageView = .init()
     private let titleLabel: UILabel = .init()
+    private let missionCountButton: MissionCountButton = .init()
+    private let missionDescriptionContainer: UIStackView = .init()
+    private let trashButton: DSDefaultIconButton = .init(style: .init(
+        type: .default,
+        image: FeatureResourcesAsset.trashStroke.image,
+        size: .custom(
+            size: .init(width: 20, height: 20),
+            inset: 0
+        )
+    ))
+    private let mainContainer: UIStackView = .init()
     
     
+    override var intrinsicContentSize: CGSize {
+        .init(
+            width: UIView.noIntrinsicMetric,
+            height: 52
+        )
+    }
+    
+    
+    init() {
+        super.init(frame: .zero)
+        setupUI()
+        setupLayout()
+    }
+    required init?(coder: NSCoder) { nil }
+    
+    
+    private func setupUI() {
+        
+        // self
+        self.backgroundColor = R.Color.gray800
+        
+        
+        // iconImageView
+        missionDescriptionContainer.addArrangedSubview(iconImageView)
+        
+        
+        // missionCountButton
+        missionCountButton.buttonAction = { [unowned self] in
+            listener?.action(.missionCountButtonTapped)
+        }
+        
+        
+        // labelStack
+        let labelStack: UIStackView = .init(arrangedSubviews: [
+            titleLabel,
+            missionCountButton,
+            UIView()
+        ])
+        labelStack.axis = .horizontal
+        labelStack.spacing = 8
+        labelStack.distribution = .fill
+        labelStack.alignment = .center
+        missionDescriptionContainer.addArrangedSubview(labelStack)
+        
+        
+        // missionDescriptionContainerView
+        let missionDescriptionContainerView: UIView = .init()
+        mainContainer.addArrangedSubview(missionDescriptionContainerView)
+        
+        
+        // missionDescriptionContainer
+        missionDescriptionContainer.axis = .horizontal
+        missionDescriptionContainer.spacing = 12
+        missionDescriptionContainerView.addSubview(missionDescriptionContainer)
+        
+        
+        // iconBaseView
+        let iconBaseView: UIView = .init()
+        mainContainer.addArrangedSubview(iconBaseView)
+        
+        
+        // trashButton
+        trashButton.buttonAction = { [unowned self] in
+            listener?.action(.discardButtonTapped)
+        }
+        iconBaseView.addSubview(trashButton)
+        
+        
+        // mainContainer
+        mainContainer.axis = .horizontal
+        mainContainer.spacing = 0
+        addSubview(mainContainer)
+    }
+    
+    private func setupLayout() {
+        
+        // mainContainer
+        mainContainer.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        
+        // iconImageView
+        iconImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(28)
+        }
+        
+        // missionDescriptionContainer
+        missionDescriptionContainer.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(12)
+        }
+        
+        // trashButton
+        trashButton.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(12)
+        }
+    }
+    
+    func update(mission: MissionItemRenderObject) {
+        
+        // iconImageView
+        iconImageView.image = mission.iconImage
+        
+        // titleLabel
+        titleLabel.displayText = mission.title.displayText(font: .headline2SemiBold, color: R.Color.white100)
+    }
+    
+    func update(countText: String) {
+        missionCountButton.update(title: countText)
+    }
 }
+
+
+
+#Preview(traits: .defaultLayout, body: {
+    let view = DiscardableMissionItemView()
+    view.update(mission: .shake)
+    view.update(countText: "15회")
+    return view
+})

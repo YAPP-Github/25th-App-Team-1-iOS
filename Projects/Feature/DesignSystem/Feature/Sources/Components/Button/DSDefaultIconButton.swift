@@ -125,23 +125,28 @@ extension DSDefaultIconButton {
     
     
     public enum ButtonSize {
+        case custom(size: CGSize, inset: CGFloat)
         case small
         case medium
         case large
         
         var buttonSize: CGSize {
             switch self {
+            case .custom(let size, _):
+                return size
             case .small:
-                .init(width: 32, height: 32)
+                return .init(width: 32, height: 32)
             case .medium:
-                .init(width: 32, height: 32)
+                return .init(width: 32, height: 32)
             case .large:
-                .init(width: 36, height: 36)
+                return .init(width: 36, height: 36)
             }
         }
         
         var imageInset: CGFloat {
             switch self {
+            case .custom(_, let inset):
+                return inset
             case .small:
                 return 4.0
             case .medium:
