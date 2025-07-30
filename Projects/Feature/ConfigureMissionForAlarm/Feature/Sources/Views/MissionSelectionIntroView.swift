@@ -33,6 +33,12 @@ final class MissionSelectionIntroView: UIView {
     weak var listener: MissionSelectionIntroViewListener?
     
     
+    // Layout
+    private enum Layout {
+        static let contentBaseViewHeight: CGFloat = 446
+    }
+    
+    
     // UI
     private let headTitleLabel: UILabel = .init()
     private let contentsBaseView: UIView = .init()
@@ -206,7 +212,8 @@ private extension MissionSelectionIntroView {
         // contentsBaseView
         contentsBaseView.snp.makeConstraints { make in
             make.top.equalTo(headTitleLabel).offset(32)
-            make.horizontalEdges.equalToSuperview().inset(24)
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(Layout.contentBaseViewHeight)
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(36)
         }
         

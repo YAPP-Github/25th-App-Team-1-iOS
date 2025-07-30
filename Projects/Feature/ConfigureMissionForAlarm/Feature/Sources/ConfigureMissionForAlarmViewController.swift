@@ -36,7 +36,6 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
     // UI
     private let dimmedBackgroundView: UIView = .init()
     private let missionSelectionIntroView: MissionSelectionIntroView = .init()
-    private let missionSelectionIntroViewTopInset: CGFloat = 212
     
     
     // Gesture
@@ -64,6 +63,10 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
         setupUI()
         setupGesture()
         setupLayout()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
     }
 }
 
@@ -98,7 +101,6 @@ private extension ConfigureMissionForAlarmViewController {
         
         // missionSelectionIntroView
         missionSelectionIntroView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(missionSelectionIntroViewTopInset)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }
@@ -180,13 +182,16 @@ private extension ConfigureMissionForAlarmViewController {
         
         // #1. Initial State
         dimmedBackgroundView.alpha = 0
+        
+        self.view.layoutIfNeeded()
+        let startTopInset = UIScreen.main.bounds.height - self.missionSelectionIntroView.bounds.height
         missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height
         
         
         // #2. Animate
         UIView.animate(withDuration: duration) {
             self.dimmedBackgroundView.alpha = 1
-            self.missionSelectionIntroView.frame.origin.y = self.missionSelectionIntroViewTopInset
+            self.missionSelectionIntroView.frame.origin.y = startTopInset
         } completion: { _ in
             completion()
         }
