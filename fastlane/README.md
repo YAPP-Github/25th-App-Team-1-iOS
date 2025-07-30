@@ -15,29 +15,21 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios betaOrbit
+### ios orbit_beta
 
 ```sh
-[bundle exec] fastlane ios betaOrbit
+[bundle exec] fastlane ios orbit_beta
 ```
 
 Orbit demo app
 
-### ios betaOnboarding
+### ios feature_beta
 
 ```sh
-[bundle exec] fastlane ios betaOnboarding
+[bundle exec] fastlane ios feature_beta
 ```
 
-On boarding demo app
-
-### ios betaShakeMission
-
-```sh
-[bundle exec] fastlane ios betaShakeMission
-```
-
-Shake mission demo app
+Demo app
 
 ----
 

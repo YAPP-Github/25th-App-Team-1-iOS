@@ -18,7 +18,14 @@ let project = Project(
             product: .app,
             bundleId: Project.Environment.bundleId(suffix: "feature.example"),
             deploymentTargets: Project.Environment.deploymentTarget,
-            infoPlist: .example_app,
+            infoPlist: .app_plist(with: [
+                "UIUserInterfaceStyle": "Light",
+                "UISupportedInterfaceOrientations": [
+                    "UIInterfaceOrientationPortrait"
+                ],
+                "CFBundleDisplayName": "오르비 알람 데모",
+                "CFBundleShortVersionString": "1.0.5"
+            ]),
             sources: ["Example/Sources/**"],
             resources: ["Example/Resources/**"],
             dependencies: [
@@ -54,6 +61,17 @@ let project = Project(
                 .feature(implements: .ThirdPartyDependencies),
                 .feature(implements: .AlarmMission),
             ]
+        ),
+    ],
+    schemes: [
+        // MARK: Release scheme
+        .scheme(
+            name: "FeatureConfigureMissionForAlarmExample-Release",
+            buildAction: .buildAction(
+                targets: [ .target("FeatureConfigureMissionForAlarmExample") ]
+            ),
+            runAction: .runAction(configuration: "Release"),
+            archiveAction: .archiveAction(configuration: "Release")
         ),
     ]
 )
