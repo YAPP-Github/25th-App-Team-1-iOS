@@ -41,7 +41,9 @@ final class MissionSelectionIntroView: UIView {
     
     // UI
     private let headTitleLabel: UILabel = .init()
-    private let contentsBaseView: UIView = .init()
+    private let contentsView: UIView = .init()
+    
+    private let addMissionContainerView: UIView = .init()
     private let contentsStackView: UIStackView = .init()
     private let titleLabelStack: UIStackView = .init()
     private let titleLabel: UILabel = .init()
@@ -108,15 +110,19 @@ private extension MissionSelectionIntroView {
         addSubview(headTitleLabel)
         
         
-        // contentView
-        addSubview(contentsBaseView)
+        // contentsView
+        addSubview(contentsView)
+        
+        
+        // addMissionContainerView
+        contentsView.addSubview(addMissionContainerView)
         
         
         // contentsStackView
         contentsStackView.alignment = .center
         contentsStackView.axis = .vertical
         contentsStackView.spacing = 32
-        contentsBaseView.addSubview(contentsStackView)
+        addMissionContainerView.addSubview(contentsStackView)
         
         
         // titleLabelStack
@@ -209,12 +215,20 @@ private extension MissionSelectionIntroView {
         }
         
         
-        // contentsBaseView
-        contentsBaseView.snp.makeConstraints { make in
-            make.top.equalTo(headTitleLabel).offset(32)
+        // contentsView
+        contentsView.snp.makeConstraints { make in
+            make.top.equalTo(headTitleLabel.snp.bottom).offset(8)
             make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+        
+        
+        // addMissionContainerView
+        addMissionContainerView.snp.makeConstraints { make in
             make.height.equalTo(Layout.contentBaseViewHeight)
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(36)
+            make.top.equalToSuperview().inset(24)
+            make.horizontalEdges.equalToSuperview().inset(24)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(36)
         }
         
         
@@ -300,14 +314,14 @@ private extension MissionSelectionIntroView {
     private func showCurrentMissionUI() {
         hasExistingMission = true
         currentMissionContainer.isHidden = false
-        contentsBaseView.isHidden = true
+        addMissionContainerView.isHidden = true
         bottomButtonContainer.isHidden = false
     }
     
     private func showDefaultUI() {
         hasExistingMission = false
         currentMissionContainer.isHidden = true
-        contentsBaseView.isHidden = false
+        addMissionContainerView.isHidden = false
         bottomButtonContainer.isHidden = true
     }
     
