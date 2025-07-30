@@ -10,7 +10,7 @@
         <attribute name="isActive" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="meridiem" attributeType="String"/>
         <attribute name="minute" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="mission" maxCount="1" deletionRule="Nullify" destinationEntity="Mission"/>
+        <relationship name="mission" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Mission"/>
         <relationship name="repeatDays" maxCount="1" deletionRule="Cascade" destinationEntity="AlarmDaysEntity"/>
         <relationship name="snoozeOption" maxCount="1" deletionRule="Cascade" destinationEntity="SnoozeOptionEntity"/>
         <relationship name="soundOption" maxCount="1" deletionRule="Cascade" destinationEntity="SoundOptionEntity"/>
