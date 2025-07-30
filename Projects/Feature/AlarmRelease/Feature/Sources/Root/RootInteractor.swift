@@ -43,7 +43,7 @@ public enum RootRouterRequest {
     case routeToIntro
     case routeToSnooze(SnoozeOption, Bool)
     case detachSnooze
-    case routeToMission(missionType: AlarmMissionType)
+    case routeToMission(mission: Mission)
     case detachAlarmMission
     case routeToFortune(Fortune, UserInfo, FortuneSaveInfo)
     case detachFortune
@@ -164,14 +164,12 @@ extension RootInteractor {
     func request(_ request: AlarmReleaseIntroListenerRequest) {
         switch request {
         case .releaseAlarm:
-            let config = RemoteConfig.remoteConfig()
-            let configValue = config["alarm_mission_type"].stringValue
-            debugPrint("Remote config에서 획득한 미션타입: \(configValue)")
-            let mission = AlarmMissionType(key: configValue)
             stream.stopTimerSubject.onNext(())
-            router?.request(.routeToMission(
-                missionType: mission
-            ))
+            if let mission = alarm.mission {
+                router?.request(.routeToMission(mission: mission))
+            } else {
+                finishWithMissionComplete.onNext(true)
+            }
         case .snoozeAlarm:
             router?.request(.routeToSnooze(alarm.snoozeOption, alarm.mission != nil))
         }
@@ -184,11 +182,11 @@ extension RootInteractor {
         router?.request(.detachSnooze)
         switch request {
         case .releaseAlarm:
-            let config = RemoteConfig.remoteConfig()
-            let configValue = config["alarm_mission_type"].stringValue
-            debugPrint("Remote config에서 획득한 미션타입: \(configValue)")
-            let mission = AlarmMissionType(key: configValue)
-            router?.request(.routeToMission(missionType: mission))
+            if let mission = alarm.mission {
+                router?.request(.routeToMission(mission: mission))
+            } else {
+                finishWithMissionComplete.onNext(true)
+            }
         case .snoozeFinished:
             stream.snoozeFinishedSubject.onNext(())
         }

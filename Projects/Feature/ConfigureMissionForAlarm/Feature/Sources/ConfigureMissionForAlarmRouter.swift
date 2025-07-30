@@ -5,9 +5,12 @@
 //  Created by choijunios on 7/21/25.
 //
 
-import RIBs
-import FeatureAlarmMission
 import UIKit
+
+import FeatureCommonEntity
+import FeatureAlarmMission
+
+import RIBs
 
 protocol ConfigureMissionForAlarmInteractable: Interactable, AlarmMissionRootListener {
     var router: ConfigureMissionForAlarmRouting? { get set }
@@ -33,7 +36,7 @@ final class ConfigureMissionForAlarmRouter: ViewableRouter<ConfigureMissionForAl
         interactor.router = self
     }
     
-    func routeToMissionPreview(missionType: AlarmMissionType, isPreviewMode: Bool) {
+    func routeToMissionPreview(mission: Mission, isPreviewMode: Bool) {
         guard alarmMissionRouting == nil else { return }
         
         // AlarmMissionRootBuilder의 설계 문제를 해결하기 위해
@@ -47,7 +50,7 @@ final class ConfigureMissionForAlarmRouter: ViewableRouter<ConfigureMissionForAl
         let routing = alarmMissionBuilder.build(
             withListener: interactor,
             navigationController: mockNavigationController,
-            missionType: missionType,
+            mission: mission,
             isPreviewMode: isPreviewMode
         )
         

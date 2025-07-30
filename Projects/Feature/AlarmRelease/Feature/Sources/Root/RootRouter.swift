@@ -52,8 +52,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToSnooze(snoozeOption: snoozeOption, hasMission: hasMission)
         case .detachSnooze:
             detachSnooze()
-        case let .routeToMission(missionType):
-            routeToAlarmMission(missionType: missionType)
+        case let .routeToMission(mission):
+            routeToAlarmMission(mission: mission)
         case .detachAlarmMission:
             detachAlarmMission({})
         case let .routeToFortune(fortune, userInfo, saveInfo):
@@ -130,12 +130,12 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         navigationController?.popViewController(animated: true)
     }
     
-    private func routeToAlarmMission(missionType: AlarmMissionType) {
+    private func routeToAlarmMission(mission: Mission) {
         guard missionRouter == nil else { return }
         let router = missionBuilder.build(
             withListener: interactor,
             navigationController: generateNavigationControllerIfNeeded(),
-            missionType: missionType,
+            mission: mission,
             isPreviewMode: false
         )
         self.missionRouter = router

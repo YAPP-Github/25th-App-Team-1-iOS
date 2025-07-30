@@ -11,7 +11,7 @@ import FeatureCommonEntity
 import FeatureAlarmMission
 
 public protocol ConfigureMissionForAlarmRouting: ViewableRouting {
-    func routeToMissionPreview(missionType: AlarmMissionType, isPreviewMode: Bool)
+    func routeToMissionPreview(mission: Mission, isPreviewMode: Bool)
     func detachMissionPreview()
 }
 
@@ -36,6 +36,7 @@ public protocol ConfigureMissionForAlarmListener: AnyObject {
 
 public enum ConfigureMissionForAlarmListenerRequest {
     case missionSelected(Mission)
+    case missionIsRemoved
     case dismissScreen
 }
 
@@ -54,9 +55,9 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     private var currentSelectedMissionConditionIndex: Int?
     
     
-    private let initialMission: Mission
+    private let initialMission: Mission?
     
-    init(presenter: ConfigureMissionForAlarmPresentable, initialMission: Mission) {
+    init(presenter: ConfigureMissionForAlarmPresentable, initialMission: Mission?) {
         self.initialMission = initialMission
         super.init(presenter: presenter)
         presenter.listener = self
@@ -65,14 +66,16 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     override func didBecomeActive() {
         super.didBecomeActive()
         // 초기 미션 설정
-        let (renderObject, conditionIndex) = convertMissionToRenderObject(initialMission)
-        currentSelectedMission = renderObject
-        currentSelectedMissionConditionIndex = conditionIndex
-        
-        // 기존에 선택된 미션이 있는 경우 바로 미션 조건 설정 화면으로 진입
-        presenter.update(.updateMissionDisplay(item: renderObject, conditionIndex: conditionIndex))
-        presenter.update(.presentMissionConditionSetting(item: renderObject))
-        presenter.update(.selecteMissionCondition(index: conditionIndex))
+        if let initialMission {
+            let (renderObject, conditionIndex) = convertMissionToRenderObject(initialMission)
+            currentSelectedMission = renderObject
+            currentSelectedMissionConditionIndex = conditionIndex
+            
+            // 기존에 선택된 미션이 있는 경우 바로 미션 조건 설정 화면으로 진입
+            presenter.update(.updateMissionDisplay(item: renderObject, conditionIndex: conditionIndex))
+            presenter.update(.presentMissionConditionSetting(item: renderObject))
+            presenter.update(.selecteMissionCondition(index: conditionIndex))
+        }
         processStack.append(.missionConditionPage)
     }
 
@@ -99,6 +102,7 @@ extension ConfigureMissionForAlarmInteractor {
             currentSelectedMission = nil
             currentSelectedMissionConditionIndex = nil
             processStack.removeAll()
+            listener?.request(.missionIsRemoved)
             presenter.update(.showDefaultUIAfterMissionDelete)
         case .missionIsSelected(let item):
             self.currentSelectedMission = item
@@ -148,15 +152,15 @@ extension ConfigureMissionForAlarmInteractor {
             listener?.request(.dismissScreen)
         case .missionPreviewButtonTapped:
             // show preview
-            if let selectedMission = currentSelectedMission {
-                let missionType: AlarmMissionType
+            if let selectedMission = currentSelectedMission, let count = currentSelectedMissionConditionIndex {
+                let mission: Mission
                 switch selectedMission {
                 case .shake:
-                    missionType = .shake
+                    mission = .init(type: .shake, count: count)
                 case .tap:
-                    missionType = .tap
+                    mission = .init(type: .tap, count: count)
                 }
-                router?.routeToMissionPreview(missionType: missionType, isPreviewMode: true)
+                router?.routeToMissionPreview(mission: mission, isPreviewMode: true)
             }
         }
     }

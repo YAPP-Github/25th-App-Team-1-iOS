@@ -10,21 +10,21 @@ import FeatureResources
 import FeatureCommonDependencies
 
 protocol CreateEditAlarmStream {
-    var missionChanged: Observable<Mission> { get }
+    var missionChanged: Observable<Mission?> { get }
     var snoozeOptionChanged: Observable<SnoozeOption> { get }
     var soundOptionChanged: Observable<SoundOption> { get }
 }
 
 protocol CreateEditAlarmMutableStream: CreateEditAlarmStream {
-    var mutableMission: PublishSubject<Mission> { get }
+    var mutableMission: PublishSubject<Mission?> { get }
     var mutableSnoozeOption: PublishSubject<SnoozeOption> { get }
     var mutableSoundOption: PublishSubject<SoundOption> { get }
 }
 
 struct CreateEditAlarmMutableStreamImpl: CreateEditAlarmMutableStream {
     // 미션
-    let mutableMission = PublishSubject<Mission>()
-    var missionChanged: Observable<Mission> {
+    let mutableMission = PublishSubject<Mission?>()
+    var missionChanged: Observable<Mission?> {
         mutableMission.asObservable()
     }
     // 미루기 옵션
