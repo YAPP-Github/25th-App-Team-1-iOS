@@ -37,7 +37,7 @@ final class AlarmSettingsView: UIView {
     
     func update(alarm: Alarm) {
         // 미션 설정 업데이트
-        let missionTitle = alarm.mission?.displayTitle ?? "미션 없음"
+        let missionTitle = alarm.mission?.displayTitle ?? "없음"
         missionValueButton.setAttributedTitle(missionTitle.displayText(font: .body2Regular, color: R.Color.gray50), for: .normal)
         
         if alarm.snoozeOption.isSnoozeOn {

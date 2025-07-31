@@ -88,7 +88,7 @@ final class MissionItemView: TouchDetectingView {
         case .image(let image):
             itemImage.image = image
         case .title(let str):
-            titleLabel.displayText = str.displayText(font: .heading2SemiBold, color: R.Color.white100)
+            titleLabel.displayText = str.displayText(font: .headline2SemiBold, color: R.Color.white100)
         }
     }
 }
