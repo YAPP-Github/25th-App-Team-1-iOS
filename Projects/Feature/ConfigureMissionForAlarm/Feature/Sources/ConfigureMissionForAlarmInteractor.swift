@@ -186,13 +186,14 @@ extension ConfigureMissionForAlarmInteractor {
         case .missionPreviewButtonTapped:
             
             // show preview
-            if let selectedMission = currentSelectedMission, let count = currentSelectedMissionConditionIndex {
+            if let selectedMission = currentSelectedMission, let countIndex = currentSelectedMissionConditionIndex {
                 let mission: Mission
+                let countItem = selectedMission.conditionItems[countIndex]
                 switch selectedMission {
                 case .shake:
-                    mission = .init(type: .shake, count: count)
+                    mission = .init(type: .shake, count: countItem.value)
                 case .tap:
-                    mission = .init(type: .tap, count: count)
+                    mission = .init(type: .tap, count: countItem.value)
                 }
                 router?.routeToMissionPreview(mission: mission, isPreviewMode: true)
             }
