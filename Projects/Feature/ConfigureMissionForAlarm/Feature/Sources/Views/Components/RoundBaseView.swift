@@ -16,6 +16,7 @@ final class RoundBaseView: UIView {
     
     init() {
         super.init(frame: .zero)
+        setupUI()
     }
     required init?(coder: NSCoder) { nil }
     

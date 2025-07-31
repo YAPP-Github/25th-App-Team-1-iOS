@@ -9,21 +9,14 @@ import UIKit
 
 import FeatureUIDependencies
 
-protocol DiscardableMissionItemViewListener: AnyObject {
-    func action(_ action: CurrentMissionItemView.Action)
-}
-
 final class CurrentMissionItemView: UIView {
     
     // Action
     enum Action {
-        case missionCountButtonTapped
+        case tapped
         case discardButtonTapped
     }
-    
-    
-    // Listener
-    weak var listener: DiscardableMissionItemViewListener?
+    var action: ((Action) -> ())?
     
     
     // UI
@@ -58,7 +51,29 @@ final class CurrentMissionItemView: UIView {
     required init?(coder: NSCoder) { nil }
     
     
-    private func setupUI() {
+    private var initialTouch: UITouch?
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            initialTouch = touch
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let currentLocation = touch.location(in: self)
+            
+            guard bounds.contains(currentLocation) == true else { return }
+            
+            action?(.tapped)
+        }
+    }
+}
+
+
+private extension CurrentMissionItemView {
+    
+    func setupUI() {
         
         // self
         self.backgroundColor = R.Color.gray800
@@ -66,12 +81,6 @@ final class CurrentMissionItemView: UIView {
         
         // iconImageView
         missionDescriptionContainer.addArrangedSubview(iconImageView)
-        
-        
-        // missionCountButton
-        missionCountButton.buttonAction = { [unowned self] in
-            listener?.action(.missionCountButtonTapped)
-        }
         
         
         // labelStack
@@ -105,7 +114,7 @@ final class CurrentMissionItemView: UIView {
         
         // trashButton
         trashButton.buttonAction = { [unowned self] in
-            listener?.action(.discardButtonTapped)
+            action?(.discardButtonTapped)
         }
         iconBaseView.addSubview(trashButton)
         
@@ -116,7 +125,8 @@ final class CurrentMissionItemView: UIView {
         addSubview(mainContainer)
     }
     
-    private func setupLayout() {
+    
+    func setupLayout() {
         
         // mainContainer
         mainContainer.snp.makeConstraints { make in
@@ -129,11 +139,13 @@ final class CurrentMissionItemView: UIView {
             make.width.height.equalTo(28)
         }
         
+        
         // missionDescriptionContainer
         missionDescriptionContainer.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.horizontalEdges.equalToSuperview().inset(12)
         }
+        
         
         // trashButton
         trashButton.snp.makeConstraints { make in
@@ -141,7 +153,10 @@ final class CurrentMissionItemView: UIView {
             make.horizontalEdges.equalToSuperview().inset(12)
         }
     }
-    
+}
+
+
+extension CurrentMissionItemView {
     func update(mission: MissionItemRenderObject) {
         
         // iconImageView
@@ -155,7 +170,6 @@ final class CurrentMissionItemView: UIView {
         missionCountButton.update(title: countText)
     }
 }
-
 
 
 #Preview(traits: .defaultLayout, body: {

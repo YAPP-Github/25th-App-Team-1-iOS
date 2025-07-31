@@ -200,7 +200,7 @@ private extension MissionConditionSettingPage {
         
         // navBar
         navBar.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(14)
             make.horizontalEdges.equalToSuperview()
         }
         
@@ -260,7 +260,6 @@ private extension MissionConditionSettingPage {
         titleStackView.snp.makeConstraints {
             $0.top.equalTo(lineContainer.snp.bottom).offset(12)
             $0.horizontalEdges.equalTo(buttonStackView)
-            $0.bottom.lessThanOrEqualTo(bottomButtonContainer.snp.top).inset(74)
         }
         
         
@@ -272,6 +271,7 @@ private extension MissionConditionSettingPage {
         
         // bottomButtonContainer
         bottomButtonContainer.snp.makeConstraints { make in
+            make.top.equalTo(titleStackView.snp.bottom).offset(74)
             make.horizontalEdges.equalToSuperview().inset(15)
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(12)
         }
@@ -346,5 +346,6 @@ extension MissionConditionSettingPage {
 #Preview(traits: .defaultLayout, body: {
     let page = MissionConditionSettingPage()
     page.update(.changeMissionItem(item: .shake))
+    page.update(.selectCondition(index: 14))
     return page
 })

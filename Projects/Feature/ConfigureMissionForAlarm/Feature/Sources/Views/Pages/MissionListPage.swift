@@ -63,7 +63,7 @@ private extension MissionListPage {
         
         // navBar
         navBar.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(14)
             make.horizontalEdges.equalToSuperview()
         }
         
@@ -72,6 +72,7 @@ private extension MissionListPage {
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navBar.snp.bottom)
             make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(506)
             make.bottom.equalToSuperview()
         }
     }
