@@ -1,5 +1,5 @@
 //
-//  MissionCountButton.swift
+//  MissionCountView.swift
 //  ConfigureMissionForAlarm
 //
 //  Created by choijunios on 7/30/25.
@@ -9,10 +9,7 @@ import UIKit
 
 import FeatureUIDependencies
 
-final class MissionCountButton: TouchDetectingView {
-    
-    // Action
-    var buttonAction: (() -> ())?
+final class MissionCountView: UIView {
     
     // UI
     private let containerStackView: UIStackView = .init()
@@ -26,11 +23,6 @@ final class MissionCountButton: TouchDetectingView {
         setupLayout()
     }
     required init?(coder: NSCoder) { nil }
-    
-    
-    override func onTap(direction: TouchDetectingView.TapDirection) {
-        self.buttonAction?()
-    }
     
     
     override var intrinsicContentSize: CGSize {
@@ -82,7 +74,7 @@ final class MissionCountButton: TouchDetectingView {
 }
 
 #Preview(traits: .defaultLayout, body: {
-    let button = MissionCountButton()
+    let button = MissionCountView()
     button.update(title: "15회")
     return button
 })

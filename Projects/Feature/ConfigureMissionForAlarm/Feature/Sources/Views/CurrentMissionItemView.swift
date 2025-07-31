@@ -10,10 +10,10 @@ import UIKit
 import FeatureUIDependencies
 
 protocol DiscardableMissionItemViewListener: AnyObject {
-    func action(_ action: DiscardableMissionItemView.Action)
+    func action(_ action: CurrentMissionItemView.Action)
 }
 
-final class DiscardableMissionItemView: UIView {
+final class CurrentMissionItemView: UIView {
     
     // Action
     enum Action {
@@ -29,7 +29,7 @@ final class DiscardableMissionItemView: UIView {
     // UI
     private let iconImageView: UIImageView = .init()
     private let titleLabel: UILabel = .init()
-    private let missionCountButton: MissionCountButton = .init()
+    private let missionCountButton: MissionCountView = .init()
     private let missionDescriptionContainer: UIStackView = .init()
     private let trashButton: DSDefaultIconButton = .init(style: .init(
         type: .default,
@@ -159,7 +159,7 @@ final class DiscardableMissionItemView: UIView {
 
 
 #Preview(traits: .defaultLayout, body: {
-    let view = DiscardableMissionItemView()
+    let view = CurrentMissionItemView()
     view.update(mission: .shake)
     view.update(countText: "15회")
     return view
