@@ -156,7 +156,9 @@ private extension CurrentMissionPage {
 extension CurrentMissionPage {
     func update(item: MissionItemRenderObject, conditionIndex: Int) {
         currentMissionItemView.update(mission: item)
-        currentMissionItemView.update(countText: "\(conditionIndex)회")
+        
+        let conditionItem = item.conditionItems[conditionIndex]
+        currentMissionItemView.update(countText: conditionItem.title)
     }
 }
 
