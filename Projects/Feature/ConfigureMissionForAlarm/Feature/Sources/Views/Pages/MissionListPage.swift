@@ -22,21 +22,7 @@ final class MissionListPage: UIView {
     
     
     // UI
-    private let prevButton: DSDefaultIconButton = .init(
-        style: .init(
-            type: .default,
-            image: FeatureResourcesAsset.chevronLeft.image,
-            size: .medium
-        )
-    )
-    private let exitButton: DSDefaultIconButton = .init(
-        style: .init(
-            type: .default,
-            image: FeatureResourcesAsset.xmark.image,
-            size: .small
-        )
-    )
-    private let appBar: DSAppBar = .init()
+    private let navBar: NavigationBar = .init()
     private let contentView: UIView = .init()
     private var listContentsView: UIView?
     
@@ -57,23 +43,17 @@ private extension MissionListPage {
         self.backgroundColor = R.Color.gray800
         
         
-        // appBar
-        appBar.insertLeftView(prevButton)
-        appBar.insertRightView(exitButton)
-        addSubview(appBar)
-        
-        
-        // prevButton
-        prevButton.buttonAction = { [unowned self] in
-            pageAction?(.prevButtonTapped)
+        // navBar
+        navBar.update(title: "미션 선택")
+        navBar.action = { [unowned self] action in
+            switch action {
+            case .exitButtonTapped:
+                pageAction?(.exitButtonTapped)
+            case .prevButtonTapped:
+                pageAction?(.prevButtonTapped)
+            }
         }
-        
-        
-        // exitButton
-        exitButton.buttonAction = { [unowned self] in
-            pageAction?(.exitButtonTapped)
-        }
-        
+        addSubview(navBar)
         
         // contentView
         addSubview(contentView)
@@ -81,8 +61,8 @@ private extension MissionListPage {
     
     func setupLayout() {
         
-        // appBar
-        appBar.snp.makeConstraints { make in
+        // navBar
+        navBar.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.horizontalEdges.equalToSuperview()
         }
@@ -90,7 +70,7 @@ private extension MissionListPage {
         
         // contentView
         contentView.snp.makeConstraints { make in
-            make.top.equalTo(appBar.snp.bottom)
+            make.top.equalTo(navBar.snp.bottom)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }
