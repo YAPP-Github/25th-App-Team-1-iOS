@@ -50,11 +50,7 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     
     // State
     // - Navigation
-    private var pageStack: [Page] = [] {
-        didSet {
-            print(pageStack)
-        }
-    }
+    private var pageStack: [Page] = []
     
     // - Mission
     private let missionListItems: [MissionItemRenderObject] = [.shake, .tap]
@@ -84,8 +80,13 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
             // 설정된 미션이 있는 경우
             
             let (renderObject, conditionIndex) = convertMissionToRenderObject(mission)
+            
             currentSelectedMission = renderObject
             currentSelectedMissionConditionIndex = conditionIndex
+            
+            temporalSelectedMission = renderObject
+            temporalSelectedMissionConditionIndex = conditionIndex
+            
             
             // 기존에 선택된 미션이 있는 경우 바로 미션 조건 설정 화면으로 진입
             pageStack.append(.currentMissionPage)
@@ -128,20 +129,28 @@ extension ConfigureMissionForAlarmInteractor {
             currentSelectedMission = nil
             currentSelectedMissionConditionIndex = nil
             
+            temporalSelectedMission = nil
+            temporalSelectedMissionConditionIndex = nil
+            
             listener?.request(.missionIsRemoved)
             pageStack = [.addMissionPage]
             presenter.update(.present(page: .addMissionPage))
             
         case .missionIsSelected(let item):
             
-            let initialConditionIndex = 2
-            
             self.temporalSelectedMission = item
-            self.temporalSelectedMissionConditionIndex = initialConditionIndex
+            
+            var conditionIndex = 2
+            
+            if temporalSelectedMission == currentSelectedMission {
+                conditionIndex = currentSelectedMissionConditionIndex ?? 2
+            }
+            
+            self.temporalSelectedMissionConditionIndex = conditionIndex
             
             presenter.update(.present(page: .missionConditionSettingPage(
                 item: item,
-                conditionIndex: initialConditionIndex)
+                conditionIndex: conditionIndex)
             ))
             
             self.pageStack.append(.missionConditionSettingPage)
@@ -165,6 +174,7 @@ extension ConfigureMissionForAlarmInteractor {
             
             switch pageStack.last! {
             case .addMissionPage, .currentMissionPage:
+                
                 if let currentSelectedMission, let currentSelectedMissionConditionIndex {
                     self.pageStack = [.currentMissionPage]
                     presenter.update(.present(page: .currentMissionPage(
@@ -175,11 +185,14 @@ extension ConfigureMissionForAlarmInteractor {
                     self.pageStack = [.addMissionPage]
                     presenter.update(.present(page: .addMissionPage))
                 }
+                
             case .missionListPage:
+                
                 presenter.update(.present(page: .missionListPage(
                     currentItem: currentSelectedMission,
                     items: missionListItems
                 )))
+                
             case .missionConditionSettingPage:
                 preconditionFailure("해당 플로우 없음")
             }
@@ -198,7 +211,7 @@ extension ConfigureMissionForAlarmInteractor {
         case .missionPreviewButtonTapped:
             
             // show preview
-            if let selectedMission = currentSelectedMission, let countIndex = currentSelectedMissionConditionIndex {
+            if let selectedMission = temporalSelectedMission, let countIndex = temporalSelectedMissionConditionIndex {
                 let mission: Mission
                 let countItem = selectedMission.conditionItems[countIndex]
                 switch selectedMission {
