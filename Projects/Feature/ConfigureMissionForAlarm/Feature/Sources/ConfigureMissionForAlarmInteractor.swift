@@ -28,7 +28,7 @@ enum ConfigureMissionForAlarmPresentableUpdate {
 enum PagePresentation {
     case currentMissionPage(item: MissionItemRenderObject, conditionIndex: Int)
     case missionConditionSettingPage(item: MissionItemRenderObject, conditionIndex: Int)
-    case missionListPage(items: [MissionItemRenderObject])
+    case missionListPage(currentItem: MissionItemRenderObject?, items: [MissionItemRenderObject])
     case addMissionPage
 }
 
@@ -60,6 +60,9 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     private let missionListItems: [MissionItemRenderObject] = [.shake, .tap]
     private var currentSelectedMission: MissionItemRenderObject?
     private var currentSelectedMissionConditionIndex: Int?
+    
+    private var temporalSelectedMission: MissionItemRenderObject?
+    private var temporalSelectedMissionConditionIndex: Int?
     
     
     private let initialMission: Mission?
@@ -107,12 +110,18 @@ extension ConfigureMissionForAlarmInteractor {
         case .addMissionButtonIsTapped:
             
             self.pageStack.append(.missionListPage)
-            presenter.update(.present(page: .missionListPage(items: missionListItems)))
+            presenter.update(.present(page: .missionListPage(
+                currentItem: currentSelectedMission,
+                items: missionListItems
+            )))
             
         case .missionChangeButtonTapped:
             
             self.pageStack.append(.missionListPage)
-            presenter.update(.present(page: .missionListPage(items: missionListItems)))
+            presenter.update(.present(page: .missionListPage(
+                currentItem: currentSelectedMission,
+                items: missionListItems
+            )))
             
         case .missionDeleteButtonTapped:
             
@@ -127,8 +136,8 @@ extension ConfigureMissionForAlarmInteractor {
             
             let initialConditionIndex = 2
             
-            self.currentSelectedMission = item
-            self.currentSelectedMissionConditionIndex = initialConditionIndex
+            self.temporalSelectedMission = item
+            self.temporalSelectedMissionConditionIndex = initialConditionIndex
             
             presenter.update(.present(page: .missionConditionSettingPage(
                 item: item,
@@ -139,7 +148,7 @@ extension ConfigureMissionForAlarmInteractor {
             
         case .missionConditionIsSelected(let index):
         
-            self.currentSelectedMissionConditionIndex = index
+            self.temporalSelectedMissionConditionIndex = index
             presenter.update(.selectMissionCondition(index: index))
             
         case .exitButtonTapped:
@@ -167,7 +176,10 @@ extension ConfigureMissionForAlarmInteractor {
                     presenter.update(.present(page: .addMissionPage))
                 }
             case .missionListPage:
-                presenter.update(.present(page: .missionListPage(items: missionListItems)))
+                presenter.update(.present(page: .missionListPage(
+                    currentItem: currentSelectedMission,
+                    items: missionListItems
+                )))
             case .missionConditionSettingPage:
                 preconditionFailure("해당 플로우 없음")
             }
@@ -175,8 +187,8 @@ extension ConfigureMissionForAlarmInteractor {
         case .missionSaveButtonTapped:
             
             // save
-            if let selectedMission = currentSelectedMission,
-               let selectedConditionIndex = currentSelectedMissionConditionIndex {
+            if let selectedMission = temporalSelectedMission,
+               let selectedConditionIndex = temporalSelectedMissionConditionIndex {
                 let mission = convertToMission(renderObject: selectedMission, conditionIndex: selectedConditionIndex)
                 listener?.request(.missionSelected(mission))
                 return

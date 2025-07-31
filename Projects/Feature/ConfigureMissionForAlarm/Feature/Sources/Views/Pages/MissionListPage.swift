@@ -80,7 +80,7 @@ private extension MissionListPage {
 
 
 extension MissionListPage {
-    func update(missionItems: [MissionItemRenderObject]) {
+    func update(currentItem: MissionItemRenderObject?, missionItems: [MissionItemRenderObject]) {
         
         if let listContentsView {
             listContentsView.removeFromSuperview()
@@ -91,6 +91,7 @@ extension MissionListPage {
             let itemView = MissionItemView()
             itemView.update(.image(item.iconImage))
             itemView.update(.title(item.title))
+            itemView.update(.setSelectionTag(isHidden: currentItem != item))
             itemView.action = { [unowned self] action in
                 switch action {
                 case .itemIsTapped:
@@ -112,8 +113,8 @@ extension MissionListPage {
         let contentGuide = scrollView.contentLayoutGuide
         
         stackView.snp.makeConstraints { make in
-            make.edges.equalTo(contentGuide)
-            make.horizontalEdges.equalTo(frameGuide)
+            make.verticalEdges.equalTo(contentGuide)
+            make.leading.trailing.equalTo(frameGuide).inset(12)
         }
         
         contentView.addSubview(scrollView)
@@ -129,6 +130,6 @@ extension MissionListPage {
 
 #Preview(traits: .defaultLayout, body: {
     let page = MissionListPage()
-    page.update(missionItems: [.shake, .tap])
+    page.update(currentItem: .shake, missionItems: [.shake, .tap])
     return page
 })

@@ -27,6 +27,10 @@ final class MissionItemView: TouchDetectingView {
     private let titleLabel: UILabel = .init()
     private let contentStack: UIStackView = .init()
     
+    private let selectedContainer: UIStackView = .init()
+    private let selectedLabel: UILabel = .init()
+    private let checkImage: UIImageView = .init()
+    
     init() {
         super.init(frame: .zero)
         setupUI()
@@ -54,10 +58,28 @@ final class MissionItemView: TouchDetectingView {
         contentStack.addArrangedSubview(titleLabel)
         
         
+        // checkImage
+        checkImage.image = FeatureResourcesAsset.check.image
+        checkImage.tintColor = R.Color.white40
+        selectedContainer.addArrangedSubview(checkImage)
+        
+        
+        // selectedLabel
+        selectedLabel.displayText = "선택됨".displayText(font: .body2Medium, color: R.Color.white40)
+        selectedContainer.addArrangedSubview(selectedLabel)
+        
+        
+        // selectedContainer
+        selectedContainer.axis = .horizontal
+        selectedContainer.spacing = 2
+        selectedContainer.alignment = .center
+        contentStack.addArrangedSubview(UIView())
+        contentStack.addArrangedSubview(selectedContainer)
+        
         // stack
         contentStack.axis = .horizontal
-        contentStack.alignment = .center
         contentStack.distribution = .fill
+        contentStack.alignment = .center
         contentStack.spacing = 12
         addSubview(contentStack)
     }
@@ -72,7 +94,7 @@ final class MissionItemView: TouchDetectingView {
         
         // contentStack
         contentStack.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(20)
+            make.horizontalEdges.equalToSuperview().inset(12)
             make.verticalEdges.equalToSuperview().inset(16)
         }
     }
@@ -81,6 +103,7 @@ final class MissionItemView: TouchDetectingView {
     enum Update {
         case image(UIImage)
         case title(String)
+        case setSelectionTag(isHidden: Bool)
     }
     
     func update(_ update: Update) {
@@ -89,6 +112,8 @@ final class MissionItemView: TouchDetectingView {
             itemImage.image = image
         case .title(let str):
             titleLabel.displayText = str.displayText(font: .headline2SemiBold, color: R.Color.white100)
+        case .setSelectionTag(let isHidden):
+            selectedContainer.isHidden = isHidden
         }
     }
 }

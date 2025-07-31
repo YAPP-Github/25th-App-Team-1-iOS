@@ -235,10 +235,10 @@ extension ConfigureMissionForAlarmViewController {
                 missionConditionSettingPage.update(.selectCondition(index: conditionIndex))
                 present(page: .missionConditionSettingPage)
                 
-            case .missionListPage(let items):
+            case .missionListPage(let currentItem, let items):
                 
                 let missionListPage: MissionListPage = get(page: .missionListPage)
-                missionListPage.update(missionItems: items)
+                missionListPage.update(currentItem: currentItem, missionItems: items)
                 present(page: .missionListPage)
                 
             case .addMissionPage:
