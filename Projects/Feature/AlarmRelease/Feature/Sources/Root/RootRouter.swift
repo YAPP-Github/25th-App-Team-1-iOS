@@ -10,6 +10,7 @@ import RIBs
 import FeatureCommonEntity
 import FeatureAlarmMission
 import FeatureFortune
+import FeatureDesignSystem
 
 protocol RootInteractable: Interactable,
                            AlarmReleaseIntroListener,
@@ -60,6 +61,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToFortune(fortune: fortune, userInfo: userInfo, fortuneInfo: saveInfo)
         case .detachFortune:
             detachFortune()
+        case .showLoading:
+            showLoading()
+        case .hideLoading:
+            hideLoading()
         }
     }
     
@@ -87,6 +92,7 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     private let fortuneBuilder: FortuneBuildable
     private var fortuneRouter: FortuneRouting?
+    
     
     private func presentOrPush(_ router: ViewableRouting) {
         let targetVC = router.viewControllable.uiviewController
@@ -161,5 +167,14 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
         guard let router = fortuneRouter else { return }
         fortuneRouter = nil
         detachChild(router)
+    }
+    
+    // MARK: - Loading
+    private func showLoading() {
+        DSLoadingManager.shared.show()
+    }
+    
+    private func hideLoading() {
+        DSLoadingManager.shared.hide()
     }
 }
