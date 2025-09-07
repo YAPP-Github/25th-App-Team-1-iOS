@@ -30,6 +30,11 @@ public enum MainPageRouterRequest {
     case dismissAlert(completion: (()->Void)?=nil)
     case presentSettingPage
     case dismissSettingPage
+    
+    case attachNFNotification(listener: NFNotificationListener)
+    case dettachNFNotification
+    case presentNFNotificationPage
+    case dismissNFNotificationPage
 }
 
 public protocol MainPageRouting: ViewableRouting {
@@ -122,6 +127,11 @@ extension MainPageInteractor {
             
             // 알람 정보 업데이트
             refetchAndPresentAlarms()
+            
+        case .mainViewIsPresented:
+            
+            // 신기능 홍보 표출
+            router?.request(.attachNFNotification(listener: self))
             
         case .viewWillAppear:
             
@@ -986,6 +996,21 @@ private extension MainPageInteractor {
             }
         )
         router?.request(.presentAlertType1(config))
+    }
+}
+
+extension MainPageInteractor: NFNotificationListener {
+    func request(_ request: NFNotificationListenerRequest) {
+        switch request {
+        case .dismiss:
+            router?.request(.dismissNFNotificationPage)
+        case .isPresentable(let isPresentable):
+            if isPresentable {
+                router?.request(.presentNFNotificationPage)
+            } else {
+                router?.request(.dettachNFNotification)
+            }
+        }
     }
 }
 

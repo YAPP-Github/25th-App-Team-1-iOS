@@ -23,11 +23,11 @@ enum NFNotificationPresentableRequest {
     case presentGuideImage(image: UIImage)
 }
 
-protocol NFNotificationListener: AnyObject {
+public protocol NFNotificationListener: AnyObject {
     func request(_ request: NFNotificationListenerRequest)
 }
 
-enum NFNotificationListenerRequest {
+public enum NFNotificationListenerRequest {
     case dismiss
     case isPresentable(Bool)
 }
@@ -67,6 +67,9 @@ extension NFNotificationInteractor {
         case .dontShowAgainButtonTapped:
             
             model.checkDontShowAgain()
+            listener?.request(.dismiss)
+            
+        case .backgroundTapped:
             listener?.request(.dismiss)
         }
     }

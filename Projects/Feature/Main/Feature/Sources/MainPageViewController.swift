@@ -20,6 +20,7 @@ enum MainPageViewPresenterRequest {
     // MARK: Life cycle
     case viewDidLoad
     case viewWillAppear
+    case mainViewIsPresented
     
     // MARK: Action
     case checkTodayFortuneIsArrived
@@ -70,6 +71,9 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             if newAlarmList.isEmpty == true {
                 view = emptyView
             } else {
+                if view !== mainView {
+                    listener?.request(.mainViewIsPresented)
+                }
                 view = mainView
                 mainView.update(.loadAlarmList(elements: newAlarmList))
             }

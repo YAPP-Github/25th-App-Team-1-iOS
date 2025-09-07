@@ -52,12 +52,14 @@ public final class MainPageBuilder: Builder<MainPageDependency>, MainPageBuildab
         let alarmBuilder = FeatureAlarm.RootBuilder(dependency: component)
         let fortuneBuilder = FeatureFortune.FortuneBuilder(dependency: component)
         let settingBuilder = SettingMainBuilder(dependency: component)
+        let nFNotificationBuilder = NFNotificationBuilder(dependency: component)
         let router = MainPageRouter(
             interactor: interactor,
             viewController: viewController,
             alarmBuilder: alarmBuilder,
             fortuneBuilder: fortuneBuilder,
-            settingBuilder: settingBuilder
+            settingBuilder: settingBuilder,
+            nFNotificationBuilder: nFNotificationBuilder
         )
         
         return router

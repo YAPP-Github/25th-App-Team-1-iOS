@@ -22,5 +22,6 @@ final class NFNotificationRouter: ViewableRouter<NFNotificationInteractable, NFN
     override init(interactor: NFNotificationInteractable, viewController: NFNotificationViewControllable) {
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
+        
     }
 }
