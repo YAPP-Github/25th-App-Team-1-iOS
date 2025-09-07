@@ -90,9 +90,17 @@ private extension NFNotificationViewController {
         
         // dontShowAgainButton
         dontShowAgainButton.update(titleText: "다시보지 않기")
+        dontShowAgainButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.request(.dontShowAgainButtonTapped)
+        }
         
         // closeButton
         closeButton.update(titleText: "닫기")
+        closeButton.buttonAction = { [weak self] in
+            guard let self else { return }
+            listener?.request(.closeButtonTapped)
+        }
     }
     
     func setupLayout() {
