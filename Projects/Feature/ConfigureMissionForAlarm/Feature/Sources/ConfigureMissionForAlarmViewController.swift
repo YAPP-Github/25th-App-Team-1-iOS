@@ -20,13 +20,17 @@ enum ConfigureMissionForAlarmPresenterRequest {
     case dimmedBackgroundIsTapped
     case addMissionButtonIsTapped
     case missionChangeButtonTapped
+    case missionConditionChangeButtonTapped
     case missionDeleteButtonTapped
     case missionIsSelected(item: MissionItemRenderObject)
     case missionConditionIsSelected(index: Int)
+    case missionCompleteButtonTapped
+    
     case exitButtonTapped
     case prevButtonTapped
+    
     case missionPreviewButtonTapped
-    case missionConditionConfirmButtonTapped
+    case missionSaveButtonTapped
 }
 
 final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureMissionForAlarmPresentable, ConfigureMissionForAlarmViewControllable {
@@ -35,8 +39,8 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
     
     // UI
     private let dimmedBackgroundView: UIView = .init()
-    private let missionSelectionIntroView: MissionSelectionIntroView = .init()
-    private let missionSelectionIntroViewTopInset: CGFloat = 212
+    private let contentsBaseView: RoundBaseView = .init()
+    private var pages: [Page: UIView] = [:]
     
     
     // Gesture
@@ -65,6 +69,10 @@ final class ConfigureMissionForAlarmViewController: UIViewController, ConfigureM
         setupGesture()
         setupLayout()
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
 }
 
 
@@ -83,8 +91,7 @@ private extension ConfigureMissionForAlarmViewController {
         
         
         // missionSelectionIntroView
-        missionSelectionIntroView.listener = self
-        view.addSubview(missionSelectionIntroView)
+        view.addSubview(contentsBaseView)
     }
     
     
@@ -97,8 +104,7 @@ private extension ConfigureMissionForAlarmViewController {
         
         
         // missionSelectionIntroView
-        missionSelectionIntroView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(missionSelectionIntroViewTopInset)
+        contentsBaseView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }
@@ -119,6 +125,94 @@ private extension ConfigureMissionForAlarmViewController {
     func onBackgroundTapped(_ recog: UITapGestureRecognizer) {
         listener?.request(.dimmedBackgroundIsTapped)
     }
+    
+    
+    func present(page: Page) {
+        var pageView = pages[page]
+        if pageView == nil {
+            pageView = create(page: page)
+        }
+        contentsBaseView.change(contentsView: pageView!)
+    }
+    
+    
+    func get<T>(page: Page) -> T {
+        var pageView = pages[page]
+        if pageView == nil {
+            pageView = create(page: page)
+        }
+        return pageView as! T
+    }
+    
+    
+    func create(page: Page) -> UIView {
+        let pageView: UIView
+        switch page {
+        case .currentMissionPage:
+            
+            let view = CurrentMissionPage()
+            view.pageAction = { [unowned self] in
+                switch $0 {
+                case .currentMissionItemTapped:
+                    listener?.request(.missionConditionChangeButtonTapped)
+                case .deleteMissionButtonTapped:
+                    listener?.request(.missionDeleteButtonTapped)
+                case .changeMissionButtonTapped:
+                    listener?.request(.missionChangeButtonTapped)
+                case .completeButtonTapped:
+                    listener?.request(.missionCompleteButtonTapped)
+                }
+            }
+            pageView = view
+            
+        case .addMissionPage:
+            
+            let view = AddMissionPage()
+            view.pageAction = { [unowned self] in
+                switch $0 {
+                case .addNewMissionButtonTapped:
+                    listener?.request(.addMissionButtonIsTapped)
+                }
+            }
+            pageView = view
+            
+        case .missionConditionSettingPage:
+            
+            let view = MissionConditionSettingPage()
+            view.pageAction = { [unowned self] in
+                switch $0 {
+                case .exitButtonTapped:
+                    listener?.request(.exitButtonTapped)
+                case .prevButtonTapped:
+                    listener?.request(.prevButtonTapped)
+                case .conditionButtonIsTapped(index: let index):
+                    listener?.request(.missionConditionIsSelected(index: index))
+                case .previewButtonIsTapped:
+                    listener?.request(.missionPreviewButtonTapped)
+                case .saveButtonIsTapped:
+                    listener?.request(.missionSaveButtonTapped)
+                }
+            }
+            pageView = view
+            
+        case .missionListPage:
+            
+            let view = MissionListPage()
+            view.pageAction = { [unowned self] in
+                switch $0 {
+                case .exitButtonTapped:
+                    listener?.request(.exitButtonTapped)
+                case .prevButtonTapped:
+                    listener?.request(.prevButtonTapped)
+                case .missionIsSelected(item: let item):
+                    listener?.request(.missionIsSelected(item: item))
+                }
+            }
+            pageView = view
+        }
+        self.pages[page] = pageView
+        return pageView
+    }
 }
 
 
@@ -126,51 +220,39 @@ private extension ConfigureMissionForAlarmViewController {
 extension ConfigureMissionForAlarmViewController {
     func update(_ update: ConfigureMissionForAlarmPresentableUpdate) {
         switch update {
-        case .presentMissionList(let items):
-            missionSelectionIntroView.update(.presentMissionList(items: items))
-        case .presentMissionConditionSetting(let item):
-            missionSelectionIntroView.update(.presentMissionConditionSetting(item: item))
-        case .selecteMissionCondition(let index):
-            missionSelectionIntroView.update(.selectMissionCondition(index: index))
-        case .dismissMissionList:
-            missionSelectionIntroView.update(.dismissMissionList)
-        case .dismissMissionConditionSetting:
-            missionSelectionIntroView.update(.dismissMissionConditionSetting)
-        case .updateMissionDisplay(let item, let conditionIndex):
-            missionSelectionIntroView.update(.updateMissionDisplay(item: item, conditionIndex: conditionIndex))
-        case .showDefaultUIAfterMissionDelete:
-            missionSelectionIntroView.update(.showDefaultUIAfterMissionDelete)
+        case .present(let page):
+            switch page {
+            case .currentMissionPage(let item, let conditionIndex):
+                
+                let currentMissionPage: CurrentMissionPage = get(page: .currentMissionPage)
+                currentMissionPage.update(item: item, conditionIndex: conditionIndex)
+                present(page: .currentMissionPage)
+                
+            case .missionConditionSettingPage(let item, let conditionIndex):
+                
+                let missionConditionSettingPage: MissionConditionSettingPage = get(page: .missionConditionSettingPage)
+                missionConditionSettingPage.update(.changeMissionItem(item: item))
+                missionConditionSettingPage.update(.selectCondition(index: conditionIndex))
+                present(page: .missionConditionSettingPage)
+                
+            case .missionListPage(let currentItem, let items):
+                
+                let missionListPage: MissionListPage = get(page: .missionListPage)
+                missionListPage.update(currentItem: currentItem, missionItems: items)
+                present(page: .missionListPage)
+                
+            case .addMissionPage:
+                
+                present(page: .addMissionPage)
+            }
+            
+        case .selectMissionCondition(let index):
+            
+            let pageView: MissionConditionSettingPage = get(page: .missionConditionSettingPage)
+            pageView.update(.selectCondition(index: index))
         }
     }
 }
-
-
-// MARK: MissionSelectionIntroViewListener
-extension ConfigureMissionForAlarmViewController: MissionSelectionIntroViewListener {
-    func action(_ action: MissionSelectionIntroView.Action) {
-        switch action {
-        case .addNewMission:
-            listener?.request(.addMissionButtonIsTapped)
-        case .missionIsSelected(let item):
-            listener?.request(.missionIsSelected(item: item))
-        case .missionConditionIsSelected(let index):
-            listener?.request(.missionConditionIsSelected(index: index))
-        case .missionChangeButtonTapped:
-            listener?.request(.missionChangeButtonTapped)
-        case .missionDeleteButtonTapped:
-            listener?.request(.missionDeleteButtonTapped)
-        case .exitButtonTapped:
-            listener?.request(.exitButtonTapped)
-        case .prevButtonTapped:
-            listener?.request(.prevButtonTapped)
-        case .missionConditionConfirmButtonTapped:
-            listener?.request(.missionConditionConfirmButtonTapped)
-        case .missionPreviewButtonTapped:
-            listener?.request(.missionPreviewButtonTapped)
-        }
-    }
-}
-
 
 
 // MARK: Presentation & Dismissal
@@ -180,13 +262,16 @@ private extension ConfigureMissionForAlarmViewController {
         
         // #1. Initial State
         dimmedBackgroundView.alpha = 0
-        missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height
+        
+        self.view.layoutIfNeeded()
+        let startTopInset = UIScreen.main.bounds.height - self.contentsBaseView.bounds.height
+        contentsBaseView.layer.frame.origin.y = UIScreen.main.bounds.height
         
         
         // #2. Animate
         UIView.animate(withDuration: duration) {
             self.dimmedBackgroundView.alpha = 1
-            self.missionSelectionIntroView.frame.origin.y = self.missionSelectionIntroViewTopInset
+            self.contentsBaseView.frame.origin.y = startTopInset
         } completion: { _ in
             completion()
         }
@@ -197,7 +282,7 @@ private extension ConfigureMissionForAlarmViewController {
         // #1. Animate
         UIView.animate(withDuration: duration) {
             self.dimmedBackgroundView.alpha = 0
-            self.missionSelectionIntroView.layer.frame.origin.y = UIScreen.main.bounds.height
+            self.contentsBaseView.layer.frame.origin.y = UIScreen.main.bounds.height
         } completion: { _ in
             completion()
         }

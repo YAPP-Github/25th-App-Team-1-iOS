@@ -21,13 +21,15 @@ protocol ConfigureMissionForAlarmPresentable: Presentable {
 }
 
 enum ConfigureMissionForAlarmPresentableUpdate {
-    case presentMissionList(items: [MissionItemRenderObject])
-    case presentMissionConditionSetting(item: MissionItemRenderObject)
-    case dismissMissionList
-    case dismissMissionConditionSetting
-    case selecteMissionCondition(index: Int)
-    case updateMissionDisplay(item: MissionItemRenderObject, conditionIndex: Int)
-    case showDefaultUIAfterMissionDelete
+    case present(page: PagePresentation)
+    case selectMissionCondition(index: Int)
+}
+
+enum PagePresentation {
+    case currentMissionPage(item: MissionItemRenderObject, conditionIndex: Int)
+    case missionConditionSettingPage(item: MissionItemRenderObject, conditionIndex: Int)
+    case missionListPage(currentItem: MissionItemRenderObject?, items: [MissionItemRenderObject])
+    case addMissionPage
 }
 
 public protocol ConfigureMissionForAlarmListener: AnyObject {
@@ -48,11 +50,15 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     
     // State
     // - Navigation
-    private var processStack: [ConfigureProcess] = []
+    private var pageStack: [Page] = []
     
     // - Mission
+    private let missionListItems: [MissionItemRenderObject] = [.shake, .tap]
     private var currentSelectedMission: MissionItemRenderObject?
     private var currentSelectedMissionConditionIndex: Int?
+    
+    private var temporalSelectedMission: MissionItemRenderObject?
+    private var temporalSelectedMissionConditionIndex: Int?
     
     
     private let initialMission: Mission?
@@ -66,22 +72,32 @@ final class ConfigureMissionForAlarmInteractor: PresentableInteractor<ConfigureM
     override func didBecomeActive() {
         super.didBecomeActive()
         // 초기 미션 설정
-        if let initialMission {
-            let (renderObject, conditionIndex) = convertMissionToRenderObject(initialMission)
+        presentInitialPage(mission: initialMission)
+    }
+    
+    func presentInitialPage(mission: Mission?) {
+        if let mission {
+            // 설정된 미션이 있는 경우
+            
+            let (renderObject, conditionIndex) = convertMissionToRenderObject(mission)
+            
             currentSelectedMission = renderObject
             currentSelectedMissionConditionIndex = conditionIndex
             
+            temporalSelectedMission = renderObject
+            temporalSelectedMissionConditionIndex = conditionIndex
+            
+            
             // 기존에 선택된 미션이 있는 경우 바로 미션 조건 설정 화면으로 진입
-            presenter.update(.updateMissionDisplay(item: renderObject, conditionIndex: conditionIndex))
-            presenter.update(.presentMissionConditionSetting(item: renderObject))
-            presenter.update(.selecteMissionCondition(index: conditionIndex))
+            pageStack.append(.currentMissionPage)
+            presenter.update(.present(page: .currentMissionPage(
+                item: renderObject, conditionIndex: conditionIndex)
+            ))
+        } else {
+            // 설정된 미션이 없는 경우
+            pageStack.append(.addMissionPage)
+            presenter.update(.present(page: .addMissionPage))
         }
-        processStack.append(.missionConditionPage)
-    }
-
-    override func willResignActive() {
-        super.willResignActive()
-        // TODO: Pause any business logic.
     }
 }
 
@@ -89,79 +105,138 @@ extension ConfigureMissionForAlarmInteractor {
     func request(_ request: ConfigureMissionForAlarmPresenterRequest) {
         switch request {
         case .dimmedBackgroundIsTapped:
+            
             listener?.request(.dismissScreen)
+            
         case .addMissionButtonIsTapped:
-            self.processStack.append(.selectMissionPage)
-            presenter.update(.presentMissionList(items: [.shake, .tap]))
+            
+            self.pageStack.append(.missionListPage)
+            presenter.update(.present(page: .missionListPage(
+                currentItem: currentSelectedMission,
+                items: missionListItems
+            )))
+            
         case .missionChangeButtonTapped:
-            // 미션 변경 버튼을 누른 경우 미션 선택 화면으로 이동
-            self.processStack.append(.selectMissionPage)
-            presenter.update(.presentMissionList(items: [.shake, .tap]))
+            
+            self.pageStack.append(.missionListPage)
+            presenter.update(.present(page: .missionListPage(
+                currentItem: currentSelectedMission,
+                items: missionListItems
+            )))
+            
         case .missionDeleteButtonTapped:
-            // 미션 삭제 버튼을 누른 경우 기본 UI로 전환
+            
             currentSelectedMission = nil
             currentSelectedMissionConditionIndex = nil
-            processStack.removeAll()
+            
+            temporalSelectedMission = nil
+            temporalSelectedMissionConditionIndex = nil
+            
             listener?.request(.missionIsRemoved)
-            presenter.update(.showDefaultUIAfterMissionDelete)
+            pageStack = [.addMissionPage]
+            presenter.update(.present(page: .addMissionPage))
+            
         case .missionIsSelected(let item):
-            self.currentSelectedMission = item
-            presenter.update(.presentMissionConditionSetting(item: item))
             
-            let initialConditionIndex = 2
-            self.currentSelectedMissionConditionIndex = initialConditionIndex
-            presenter.update(.selecteMissionCondition(index: initialConditionIndex))
+            self.temporalSelectedMission = item
             
-            self.processStack.append(.missionConditionPage)
+            var conditionIndex = 2
+            
+            if temporalSelectedMission == currentSelectedMission {
+                conditionIndex = currentSelectedMissionConditionIndex ?? 2
+            }
+            
+            self.temporalSelectedMissionConditionIndex = conditionIndex
+            
+            presenter.update(.present(page: .missionConditionSettingPage(
+                item: item,
+                conditionIndex: conditionIndex)
+            ))
+            
+            self.pageStack.append(.missionConditionSettingPage)
             
         case .missionConditionIsSelected(let index):
         
-            self.currentSelectedMissionConditionIndex = index
-            presenter.update(.selecteMissionCondition(index: index))
+            self.temporalSelectedMissionConditionIndex = index
+            presenter.update(.selectMissionCondition(index: index))
             
         case .exitButtonTapped:
+            
             listener?.request(.dismissScreen)
             
         case .prevButtonTapped:
-            guard processStack.isEmpty == false else { preconditionFailure("UI오류발생 가능") }
             
-            switch processStack.last! {
-            case .selectMissionPage:
-                presenter.update(.dismissMissionList)
-            case .missionConditionPage:
-                // 미션 조건 설정 화면에서 뒤로 가기
-                if processStack.count == 1 {
-                    // 초기 미션이 있어서 바로 조건 설정으로 진입한 경우 화면 닫기
-                    listener?.request(.dismissScreen)
-                    return
+            guard pageStack.isEmpty == false else { preconditionFailure("UI오류발생 가능") }
+            
+            pageStack.removeLast()
+            
+            guard pageStack.isEmpty == false else { return }
+            
+            switch pageStack.last! {
+            case .addMissionPage, .currentMissionPage:
+                
+                if let currentSelectedMission, let currentSelectedMissionConditionIndex {
+                    self.pageStack = [.currentMissionPage]
+                    presenter.update(.present(page: .currentMissionPage(
+                        item: currentSelectedMission,
+                        conditionIndex: currentSelectedMissionConditionIndex)
+                    ))
                 } else {
-                    // 미션 선택 화면으로 돌아가기
-                    presenter.update(.dismissMissionConditionSetting)
+                    self.pageStack = [.addMissionPage]
+                    presenter.update(.present(page: .addMissionPage))
                 }
+                
+            case .missionListPage:
+                
+                presenter.update(.present(page: .missionListPage(
+                    currentItem: currentSelectedMission,
+                    items: missionListItems
+                )))
+                
+            case .missionConditionSettingPage:
+                preconditionFailure("해당 플로우 없음")
             }
-            _ = processStack.popLast()
             
-        case .missionConditionConfirmButtonTapped:
+        case .missionSaveButtonTapped:
+            
             // save
-            if let selectedMission = currentSelectedMission,
-               let selectedConditionIndex = currentSelectedMissionConditionIndex {
+            if let selectedMission = temporalSelectedMission,
+               let selectedConditionIndex = temporalSelectedMissionConditionIndex {
                 let mission = convertToMission(renderObject: selectedMission, conditionIndex: selectedConditionIndex)
                 listener?.request(.missionSelected(mission))
                 return
             }
             listener?.request(.dismissScreen)
+            
         case .missionPreviewButtonTapped:
+            
             // show preview
-            if let selectedMission = currentSelectedMission, let count = currentSelectedMissionConditionIndex {
+            if let selectedMission = temporalSelectedMission, let countIndex = temporalSelectedMissionConditionIndex {
                 let mission: Mission
+                let countItem = selectedMission.conditionItems[countIndex]
                 switch selectedMission {
                 case .shake:
-                    mission = .init(type: .shake, count: count)
+                    mission = .init(type: .shake, count: countItem.value)
                 case .tap:
-                    mission = .init(type: .tap, count: count)
+                    mission = .init(type: .tap, count: countItem.value)
                 }
                 router?.routeToMissionPreview(mission: mission, isPreviewMode: true)
             }
+            
+        case .missionConditionChangeButtonTapped:
+            
+            guard let mission = initialMission else { preconditionFailure("해당 플로우 없음") }
+            let (renderObject, conditionIndex) = convertMissionToRenderObject(mission)
+            
+            pageStack.append(.missionConditionSettingPage)
+            presenter.update(.present(page: .missionConditionSettingPage(
+                item: renderObject,
+                conditionIndex: conditionIndex
+            )))
+            
+        case .missionCompleteButtonTapped:
+            
+            listener?.request(.dismissScreen)
         }
     }
     

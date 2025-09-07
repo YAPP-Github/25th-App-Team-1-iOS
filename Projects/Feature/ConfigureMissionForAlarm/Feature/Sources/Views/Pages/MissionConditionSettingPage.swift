@@ -1,35 +1,35 @@
 //
-//  MissionConditionSettingView.swift
+//  MissionConditionSettingPage.swift
 //  ConfigureMissionForAlarm
 //
-//  Created by choijunios on 7/23/25.
+//  Created by choijunios on 7/31/25.
 //
 
 import UIKit
 
+import FeatureResources
 import FeatureUIDependencies
 
 import Lottie
 
-protocol MissionConditionSettingViewListener: AnyObject {
-    func action(_ action: MissionConditionSettingView.Action)
-}
-
-
-final class MissionConditionSettingView: UIView {
+final class MissionConditionSettingPage: UIView {
     
     // Action
     enum Action {
-        case buttonIsTapped(index: Int)
+        case exitButtonTapped
+        case prevButtonTapped
+        
+        case conditionButtonIsTapped(index: Int)
+        
         case previewButtonIsTapped
-        case confirmButtonIsTapped
+        case saveButtonIsTapped
     }
+    var pageAction: ((Action) -> ())?
     
-    
-    // Listener
-    weak var listener: MissionConditionSettingViewListener?
     
     // UI
+    private let navBar: NavigationBar = .init()
+    
     private let missionThumbnailContainer: UIView = .init()
     private let missionThumbnailView: LottieAnimationView = .init()
     
@@ -63,7 +63,7 @@ final class MissionConditionSettingView: UIView {
     private let titleStackView: UIStackView = .init()
     
     private let previewButton: DSDefaultCTAButton = .init(style: .init(type: .secondary, size: .large))
-    private let confirmButton: DSDefaultCTAButton = .init(style: .init(type: .primary, size: .large))
+    private let saveButton: DSDefaultCTAButton = .init(style: .init(type: .primary, size: .large))
     private let bottomButtonContainer: UIStackView = .init()
     
     
@@ -76,13 +76,25 @@ final class MissionConditionSettingView: UIView {
 }
 
 
-// MARK: Setup
-private extension MissionConditionSettingView {
+private extension MissionConditionSettingPage {
     
     func setupUI() {
         
         // self
         self.backgroundColor = R.Color.gray800
+        
+        
+        // navBar
+        navBar.action = { [unowned self] action in
+            switch action {
+            case .exitButtonTapped:
+                pageAction?(.exitButtonTapped)
+            case .prevButtonTapped:
+                pageAction?(.prevButtonTapped)
+            }
+        }
+        addSubview(navBar)
+        
         
         // missionThumbnailContainer
         missionThumbnailContainer.layer.cornerRadius = 16
@@ -162,17 +174,17 @@ private extension MissionConditionSettingView {
         previewButton.do {
             $0.update(title: "미리보기")
             $0.buttonAction = { [unowned self] in
-                listener?.action(.previewButtonIsTapped)
+                pageAction?(.previewButtonIsTapped)
             }
             bottomButtonContainer.addArrangedSubview($0)
         }
         
         
-        // confirmButton
-        confirmButton.do {
+        // saveButton
+        saveButton.do {
             $0.update(title: "미션 저장")
             $0.buttonAction = { [unowned self] in
-                listener?.action(.confirmButtonIsTapped)
+                pageAction?(.saveButtonIsTapped)
             }
             bottomButtonContainer.addArrangedSubview($0)
         }
@@ -186,10 +198,17 @@ private extension MissionConditionSettingView {
     
     func setupLayout() {
         
+        // navBar
+        navBar.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(14)
+            make.horizontalEdges.equalToSuperview()
+        }
+        
+        
         // missionThumbnailContainer
         missionThumbnailContainer.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(24)
-            make.top.equalToSuperview().inset(24)
+            make.horizontalEdges.equalToSuperview().inset(20)
+            make.top.equalTo(navBar.snp.bottom).offset(24)
             make.height.equalTo(180)
         }
         
@@ -241,7 +260,6 @@ private extension MissionConditionSettingView {
         titleStackView.snp.makeConstraints {
             $0.top.equalTo(lineContainer.snp.bottom).offset(12)
             $0.horizontalEdges.equalTo(buttonStackView)
-            $0.bottom.lessThanOrEqualTo(bottomButtonContainer.snp.top).inset(74)
         }
         
         
@@ -253,6 +271,7 @@ private extension MissionConditionSettingView {
         
         // bottomButtonContainer
         bottomButtonContainer.snp.makeConstraints { make in
+            make.top.equalTo(titleStackView.snp.bottom).offset(74)
             make.horizontalEdges.equalToSuperview().inset(15)
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(12)
         }
@@ -260,10 +279,8 @@ private extension MissionConditionSettingView {
     
     @objc func buttonSelected(button: MissionOptionButton) {
         guard let buttonIndex = optionButtons.firstIndex(where: { $0 == button }) else { return }
-        listener?.action(.buttonIsTapped(index: buttonIndex))
+        pageAction?(.conditionButtonIsTapped(index: buttonIndex))
     }
-    
-    
     
     func selectOption(_ index: Int) {
         [option1Button, option2Button, option3Button, option4Button, option5Button].forEach {
@@ -289,8 +306,7 @@ private extension MissionConditionSettingView {
 }
 
 
-// MARK: Update
-extension MissionConditionSettingView {
+extension MissionConditionSettingPage {
     
     enum Update {
         case changeMissionItem(item: MissionItemRenderObject)
@@ -311,7 +327,11 @@ extension MissionConditionSettingView {
             missionThumbnailView.play()
             
             
-            // title
+            // Title
+            navBar.update(title: item.title)
+            
+            
+            // Condition options
             optionLabels.enumerated().forEach { index, label in
                 
                 let conditionItem = item.conditionItems[index]
@@ -322,3 +342,10 @@ extension MissionConditionSettingView {
         }
     }
 }
+
+#Preview(traits: .defaultLayout, body: {
+    let page = MissionConditionSettingPage()
+    page.update(.changeMissionItem(item: .shake))
+    page.update(.selectCondition(index: 14))
+    return page
+})

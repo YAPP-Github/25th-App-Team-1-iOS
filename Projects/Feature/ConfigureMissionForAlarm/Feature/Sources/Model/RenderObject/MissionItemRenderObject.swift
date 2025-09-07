@@ -13,6 +13,10 @@ enum MissionItemRenderObject {
     case shake
     case tap
     
+    static var defaultList: [Self] {
+        [.shake, .tap]
+    }
+    
     var title: String {
         switch self {
         case .shake:
