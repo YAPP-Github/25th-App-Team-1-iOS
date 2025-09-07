@@ -47,7 +47,8 @@ final class ConfigureUserInfoView: UIView, EditBornTimeViewListener {
     )
     private let saveButton: DSLabelButton = .init(config: .init(
         font: .body1Medium,
-        textColor: R.Color.gray500
+        textColor: R.Color.gray500,
+        alignment: .left
     ))
     // - Name
     private let nameField = DSTextFieldWithTitleWithMessage(config: .init(
@@ -114,13 +115,15 @@ extension ConfigureUserInfoView {
             if isEnabled {
                 saveButton.update(config: .init(
                     font: .body1Medium,
-                    textColor: R.Color.main100
+                    textColor: R.Color.main100,
+                    alignment: .left
                 ))
                 saveButton.isUserInteractionEnabled = true
             } else {
                 saveButton.update(config: .init(
                     font: .body1Medium,
-                    textColor: R.Color.gray500
+                    textColor: R.Color.gray500,
+                    alignment: .left
                 ))
                 saveButton.isUserInteractionEnabled = false
             }

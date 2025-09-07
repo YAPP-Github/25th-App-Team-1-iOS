@@ -20,7 +20,8 @@ public final class DSSnackBar: UIView {
     private let titleLabel: UILabel = .init()
     private let labelButton: DSLabelButton = .init(config: .init(
         font: .label2regular,
-        textColor: R.Color.gray50
+        textColor: R.Color.gray50,
+        alignment: .left
     ))
     private let containerStack: UIStackView = .init()
     
