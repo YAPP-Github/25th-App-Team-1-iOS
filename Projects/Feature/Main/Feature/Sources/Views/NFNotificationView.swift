@@ -1,5 +1,5 @@
 //
-//  NFNotificationViewController.swift
+//  NFNotificationView.swift
 //  FeatureMain
 //
 //  Created by choijunios on 9/7/25.
@@ -12,18 +12,17 @@ import FeatureResources
 import FeatureDesignSystem
 import SnapKit
 
-protocol NFNotificationPresentableListener: AnyObject {
-    func request(_ request: NFNotificationPresentableListenerRequest)
+protocol NFNotificationViewListener: AnyObject {
+    func action(_ action: NFNotificationViewAction)
 }
 
-enum NFNotificationPresentableListenerRequest {
-    case viewDidLoad
+enum NFNotificationViewAction {
     case backgroundTapped
     case closeButtonTapped
     case dontShowAgainButtonTapped
 }
 
-final class NFNotificationViewController: UIViewController, NFNotificationPresentable, NFNotificationViewControllable {
+final class NFNotificationView: UIView {
     
     private lazy var dimmedBackgroundView: UIView = .init()
     private lazy var containerView: UIView = .init()
@@ -36,42 +35,26 @@ final class NFNotificationViewController: UIViewController, NFNotificationPresen
     private let backgroundTapGesture: UITapGestureRecognizer = .init()
 
     // Listener
-    weak var listener: NFNotificationPresentableListener?
-    
-    // Trasition
-    private var vcTransitionDelegate: VCTransitionDelegate?
+    weak var listener: NFNotificationViewListener?
     
     init() {
-        super.init(nibName: nil, bundle: nil)
-        
-        self.vcTransitionDelegate = VCTransitionDelegate()
-        self.transitioningDelegate = vcTransitionDelegate
-    }
-    required init?(coder: NSCoder) { nil }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
+        super.init(frame: .zero)
         setupUI()
         setupLayout()
         setupGesture()
-        
-        listener?.request(.viewDidLoad)
     }
+    required init?(coder: NSCoder) { nil }
 }
 
-private extension NFNotificationViewController {
+private extension NFNotificationView {
     func setupUI() {
-        
-        // view
-        view.isOpaque = false
-        
         // dimmedBackgroundView
         dimmedBackgroundView.backgroundColor = R.Color.dimmed.withAlphaComponent(0.8)
         dimmedBackgroundView.addGestureRecognizer(backgroundTapGesture)
-        view.addSubview(dimmedBackgroundView)
+        self.addSubview(dimmedBackgroundView)
         
         // containerView
-        view.addSubview(containerView)
+        self.addSubview(containerView)
         containerView.layer.cornerRadius = 30
         containerView.backgroundColor = R.Color.gray800
         containerView.clipsToBounds = true
@@ -92,14 +75,14 @@ private extension NFNotificationViewController {
         dontShowAgainButton.update(titleText: "다시보지 않기")
         dontShowAgainButton.buttonAction = { [weak self] in
             guard let self else { return }
-            listener?.request(.dontShowAgainButtonTapped)
+            listener?.action(.dontShowAgainButtonTapped)
         }
         
         // closeButton
         closeButton.update(titleText: "닫기")
         closeButton.buttonAction = { [weak self] in
             guard let self else { return }
-            listener?.request(.closeButtonTapped)
+            listener?.action(.closeButtonTapped)
         }
     }
     
@@ -128,7 +111,7 @@ private extension NFNotificationViewController {
         buttonStack.snp.makeConstraints { make in
             make.top.equalTo(imageGuideView.snp.bottom).offset(8)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(20)
+            make.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(20)
             make.height.equalTo(54)
         }
     }
@@ -139,34 +122,29 @@ private extension NFNotificationViewController {
     
     @objc
     func onBackgroundTapGestureTapped(_ gesture: UITapGestureRecognizer) {
-        listener?.request(.backgroundTapped)
+        listener?.action(.backgroundTapped)
     }
 }
 
-extension NFNotificationViewController {
-    func request(_ request: NFNotificationPresentableRequest) {
-        switch request {
-        case let .presentGuideImage(image):
-            imageGuideView.image = image
-            let aspect = image.size.height / image.size.width
-            imageGuideView.snp.remakeConstraints { make in
-                make.top.equalToSuperview()
-                make.horizontalEdges.equalToSuperview()
-                make.height.equalTo(imageGuideView.snp.width).multipliedBy(aspect)
-            }
-            view.setNeedsLayout()
+extension NFNotificationView {
+    func present(image: UIImage) {
+        imageGuideView.image = image
+        let aspect = image.size.height / image.size.width
+        imageGuideView.snp.remakeConstraints { make in
+            make.top.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(imageGuideView.snp.width).multipliedBy(aspect)
         }
+        self.setNeedsLayout()
     }
-}
-
-extension NFNotificationViewController {
+    
     func startPresentationAnimation(duration: TimeInterval, completion: @escaping () -> Void) {
         // #1. Initial State
-        view.alpha = 0
+        self.alpha = 0
         
         // #2. Animate
         UIView.animate(withDuration: duration) {
-            self.view.alpha = 1
+            self.alpha = 1
         } completion: { _ in
             completion()
         }
@@ -181,61 +159,4 @@ extension NFNotificationViewController {
             completion()
         }
     }
-}
-
-// MARK: Transition
-fileprivate final class VCTransitionDelegate: NSObject, UIViewControllerTransitioningDelegate {
-    
-    func animationController(
-        forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
-        VCDismissalAnimator()
-    }
-    
-    func animationController(
-        forPresented presented: UIViewController,
-        presenting: UIViewController,
-        source: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
-        VCPresentationAnimator()
-    }
-}
-
-fileprivate final class VCPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-    
-    private let animationDuration: TimeInterval = 0.3
-    
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        guard let toVC = transitionContext.viewController(forKey: .to) as? NFNotificationViewController else { return }
-        let container = transitionContext.containerView
-        container.addSubview(toVC.view)
-        toVC.startPresentationAnimation(duration: animationDuration) {
-            transitionContext.completeTransition(true)
-        }
-    }
-    
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return animationDuration
-    }
-}
-
-
-fileprivate final class VCDismissalAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-    
-    private let animationDuration: TimeInterval = 0.3
-    
-    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?) -> TimeInterval {
-        return animationDuration
-    }
-    
-    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
-        guard let fromVC = transitionContext.viewController(forKey: .from) as? NFNotificationViewController else { return }
-        
-        fromVC.startDismissalAnimation(duration: animationDuration) {
-            fromVC.view.removeFromSuperview()
-            transitionContext.completeTransition(true)
-        }
-    }
-}
-
-#Preview {
-    NFNotificationViewController()
 }

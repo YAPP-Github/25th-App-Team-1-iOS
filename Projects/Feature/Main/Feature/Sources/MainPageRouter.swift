@@ -33,13 +33,11 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         viewController: MainPageViewControllable,
         alarmBuilder: FeatureAlarm.RootBuildable,
         fortuneBuilder: FeatureFortune.FortuneBuildable,
-        settingBuilder: SettingMainBuildable,
-        nFNotificationBuilder: NFNotificationBuilder
+        settingBuilder: SettingMainBuildable
     ) {
         self.alarmBuilder = alarmBuilder
         self.fortuneBuilder = fortuneBuilder
         self.settingBuilder = settingBuilder
-        self.nFNotificationBuilder = nFNotificationBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -75,24 +73,6 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
             routeToSetting()
         case .dismissSettingPage:
             detachSetting()
-            
-        case .attachNFNotification(let listener):
-            attachNFNotification(listener: listener)
-            
-        case .dettachNFNotification:
-            dettachNFNotification()
-            
-        case .presentNFNotificationPage:
-            guard let router = nFNotificationRouter else { return }
-            let vc = router.viewControllable.uiviewController
-            vc.modalPresentationStyle = .overCurrentContext
-            vc.modalTransitionStyle = .crossDissolve
-            viewController.uiviewController.present(vc, animated: true)
-            
-        case .dismissNFNotificationPage:
-            guard nFNotificationRouter != nil else { return }
-            viewController.uiviewController.dismiss(animated: true)
-            dettachNFNotification()
         }
     }
     
@@ -102,12 +82,8 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     private let fortuneBuilder: FeatureFortune.FortuneBuildable
     private var fortuneRouter: FeatureFortune.FortuneRouting?
     
-    
     private let settingBuilder: FeatureSetting.SettingMainBuildable
     private var settingRouter: FeatureSetting.SettingMainRouting?
-    
-    private let nFNotificationBuilder: NFNotificationBuilder
-    private var nFNotificationRouter: NFNotificationRouting?
     
     private var navigationController: UINavigationController?
     
@@ -166,18 +142,6 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
         self.settingRouter = nil
         detachChild(router)
         viewController.uiviewController.dismiss(animated: true)
-    }
-    
-    private func attachNFNotification(listener: NFNotificationListener) {
-        let router = nFNotificationBuilder.build(withListener: listener)
-        self.nFNotificationRouter = router
-        attachChild(router)
-    }
-    
-    private func dettachNFNotification() {
-        guard let router = nFNotificationRouter else { return }
-        self.nFNotificationRouter = nil
-        detachChild(router)
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 import FeatureDesignSystem
 import FeatureAlarm
@@ -30,11 +31,6 @@ public enum MainPageRouterRequest {
     case dismissAlert(completion: (()->Void)?=nil)
     case presentSettingPage
     case dismissSettingPage
-    
-    case attachNFNotification(listener: NFNotificationListener)
-    case dettachNFNotification
-    case presentNFNotificationPage
-    case dismissNFNotificationPage
 }
 
 public protocol MainPageRouting: ViewableRouting {
@@ -71,6 +67,10 @@ enum MainPagePresentableRequest {
     
     // SnackBar
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
+    
+    // NewFeatureNotification
+    case presentNfNotificationView(image: UIImage)
+    case dismissNfNotificationView
 }
 
 protocol MainPagePresentable: Presentable {
@@ -108,6 +108,9 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var fortune: Fortune?
     private var fortuneSaveInfo: FortuneSaveInfo?
     
+    // - 신기능 홍보
+    private let nFNotificationModel = NFNotificationModel()
+    
     
     init(
         presenter: MainPagePresentable,
@@ -129,9 +132,7 @@ extension MainPageInteractor {
             refetchAndPresentAlarms()
             
         case .mainViewIsPresented:
-            
-            // 신기능 홍보 표출
-            router?.request(.attachNFNotification(listener: self))
+            break
             
         case .viewWillAppear:
             
@@ -143,6 +144,12 @@ extension MainPageInteractor {
             
             // #3. 운세도착정보 표시
             updateNextFortuneDeliveryTimeText()
+            
+            // 신기능 홍보 표출
+            if nFNotificationModel.isShow {
+                let image = nFNotificationModel.getImage()
+                presenter.request(.presentNfNotificationView(image: image))
+            }
             
         case .changeAlarmActivityState(let alarmId):
             guard let alarm = alarms[alarmId] else { return }
@@ -582,6 +589,15 @@ extension MainPageInteractor {
                 self.isAlarmListOptionViewPresented = false
                 presenter.request(.presentAlarmListOption(isPresenting: false))
             }
+        case let .nfNotificationViewAction(action):
+            switch action {
+            case .backgroundTapped, .closeButtonTapped:
+                nFNotificationModel.checkWatchedToday()
+                presenter.request(.dismissNfNotificationView)
+            case .dontShowAgainButtonTapped:
+                nFNotificationModel.checkDontShowAgain()
+                presenter.request(.dismissNfNotificationView)
+            }
         }
     }
     
@@ -996,21 +1012,6 @@ private extension MainPageInteractor {
             }
         )
         router?.request(.presentAlertType1(config))
-    }
-}
-
-extension MainPageInteractor: NFNotificationListener {
-    func request(_ request: NFNotificationListenerRequest) {
-        switch request {
-        case .dismiss:
-            router?.request(.dismissNFNotificationPage)
-        case .isPresentable(let isPresentable):
-            if isPresentable {
-                router?.request(.presentNFNotificationPage)
-            } else {
-                router?.request(.dettachNFNotification)
-            }
-        }
     }
 }
 

@@ -32,6 +32,7 @@ enum MainPageViewPresenterRequest {
     case deleteSelectedAlarms
     case alarmListOptionButtonTapped
     case screenOutsideAlarmListOptionViewTapped
+    case nfNotificationViewAction(NFNotificationViewAction)
     
     // MARK: Routing
     case routeToSettingPage
@@ -124,6 +125,10 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             }
         case .nextFortuneDeliveryTime(let text):
             mainView.update(.fortuneDeliveryTimeText(text))
+        case let .presentNfNotificationView(image):
+            mainView.update(.presentNfNotificationView(image: image))
+        case .dismissNfNotificationView:
+            mainView.update(.dismissNfNotificationView)
         }
     }
     
@@ -166,6 +171,8 @@ extension MainPageViewController {
             listener?.request(.screenOutsideAlarmListOptionViewTapped)
         case .configureAlarmListButtonClicked:
             listener?.request(.alarmListOptionButtonTapped)
+        case let .nfNotificationViewAction(action):
+            listener?.request(.nfNotificationViewAction(action))
         }
     }
 }

@@ -15,6 +15,26 @@ protocol MainPageViewListener: AnyObject {
     func action(_ action: MainPageView.Action)
 }
 
+enum ViewZPoistions {
+    case `default`
+    case first
+    case second
+    case topMost
+    
+    var value: CGFloat {
+        switch self {
+        case .default:
+            return 0
+        case .first:
+            return 1
+        case .second:
+            return 2
+        case .topMost:
+            return 200
+        }
+    }
+}
+
 
 final class MainPageView: UIView, DeleteAlarmGroupBarViewListener {
     
@@ -38,6 +58,8 @@ final class MainPageView: UIView, DeleteAlarmGroupBarViewListener {
         case changeModeToDeletionButtonClicked
         case changeModeToIdleButtonClicked
         case deleteAllAlarmCheckBoxTapped
+        
+        case nfNotificationViewAction(NFNotificationViewAction)
     }
     
     
@@ -133,6 +155,8 @@ final class MainPageView: UIView, DeleteAlarmGroupBarViewListener {
             cornerRadius: .large
     ))
     
+    // - NFNotficationView
+    private var nfNotficationView: NFNotificationView?
     
     // Gesture
     private let screenTapGesture = UITapGestureRecognizer()
@@ -224,7 +248,7 @@ private extension MainPageView {
         resizableContentView.layer.cornerRadius = ResizableContentViewConfig.cornerRadiusWhenHalf
         resizableContentView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
         self.addSubview(resizableContentView)
-        resizableContentView.layer.zPosition = 1
+        resizableContentView.layer.zPosition = ViewZPoistions.second.value
         
         
         // resizableContentViewDockView
@@ -431,7 +455,7 @@ private extension MainPageView {
             size: preferedImageSize
         )
         self.backgroudCloudLayer = backgroudCloudLayer
-        backgroudCloudLayer.zPosition = 0.1
+        backgroudCloudLayer.zPosition = ViewZPoistions.first.value
     }
     
     
@@ -488,6 +512,8 @@ extension MainPageView {
         case updateSingleAlarmDeletionItem(AlarmCellRO)
         case presentAlarmOptionListView
         case dismissAlarmOptionListView
+        case presentNfNotificationView(image: UIImage)
+        case dismissNfNotificationView
     }
     
     @discardableResult func update(_ request: UpdateRequest) -> Self {
@@ -585,6 +611,29 @@ extension MainPageView {
         case .dismissAlarmOptionListView:
             configureAlarmButton.update(state: .idle)
             dismissAlarmOptionBottomListView()
+        case let .presentNfNotificationView(image):
+            guard nfNotficationView == nil else { break }
+            
+            let nfNotificationView = NFNotificationView()
+            nfNotificationView.present(image: image)
+            nfNotificationView.listener = self
+            self.nfNotficationView = nfNotificationView
+            
+            addSubview(nfNotificationView)
+            bringSubviewToFront(nfNotificationView)
+            nfNotificationView.layer.zPosition = ViewZPoistions.topMost.value
+            
+            nfNotificationView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+            nfNotificationView.startPresentationAnimation(duration: 0.3) {}
+        case .dismissNfNotificationView:
+            guard let nfNotficationView else { break }
+            nfNotficationView.startDismissalAnimation(duration: 0.3) { [weak self] in
+                guard let self else { return }
+                self.nfNotficationView?.removeFromSuperview()
+                self.nfNotficationView = nil
+            }
         }
         return self
     }
@@ -848,7 +897,7 @@ private extension MainPageView {
         addSubview(deletionView)
         
         // Layout
-        deletionView.layer.zPosition = 200
+        deletionView.layer.zPosition = ViewZPoistions.topMost.value
         deletionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -933,6 +982,12 @@ extension MainPageView {
         case .selectAllButtonTapped:
             listener?.action(.deleteAllAlarmCheckBoxTapped)
         }
+    }
+}
+
+extension MainPageView: NFNotificationViewListener {
+    func action(_ action: NFNotificationViewAction) {
+        listener?.action(.nfNotificationViewAction(action))
     }
 }
 
