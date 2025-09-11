@@ -47,6 +47,7 @@ public enum RootRouterRequest {
     case detachAlarmMission
     case routeToFortune(Fortune, UserInfo, FortuneSaveInfo)
     case detachFortune
+    case detachIntro
     case showLoading
     case hideLoading
 }
@@ -150,6 +151,7 @@ final class RootInteractor: Interactor, RootInteractable {
                 guard let self else { return }
                 guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
                     router?.request(.hideLoading)
+                    router?.request(.detachIntro)
                     listener?.request(.close)
                     return
                 }
@@ -182,6 +184,7 @@ final class RootInteractor: Interactor, RootInteractable {
             router?.request(.hideLoading)
             debugPrint("API Error: \(error.localizedDescription)")
             // 에러 발생 시 앱 종료
+            router?.request(.detachIntro)
             listener?.request(.close)
         })
         .disposeOnDeactivate(interactor: self)
@@ -309,6 +312,7 @@ extension RootInteractor {
             
             // 운세페이지 종료
             router?.request(.detachFortune)
+            router?.request(.detachIntro)
             listener?.request(.close)
         }
     }

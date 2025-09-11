@@ -61,6 +61,8 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
             routeToFortune(fortune: fortune, userInfo: userInfo, fortuneInfo: saveInfo)
         case .detachFortune:
             detachFortune()
+        case .detachIntro:
+            detachIntro()
         case .showLoading:
             showLoading()
         case .hideLoading:
@@ -166,6 +168,12 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     private func detachFortune() {
         guard let router = fortuneRouter else { return }
         fortuneRouter = nil
+        detachChild(router)
+    }
+    
+    private func detachIntro() {
+        guard let router = introRouter else { return }
+        self.introRouter = nil
         detachChild(router)
     }
     
