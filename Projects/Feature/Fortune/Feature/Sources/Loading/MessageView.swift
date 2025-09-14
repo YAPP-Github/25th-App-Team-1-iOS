@@ -37,7 +37,6 @@ final class MessageView: UIView {
         
         arrowImageView.image = FeatureResourcesAsset.messageDownArrow.image
         arrowImageView.contentMode = .scaleAspectFit
-        arrowImageView.tintColor = R.Color.white20.withAlphaComponent(0.2)
         stackView.addArrangedSubview(arrowImageView)
     }
     
@@ -61,13 +60,7 @@ final class MessageView: UIView {
     }
     
     func update(text: String) {
-        label.displayText = text.displayText(font: .ownglyphPHD_H4)
+        label.displayText = text.displayText(font: .ownglyphPHD_H4, color: R.Color.white100)
     }
 }
-
-#Preview(traits: .defaultLayout, body: {
-    let v = MessageView()
-    v.update(text: "Hello world")
-    return v
-})
 
