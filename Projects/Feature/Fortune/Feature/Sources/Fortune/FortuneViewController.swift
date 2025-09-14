@@ -28,7 +28,7 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     weak var listener: FortunePresentableListener?
     
     override func loadView() {
-        view = loadingView
+        view = step1View
     }
     
     override func viewDidLoad() {
@@ -50,10 +50,9 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
         charmView.listener = self
         
         listener?.request(.viewDidLoad)
-        listener?.request(.currentPageNumber(0))
+        listener?.request(.currentPageNumber(1))
     }
     
-    private let loadingView = FortuneLoadingPageView()
     private let step1View = FortuneLetterView()
     private let step2View = FortuneStudyMoneyView()
     private let step3View = FortuneHealthLoveView()
@@ -71,8 +70,6 @@ final class FortuneViewController: UIViewController, FortunePresentable, Fortune
     
     func request(_ request: FortunePresentableRequest) {
         switch request {
-        case .moveToStep1:
-            view = step1View
         case let .setFortune(fortune, userInfo, fortuneInfo):
             step1View.update(.fortune(fortune))
             step2View.update(.fortune(fortune, userInfo))

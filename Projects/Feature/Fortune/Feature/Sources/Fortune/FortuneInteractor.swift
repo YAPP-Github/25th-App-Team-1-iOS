@@ -24,7 +24,6 @@ public protocol FortuneRouting: ViewableRouting {
 }
 
 enum FortunePresentableRequest {
-    case moveToStep1
     case setFortune(Fortune, UserInfo, FortuneSaveInfo)
 }
 

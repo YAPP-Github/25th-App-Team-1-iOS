@@ -179,10 +179,10 @@ final class RootRouter: Router<RootInteractable>, RootRouting {
     
     // MARK: - Loading
     private func showLoading() {
-        DSLoadingManager.shared.show()
+        LoadingManager.shared.show()
     }
     
     private func hideLoading() {
-        DSLoadingManager.shared.hide()
+        LoadingManager.shared.hide()
     }
 }
