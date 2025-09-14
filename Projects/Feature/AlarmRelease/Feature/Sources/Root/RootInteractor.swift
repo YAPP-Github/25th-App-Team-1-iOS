@@ -47,6 +47,9 @@ public enum RootRouterRequest {
     case detachAlarmMission
     case routeToFortune(Fortune, UserInfo, FortuneSaveInfo)
     case detachFortune
+    case detachIntro
+    case showLoading
+    case hideLoading
 }
 
 public protocol RootRouting: Routing {
@@ -67,11 +70,16 @@ final class RootInteractor: Interactor, RootInteractable {
     weak var listener: RootListener?
 
     private let fortunePublisher: PublishSubject<Result<Fortune, Error>> = .init()
+    private let userInfoPublisher: PublishSubject<Result<UserInfo, Error>> = .init()
     private let finishWithMissionComplete: PublishSubject<Bool> = .init()
     private let alarm: Alarm
     private let isFirstAlarm: Bool
     private let stream: ReleaseAlarmMutableStream
     private let logger: Logger
+    
+    // API 완료 상태 추적
+    private var isFortuneReady = false
+    private var isUserInfoReady = false
     init(
         alarm: Alarm,
         isFirstAlarm: Bool,
@@ -89,12 +97,8 @@ final class RootInteractor: Interactor, RootInteractable {
         
         bind()
         
-        // 운세 API요청
-        if let fortuneInfo = UserDefaults.standard.dailyFortune() {
-            getFortune(fortuneId: fortuneInfo.id)
-        } else {
-            createFortune()
-        }
+        // API 미리 로드 시작
+        preloadAPIs()
         
         router?.request(.routeToIntro)
     }
@@ -106,12 +110,48 @@ final class RootInteractor: Interactor, RootInteractable {
     
     private func bind() {
         let fortuneFetchedSuccess = fortunePublisher.compactMap({ $0.value })
+        let userInfoFetchedSuccess = userInfoPublisher.compactMap({ $0.value })
         
-        Observable.combineLatest(finishWithMissionComplete, fortuneFetchedSuccess)
+        // API 완료 상태 추적
+        fortuneFetchedSuccess
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] completed, fortune in
+            .subscribe(onNext: { [weak self] _ in
+                guard let self else { return }
+                isFortuneReady = true
+            })
+            .disposeOnDeactivate(interactor: self)
+            
+        userInfoFetchedSuccess
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] _ in
+                guard let self else { return }
+                isUserInfoReady = true
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        // 미션 완료 시 로딩 관리
+        finishWithMissionComplete
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] completed in
+                guard let self else { return }
+                
+                if isFortuneReady && isUserInfoReady {
+                    // 이미 모든 API가 완료된 경우 바로 운세 화면으로
+                    // (combineLatest에서 처리됨)
+                } else {
+                    // API가 아직 완료되지 않은 경우 로딩 표시
+                    router?.request(.showLoading)
+                }
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        Observable.combineLatest(finishWithMissionComplete, fortuneFetchedSuccess, userInfoFetchedSuccess)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] completed, fortune, userInfo in
                 guard let self else { return }
                 guard let fortuneInfo = UserDefaults.standard.dailyFortune() else {
+                    router?.request(.hideLoading)
+                    router?.request(.detachIntro)
                     listener?.request(.close)
                     return
                 }
@@ -120,9 +160,34 @@ final class RootInteractor: Interactor, RootInteractable {
                     newFortuneInfo.shouldShowCharm = isFirstAlarm && completed
                 }
                 UserDefaults.standard.setDailyFortune(info: newFortuneInfo)
-                goToFortune(fortune: fortune, fortuneInfo: newFortuneInfo)
+                
+                // 로딩 숨기고 운세 화면으로 이동
+                router?.request(.hideLoading)
+                router?.request(.routeToFortune(fortune, userInfo, newFortuneInfo))
             })
             .disposeOnDeactivate(interactor: self)
+            
+        // API 에러 처리
+        Observable.merge(
+            fortunePublisher.compactMap { result -> Error? in
+                if case .failure(let error) = result { return error }
+                return nil
+            },
+            userInfoPublisher.compactMap { result -> Error? in
+                if case .failure(let error) = result { return error }
+                return nil
+            }
+        )
+        .observe(on: MainScheduler.instance)
+        .subscribe(onNext: { [weak self] error in
+            guard let self else { return }
+            router?.request(.hideLoading)
+            debugPrint("API Error: \(error.localizedDescription)")
+            // 에러 발생 시 앱 종료
+            router?.request(.detachIntro)
+            listener?.request(.close)
+        })
+        .disposeOnDeactivate(interactor: self)
     }
     
     private func getFortune(fortuneId: Int) {
@@ -144,16 +209,45 @@ final class RootInteractor: Interactor, RootInteractable {
         let request = APIRequest.Fortune.createFortune(userId: userId)
         APIClient.request(Fortune.self, request: request) { [weak self] fortune in
             guard let self else { return }
-            fortunePublisher.onNext(.success(fortune))
             let info = FortuneSaveInfo(
                 id: fortune.id,
                 shouldShowCharm: false,
                 charmIndex: nil
             )
             UserDefaults.standard.setDailyFortune(info: info)
+            fortunePublisher.onNext(.success(fortune))
         } failure: { [weak self] error in
             guard let self else { return }
             fortunePublisher.onNext(.failure(error))
+        }
+    }
+    
+    private func preloadAPIs() {
+        // 운세 API 호출
+        if let fortuneInfo = UserDefaults.standard.dailyFortune() {
+            getFortune(fortuneId: fortuneInfo.id)
+        } else {
+            createFortune()
+        }
+        
+        // UserInfo API 호출
+        preloadUserInfo()
+    }
+    
+    private func preloadUserInfo() {
+        guard let userId = Preference.userId else {
+            userInfoPublisher.onNext(.failure(FortuneError.userIdNotFound))
+            return
+        }
+        
+        let request = APIRequest.Users.getUser(userId: userId)
+        APIClient.request(UserInfoResponseDTO.self, request: request) { [weak self] userInfoDTO in
+            guard let self else { return }
+            let userInfo = userInfoDTO.toUserInfo()
+            userInfoPublisher.onNext(.success(userInfo))
+        } failure: { [weak self] error in
+            guard let self else { return }
+            userInfoPublisher.onNext(.failure(error))
         }
     }
 }
@@ -206,22 +300,6 @@ extension RootInteractor {
         }
     }
     
-    private func goToFortune(fortune: Fortune, fortuneInfo: FortuneSaveInfo) {
-        guard let userId = Preference.userId else { return }
-        APIClient.request(
-            UserInfoResponseDTO.self,
-            request: APIRequest.Users.getUser(userId: userId),
-            success: { [weak router] userInfo in
-                guard let router else { return }
-                let userInfoEntity = userInfo.toUserInfo()
-                DispatchQueue.main.async {
-                    router.request(.routeToFortune(fortune, userInfoEntity, fortuneInfo))
-                }
-            }) { error in
-                // 유저정보 획득 실패
-                debugPrint(error.localizedDescription)
-            }
-    }
 }
 
 // MARK: - FortuneListenerRequest
@@ -234,6 +312,7 @@ extension RootInteractor {
             
             // 운세페이지 종료
             router?.request(.detachFortune)
+            router?.request(.detachIntro)
             listener?.request(.close)
         }
     }
