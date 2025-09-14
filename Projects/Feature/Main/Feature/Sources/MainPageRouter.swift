@@ -82,10 +82,8 @@ final class MainPageRouter: ViewableRouter<MainPageInteractable, MainPageViewCon
     private let fortuneBuilder: FeatureFortune.FortuneBuildable
     private var fortuneRouter: FeatureFortune.FortuneRouting?
     
-    
     private let settingBuilder: FeatureSetting.SettingMainBuildable
     private var settingRouter: FeatureSetting.SettingMainRouting?
-    
     
     private var navigationController: UINavigationController?
     

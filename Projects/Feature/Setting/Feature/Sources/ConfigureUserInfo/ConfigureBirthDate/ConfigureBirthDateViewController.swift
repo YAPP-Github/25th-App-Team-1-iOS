@@ -27,7 +27,8 @@ final class ConfigureBirthDateViewController: UIViewController, BirthDatePickerL
     )
     private let confirmButton: DSLabelButton = .init(config: .init(
         font: .body1Medium,
-        textColor: R.Color.gray500
+        textColor: R.Color.gray500,
+        alignment: .left
     ))
     private let titleLabel: UILabel = .init()
     private let birthDatePicker: BirthDatePicker = .init()
@@ -67,12 +68,15 @@ final class ConfigureBirthDateViewController: UIViewController, BirthDatePickerL
             confirmButton.isUserInteractionEnabled = true
             confirmButton.update(config: .init(
                 font: .body1Medium,
-                textColor: R.Color.main100))
+                textColor: R.Color.main100,
+                alignment: .left
+            ))
         } else {
             confirmButton.isUserInteractionEnabled = false
             confirmButton.update(config: .init(
                 font: .body1Medium,
-                textColor: R.Color.gray500))
+                textColor: R.Color.gray500,
+                alignment: .left))
         }
     }
 }

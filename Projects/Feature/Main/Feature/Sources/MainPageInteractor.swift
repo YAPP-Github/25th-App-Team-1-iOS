@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 import FeatureDesignSystem
 import FeatureAlarm
@@ -66,6 +67,10 @@ enum MainPagePresentableRequest {
     
     // SnackBar
     case presentSnackBar(config: DSSnackBar.SnackBarConfig)
+    
+    // NewFeatureNotification
+    case presentNfNotificationView(image: UIImage)
+    case dismissNfNotificationView
 }
 
 protocol MainPagePresentable: Presentable {
@@ -103,6 +108,9 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     private var fortune: Fortune?
     private var fortuneSaveInfo: FortuneSaveInfo?
     
+    // - 신기능 홍보
+    private let nFNotificationModel = NFNotificationModel()
+    
     
     init(
         presenter: MainPagePresentable,
@@ -123,6 +131,9 @@ extension MainPageInteractor {
             // 알람 정보 업데이트
             refetchAndPresentAlarms()
             
+        case .mainViewIsPresented:
+            break
+            
         case .viewWillAppear:
             
             // #1. 알람 정보 업데이트
@@ -133,6 +144,12 @@ extension MainPageInteractor {
             
             // #3. 운세도착정보 표시
             updateNextFortuneDeliveryTimeText()
+            
+            // 신기능 홍보 표출
+            if nFNotificationModel.isShow {
+                let image = nFNotificationModel.getImage()
+                presenter.request(.presentNfNotificationView(image: image))
+            }
             
         case .changeAlarmActivityState(let alarmId):
             guard let alarm = alarms[alarmId] else { return }
@@ -571,6 +588,15 @@ extension MainPageInteractor {
             if isPresented {
                 self.isAlarmListOptionViewPresented = false
                 presenter.request(.presentAlarmListOption(isPresenting: false))
+            }
+        case let .nfNotificationViewAction(action):
+            switch action {
+            case .backgroundTapped, .closeButtonTapped:
+                nFNotificationModel.checkWatchedToday()
+                presenter.request(.dismissNfNotificationView)
+            case .dontShowAgainButtonTapped:
+                nFNotificationModel.checkDontShowAgain()
+                presenter.request(.dismissNfNotificationView)
             }
         }
     }

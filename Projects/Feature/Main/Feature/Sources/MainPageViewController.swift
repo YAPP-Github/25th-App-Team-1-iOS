@@ -20,6 +20,7 @@ enum MainPageViewPresenterRequest {
     // MARK: Life cycle
     case viewDidLoad
     case viewWillAppear
+    case mainViewIsPresented
     
     // MARK: Action
     case checkTodayFortuneIsArrived
@@ -31,6 +32,7 @@ enum MainPageViewPresenterRequest {
     case deleteSelectedAlarms
     case alarmListOptionButtonTapped
     case screenOutsideAlarmListOptionViewTapped
+    case nfNotificationViewAction(NFNotificationViewAction)
     
     // MARK: Routing
     case routeToSettingPage
@@ -70,6 +72,9 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             if newAlarmList.isEmpty == true {
                 view = emptyView
             } else {
+                if view !== mainView {
+                    listener?.request(.mainViewIsPresented)
+                }
                 view = mainView
                 mainView.update(.loadAlarmList(elements: newAlarmList))
             }
@@ -120,6 +125,10 @@ final class MainPageViewController: UIViewController, MainPagePresentable, MainP
             }
         case .nextFortuneDeliveryTime(let text):
             mainView.update(.fortuneDeliveryTimeText(text))
+        case let .presentNfNotificationView(image):
+            mainView.update(.presentNfNotificationView(image: image))
+        case .dismissNfNotificationView:
+            mainView.update(.dismissNfNotificationView)
         }
     }
     
@@ -162,6 +171,8 @@ extension MainPageViewController {
             listener?.request(.screenOutsideAlarmListOptionViewTapped)
         case .configureAlarmListButtonClicked:
             listener?.request(.alarmListOptionButtonTapped)
+        case let .nfNotificationViewAction(action):
+            listener?.request(.nfNotificationViewAction(action))
         }
     }
 }
