@@ -8,6 +8,8 @@
 import UIKit
 import Foundation
 import FeatureResources
+import RxSwift
+import FeatureNetworking
 
 struct NFNotificationModel {
     
@@ -51,7 +53,30 @@ struct NFNotificationModel {
         UserDefaults.standard.set(true, forKey: key)
     }
     
-    func getImage() -> UIImage {
-        FeatureResourcesAsset.newFeatureSelectMissionForAlarmImage.image
+    func getImage() -> Observable<UIImage?> {
+        guard
+            let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"],
+            let url = URL(string: "https://www.orbitalarm.net/images/ios/\(bundleVersion)/update-banner.png")
+        else { return .just(nil) }
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        return Single<UIImage?>.create { promise in
+            let dataRequest = APIClient.request(request: urlRequest, success: { data in
+                guard let image = UIImage(data: data) else {
+                    print("신기능 홍보 이미지 변환 실패")
+                    promise(.success(nil))
+                    return
+                }
+                promise(.success(image))
+            }, failure: { error in
+                print("신기능 홍보 이미지 획득 실패 \(error.localizedDescription)")
+                promise(.success(nil))
+            })
+            return Disposables.create {
+                dataRequest.cancel()
+            }
+        }
+        .asObservable()
     }
 }
