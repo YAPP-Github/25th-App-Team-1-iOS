@@ -6,6 +6,7 @@
 //
 
 import Alamofire
+import Foundation
 
 public class APIClient {
     
@@ -42,5 +43,21 @@ public class APIClient {
                     failure(err)
                 }
             }
+    }
+    
+    public static func request(request: URLRequest,
+                               success: @escaping onSuccess<Data>,
+                               failure: @escaping onFailure) -> DataRequest {
+        return AF.request(request)
+            .validate(statusCode: 200..<500)
+            .response(completionHandler: { response in
+                switch response.result {
+                case .success:
+                    guard let rawData = response.data else { return }
+                    success(rawData)
+                case .failure(let err):
+                    failure(err)
+                }
+            })
     }
 }

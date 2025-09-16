@@ -111,6 +111,9 @@ final class MainPageInteractor: PresentableInteractor<MainPagePresentable>, Main
     // - 신기능 홍보
     private let nFNotificationModel = NFNotificationModel()
     
+    // - Rx
+    private let disposeBag = DisposeBag()
+    
     
     init(
         presenter: MainPagePresentable,
@@ -147,8 +150,13 @@ extension MainPageInteractor {
             
             // 신기능 홍보 표출
             if nFNotificationModel.isShow {
-                let image = nFNotificationModel.getImage()
-                presenter.request(.presentNfNotificationView(image: image))
+                nFNotificationModel
+                    .getImage()
+                    .subscribe(onNext: { [weak self] image in
+                        guard let self, let image else { return }
+                        presenter.request(.presentNfNotificationView(image: image))
+                    })
+                    .disposed(by: disposeBag)
             }
             
         case .changeAlarmActivityState(let alarmId):

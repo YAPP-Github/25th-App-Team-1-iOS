@@ -8,10 +8,10 @@
 import UIKit
 import Foundation
 import FeatureResources
+import RxSwift
+import FeatureNetworking
 
 struct NFNotificationModel {
-    
-    private let nfName = "select_mission_for_alarm"
     private let dateFormatter: DateFormatter = {
         let d = DateFormatter()
         d.dateFormat = "yyyy-MM-dd"
@@ -32,12 +32,17 @@ struct NFNotificationModel {
         return currentDateStr != dateStr
     }
     
+    private var bundleVersion: String {
+        let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        return bundleVersion ?? "0.0.0"
+    }
+    
     var keyForDonNotShowAgain: String {
-        "\(nfName)_dont_show_again"
+        "kNF_\(bundleVersion)_dont_show_again"
     }
     
     var keyForWatchedAt: String {
-        "\(nfName)_watched_at"
+        "kNF_\(bundleVersion)_watched_at"
     }
     
     func checkWatchedToday(today: Date = .now) {
@@ -51,7 +56,28 @@ struct NFNotificationModel {
         UserDefaults.standard.set(true, forKey: key)
     }
     
-    func getImage() -> UIImage {
-        FeatureResourcesAsset.newFeatureSelectMissionForAlarmImage.image
+    func getImage() -> Observable<UIImage?> {
+        guard let url = URL(string: "https://www.orbitalarm.net/images/ios/\(bundleVersion)/update-banner.png")
+        else { return .just(nil) }
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
+        
+        return Single<UIImage?>.create { promise in
+            let dataRequest = APIClient.request(request: urlRequest, success: { data in
+                guard let image = UIImage(data: data) else {
+                    print("신기능 홍보 이미지 변환 실패")
+                    promise(.success(nil))
+                    return
+                }
+                promise(.success(image))
+            }, failure: { error in
+                print("신기능 홍보 이미지 획득 실패 \(error.localizedDescription)")
+                promise(.success(nil))
+            })
+            return Disposables.create {
+                dataRequest.cancel()
+            }
+        }
+        .asObservable()
     }
 }
