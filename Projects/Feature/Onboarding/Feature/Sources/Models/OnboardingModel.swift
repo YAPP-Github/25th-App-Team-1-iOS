@@ -10,7 +10,11 @@ import FeatureCommonDependencies
 import FeatureResources
 
 public struct OnboardingModel {
-    public var alarm: Alarm = .default
+    public var alarm: Alarm = {
+        var alarm: Alarm = .default
+        alarm.mission = .init(type: .tap, count: 10)
+        return alarm
+    }()
     public var birthDate: BirthDateData = {
         let calendar = CalendarType.gregorian
         let year = Year(2000)
