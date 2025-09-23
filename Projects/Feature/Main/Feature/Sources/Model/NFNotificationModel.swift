@@ -32,17 +32,24 @@ struct NFNotificationModel {
         return currentDateStr != dateStr
     }
     
-    private var bundleVersion: String {
-        let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        return bundleVersion ?? "0.0.0"
+    private var bundleVersionWithoutPatch: String {
+        guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
+            return "0.0.0"
+        }
+        let components = version.split(separator: ".").map(String.init)
+        if components.count == 3 {
+            return "\(components[0]).\(components[1]).0"
+        } else {
+            return "0.0.0"
+        }
     }
     
     var keyForDonNotShowAgain: String {
-        "kNF_\(bundleVersion)_dont_show_again"
+        "kNF_\(bundleVersionWithoutPatch)_dont_show_again"
     }
     
     var keyForWatchedAt: String {
-        "kNF_\(bundleVersion)_watched_at"
+        "kNF_\(bundleVersionWithoutPatch)_watched_at"
     }
     
     func checkWatchedToday(today: Date = .now) {
@@ -57,7 +64,7 @@ struct NFNotificationModel {
     }
     
     func getImage() -> Observable<UIImage?> {
-        guard let url = URL(string: "https://www.orbitalarm.net/images/ios/\(bundleVersion)/update-banner.png")
+        guard let url = URL(string: "https://www.orbitalarm.net/images/ios/\(bundleVersionWithoutPatch)/update-banner.png")
         else { return .just(nil) }
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "GET"
