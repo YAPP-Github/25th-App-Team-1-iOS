@@ -29,8 +29,4 @@ public struct Mission: Equatable {
             return "터치하기 \(count)회"
         }
     }
-    
-    public static var `default`: Mission {
-        Mission(type: .tap, count: 10)
-    }
 }

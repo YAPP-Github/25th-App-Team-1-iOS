@@ -25,7 +25,7 @@ public struct Alarm: Identifiable {
         hour: Hour,
         minute: Minute,
         repeatDays: AlarmDays,
-        mission: Mission? = .default,
+        mission: Mission?,
         snoozeOption: SnoozeOption,
         soundOption: SoundOption,
         isActive: Bool = true
@@ -78,7 +78,7 @@ public struct Alarm: Identifiable {
             hour: hour,
             minute: minute,
             repeatDays: AlarmDays(days: [.monday, .tuesday, .wednesday, .thursday, .friday]),
-            mission: .default,
+            mission: nil,
             snoozeOption: .init(isSnoozeOn: true, frequency: .fiveMinutes, count: .fiveTimes),
             soundOption: .init(isVibrationOn: true, isSoundOn: true, volume: 0.7, selectedSound: "마림바")
         )
