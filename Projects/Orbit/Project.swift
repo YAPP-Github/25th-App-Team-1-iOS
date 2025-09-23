@@ -6,7 +6,7 @@ let project = Project(
     targets: [
         .target(
             name: "Orbit",
-            destinations: .iOS,
+            destinations: [.iPhone],
             product: .app,
             bundleId: "com.yaf.orbit",
             deploymentTargets: Project.Environment.deploymentTarget,
